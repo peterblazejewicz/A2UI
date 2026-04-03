@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>AgUi.Protocol</AssemblyName>
+    <RootNamespace>AgUi.Protocol</RootNamespace>
+    <GeneratePackageOnFalse>true</GeneratePackageOnFalse>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- AG-UI 26-event types -->
+    <!-- Will be implemented in subsequent commits -->
+  </ItemGroup>
+
+</Project>

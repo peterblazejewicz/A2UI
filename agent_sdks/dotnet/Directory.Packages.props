@@ -1,0 +1,9 @@
+<Project>
+  <ItemGroup>
+    <!-- Core packages -->
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
+    
+    <!-- For potential future use -->
+    <!-- <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" /> -->
+  </ItemGroup>
+</Project>

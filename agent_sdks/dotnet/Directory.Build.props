@@ -1,0 +1,22 @@
+<Project>
+  <PropertyGroup>
+    <!-- Needed for proper nullable handling -->
+    <Nullable>enable</Nullable>
+    
+    <!-- Treat warnings as errors -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    
+    <!-- File-scoped namespaces -->
+    <LangVersion>latest</LangVersion>
+    
+    <!-- Common output paths -->
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    
+    <!-- Deterministic builds -->
+    <Deterministic>true</Deterministic>
+    
+    <!-- CenterCLS compliance -->
+    <CLSCompliant>true</CLSCompliant>
+  </PropertyGroup>
+</Project>

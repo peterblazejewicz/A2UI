@@ -1,0 +1,99 @@
+# EditorConfig configuration for A2UI .NET implementation
+# This file helps maintain consistent coding styles across different editors and IDEs
+
+# top-most EditorConfig file
+root = true
+
+# Code files
+[*.cs]
+# File-scoped namespaces preference
+dotnet_namespace_style = file_scoped
+
+# Naming conventions
+dotnet_naming_rule.private_fields_should_be_camel_case.severity = suggestion
+dotnet_naming_symbols.private_fields_should_be_camel_case.applicable_kinds = field
+dotnet_naming_symbols.private_fields_should_be_camel_case.required_modifiers = private
+dotnet_naming_symbols.private_fields_should_be_camel_case.required_types = !
+dotnet_naming_style.private_fields_should_be_camel_case.capitalization = camel_case
+dotnet_naming_style.private_fields_should_be_camel_case.word_separation = _
+dotnet_naming_rule.private_fields_should_be_camel_case = dotnet_naming_symbols.private_fields_should_be_camel_case, dotnet_naming_style.private_fields_should_be_camel_case
+
+dotnet_naming_rule.constants_should_be_pascal_case.severity = suggestion
+dotnet_naming_symbols.constants_should_be_pascal_case.applicable_kinds = field
+dotnet_naming_symbols.constants_should_be_pascal_case.required_modifiers = const
+dotnet_naming_style.constants_should_be_pascal_case.capitalization = pascal_case
+dotnet_naming_rule.constants_should_be_pascal_case = dotnet_naming_symbols.constants_should_be_pascal_case, dotnet_naming_style.constants_should_be_pascal_case
+
+dotnet_naming_rule.interfaces_should_be_prefixed_with_i.severity = suggestion
+dotnet_naming_symbols.interfaces_should_be_prefixed_with_i.applicable_kinds = interface
+dotnet_naming_style.interfaces_should_be_prefixed_with_i.capitalization = pascal_case
+dotnet_naming_style.interfaces_should_be_prefixed_with_i.word_separation = _
+dotnet_naming_rule.interfaces_should_be_prefixed_with_i = dotnet_naming_symbols.interfaces_should_be_prefixed_with_i, dotnet_naming_style.interfaces_should_be_prefixed_with_i
+
+dotnet_naming_rule.async_methods_should_end_with_async.severity = suggestion
+dotnet_naming_symbols.async_methods_should_end_with_async.applicable_kinds = method
+dotnet_naming_style.async_methods_should_end_with_async.capitalization = pascal_case
+dotnet_naming_style.async_methods_should_end_with_async.word_separation = _
+dotnet_naming_rule.async_methods_should_end_with_async = dotnet_naming_symbols.async_methods_should_end_with_async, dotnet_naming_style.async_methods_should_end_with_async
+
+dotnet_naming_rule.test_methods_should_have_underscores.severity = suggestion
+dotnet_naming_symbols.test_methods_should_have_underscores.applicable_kinds = method
+dotnet_naming_symbols.test_methods_should_have_underscores.applicable_kinds += property
+dotnet_naming_style.test_methods_should_have_underscores.capitalization = pascal_case
+dotnet_naming_style.test_methods_should_have_underscores.word_separation = _
+dotnet_naming_rule.test_methods_should_have_underscores = dotnet_naming_symbols.test_methods_should_have_underscores, dotnet_naming_style.test_methods_should_have_underscores
+
+# Formatting preferences
+indent_style = space
+indent_size = 2
+
+# Preferences for var usage
+dotnet_style_prefer_var_for_built_in_types = true
+dotnet_style_prefer_var_when_type_is_apparent = true
+dotnet_style_prefer_var_in_forecast = true
+dotnet_style_prefer_var_in declarations = true
+
+# Async/await preferences
+dotnet_style_require_async_methods_to_use_await = true
+dotnet_style_prefer_configure_await = true
+
+# Warning levels for specific rules
+dotnet_diagnostic.CS0168.severity = none  # Variable declared but never used
+dotnet_diagnostic.CS0219.severity = none  # Variable assigned but value never used
+dotnet_diagnostic.CS0649.severity = none  # Field never assigned
+dotnet_diagnostic.CS0414.severity = none  # Field assigned but value never used
+dotnet_diagnostic.CS0612.severity = none  # Obsolete member
+dotnet_diagnostic.CS0618.severity = none  # Obsolete member with message
+dotnet_diagnostic.CS0672.severity = none  # Member overrides obsolete member
+dotnet_diagnostic.CS0809.severity = none  # Obsolete member overrides obsolete member
+dotnet_diagnostic.CS0693.severity = none  # Type parameter has same name as outer type
+dotnet_diagnostic.CS0105.severity = none  # Using directive not necessary
+dotnet_diagnostic.CS0108.severity = warning # Member hides inherited member; use new keyword
+dotnet_diagnostic.CS0114.severity = warning # Member hides inherited member; use new keyword
+dotnet_diagnostic.CS0115.severity = warning # No suitable override found
+dotnet_diagnostic.CS0117.severity = error   # Member accessed via instance vs static
+dotnet_diagnostic.CS0234.severity = error   # Type or namespace name not found
+dotnet_diagnostic.CS0246.severity = error   # Type or namespace not found
+dotnet_diagnostic.CS0414.severity = none    # Field assigned but value never used
+dotnet_diagnostic.CS0649.severity = none    # Field never assigned
+dotnet_diagnostic.CS0162.severity = none    # Unreachable code detected
+dotnet_diagnostic.CS0168.severity = none    # Variable declared but not used
+dotnet_diagnostic.CS0219.severity = none    # Variable assigned but value never used
+dotnet_diagnostic.CS0229.severity = error   # Unreachable switch case
+dotnet_diagnostic.CS0414.severity = none    # Field assigned but value never used
+dotnet_diagnostic.CS0649.severity = none    # Field never assigned
+dotnet_diagnostic.CS0693.severity = none    # Type parameter has same name as containing type
+dotnet_diagnostic.CS0809.severity = none    # Member overrides obsolete member
+dotnet_diagnostic.CS1701.severity = warning # Assuming assembly reference matches
+dotnet_diagnostic.CS1702.severity = warning # Assuming assembly reference matches
+dotnet_diagnostic.CS1705.severity = warning # Assuming assembly reference matches
+
+# File headers
+[*]
+insert_final_newline = true
+charset = utf-8
+end_of_line = lf
+
+# Disable specific warnings that should be fixed with comments if needed
+# dotnet_diagnostic.CS8019.severity = none # Unnecessary using directive
+# dotnet_diagnostic.CS8032.severity = none # Unnecessary using directive for static members

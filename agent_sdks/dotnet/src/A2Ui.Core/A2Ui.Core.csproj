@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>A2Ui.Core</AssemblyName>
+    <RootNamespace>A2Ui.Core</RootNamespace>
+    <GeneratePackageOnFalse>true</GeneratePackageOnFalse>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AgUi.Protocol\AgUi.Protocol.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- A2UI message model + SurfaceManager -->
+    <!-- Will be implemented in subsequent commits -->
+  </ItemGroup>
+
+</Project>
