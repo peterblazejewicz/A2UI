@@ -6,12 +6,15 @@
     <Nullable>enable</Nullable>
     <AssemblyName>AgUi.Protocol</AssemblyName>
     <RootNamespace>AgUi.Protocol</RootNamespace>
+    <PackageId>AgUi.Protocol</PackageId>
+    <Description>AG-UI event types and transport for .NET</Description>
     <GeneratePackageOnFalse>true</GeneratePackageOnFalse>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- AG-UI 26-event types -->
-    <!-- Will be implemented in subsequent commits -->
+    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="Microsoft.Extensions.AI" />
+    <PackageReference Include="Microsoft.Json.Patch" />
   </ItemGroup>
 
 </Project>

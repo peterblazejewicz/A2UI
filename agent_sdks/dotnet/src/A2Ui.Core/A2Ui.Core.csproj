@@ -6,16 +6,17 @@
     <Nullable>enable</Nullable>
     <AssemblyName>A2Ui.Core</AssemblyName>
     <RootNamespace>A2Ui.Core</RootNamespace>
+    <Description>A2UI (Agent-to-UI) message model and catalog for .NET</Description>
     <GeneratePackageOnFalse>true</GeneratePackageOnFalse>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AgUi.Protocol\AgUi.Protocol.csproj" />
+    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="Microsoft.Json.Patch" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- A2UI message model + SurfaceManager -->
-    <!-- Will be implemented in subsequent commits -->
+    <ProjectReference Include="..\AgUi.Protocol/AgUi.Protocol.csproj" />
   </ItemGroup>
 
 </Project>
