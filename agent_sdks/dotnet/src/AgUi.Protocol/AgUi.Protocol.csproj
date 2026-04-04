@@ -12,9 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" />
-    <PackageReference Include="Microsoft.Extensions.AI" />
-    <PackageReference Include="Microsoft.Json.Patch" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="9.5.0" />
   </ItemGroup>
 
 </Project>

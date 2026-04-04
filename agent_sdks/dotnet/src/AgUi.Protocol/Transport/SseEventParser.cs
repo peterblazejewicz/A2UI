@@ -23,7 +23,7 @@ public static class SseEventParser
     {
         using var reader = new StreamReader(sseStream, leaveOpen: true);
 
-        while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             string? line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
             if (line is null) break;

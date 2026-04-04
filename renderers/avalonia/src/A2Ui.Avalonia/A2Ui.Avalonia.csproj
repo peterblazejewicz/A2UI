@@ -1,27 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <AssemblyName>A2Ui.Avalonia</AssemblyName>
     <RootNamespace>A2Ui.Avalonia</RootNamespace>
-    <UseAvalonia>true</UseAvalonia>
+    <Description>A2UI renderer for Avalonia UI</Description>
+    <!-- Required for Avalonia control library -->
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <AvaloniaResource Include="Assets\**" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.2.0" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.2.0" />
-    <PackageReference Include="Avalonia.Themes.Default" Version="11.2.0" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.0" />
-    <!-- Conditional packages for better development experience -->
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.2.0">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
   </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="../../../../agent_sdks/dotnet/src/A2Ui.Core/A2Ui.Core.csproj" />
+    <ProjectReference Include="../../../../agent_sdks/dotnet/src/AgUi.Protocol/AgUi.Protocol.csproj" />
+  </ItemGroup>
 </Project>
