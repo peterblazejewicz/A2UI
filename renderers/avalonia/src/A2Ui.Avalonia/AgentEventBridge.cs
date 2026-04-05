@@ -11,14 +11,21 @@ namespace A2Ui.Avalonia;
 /// <summary>
 /// In-process bridge between an AG-UI agent and the A2UI SurfaceManager.
 /// Uses System.Threading.Channels for zero-serialization event passing.
-/// Processes tool calls named "render_ui" or "update_surface" as A2UI messages.
+/// Only processes tool calls named "render_ui" or "update_surface" as A2UI messages.
 /// </summary>
 public sealed class AgentEventBridge : IDisposable
 {
-    private readonly Channel<BaseEvent>   _channel;
-    private readonly SurfaceManager      _surfaceManager;
-    private readonly ToolCallArgsAccumulator _accumulator = new();
-    private CancellationTokenSource?     _cts;
+    private static readonly HashSet<string> s_a2uiToolNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "render_ui",
+        "update_surface",
+    };
+
+    private readonly Channel<BaseEvent>        _channel;
+    private readonly SurfaceManager            _surfaceManager;
+    private readonly ToolCallArgsAccumulator   _accumulator = new();
+    private readonly Dictionary<string, string> _toolNames = new();
+    private CancellationTokenSource?           _cts;
 
     public AgentEventBridge(SurfaceManager surfaceManager, int capacity = 1024)
     {
@@ -71,13 +78,20 @@ public sealed class AgentEventBridge : IDisposable
                     Dispatcher.UIThread.Post(() => AgentTextDelta?.Invoke(this, tc.Delta));
                     break;
 
+                case ToolCallStartEvent start:
+                    _toolNames[start.ToolCallId] = start.ToolCallName;
+                    break;
+
                 case ToolCallArgsEvent args:
                     _accumulator.OnArgs(args);
                     break;
 
                 case ToolCallEndEvent end:
                     string json = _accumulator.Complete(end.ToolCallId);
-                    if (!string.IsNullOrWhiteSpace(json))
+                    bool isA2Ui = _toolNames.TryGetValue(end.ToolCallId, out var toolName)
+                                  && s_a2uiToolNames.Contains(toolName);
+                    _toolNames.Remove(end.ToolCallId);
+                    if (isA2Ui && !string.IsNullOrWhiteSpace(json))
                         ProcessA2UiPayload(json);
                     break;
             }
