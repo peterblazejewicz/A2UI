@@ -128,7 +128,7 @@ internal sealed class RenderContext(
             .OfType<Control>();
     }
 
-    public void FireUserAction(string surfaceId, string eventName, object? payload = null) =>
+    public void FireUserAction(string eventName, object? payload = null) =>
         fireAction(surface.SurfaceId, eventName, payload);
 
     public string? Resolve(DynamicValue? value) =>

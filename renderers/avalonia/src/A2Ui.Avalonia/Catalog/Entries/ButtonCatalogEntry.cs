@@ -23,7 +23,7 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
         {
             string eventName = actionEvent.Name;
             // surfaceId is always resolved by RenderContext, not the caller
-            btn.Click += (_, _) => ctx.FireUserAction(string.Empty, eventName);
+            btn.Click += (_, _) => ctx.FireUserAction(eventName);
         }
 
         return btn;

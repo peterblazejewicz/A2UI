@@ -41,8 +41,8 @@ public interface IRenderContext
     /// <summary>Render all children of a component.</summary>
     IEnumerable<Control> RenderChildren(string parentId);
 
-    /// <summary>Fire a user action event back to the agent.</summary>
-    void FireUserAction(string surfaceId, string eventName, object? payload = null);
+    /// <summary>Fire a user action event back to the agent. SurfaceId is resolved automatically.</summary>
+    void FireUserAction(string eventName, object? payload = null);
 
     /// <summary>Resolve a DynamicValue from the data model.</summary>
     string? Resolve(DynamicValue? value);

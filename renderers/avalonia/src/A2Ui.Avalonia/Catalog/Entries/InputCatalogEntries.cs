@@ -1,8 +1,16 @@
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
 
 namespace A2Ui.Avalonia.Catalog;
+
+/// <summary>Standard event name for input value changes.</summary>
+internal static class InputEvents
+{
+    public const string ValueChanged = "valueChanged";
+}
 
 /// <summary>A2UI "TextField" → TextBox.</summary>
 public sealed class TextFieldCatalogEntry : ICatalogEntry
@@ -16,6 +24,9 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
             Text      = ctx.Resolve(c.Value) ?? string.Empty,
             Watermark = ctx.Resolve(c.Label),
         };
+
+        tb.LostFocus += (_, _) => ctx.FireUserAction(InputEvents.ValueChanged, tb.Text);
+
         return tb;
     }
 
@@ -45,6 +56,12 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
         if (raw is not null && DateOnly.TryParse(raw, out var date))
             picker.SelectedDate = date.ToDateTime(TimeOnly.MinValue);
 
+        picker.SelectedDateChanged += (_, _) =>
+        {
+            string? isoDate = picker.SelectedDate?.ToString("yyyy-MM-dd");
+            ctx.FireUserAction(InputEvents.ValueChanged, isoDate);
+        };
+
         return picker;
     }
 
@@ -70,6 +87,12 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
                 combo.Items.Add(new ComboBoxItem { Content = opt.Label, Tag = opt.Value });
         }
 
+        combo.SelectionChanged += (_, _) =>
+        {
+            string? selectedValue = (combo.SelectedItem as ComboBoxItem)?.Tag as string;
+            ctx.FireUserAction(InputEvents.ValueChanged, selectedValue);
+        };
+
         return combo;
     }
 
@@ -80,23 +103,39 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
 /// <summary>A2UI "CheckBox" → CheckBox control.</summary>
 public sealed class CheckBoxCatalogEntry : ICatalogEntry
 {
+    private const string UpdatingTag = "__updating";
+
     public string ComponentType => "CheckBox";
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
         bool isChecked = ctx.Resolve(c.Value) is "true";
-        return new CheckBox
+        var cb = new CheckBox
         {
             Content   = ctx.Resolve(c.Label),
             IsChecked = isChecked,
         };
+
+        cb.IsCheckedChanged += (sender, _) =>
+        {
+            // Skip events fired by programmatic updates in Update()
+            if (sender is CheckBox box && box.Tag is UpdatingTag) return;
+            ctx.FireUserAction(InputEvents.ValueChanged, cb.IsChecked == true ? "true" : "false");
+        };
+
+        return cb;
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
                        IRenderContext ctx)
     {
         if (existing is not CheckBox cb) return false;
-        if (!cb.IsFocused) cb.IsChecked = ctx.Resolve(c.Value) is "true";
+        if (!cb.IsFocused)
+        {
+            cb.Tag = UpdatingTag;
+            cb.IsChecked = ctx.Resolve(c.Value) is "true";
+            cb.Tag = null;
+        }
         cb.Content = ctx.Resolve(c.Label);
         return true;
     }
@@ -115,7 +154,14 @@ public sealed class SliderCatalogEntry : ICatalogEntry
         if (ctx.Resolve(c.Max) is { } maxStr)
             double.TryParse(maxStr, out max);
 
-        return new Slider { Value = val, Minimum = min, Maximum = max };
+        var slider = new Slider { Value = val, Minimum = min, Maximum = max };
+
+        // Fire on thumb drag complete, not on every pixel move
+        slider.AddHandler(Thumb.DragCompletedEvent, (_, _) =>
+            ctx.FireUserAction(InputEvents.ValueChanged, slider.Value.ToString("G")),
+            RoutingStrategies.Bubble);
+
+        return slider;
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,

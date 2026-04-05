@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 
 namespace A2Ui.Avalonia.Catalog;
 
@@ -32,13 +33,15 @@ public sealed class ImageCatalogEntry : ICatalogEntry
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
                        IRenderContext ctx) => false;
 
+    private static readonly System.Net.Http.HttpClient s_http = new();
+
     private static async Task LoadImageAsync(Image img, string url)
     {
         try
         {
-            using var http = new System.Net.Http.HttpClient();
-            await using var stream = await http.GetStreamAsync(url).ConfigureAwait(true);
-            img.Source = new Bitmap(stream);
+            await using var stream = await s_http.GetStreamAsync(url).ConfigureAwait(false);
+            var bitmap = new Bitmap(stream);
+            await Dispatcher.UIThread.InvokeAsync(() => img.Source = bitmap);
         }
         catch
         {
