@@ -13,7 +13,7 @@ namespace A2Ui.Rendering;
 public sealed class A2UiRenderer
 {
     private readonly CatalogRegistry _catalog;
-    private readonly Dictionary<string, Control> _controlCache = new();
+    private readonly Dictionary<string, Dictionary<string, Control>> _surfaceCaches = new();
 
     public A2UiRenderer(CatalogRegistry catalog)
     {
@@ -28,11 +28,16 @@ public sealed class A2UiRenderer
     {
         Dispatcher.UIThread.VerifyAccess();
 
-        var context = new RenderContext(surface, _catalog, _controlCache,
+        if (!_surfaceCaches.TryGetValue(surface.SurfaceId, out var cache))
+        {
+            cache = new Dictionary<string, Control>();
+            _surfaceCaches[surface.SurfaceId] = cache;
+        }
+
+        var context = new RenderContext(surface, _catalog, cache,
             (surfaceId, eventName, payload) =>
                 UserActionFired?.Invoke(this, new(surfaceId, eventName, payload)));
 
-        // Render from root components
         var roots = surface.GetRootComponents().ToList();
 
         if (roots.Count == 1)
@@ -51,7 +56,6 @@ public sealed class A2UiRenderer
     {
         if (!_catalog.TryGetEntry(component.Component, out var entry) || entry is null)
         {
-            // Unknown type — render a placeholder
             return new TextBlock
             {
                 Text    = $"[Unknown component: {component.Component}]",
@@ -59,21 +63,20 @@ public sealed class A2UiRenderer
             };
         }
 
-        // Try update in-place first (perf optimization)
-        if (_controlCache.TryGetValue(component.Id, out var existing))
+        var cache = _surfaceCaches.GetValueOrDefault(surface.SurfaceId);
+        if (cache is not null && cache.TryGetValue(component.Id, out var existing))
         {
             if (entry.Update(existing, component, surface.DataModel, context))
                 return existing;
-            // Update declined — fall through to recreate
         }
 
         var control = entry.Create(component, surface.DataModel, context);
-        _controlCache[component.Id] = control;
+        cache?.TryAdd(component.Id, control);
         return control;
     }
 
-    /// <summary>Clear control cache when surface is deleted.</summary>
-    public void ClearSurface(string surfaceId) => _controlCache.Clear();
+    /// <summary>Clear control cache for a specific surface.</summary>
+    public void ClearSurface(string surfaceId) => _surfaceCaches.Remove(surfaceId);
 }
 
 internal sealed class RenderContext(
@@ -100,10 +103,26 @@ internal sealed class RenderContext(
         return control;
     }
 
-    public IEnumerable<Control> RenderChildren(string parentId)
+    /// <summary>
+    /// Render children: prefers v0.9 forward-ref children property,
+    /// falls back to legacy parent-based reverse lookup.
+    /// </summary>
+    public IEnumerable<Control> RenderChildren(string componentId)
     {
+        if (surface.Components.TryGetValue(componentId, out var comp) &&
+            comp.Children is not null)
+        {
+            if (comp.Children.Ids is { } ids)
+                return ids.Select(id => RenderChild(id)).OfType<Control>();
+
+            // Template children: stub — full expansion is future work
+            if (comp.Children.Template is { } tmpl)
+                return RenderChild(tmpl.ComponentId) is { } ctrl ? [ctrl] : [];
+        }
+
+        // Legacy fallback: parent-based lookup
         return surface.Components.Values
-            .Where(c => c.Parent == parentId)
+            .Where(c => c.Parent == componentId)
             .Select(c => RenderChild(c.Id))
             .OfType<Control>();
     }
