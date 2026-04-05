@@ -1,7 +1,7 @@
 namespace AgUi.Protocol.Events;
 
 /// <summary>
-/// All 26 AG-UI event type discriminators.
+/// All 28 AG-UI event type discriminators.
 /// Values must match the wire-format "type" string exactly.
 /// </summary>
 public enum EventType

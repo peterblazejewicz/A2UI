@@ -12,8 +12,7 @@ Deliverables living inside this repository:
 
 **Fork:** `https://github.com/<your-handle>/A2UI`
 **Branch:** `feature/dotnet-avalonia-renderer`
-**Host:** DGX Spark `spark-one` (aarch64, Ubuntu 24.04, 128 GB unified memory)
-**Inference:** `nemotron-3-super:120b` via Ollama on `localhost:11434`
+**Host:** Windows 11 Pro (development workstation)
 
 ---
 
@@ -22,6 +21,10 @@ Deliverables living inside this repository:
 ```
 A2UI/                                  ← repo root (fork of google/A2UI)
 ├── CLAUDE.md                          ← you are here
+├── A2Ui.slnx                         ← solution file (all 8 .NET projects)
+├── global.json                        ← .NET SDK version pin
+├── Directory.Build.props              ← shared MSBuild settings (Nullable, analyzers)
+├── Directory.Packages.props           ← central package management
 ├── .claude/
 │   ├── commands/                      ← /slash commands
 │   └── skills/                        ← auto-loaded skill instructions
@@ -35,7 +38,8 @@ A2UI/                                  ← repo root (fork of google/A2UI)
 │   │   └── json/
 │   │       ├── server_to_client.json
 │   │       ├── client_to_server.json
-│   │       └── basic_catalog.json
+│   │       ├── basic_catalog.json
+│   │       └── catalogs/              ← basic/ and minimal/ catalog examples
 │   └── v0_10/                         ← proposed next version (draft, do not implement yet)
 │
 ├── agent_sdks/                        ← SDK implementations per language
@@ -48,10 +52,6 @@ A2UI/                                  ← repo root (fork of google/A2UI)
 │       ├── tests/
 │       │   ├── AgUi.Protocol.Tests/
 │       │   └── A2Ui.Core.Tests/
-│       ├── A2Ui.sln
-│       ├── global.json
-│       ├── Directory.Build.props
-│       ├── Directory.Packages.props
 │       └── .editorconfig
 │
 ├── renderers/                         ← renderer libraries per platform
@@ -72,7 +72,7 @@ A2UI/                                  ← repo root (fork of google/A2UI)
 │       ├── angular/                   ← existing Angular clients
 │       └── avalonia/                  ← OUR NEW CODE
 │           ├── gallery_v0_9/          ← v0.9 local gallery (MVVM desktop app)
-│           └── composer/              ← placeholder scaffold for future agent-connected app (no source code yet)
+│           └── composer/              ← placeholder scaffold for future agent-connected app
 │
 └── tools/
     └── composer/                      ← original web Composer (source to study for port)
@@ -94,6 +94,10 @@ cat specification/v0_9/json/basic_catalog.json
 # Wire format schemas
 cat specification/v0_9/json/server_to_client.json
 cat specification/v0_9/json/client_to_server.json
+
+# Catalog examples (used by Gallery app)
+ls specification/v0_9/json/catalogs/basic/examples/
+ls specification/v0_9/json/catalogs/minimal/examples/
 ```
 
 Target **v0.9** for implementation. Review `specification/v0_10/` for forward-compatibility
@@ -103,46 +107,35 @@ hints but do not implement v0.10 features yet.
 
 ## Environment
 
-.NET 10 installed via apt — `dotnet` is on PATH at `/usr/bin/dotnet`:
+.NET 10 — `dotnet` is on PATH:
 
 ```bash
 dotnet --version    # 10.0.x
 ```
 
-Always set for aarch64 (DGX Spark/Ubuntu 24.04 has no full ICU libraries):
+Optional environment variables:
 
 ```bash
-export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 export DOTNET_NOLOGO=1
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
-```
-
-If `dotnet` is not found (installed via script instead of apt):
-```bash
-export DOTNET_ROOT="$HOME/.dotnet"
-export PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools:$PATH"
 ```
 
 ---
 
 ## Build & Test Commands
 
-Run from the relevant subdirectory:
+Run from the repo root:
 
 ```bash
-# .NET SDK (agent_sdks/dotnet/)
-cd agent_sdks/dotnet
-DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet build A2Ui.sln --configuration Release
-DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet test A2Ui.sln --configuration Release --no-build
+# Build everything (all 8 projects)
+dotnet build A2Ui.slnx --configuration Release
 
-# Avalonia renderer (renderers/avalonia/)
-cd renderers/avalonia
-DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet build src/A2Ui.Avalonia/A2Ui.Avalonia.csproj --configuration Release
-DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet test tests/A2Ui.Avalonia.Tests/A2Ui.Avalonia.Tests.csproj --configuration Release
+# Test everything
+dotnet test A2Ui.slnx --configuration Release --no-build
 
-# Gallery app (samples/client/avalonia/gallery_v0_9/)
-cd samples/client/avalonia/gallery_v0_9
-DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet build --configuration Release
+# Build individual projects if needed
+dotnet build renderers/avalonia/src/A2Ui.Avalonia/A2Ui.Avalonia.csproj --configuration Release
+dotnet build samples/client/avalonia/gallery_v0_9/A2Ui.Avalonia.Gallery.csproj --configuration Release
 ```
 
 ---
@@ -173,9 +166,7 @@ DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet build --configuration Release
 ### Formatting
 
 ```bash
-dotnet csharpier agent_sdks/dotnet/src/
-dotnet csharpier renderers/avalonia/src/A2Ui.Avalonia/
-dotnet csharpier samples/client/avalonia/
+dotnet csharpier .
 ```
 
 ---
@@ -186,7 +177,7 @@ dotnet csharpier samples/client/avalonia/
 git checkout feature/dotnet-avalonia-renderer
 
 # Commit format — factual, no marketing language (matches repo convention)
-git commit -m "feat(dotnet-sdk): implement AG-UI 26-event C# model
+git commit -m "feat(dotnet-sdk): implement AG-UI 28-event C# model
 
 - Add BaseEvent with JSON polymorphism for all event types
 - Add SseEventParser: resilient async SSE stream reader
