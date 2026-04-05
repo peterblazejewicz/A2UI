@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/sdk/">
+    <Project Path="agent_sdks/dotnet/src/AgUi.Protocol/AgUi.Protocol.csproj" />
+    <Project Path="agent_sdks/dotnet/src/A2Ui.Core/A2Ui.Core.csproj" />
+  </Folder>
+  <Folder Name="/sdk/tests/">
+    <Project Path="agent_sdks/dotnet/tests/AgUi.Protocol.Tests/AgUi.Protocol.Tests.csproj" />
+    <Project Path="agent_sdks/dotnet/tests/A2Ui.Core.Tests/A2Ui.Core.Tests.csproj" />
+  </Folder>
+  <Folder Name="/renderer/">
+    <Project Path="renderers/avalonia/src/A2Ui.Avalonia/A2Ui.Avalonia.csproj" />
+  </Folder>
+  <Folder Name="/renderer/tests/">
+    <Project Path="renderers/avalonia/tests/A2Ui.Avalonia.Tests/A2Ui.Avalonia.Tests.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/client/avalonia/gallery_v0_9/A2Ui.Avalonia.Gallery.csproj" />
+    <Project Path="samples/client/avalonia/composer/A2Ui.Avalonia.Composer.csproj" />
+  </Folder>
+</Solution>
