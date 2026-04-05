@@ -1,0 +1,12 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="A2Ui.Avalonia.Gallery.Views.GalleryWindow"
+        Title="A2UI Local Gallery — v0.9"
+        Width="1200" Height="800"
+        Background="#0f172a">
+  <TextBlock Text="A2UI Local Gallery — v0.9"
+             FontSize="24" FontWeight="Bold"
+             Foreground="#f1f5f9"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center" />
+</Window>
