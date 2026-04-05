@@ -300,4 +300,43 @@ public sealed class DataModelTests
         dm.Resolve(DynamicValue.FromPath("/totals/2025")).Should().Be("100");
         dm.Resolve(DynamicValue.FromPath("/totals/2026")).Should().Be("200");
     }
+
+    [Fact]
+    public void ToJson_EmptyModel_ReturnsEmptyObject()
+    {
+        var dm = new DataModel();
+        dm.ToJson().Should().Be("{}");
+    }
+
+    [Fact]
+    public void ToJson_AfterApply_ReflectsState()
+    {
+        var dm = new DataModel();
+        dm.Apply(new UpdateDataModel
+        {
+            SurfaceId = "s",
+            Path = "/name",
+            Value = JsonSerializer.SerializeToElement("Alice"),
+        });
+
+        var json = dm.ToJson();
+        json.Should().Contain("\"name\"");
+        json.Should().Contain("\"Alice\"");
+    }
+
+    [Fact]
+    public void ToJson_Indented_ProducesFormattedOutput()
+    {
+        var dm = new DataModel();
+        dm.Apply(new UpdateDataModel
+        {
+            SurfaceId = "s",
+            Path = "/key",
+            Value = JsonSerializer.SerializeToElement("val"),
+        });
+
+        var json = dm.ToJson(indented: true);
+        json.Should().Contain("\n");
+        json.Should().Contain("  ");
+    }
 }

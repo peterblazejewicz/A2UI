@@ -14,6 +14,10 @@ public sealed class DataModel
 {
     private JsonObject _root = new();
 
+    /// <summary>Serialize the current data model state to a JSON string.</summary>
+    public string ToJson(bool indented = false) =>
+        _root.ToJsonString(new JsonSerializerOptions { WriteIndented = indented });
+
     /// <summary>Replace the entire data model.</summary>
     public void SetSnapshot(JsonElement snapshot)
     {
