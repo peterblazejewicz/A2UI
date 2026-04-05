@@ -1,0 +1,13 @@
+# Global analyzer config — augments .editorconfig for analyzer rules
+is_global = true
+
+# Roslynator
+dotnet_diagnostic.RCS1021.severity = suggestion  # Simplify lambda
+dotnet_diagnostic.RCS1090.severity = warning     # Call ConfigureAwait
+dotnet_diagnostic.RCS1194.severity = warning     # Implement exception constructors
+dotnet_diagnostic.RCS1229.severity = warning     # Use async/await
+
+# .NET analyzers
+dotnet_diagnostic.CA2007.severity = warning      # ConfigureAwait
+dotnet_diagnostic.CA1031.severity = none         # Allow catch Exception (we log)
+dotnet_diagnostic.CA1062.severity = none         # Validate params (nullable handles this)
