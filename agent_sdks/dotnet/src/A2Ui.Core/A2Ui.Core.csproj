@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <AssemblyName>A2Ui.Core</AssemblyName>
     <RootNamespace>A2Ui.Core</RootNamespace>
     <Description>A2UI (Agent-to-UI) message model and catalog for .NET</Description>

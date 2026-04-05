@@ -4,7 +4,6 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <AssemblyName>A2Ui.Avalonia.Composer</AssemblyName>
     <RootNamespace>A2Ui.Avalonia.Composer</RootNamespace>
     <UseAvalonia>true</UseAvalonia>
@@ -17,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.2.0" />
     <PackageReference Include="Avalonia.Desktop" Version="11.2.0" />
-    <PackageReference Include="Avalonia.Themes.Default" Version="11.2.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.0" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
     <!-- Conditional packages for better development experience -->
