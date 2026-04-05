@@ -84,7 +84,7 @@ public sealed class AgentEventBridge : IDisposable
 
     private async Task ProcessLoopAsync(CancellationToken ct)
     {
-        await foreach (var evt in _channel.Reader.ReadAllAsync(ct))
+        await foreach (var evt in _channel.Reader.ReadAllAsync(ct).ConfigureAwait(false))
         {
             switch (evt)
             {

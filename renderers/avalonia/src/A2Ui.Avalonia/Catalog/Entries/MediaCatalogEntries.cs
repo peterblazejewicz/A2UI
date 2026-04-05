@@ -39,9 +39,13 @@ public sealed class ImageCatalogEntry : ICatalogEntry
     {
         try
         {
-            await using var stream = await s_http.GetStreamAsync(url).ConfigureAwait(false);
+            var stream = await s_http.GetStreamAsync(url).ConfigureAwait(false);
+            await using var _ = stream.ConfigureAwait(false);
             var bitmap = new Bitmap(stream);
+            // CA2007: DispatcherOperation is not a Task; suppress for Avalonia UI thread dispatch
+#pragma warning disable CA2007
             await Dispatcher.UIThread.InvokeAsync(() => img.Source = bitmap);
+#pragma warning restore CA2007
         }
         catch
         {
