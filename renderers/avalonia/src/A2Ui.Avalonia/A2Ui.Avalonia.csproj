@@ -19,4 +19,7 @@
     <ProjectReference Include="../../../../agent_sdks/dotnet/src/A2Ui.Core/A2Ui.Core.csproj" />
     <ProjectReference Include="../../../../agent_sdks/dotnet/src/AgUi.Protocol/AgUi.Protocol.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Themes\A2UiDefaultStyles.axaml" />
+  </ItemGroup>
 </Project>

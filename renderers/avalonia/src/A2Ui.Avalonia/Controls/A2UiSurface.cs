@@ -24,6 +24,13 @@ public sealed class A2UiSurface : ContentControl
     {
         _renderer = new A2UiRenderer(catalog);
         _renderer.UserActionFired += OnUserActionFired;
+
+        // Load default component styles (typography, card, button variants).
+        // Consuming apps override these via Application-level styles.
+        Styles.Add(new global::Avalonia.Markup.Xaml.Styling.StyleInclude(new Uri("avares://A2Ui.Avalonia"))
+        {
+            Source = new Uri("avares://A2Ui.Avalonia/Themes/A2UiDefaultStyles.axaml"),
+        });
     }
 
     public Surface? Surface
