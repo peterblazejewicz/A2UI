@@ -10,6 +10,7 @@ __pycache__
 *.pyc
 .angular
 .remember
+.mcp.json
 bin
 obj
 
