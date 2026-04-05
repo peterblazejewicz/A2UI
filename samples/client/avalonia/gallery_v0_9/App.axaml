@@ -4,5 +4,21 @@
              RequestedThemeVariant="Dark">
   <Application.Styles>
     <FluentTheme />
+
+    <!-- Gallery shell styles (application-level, not renderer) -->
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+      <Setter Property="Background" Value="#0E3856" />
+    </Style>
   </Application.Styles>
+
+  <Application.Resources>
+    <SolidColorBrush x:Key="GalleryBackground" Color="#0f172a" />
+    <SolidColorBrush x:Key="GalleryPanel" Color="#1e293b" />
+    <SolidColorBrush x:Key="GalleryInspector" Color="#020617" />
+    <SolidColorBrush x:Key="GalleryAccent" Color="#38bdf8" />
+    <SolidColorBrush x:Key="GalleryText" Color="#f1f5f9" />
+    <SolidColorBrush x:Key="GallerySubtext" Color="#94a3b8" />
+    <SolidColorBrush x:Key="GallerySurface" Color="#0B1625" />
+    <SolidColorBrush x:Key="GalleryBorder" Color="#1e3a5f" />
+  </Application.Resources>
 </Application>

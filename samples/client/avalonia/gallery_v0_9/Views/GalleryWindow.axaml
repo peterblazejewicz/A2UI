@@ -1,12 +1,201 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:A2Ui.Avalonia.Gallery.ViewModels"
+        xmlns:models="using:A2Ui.Avalonia.Gallery.Models"
+        xmlns:controls="using:A2Ui.Avalonia.Controls"
         x:Class="A2Ui.Avalonia.Gallery.Views.GalleryWindow"
+        x:DataType="vm:GalleryViewModel"
         Title="A2UI Local Gallery — v0.9"
-        Width="1200" Height="800"
-        Background="#0f172a">
-  <TextBlock Text="A2UI Local Gallery — v0.9"
-             FontSize="24" FontWeight="Bold"
-             Foreground="#f1f5f9"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center" />
+        Width="1280" Height="800"
+        Background="{DynamicResource GalleryBackground}"
+        Foreground="{DynamicResource GalleryText}">
+
+  <DockPanel>
+    <!-- Header -->
+    <Border DockPanel.Dock="Top"
+            Background="{DynamicResource GalleryPanel}"
+            BorderBrush="{DynamicResource GalleryBorder}"
+            BorderThickness="0,0,0,1"
+            Padding="24,12">
+      <StackPanel>
+        <TextBlock Text="A2UI Local Gallery"
+                   FontSize="20" FontWeight="Bold" />
+        <TextBlock Text="v0.9 Catalog"
+                   FontSize="13"
+                   Foreground="{DynamicResource GallerySubtext}" />
+      </StackPanel>
+    </Border>
+
+    <!-- Three-pane grid -->
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="250" MinWidth="180" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="340" MinWidth="200" />
+      </Grid.ColumnDefinitions>
+
+      <!-- Nav sidebar -->
+      <Border Grid.Column="0"
+              Background="{DynamicResource GalleryPanel}"
+              BorderBrush="{DynamicResource GalleryBorder}"
+              BorderThickness="0,0,1,0">
+        <ListBox ItemsSource="{Binding DemoItems}"
+                 SelectedItem="{Binding SelectedItem}"
+                 Background="Transparent"
+                 BorderThickness="0">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="models:DemoItem">
+              <StackPanel Margin="4,8">
+                <TextBlock Text="{Binding Title}"
+                           FontWeight="Medium"
+                           FontSize="13" />
+                <TextBlock Text="{Binding Filename}"
+                           FontSize="11"
+                           Foreground="{DynamicResource GallerySubtext}" />
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Border>
+
+      <GridSplitter Grid.Column="1" Width="4"
+                    Background="Transparent" />
+
+      <!-- Preview pane -->
+      <DockPanel Grid.Column="2">
+        <!-- Preview header + stepper -->
+        <Border DockPanel.Dock="Top"
+                Background="{DynamicResource GalleryPanel}"
+                BorderBrush="{DynamicResource GalleryBorder}"
+                BorderThickness="0,0,0,1"
+                Padding="16,10">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+              <TextBlock Text="{Binding SelectedItem.Title, FallbackValue='Select an example'}"
+                         FontSize="16" FontWeight="SemiBold" />
+              <TextBlock Text="{Binding SelectedItem.Description}"
+                         FontSize="12"
+                         Foreground="{DynamicResource GallerySubtext}"
+                         Margin="0,2,0,0" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        Spacing="8"
+                        VerticalAlignment="Center">
+              <TextBlock VerticalAlignment="Center"
+                         Foreground="{DynamicResource GallerySubtext}"
+                         FontSize="13">
+                <Run Text="Messages: " />
+                <Run Text="{Binding ProcessedMessageCount}" />
+                <Run Text=" / " />
+                <Run Text="{Binding TotalMessageCount}" />
+              </TextBlock>
+              <Button Content="Reset"
+                      Command="{Binding ResetCommand}"
+                      Padding="8,4" FontSize="12" />
+              <Button Content="+1 Message"
+                      Command="{Binding StepOneCommand}"
+                      Padding="8,4" FontSize="12" />
+              <Button Content="All Messages"
+                      Command="{Binding StepAllCommand}"
+                      Padding="8,4" FontSize="12" />
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <!-- Surface area -->
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto"
+                      Padding="24">
+          <Border MaxWidth="600"
+                  HorizontalAlignment="Center"
+                  Background="{DynamicResource GallerySurface}"
+                  BorderBrush="{DynamicResource GalleryBorder}"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="24">
+            <controls:A2UiSurface x:Name="SurfaceHost"
+                                  Surface="{Binding ActiveSurface}" />
+          </Border>
+        </ScrollViewer>
+      </DockPanel>
+
+      <GridSplitter Grid.Column="3" Width="4"
+                    Background="Transparent" />
+
+      <!-- Inspector pane -->
+      <Border Grid.Column="4"
+              Background="{DynamicResource GalleryInspector}"
+              BorderBrush="{DynamicResource GalleryBorder}"
+              BorderThickness="1,0,0,0">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+
+          <!-- Data Model -->
+          <DockPanel Grid.Row="0">
+            <Border DockPanel.Dock="Top"
+                    Background="{DynamicResource GalleryPanel}"
+                    Padding="16,8">
+              <TextBlock Text="DATA MODEL"
+                         FontSize="11" FontWeight="Bold"
+                         Foreground="{DynamicResource GallerySubtext}" />
+            </Border>
+            <ScrollViewer Padding="16">
+              <TextBlock Text="{Binding CurrentDataModelJson}"
+                         FontFamily="Consolas,Menlo,monospace"
+                         FontSize="11"
+                         TextWrapping="Wrap"
+                         Foreground="{DynamicResource GalleryText}" />
+            </ScrollViewer>
+          </DockPanel>
+
+          <GridSplitter Grid.Row="1" Height="4"
+                        Background="Transparent"
+                        ResizeDirection="Rows" />
+
+          <!-- Action Logs -->
+          <DockPanel Grid.Row="2">
+            <Border DockPanel.Dock="Top"
+                    Background="{DynamicResource GalleryPanel}"
+                    Padding="16,8">
+              <TextBlock Text="ACTION LOGS"
+                         FontSize="11" FontWeight="Bold"
+                         Foreground="{DynamicResource GallerySubtext}" />
+            </Border>
+            <ListBox ItemsSource="{Binding ActionLogs}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     Padding="8">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <Border BorderBrush="{DynamicResource GalleryAccent}"
+                          BorderThickness="2,0,0,0"
+                          Padding="8,4"
+                          Margin="0,2">
+                    <TextBlock Text="{Binding}"
+                               FontFamily="Consolas,Menlo,monospace"
+                               FontSize="11"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource GalleryText}" />
+                  </Border>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </DockPanel>
+        </Grid>
+      </Border>
+    </Grid>
+  </DockPanel>
 </Window>
