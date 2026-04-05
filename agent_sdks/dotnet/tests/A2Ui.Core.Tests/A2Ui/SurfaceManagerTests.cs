@@ -255,4 +255,66 @@ public sealed class SurfaceManagerTests
         roots.Should().ContainSingle();
         roots[0].Id.Should().Be("root");
     }
+
+    [Fact]
+    public void Surface_GetRootComponents_V09ForwardRef_FindsRootById()
+    {
+        var sm = new SurfaceManager();
+        sm.Process(new A2UiMessage
+        {
+            CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" }
+        });
+        sm.Process(new A2UiMessage
+        {
+            UpdateComponents = new UpdateComponents
+            {
+                SurfaceId = "s1",
+                Components =
+                [
+                    new A2UiComponent
+                    {
+                        Id = "root", Component = "Column",
+                        Children = ChildList.FromIds("t1", "t2"),
+                    },
+                    new A2UiComponent { Id = "t1", Component = "Text" },
+                    new A2UiComponent { Id = "t2", Component = "Text" },
+                ]
+            }
+        });
+
+        var roots = sm.GetSurface("s1")!.GetRootComponents().ToList();
+        roots.Should().ContainSingle();
+        roots[0].Id.Should().Be("root");
+    }
+
+    [Fact]
+    public void Surface_GetRootComponents_NoExplicitRoot_ExcludesReferencedChildren()
+    {
+        var sm = new SurfaceManager();
+        sm.Process(new A2UiMessage
+        {
+            CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" }
+        });
+        sm.Process(new A2UiMessage
+        {
+            UpdateComponents = new UpdateComponents
+            {
+                SurfaceId = "s1",
+                Components =
+                [
+                    new A2UiComponent
+                    {
+                        Id = "col1", Component = "Column",
+                        Children = ChildList.FromIds("t1", "t2"),
+                    },
+                    new A2UiComponent { Id = "t1", Component = "Text" },
+                    new A2UiComponent { Id = "t2", Component = "Text" },
+                ]
+            }
+        });
+
+        var roots = sm.GetSurface("s1")!.GetRootComponents().ToList();
+        roots.Should().ContainSingle();
+        roots[0].Id.Should().Be("col1");
+    }
 }

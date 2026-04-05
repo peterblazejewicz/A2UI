@@ -84,8 +84,40 @@ public sealed class Surface(string surfaceId, string catalogId)
             _components[c.Id] = c;
     }
 
-    public IEnumerable<A2UiComponent> GetRootComponents() =>
-        _components.Values.Where(c => c.Parent is null);
+    /// <summary>
+    /// Get root components. Prefers v0.9 convention (id == "root"), then falls
+    /// back to components not referenced as children by any other component,
+    /// then to legacy parent-is-null heuristic.
+    /// </summary>
+    public IEnumerable<A2UiComponent> GetRootComponents()
+    {
+        // v0.9: explicit root component
+        if (_components.TryGetValue("root", out var rootComp))
+            return [rootComp];
+
+        // Collect all IDs referenced as children by other components
+        var childIds = new HashSet<string>();
+        foreach (var c in _components.Values)
+        {
+            if (c.Child is not null) childIds.Add(c.Child);
+            if (c.Children?.Ids is { } ids)
+                foreach (var id in ids) childIds.Add(id);
+            if (c.Children?.Template is { } tmpl)
+                childIds.Add(tmpl.ComponentId);
+            if (c.Trigger is not null) childIds.Add(c.Trigger);
+            if (c.Content is not null) childIds.Add(c.Content);
+            if (c.Tabs is { } tabs)
+                foreach (var tab in tabs)
+                    childIds.Add(tab.Child);
+        }
+
+        // Components not referenced as children are roots
+        var roots = _components.Values.Where(c => !childIds.Contains(c.Id)).ToList();
+        if (roots.Count > 0) return roots;
+
+        // Legacy fallback: parent is null
+        return _components.Values.Where(c => c.Parent is null);
+    }
 }
 
 public sealed record SurfaceCreatedEventArgs(Surface Surface);
