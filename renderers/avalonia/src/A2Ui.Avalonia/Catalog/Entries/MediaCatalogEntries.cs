@@ -24,14 +24,15 @@ public sealed class ImageCatalogEntry : ICatalogEntry
         };
         var img = new Image { Stretch = stretch };
         string? url = ctx.Resolve(c.Url) ?? ctx.Resolve(c.Value);
-        if (url is not null) LoadAsync(img, url);
+        if (url is not null)
+            _ = LoadImageAsync(img, url); // fire-and-forget; errors handled inside
         return img;
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
                        IRenderContext ctx) => false;
 
-    private static async void LoadAsync(Image img, string url)
+    private static async Task LoadImageAsync(Image img, string url)
     {
         try
         {
@@ -39,7 +40,10 @@ public sealed class ImageCatalogEntry : ICatalogEntry
             await using var stream = await http.GetStreamAsync(url).ConfigureAwait(true);
             img.Source = new Bitmap(stream);
         }
-        catch { /* silently fail — broken image stays empty */ }
+        catch
+        {
+            // Broken image URL — leave the Image control empty
+        }
     }
 }
 
