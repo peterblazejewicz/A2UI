@@ -28,10 +28,15 @@ public sealed record MessagesSnapshotEvent : BaseEvent
 
 public sealed record ActivitySnapshotEvent : BaseEvent
 {
-    [JsonPropertyName("activity")] public required JsonElement Activity { get; init; }
+    [JsonPropertyName("messageId")]    public string?             MessageId    { get; init; }
+    [JsonPropertyName("activityType")] public string?             ActivityType { get; init; }
+    [JsonPropertyName("activity")]     public required JsonElement Activity     { get; init; }
+    [JsonPropertyName("replace")]      public bool?               Replace      { get; init; }
 }
 
 public sealed record ActivityDeltaEvent : BaseEvent
 {
-    [JsonPropertyName("patch")] public required JsonElement[] Patch { get; init; }
+    [JsonPropertyName("messageId")]    public string?               MessageId    { get; init; }
+    [JsonPropertyName("activityType")] public string?               ActivityType { get; init; }
+    [JsonPropertyName("patch")]        public required JsonElement[] Patch        { get; init; }
 }

@@ -2,12 +2,20 @@ using System.Text.Json.Serialization;
 
 namespace AgUi.Protocol.Events;
 
-public sealed record ReasoningStartEvent       : BaseEvent { }
-public sealed record ReasoningEndEvent         : BaseEvent { }
+public sealed record ReasoningStartEvent : BaseEvent
+{
+    [JsonPropertyName("messageId")] public string? MessageId { get; init; }
+}
+
+public sealed record ReasoningEndEvent : BaseEvent
+{
+    [JsonPropertyName("messageId")] public string? MessageId { get; init; }
+}
 
 public sealed record ReasoningMessageStartEvent : BaseEvent
 {
     [JsonPropertyName("messageId")] public required string MessageId { get; init; }
+    [JsonPropertyName("role")]      public string Role { get; init; } = "assistant";
 }
 
 public sealed record ReasoningMessageContentEvent : BaseEvent
@@ -34,11 +42,15 @@ public sealed record ReasoningMessageChunkEvent : BaseEvent
 public sealed record ReasoningEncryptedValueEvent : BaseEvent
 {
     [JsonPropertyName("subtype")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<ReasoningSubtype>))]
     public required ReasoningSubtype Subtype { get; init; }
 
     [JsonPropertyName("entityId")]       public required string EntityId       { get; init; }
     [JsonPropertyName("encryptedValue")] public required string EncryptedValue { get; init; }
 }
 
-public enum ReasoningSubtype { ToolCall, Message }
+public enum ReasoningSubtype
+{
+    [JsonStringEnumMemberName("tool-call")] ToolCall,
+    [JsonStringEnumMemberName("message")]   Message,
+}

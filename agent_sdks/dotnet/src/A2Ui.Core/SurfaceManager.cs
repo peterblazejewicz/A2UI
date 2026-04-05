@@ -1,18 +1,19 @@
+using System.Text.Json;
 using A2Ui.Core.Messages;
 
 namespace A2Ui.Core;
 
 /// <summary>
 /// Manages the lifecycle of A2UI surfaces and their component trees.
-/// Thread-safe via locking; call from dispatcher thread in Avalonia.
+/// Thread-safe via locking; call from dispatcher thread in UI layer.
 /// </summary>
 public sealed class SurfaceManager
 {
     private readonly Dictionary<string, Surface> _surfaces = new();
     private readonly object _lock = new();
 
-    public event EventHandler<SurfaceCreatedEventArgs>?   SurfaceCreated;
-    public event EventHandler<SurfaceDeletedEventArgs>?   SurfaceDeleted;
+    public event EventHandler<SurfaceCreatedEventArgs>?    SurfaceCreated;
+    public event EventHandler<SurfaceDeletedEventArgs>?    SurfaceDeleted;
     public event EventHandler<ComponentsUpdatedEventArgs>? ComponentsUpdated;
     public event EventHandler<DataModelUpdatedEventArgs>?  DataModelUpdated;
 
@@ -24,7 +25,6 @@ public sealed class SurfaceManager
             if (message.DeleteSurface is { } ds)    HandleDelete(ds);
             if (message.UpdateComponents is { } uc) HandleUpdateComponents(uc);
             if (message.UpdateDataModel  is { } ud) HandleUpdateDataModel(ud);
-            if (message.DataModelUpdate  is { } dm) HandleDataModelUpdate(dm);
         }
     }
 
@@ -36,7 +36,11 @@ public sealed class SurfaceManager
     private void HandleCreate(CreateSurface cs)
     {
         if (_surfaces.ContainsKey(cs.SurfaceId)) return;
-        var surface = new Surface(cs.SurfaceId, cs.CatalogId);
+        var surface = new Surface(cs.SurfaceId, cs.CatalogId)
+        {
+            Theme = cs.Theme,
+            SendDataModel = cs.SendDataModel ?? false,
+        };
         _surfaces[cs.SurfaceId] = surface;
         SurfaceCreated?.Invoke(this, new(surface));
     }
@@ -60,20 +64,15 @@ public sealed class SurfaceManager
         surface.DataModel.Apply(ud);
         DataModelUpdated?.Invoke(this, new(surface));
     }
-
-    private void HandleDataModelUpdate(DataModelUpdate dm)
-    {
-        if (!_surfaces.TryGetValue(dm.SurfaceId, out var surface)) return;
-        surface.DataModel.Apply(dm);
-        DataModelUpdated?.Invoke(this, new(surface));
-    }
 }
 
 public sealed class Surface(string surfaceId, string catalogId)
 {
-    public string    SurfaceId { get; } = surfaceId;
-    public string    CatalogId { get; } = catalogId;
-    public DataModel DataModel { get; } = new();
+    public string       SurfaceId     { get; } = surfaceId;
+    public string       CatalogId     { get; } = catalogId;
+    public DataModel    DataModel     { get; } = new();
+    public JsonElement? Theme         { get; internal set; }
+    public bool         SendDataModel { get; internal set; }
 
     private readonly Dictionary<string, A2UiComponent> _components = new();
 

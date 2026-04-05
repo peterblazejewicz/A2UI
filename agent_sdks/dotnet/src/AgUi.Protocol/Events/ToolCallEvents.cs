@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace AgUi.Protocol.Events;
@@ -28,7 +29,7 @@ public sealed record ToolCallResultEvent : BaseEvent
 {
     [JsonPropertyName("messageId")]  public required string MessageId  { get; init; }
     [JsonPropertyName("toolCallId")] public required string ToolCallId { get; init; }
-    [JsonPropertyName("content")]    public required string Content    { get; init; }
+    [JsonPropertyName("content")]    public required JsonElement Content { get; init; }
     [JsonPropertyName("role")]       public string? Role               { get; init; }
 }
 
