@@ -46,20 +46,29 @@ public sealed class DataModel
             return;
         }
 
-        // Set value at path
-        JsonObject current = _root;
+        // Set value at path — supports both object keys and array indices
+        JsonNode container = _root;
         for (int i = 0; i < segments.Length - 1; i++)
         {
             string seg = segments[i];
-            if (current[seg] is not JsonObject child)
-            {
-                child = new JsonObject();
-                current[seg] = child;
-            }
-            current = child;
+            string nextSeg = segments[i + 1];
+            bool nextIsIndex = int.TryParse(nextSeg, out _);
+
+            container = NavigateOrCreate(container, seg, createArray: nextIsIndex);
         }
 
-        current[segments[^1]] = JsonNode.Parse(update.Value.Value.GetRawText());
+        string lastSeg = segments[^1];
+        JsonNode? newValue = JsonNode.Parse(update.Value.Value.GetRawText());
+
+        if (container is JsonObject obj)
+        {
+            obj[lastSeg] = newValue;
+        }
+        else if (container is JsonArray arr && int.TryParse(lastSeg, out int idx))
+        {
+            while (arr.Count <= idx) arr.Add(null);
+            arr[idx] = newValue;
+        }
     }
 
     /// <summary>Resolve a DynamicValue. Returns null if path not found or FunctionCall.</summary>
@@ -104,6 +113,37 @@ public sealed class DataModel
         return node;
     }
 
+    private static JsonNode NavigateOrCreate(JsonNode parent, string segment, bool createArray)
+    {
+        if (parent is JsonObject obj)
+        {
+            // Preserve existing container regardless of createArray hint
+            if (obj[segment] is JsonObject or JsonArray)
+                return obj[segment]!;
+
+            // No container at this key — create based on hint
+            JsonNode child = createArray ? new JsonArray() : new JsonObject();
+            obj[segment] = child;
+            return child;
+        }
+
+        if (parent is JsonArray arr && int.TryParse(segment, out int idx))
+        {
+            while (arr.Count <= idx) arr.Add(null);
+
+            if (arr[idx] is JsonObject or JsonArray)
+                return arr[idx]!;
+
+            JsonNode child = createArray ? new JsonArray() : new JsonObject();
+            arr[idx] = child;
+            return child;
+        }
+
+        throw new JsonException(
+            $"Cannot navigate segment '{segment}' on a {parent.GetType().Name} node. " +
+            "Expected JsonObject or JsonArray as parent.");
+    }
+
     private void DeleteAtPath(string[] segments)
     {
         if (segments.Length == 1)
@@ -112,15 +152,25 @@ public sealed class DataModel
             return;
         }
 
-        JsonObject current = _root;
+        // Navigate to parent of the target — supports both object and array nodes
+        JsonNode current = _root;
         for (int i = 0; i < segments.Length - 1; i++)
         {
-            if (current[segments[i]] is JsonObject child)
-                current = child;
+            string seg = segments[i];
+            if (current is JsonObject obj && obj.ContainsKey(seg))
+                current = obj[seg]!;
+            else if (current is JsonArray arr && int.TryParse(seg, out int idx) && idx >= 0 && idx < arr.Count && arr[idx] is not null)
+                current = arr[idx]!;
             else
                 return; // path doesn't exist, nothing to delete
         }
-        current.Remove(segments[^1]);
+
+        // Remove the final segment from its parent
+        string lastSeg = segments[^1];
+        if (current is JsonObject parentObj)
+            parentObj.Remove(lastSeg);
+        else if (current is JsonArray parentArr && int.TryParse(lastSeg, out int lastIdx) && lastIdx >= 0 && lastIdx < parentArr.Count)
+            parentArr[lastIdx] = null;
     }
 
     private static string? NodeToString(JsonNode? node)

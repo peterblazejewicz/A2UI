@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.Json;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
@@ -203,5 +204,100 @@ public sealed class DataModelTests
         };
 
         dm.Resolve(fc).Should().BeNull();
+    }
+
+    [Fact]
+    public void Apply_ArrayIndexPath_CreatesArrayAndSetsElement()
+    {
+        var dm = new DataModel();
+        dm.Apply(new UpdateDataModel
+        {
+            SurfaceId = "s",
+            Path = "/items/0/name",
+            Value = JsonSerializer.SerializeToElement("Alice"),
+        });
+
+        dm.Resolve(DynamicValue.FromPath("/items/0/name")).Should().Be("Alice");
+    }
+
+    [Fact]
+    public void Apply_ArrayIndexPath_MultipleElements()
+    {
+        var dm = new DataModel();
+        dm.Apply(new UpdateDataModel
+        {
+            SurfaceId = "s",
+            Path = "/items/0",
+            Value = JsonSerializer.SerializeToElement(new { name = "Alice" }),
+        });
+        dm.Apply(new UpdateDataModel
+        {
+            SurfaceId = "s",
+            Path = "/items/1",
+            Value = JsonSerializer.SerializeToElement(new { name = "Bob" }),
+        });
+
+        dm.Resolve(DynamicValue.FromPath("/items/0/name")).Should().Be("Alice");
+        dm.Resolve(DynamicValue.FromPath("/items/1/name")).Should().Be("Bob");
+    }
+
+    [Fact]
+    public void Apply_ArrayIndexPath_PreservesExistingArray()
+    {
+        var dm = new DataModel();
+        dm.SetSnapshot(JsonSerializer.SerializeToElement(new
+        {
+            items = new[] { new { name = "original" } }
+        }));
+
+        dm.Apply(new UpdateDataModel
+        {
+            SurfaceId = "s",
+            Path = "/items/0/name",
+            Value = JsonSerializer.SerializeToElement("updated"),
+        });
+
+        dm.Resolve(DynamicValue.FromPath("/items/0/name")).Should().Be("updated");
+    }
+
+    [Fact]
+    public void Apply_DeleteAtArrayPath_NullifiesElement()
+    {
+        var dm = new DataModel();
+        dm.SetSnapshot(JsonSerializer.SerializeToElement(new
+        {
+            items = new[] { "alpha", "beta", "gamma" }
+        }));
+
+        dm.Apply(new UpdateDataModel
+        {
+            SurfaceId = "s",
+            Path = "/items/1",
+            Value = null,
+        });
+
+        dm.Resolve(DynamicValue.FromPath("/items/1")).Should().BeNull();
+        dm.Resolve(DynamicValue.FromPath("/items/2")).Should().Be("gamma");
+    }
+
+    [Fact]
+    public void Apply_PreservesExistingObjectWhenNextSegmentIsNumeric()
+    {
+        var dm = new DataModel();
+        dm.SetSnapshot(JsonSerializer.SerializeToElement(new
+        {
+            totals = new Dictionary<string, int> { ["2025"] = 100 }
+        }));
+
+        dm.Apply(new UpdateDataModel
+        {
+            SurfaceId = "s",
+            Path = "/totals/2026",
+            Value = JsonSerializer.SerializeToElement(200),
+        });
+
+        // Should preserve the object (not create an array) since "totals" already exists as object
+        dm.Resolve(DynamicValue.FromPath("/totals/2025")).Should().Be("100");
+        dm.Resolve(DynamicValue.FromPath("/totals/2026")).Should().Be("200");
     }
 }
