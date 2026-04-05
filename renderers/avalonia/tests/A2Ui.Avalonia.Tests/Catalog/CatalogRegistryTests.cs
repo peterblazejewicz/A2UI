@@ -1,10 +1,10 @@
 using System;
-using A2Ui.Rendering.Catalog;
+using A2Ui.Avalonia.Catalog;
 using Avalonia.Headless.XUnit;
 using FluentAssertions;
 using Xunit;
 
-namespace A2Ui.Rendering.Tests.Catalog;
+namespace A2Ui.Avalonia.Tests.Catalog;
 
 public sealed class CatalogRegistryTests
 {

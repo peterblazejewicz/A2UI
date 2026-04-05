@@ -2,7 +2,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 
-namespace A2Ui.Rendering.Catalog;
+namespace A2Ui.Avalonia.Catalog;
 
 public sealed class ButtonCatalogEntry : ICatalogEntry
 {

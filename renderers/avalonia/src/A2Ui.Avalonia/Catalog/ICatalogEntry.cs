@@ -4,7 +4,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 
-namespace A2Ui.Rendering.Catalog;
+namespace A2Ui.Avalonia.Catalog;
 
 /// <summary>
 /// Factory contract for a single A2UI component type.

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>A2Ui.Rendering</AssemblyName>
-    <RootNamespace>A2Ui.Rendering</RootNamespace>
+    <AssemblyName>A2Ui.Avalonia</AssemblyName>
+    <RootNamespace>A2Ui.Avalonia</RootNamespace>
     <Description>A2UI renderer for Avalonia UI</Description>
     <!-- Required for Avalonia control library -->
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>

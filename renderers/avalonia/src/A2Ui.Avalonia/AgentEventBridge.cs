@@ -6,7 +6,7 @@ using AgUi.Protocol;
 using AgUi.Protocol.Events;
 using Avalonia.Threading;
 
-namespace A2Ui.Rendering;
+namespace A2Ui.Avalonia;
 
 /// <summary>
 /// In-process bridge between an AG-UI agent and the A2UI SurfaceManager.

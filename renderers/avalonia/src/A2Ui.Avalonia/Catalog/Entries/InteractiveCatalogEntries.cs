@@ -1,8 +1,9 @@
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
+using Avalonia.Layout;
 
-namespace A2Ui.Rendering.Catalog;
+namespace A2Ui.Avalonia.Catalog;
 
 /// <summary>A2UI "List" → ScrollViewer + StackPanel (scrollable list).</summary>
 public sealed class ListCatalogEntry : ICatalogEntry
@@ -12,8 +13,8 @@ public sealed class ListCatalogEntry : ICatalogEntry
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
         var orientation = c.Direction == "horizontal"
-            ? Avalonia.Layout.Orientation.Horizontal
-            : Avalonia.Layout.Orientation.Vertical;
+            ? Orientation.Horizontal
+            : Orientation.Vertical;
 
         var panel = new StackPanel { Orientation = orientation, Spacing = 4 };
         foreach (var child in ctx.RenderChildren(c.Id))

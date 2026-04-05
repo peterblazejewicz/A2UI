@@ -1,10 +1,10 @@
-using A2Ui.Rendering.Catalog;
+using A2Ui.Avalonia.Catalog;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Threading;
 
-namespace A2Ui.Rendering;
+namespace A2Ui.Avalonia;
 
 /// <summary>
 /// Renders an A2UI surface to Avalonia controls.

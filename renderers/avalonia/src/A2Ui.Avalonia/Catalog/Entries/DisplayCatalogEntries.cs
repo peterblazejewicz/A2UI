@@ -2,8 +2,9 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
 
-namespace A2Ui.Rendering.Catalog;
+namespace A2Ui.Avalonia.Catalog;
 
 /// <summary>A2UI "Icon" → TextBlock with Unicode icon mapping.</summary>
 public sealed class IconCatalogEntry : ICatalogEntry
@@ -17,7 +18,7 @@ public sealed class IconCatalogEntry : ICatalogEntry
         {
             Text = MapIconName(name),
             FontSize = 20,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Center,
         };
     }
 

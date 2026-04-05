@@ -2,8 +2,9 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using Avalonia.Media;
 
-namespace A2Ui.Rendering.Catalog;
+namespace A2Ui.Avalonia.Catalog;
 
 /// <summary>
 /// A2UI "Text" → Avalonia TextBlock.
@@ -18,7 +19,7 @@ public sealed class TextCatalogEntry : ICatalogEntry
         var tb = new TextBlock
         {
             Text = ctx.Resolve(c.Text) ?? string.Empty,
-            TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+            TextWrapping = TextWrapping.Wrap,
         };
 
         ApplyVariant(tb, c.Variant);

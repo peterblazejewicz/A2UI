@@ -1,9 +1,10 @@
 using A2Ui.Core;
 using A2Ui.Core.Messages;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 
-namespace A2Ui.Rendering.Catalog;
+namespace A2Ui.Avalonia.Catalog;
 
 /// <summary>A2UI "Column" → StackPanel (Vertical).</summary>
 public sealed class ColumnCatalogEntry : ICatalogEntry
@@ -50,8 +51,8 @@ public sealed class CardCatalogEntry : ICatalogEntry
     {
         var border = new Border
         {
-            CornerRadius = new Avalonia.CornerRadius(8),
-            Padding = new Avalonia.Thickness(16),
+            CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(16),
             Classes = { "Card" },
         };
 

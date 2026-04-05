@@ -1,10 +1,10 @@
-using A2Ui.Rendering.Catalog;
+using A2Ui.Avalonia.Catalog;
 using A2Ui.Core;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
 
-namespace A2Ui.Rendering.Controls;
+namespace A2Ui.Avalonia.Controls;
 
 /// <summary>
 /// Avalonia UserControl that hosts an A2UI surface.

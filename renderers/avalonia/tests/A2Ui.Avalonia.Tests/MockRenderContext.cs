@@ -1,9 +1,9 @@
-using A2Ui.Rendering.Catalog;
+using A2Ui.Avalonia.Catalog;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 
-namespace A2Ui.Rendering.Tests;
+namespace A2Ui.Avalonia.Tests;
 
 internal sealed class MockRenderContext(DataModel dataModel) : IRenderContext
 {

@@ -1,11 +1,11 @@
-using A2Ui.Rendering.Catalog;
+using A2Ui.Avalonia.Catalog;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using FluentAssertions;
 
-namespace A2Ui.Rendering.Tests.Catalog;
+namespace A2Ui.Avalonia.Tests.Catalog;
 
 public sealed class NewCatalogEntryTests
 {

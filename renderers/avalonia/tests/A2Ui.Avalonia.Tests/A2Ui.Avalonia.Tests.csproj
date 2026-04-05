@@ -23,6 +23,6 @@
     <PackageReference Include="FluentAssertions" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/A2Ui.Rendering/A2Ui.Rendering.csproj" />
+    <ProjectReference Include="../../src/A2Ui.Avalonia/A2Ui.Avalonia.csproj" />
   </ItemGroup>
 </Project>

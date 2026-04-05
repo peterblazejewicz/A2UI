@@ -1,9 +1,11 @@
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 
-namespace A2Ui.Rendering.Catalog;
+namespace A2Ui.Avalonia.Catalog;
 
 /// <summary>A2UI "Image" → Avalonia Image. Loads from URL asynchronously.</summary>
 public sealed class ImageCatalogEntry : ICatalogEntry
@@ -14,11 +16,11 @@ public sealed class ImageCatalogEntry : ICatalogEntry
     {
         var stretch = c.Fit switch
         {
-            "cover"     => Avalonia.Media.Stretch.UniformToFill,
-            "fill"      => Avalonia.Media.Stretch.Fill,
-            "none"      => Avalonia.Media.Stretch.None,
-            "scaleDown" => Avalonia.Media.Stretch.Uniform,
-            _           => Avalonia.Media.Stretch.Uniform, // "contain" or default
+            "cover"     => Stretch.UniformToFill,
+            "fill"      => Stretch.Fill,
+            "none"      => Stretch.None,
+            "scaleDown" => Stretch.Uniform,
+            _           => Stretch.Uniform, // "contain" or default
         };
         var img = new Image { Stretch = stretch };
         string? url = ctx.Resolve(c.Url) ?? ctx.Resolve(c.Value);
@@ -41,7 +43,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
     }
 }
 
-/// <summary>A2UI "Table" → Avalonia DataGrid.</summary>
+/// <summary>A2UI "Table" → Avalonia DataGrid (extension, not in v0.9 spec).</summary>
 public sealed class TableCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Table";
@@ -56,7 +58,7 @@ public sealed class TableCatalogEntry : ICatalogEntry
                 grid.Columns.Add(new DataGridTextColumn
                 {
                     Header  = col.Header,
-                    Binding = new Avalonia.Data.Binding(col.Field),
+                    Binding = new Binding(col.Field),
                 });
             }
         }
@@ -67,7 +69,7 @@ public sealed class TableCatalogEntry : ICatalogEntry
                        IRenderContext ctx) => false;
 }
 
-/// <summary>A2UI "Surface" → UserControl root container.</summary>
+/// <summary>A2UI "Surface" → root container (extension, not in v0.9 spec).</summary>
 public sealed class SurfaceCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Surface";

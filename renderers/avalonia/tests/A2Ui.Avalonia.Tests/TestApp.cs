@@ -2,9 +2,9 @@ using Avalonia;
 using Avalonia.Headless;
 using Avalonia.Themes.Fluent;
 
-[assembly: AvaloniaTestApplication(typeof(A2Ui.Rendering.Tests.TestApp))]
+[assembly: AvaloniaTestApplication(typeof(A2Ui.Avalonia.Tests.TestApp))]
 
-namespace A2Ui.Rendering.Tests;
+namespace A2Ui.Avalonia.Tests;
 
 /// <summary>
 /// Headless Avalonia application for UI tests.
