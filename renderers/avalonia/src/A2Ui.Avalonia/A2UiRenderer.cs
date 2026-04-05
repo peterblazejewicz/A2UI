@@ -71,7 +71,8 @@ public sealed class A2UiRenderer
         }
 
         var control = entry.Create(component, surface.DataModel, context);
-        cache?.TryAdd(component.Id, control);
+        if (cache is not null)
+            cache[component.Id] = control;
         return control;
     }
 
