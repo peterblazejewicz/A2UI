@@ -8,7 +8,7 @@ contributed directly to this fork of `google/A2UI` (Apache 2.0).
 Deliverables living inside this repository:
 - `agent_sdks/dotnet/` — C# SDK: AG-UI event types + A2UI message model
 - `renderers/avalonia/` — Avalonia renderer: catalog registry + control implementations
-- `samples/client/avalonia/` — Composer port: native MVVM desktop app
+- `samples/client/avalonia/` — Gallery v0.9 port + Composer scaffold (future)
 
 **Fork:** `https://github.com/<your-handle>/A2UI`
 **Branch:** `feature/dotnet-avalonia-renderer`
@@ -71,7 +71,8 @@ A2UI/                                  ← repo root (fork of google/A2UI)
 │       ├── lit/                       ← existing web clients
 │       ├── angular/                   ← existing Angular clients
 │       └── avalonia/                  ← OUR NEW CODE
-│           └── composer/              ← port of tools/composer/ to native MVVM
+│           ├── gallery_v0_9/          ← v0.9 local gallery (MVVM desktop app)
+│           └── composer/              ← placeholder scaffold for future agent-connected app (no source code yet)
 │
 └── tools/
     └── composer/                      ← original web Composer (source to study for port)
@@ -139,8 +140,8 @@ cd renderers/avalonia
 DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet build src/A2Ui.Avalonia/A2Ui.Avalonia.csproj --configuration Release
 DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet test tests/A2Ui.Avalonia.Tests/A2Ui.Avalonia.Tests.csproj --configuration Release
 
-# Avalonia app (samples/client/avalonia/composer/)
-cd samples/client/avalonia/composer
+# Gallery app (samples/client/avalonia/gallery_v0_9/)
+cd samples/client/avalonia/gallery_v0_9
 DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet build --configuration Release
 ```
 
@@ -238,8 +239,8 @@ ls renderers/lit/src/
 # 4. Angular renderer — typed catalog entries, closest to C# structure
 ls renderers/angular/src/
 
-# 5. Composer tool — source for the Avalonia app port
-ls tools/composer/
+# 5. Lit gallery — source for the Avalonia gallery port
+ls samples/client/lit/gallery_v0_9/
 
 # Flutter renderer is external: https://github.com/flutter/genui
 ```
