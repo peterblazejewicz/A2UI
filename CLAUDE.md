@@ -43,8 +43,8 @@ A2UI/                                  ← repo root (fork of google/A2UI)
 │   ├── java/                          ← existing reference implementation
 │   └── dotnet/                        ← OUR NEW CODE
 │       ├── src/
-│       │   ├── AgUi.Protocol/         ← AG-UI 26-event types + SSE transport
-│       │   └── A2Ui.Core/             ← A2UI message model + SurfaceManager
+│       │   ├── AgUi.Protocol/         ← AG-UI 28-event types + SSE transport
+│       │   └── A2Ui.Core/             ← A2UI message model, DynamicValue, SurfaceManager
 │       ├── tests/
 │       │   ├── AgUi.Protocol.Tests/
 │       │   └── A2Ui.Core.Tests/
@@ -61,9 +61,9 @@ A2UI/                                  ← repo root (fork of google/A2UI)
 │   ├── markdown/
 │   └── avalonia/                      ← OUR NEW CODE
 │       ├── src/
-│       │   └── A2Ui.Avalonia/         ← catalog registry + ~3000 LoC renderer
+│       │   └── A2Ui.Rendering/        ← catalog registry + 18 v0.9 catalog entries
 │       └── tests/
-│           └── A2Ui.Avalonia.Tests/   ← Avalonia.Headless.XUnit
+│           └── A2Ui.Rendering.Tests/  ← Avalonia.Headless.XUnit
 │
 ├── samples/
 │   ├── agent/adk/                     ← Python reference agents
@@ -136,7 +136,8 @@ DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet test A2Ui.sln --configuration Rel
 
 # Avalonia renderer (renderers/avalonia/)
 cd renderers/avalonia
-DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet build --configuration Release
+DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet build src/A2Ui.Rendering/A2Ui.Rendering.csproj --configuration Release
+DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet test tests/A2Ui.Rendering.Tests/A2Ui.Rendering.Tests.csproj --configuration Release
 
 # Avalonia app (samples/client/avalonia/composer/)
 cd samples/client/avalonia/composer
@@ -172,7 +173,7 @@ DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet build --configuration Release
 
 ```bash
 dotnet csharpier agent_sdks/dotnet/src/
-dotnet csharpier renderers/avalonia/src/
+dotnet csharpier renderers/avalonia/src/A2Ui.Rendering/
 dotnet csharpier samples/client/avalonia/
 ```
 
@@ -201,23 +202,24 @@ Refs: specification/v0_9/docs/a2ui_protocol.md"
 
 Wire format is JSONL — one JSON object per line.
 
-**AG-UI events (26 total):**
+**AG-UI events (28 discriminators):**
 Lifecycle: `RUN_STARTED` `RUN_FINISHED` `RUN_ERROR` `STEP_STARTED` `STEP_FINISHED`
 Text: `TEXT_MESSAGE_START` `TEXT_MESSAGE_CONTENT` `TEXT_MESSAGE_END` `TEXT_MESSAGE_CHUNK`
 Tool: `TOOL_CALL_START` `TOOL_CALL_ARGS` `TOOL_CALL_END` `TOOL_CALL_RESULT` `TOOL_CALL_CHUNK`
 State: `STATE_SNAPSHOT` `STATE_DELTA` `MESSAGES_SNAPSHOT` `ACTIVITY_SNAPSHOT` `ACTIVITY_DELTA`
-Reasoning: `REASONING_START/MESSAGE_*/END` `REASONING_ENCRYPTED_VALUE`
+Reasoning: `REASONING_START` `REASONING_MESSAGE_START` `REASONING_MESSAGE_CONTENT` `REASONING_MESSAGE_END` `REASONING_MESSAGE_CHUNK` `REASONING_END` `REASONING_ENCRYPTED_VALUE`
 Extension: `RAW` `CUSTOM`
 
 **A2UI messages (server→client):**
-`createSurface` `deleteSurface` `updateComponents` `updateDataModel` `dataModelUpdate`
+`createSurface` `deleteSurface` `updateComponents` `updateDataModel`
 
 **A2UI messages (client→server):**
-`userAction`
+`action` `error`
 
-**Catalog types from `specification/v0_9/json/basic_catalog.json`:**
-`Text` `Button` `Column` `Row` `Card` `TextField` `DateTimeInput`
-`Select` `Checkbox` `Slider` `Image` `Table` `Surface`
+**Catalog types from `specification/v0_9/json/basic_catalog.json` (18 types):**
+Display: `Text` `Image` `Icon` `Video` `AudioPlayer` `Divider`
+Layout: `Row` `Column` `List` `Card` `Tabs` `Modal`
+Interactive: `Button` `TextField` `CheckBox` `ChoicePicker` `DateTimeInput` `Slider`
 
 ---
 
