@@ -1,3 +1,4 @@
+using A2Ui.Avalonia.Gallery.ViewModels;
 using A2Ui.Core;
 using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +26,6 @@ internal static class Program
     private static void ConfigureServices(IServiceCollection services)
     {
         services.AddSingleton<SurfaceManager>();
-        // Registered in Task 5: services.AddTransient<GalleryDataLoader>();
-        // Registered in Task 6: services.AddSingleton<GalleryViewModel>();
+        services.AddSingleton<GalleryViewModel>();
     }
 }
