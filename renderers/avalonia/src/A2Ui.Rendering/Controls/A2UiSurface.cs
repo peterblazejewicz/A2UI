@@ -1,10 +1,10 @@
-using A2Ui.Avalonia.Catalog;
+using A2Ui.Rendering.Catalog;
 using A2Ui.Core;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
 
-namespace A2Ui.Avalonia.Controls;
+namespace A2Ui.Rendering.Controls;
 
 /// <summary>
 /// Avalonia UserControl that hosts an A2UI surface.
@@ -23,7 +23,6 @@ public sealed class A2UiSurface : ContentControl
     {
         _renderer = new A2UiRenderer(catalog);
         _renderer.UserActionFired += OnUserActionFired;
-        this.GetObservable(SurfaceProperty).Subscribe(OnSurfaceChanged);
     }
 
     public Surface? Surface
@@ -33,6 +32,16 @@ public sealed class A2UiSurface : ContentControl
     }
 
     public event EventHandler<UserActionEventArgs>? UserActionFired;
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == SurfaceProperty)
+        {
+            OnSurfaceChanged(change.GetNewValue<Surface?>());
+        }
+    }
 
     private void OnSurfaceChanged(Surface? surface)
     {

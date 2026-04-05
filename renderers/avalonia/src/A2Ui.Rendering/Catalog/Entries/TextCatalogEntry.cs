@@ -3,7 +3,7 @@ using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Layout;
 
-namespace A2Ui.Avalonia.Catalog;
+namespace A2Ui.Rendering.Catalog;
 
 /// <summary>
 /// A2UI "Text" → Avalonia TextBlock.

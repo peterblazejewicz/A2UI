@@ -4,7 +4,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 
-namespace A2Ui.Avalonia.Catalog;
+namespace A2Ui.Rendering.Catalog;
 
 /// <summary>
 /// Factory contract for a single A2UI component type.
@@ -44,6 +44,6 @@ public interface IRenderContext
     /// <summary>Fire a user action event back to the agent.</summary>
     void FireUserAction(string surfaceId, string eventName, object? payload = null);
 
-    /// <summary>Resolve a BoundOrLiteral value from the data model.</summary>
-    string? Resolve(BoundOrLiteral? bound);
+    /// <summary>Resolve a DynamicValue from the data model.</summary>
+    string? Resolve(DynamicValue? value);
 }

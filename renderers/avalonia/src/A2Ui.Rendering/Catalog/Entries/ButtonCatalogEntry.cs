@@ -2,7 +2,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 
-namespace A2Ui.Avalonia.Catalog;
+namespace A2Ui.Rendering.Catalog;
 
 public sealed class ButtonCatalogEntry : ICatalogEntry
 {
@@ -14,7 +14,7 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
         {
             Content = c.Child is not null
                 ? ctx.RenderChild(c.Child)
-                : (object?)(ctx.Resolve(c.Text) ?? c.Label ?? string.Empty),
+                : (object?)(ctx.Resolve(c.Text) ?? ctx.Resolve(c.Label) ?? string.Empty),
         };
 
         ApplyVariant(btn, c.Variant);

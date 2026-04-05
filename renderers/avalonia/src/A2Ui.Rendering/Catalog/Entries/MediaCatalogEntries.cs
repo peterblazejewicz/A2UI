@@ -3,7 +3,7 @@ using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 
-namespace A2Ui.Avalonia.Catalog;
+namespace A2Ui.Rendering.Catalog;
 
 /// <summary>A2UI "Image" → Avalonia Image. Loads from URL asynchronously.</summary>
 public sealed class ImageCatalogEntry : ICatalogEntry
@@ -13,7 +13,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
         var img = new Image { Stretch = Avalonia.Media.Stretch.Uniform };
-        string? url = c.Url ?? ctx.Resolve(c.Value);
+        string? url = ctx.Resolve(c.Url) ?? ctx.Resolve(c.Value);
         if (url is not null) LoadAsync(img, url);
         return img;
     }

@@ -4,7 +4,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 
-namespace A2Ui.Avalonia.Catalog;
+namespace A2Ui.Rendering.Catalog;
 
 /// <summary>
 /// Registry of A2UI type → Avalonia control factory mappings.

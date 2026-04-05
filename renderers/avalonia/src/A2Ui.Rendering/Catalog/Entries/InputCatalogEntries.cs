@@ -2,7 +2,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 
-namespace A2Ui.Avalonia.Catalog;
+namespace A2Ui.Rendering.Catalog;
 
 /// <summary>A2UI "TextField" → Avalonia TextBox.</summary>
 public sealed class TextFieldCatalogEntry : ICatalogEntry
@@ -14,7 +14,7 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
         var tb = new TextBox
         {
             Text        = ctx.Resolve(c.Value) ?? string.Empty,
-            Watermark   = c.Label,
+            Watermark   = ctx.Resolve(c.Label),
         };
         return tb;
     }
@@ -24,7 +24,7 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
     {
         if (existing is not TextBox tb) return false;
         if (!tb.IsFocused) tb.Text = ctx.Resolve(c.Value) ?? string.Empty;
-        tb.Watermark = c.Label;
+        tb.Watermark = ctx.Resolve(c.Label);
         return true;
     }
 }
@@ -39,7 +39,7 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
         // Simple implementation — full implementation uses a combined picker
         var picker = new CalendarDatePicker
         {
-            Watermark = c.Label ?? "Select date",
+            Watermark = ctx.Resolve(c.Label) ?? "Select date",
         };
 
         var raw = ctx.Resolve(c.Value);
@@ -62,7 +62,7 @@ public sealed class SelectCatalogEntry : ICatalogEntry
     {
         var combo = new ComboBox
         {
-            PlaceholderText = c.Label,
+            PlaceholderText = ctx.Resolve(c.Label),
         };
         return combo;
     }
@@ -81,7 +81,7 @@ public sealed class CheckboxCatalogEntry : ICatalogEntry
         bool isChecked = ctx.Resolve(c.Value) is "true";
         return new CheckBox
         {
-            Content     = c.Label,
+            Content     = ctx.Resolve(c.Label),
             IsChecked   = isChecked,
         };
     }
@@ -91,7 +91,7 @@ public sealed class CheckboxCatalogEntry : ICatalogEntry
     {
         if (existing is not CheckBox cb) return false;
         if (!cb.IsFocused) cb.IsChecked = ctx.Resolve(c.Value) is "true";
-        cb.Content = c.Label;
+        cb.Content = ctx.Resolve(c.Label);
         return true;
     }
 }

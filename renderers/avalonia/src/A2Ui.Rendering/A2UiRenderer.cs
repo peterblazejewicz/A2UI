@@ -1,10 +1,10 @@
-using A2Ui.Avalonia.Catalog;
+using A2Ui.Rendering.Catalog;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Threading;
 
-namespace A2Ui.Avalonia;
+namespace A2Ui.Rendering;
 
 /// <summary>
 /// Renders an A2UI surface to Avalonia controls.
@@ -111,8 +111,8 @@ internal sealed class RenderContext(
     public void FireUserAction(string surfaceId, string eventName, object? payload = null) =>
         fireAction(surface.SurfaceId, eventName, payload);
 
-    public string? Resolve(BoundOrLiteral? bound) =>
-        surface.DataModel.Resolve(bound);
+    public string? Resolve(DynamicValue? value) =>
+        surface.DataModel.Resolve(value);
 }
 
 public sealed record UserActionEventArgs(
