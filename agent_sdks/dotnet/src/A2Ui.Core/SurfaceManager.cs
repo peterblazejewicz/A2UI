@@ -5,7 +5,8 @@ namespace A2Ui.Core;
 
 /// <summary>
 /// Manages the lifecycle of A2UI surfaces and their component trees.
-/// Thread-safe via locking; call from dispatcher thread in UI layer.
+/// Thread-safe via locking. Events are fired outside the lock to prevent
+/// deadlocks if subscribers call back into GetSurface or Process.
 /// </summary>
 public sealed class SurfaceManager
 {
@@ -19,13 +20,29 @@ public sealed class SurfaceManager
 
     public void Process(A2UiMessage message)
     {
+        // Collect event args inside the lock, fire outside
+        SurfaceCreatedEventArgs?    createdArgs    = null;
+        SurfaceDeletedEventArgs?    deletedArgs    = null;
+        ComponentsUpdatedEventArgs? componentsArgs = null;
+        DataModelUpdatedEventArgs?  dataModelArgs  = null;
+
         lock (_lock)
         {
-            if (message.CreateSurface is { } cs)    HandleCreate(cs);
-            if (message.DeleteSurface is { } ds)    HandleDelete(ds);
-            if (message.UpdateComponents is { } uc) HandleUpdateComponents(uc);
-            if (message.UpdateDataModel  is { } ud) HandleUpdateDataModel(ud);
+            if (message.CreateSurface is { } cs)
+                createdArgs = HandleCreate(cs);
+            if (message.DeleteSurface is { } ds)
+                deletedArgs = HandleDelete(ds);
+            if (message.UpdateComponents is { } uc)
+                componentsArgs = HandleUpdateComponents(uc);
+            if (message.UpdateDataModel is { } ud)
+                dataModelArgs = HandleUpdateDataModel(ud);
         }
+
+        // Fire events outside the lock — safe for subscribers to call GetSurface
+        if (createdArgs is not null)    SurfaceCreated?.Invoke(this, createdArgs);
+        if (deletedArgs is not null)    SurfaceDeleted?.Invoke(this, deletedArgs);
+        if (componentsArgs is not null) ComponentsUpdated?.Invoke(this, componentsArgs);
+        if (dataModelArgs is not null)  DataModelUpdated?.Invoke(this, dataModelArgs);
     }
 
     public Surface? GetSurface(string surfaceId)
@@ -33,36 +50,37 @@ public sealed class SurfaceManager
         lock (_lock) { return _surfaces.GetValueOrDefault(surfaceId); }
     }
 
-    private void HandleCreate(CreateSurface cs)
+    private SurfaceCreatedEventArgs? HandleCreate(CreateSurface cs)
     {
-        if (_surfaces.ContainsKey(cs.SurfaceId)) return;
+        if (_surfaces.ContainsKey(cs.SurfaceId)) return null;
         var surface = new Surface(cs.SurfaceId, cs.CatalogId)
         {
             Theme = cs.Theme,
             SendDataModel = cs.SendDataModel ?? false,
         };
         _surfaces[cs.SurfaceId] = surface;
-        SurfaceCreated?.Invoke(this, new(surface));
+        return new(surface);
     }
 
-    private void HandleDelete(DeleteSurface ds)
+    private SurfaceDeletedEventArgs? HandleDelete(DeleteSurface ds)
     {
         if (_surfaces.Remove(ds.SurfaceId, out var surface))
-            SurfaceDeleted?.Invoke(this, new(surface));
+            return new(surface);
+        return null;
     }
 
-    private void HandleUpdateComponents(UpdateComponents uc)
+    private ComponentsUpdatedEventArgs? HandleUpdateComponents(UpdateComponents uc)
     {
-        if (!_surfaces.TryGetValue(uc.SurfaceId, out var surface)) return;
+        if (!_surfaces.TryGetValue(uc.SurfaceId, out var surface)) return null;
         surface.UpdateComponents(uc.Components);
-        ComponentsUpdated?.Invoke(this, new(surface, uc.Components));
+        return new(surface, uc.Components);
     }
 
-    private void HandleUpdateDataModel(UpdateDataModel ud)
+    private DataModelUpdatedEventArgs? HandleUpdateDataModel(UpdateDataModel ud)
     {
-        if (!_surfaces.TryGetValue(ud.SurfaceId, out var surface)) return;
+        if (!_surfaces.TryGetValue(ud.SurfaceId, out var surface)) return null;
         surface.DataModel.Apply(ud);
-        DataModelUpdated?.Invoke(this, new(surface));
+        return new(surface);
     }
 }
 
@@ -91,11 +109,9 @@ public sealed class Surface(string surfaceId, string catalogId)
     /// </summary>
     public IEnumerable<A2UiComponent> GetRootComponents()
     {
-        // v0.9: explicit root component
         if (_components.TryGetValue("root", out var rootComp))
             return [rootComp];
 
-        // Collect all IDs referenced as children by other components
         var childIds = new HashSet<string>();
         foreach (var c in _components.Values)
         {
@@ -111,11 +127,9 @@ public sealed class Surface(string surfaceId, string catalogId)
                     childIds.Add(tab.Child);
         }
 
-        // Components not referenced as children are roots
         var roots = _components.Values.Where(c => !childIds.Contains(c.Id)).ToList();
         if (roots.Count > 0) return roots;
 
-        // Legacy fallback: parent is null
         return _components.Values.Where(c => c.Parent is null);
     }
 }
