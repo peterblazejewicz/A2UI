@@ -9,6 +9,9 @@ dist
 __pycache__
 *.pyc
 .angular
+.remember
+bin
+obj
 
 # MkDocs build output
 site/
