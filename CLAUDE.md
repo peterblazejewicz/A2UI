@@ -61,9 +61,9 @@ A2UI/                                  ← repo root (fork of google/A2UI)
 │   ├── markdown/
 │   └── avalonia/                      ← OUR NEW CODE
 │       ├── src/
-│       │   └── A2Ui.Rendering/        ← catalog registry + 18 v0.9 catalog entries
+│       │   └── A2Ui.Avalonia/        ← catalog registry + 18 v0.9 catalog entries
 │       └── tests/
-│           └── A2Ui.Rendering.Tests/  ← Avalonia.Headless.XUnit
+│           └── A2Ui.Avalonia.Tests/  ← Avalonia.Headless.XUnit
 │
 ├── samples/
 │   ├── agent/adk/                     ← Python reference agents
@@ -136,8 +136,8 @@ DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet test A2Ui.sln --configuration Rel
 
 # Avalonia renderer (renderers/avalonia/)
 cd renderers/avalonia
-DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet build src/A2Ui.Rendering/A2Ui.Rendering.csproj --configuration Release
-DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet test tests/A2Ui.Rendering.Tests/A2Ui.Rendering.Tests.csproj --configuration Release
+DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet build src/A2Ui.Avalonia/A2Ui.Avalonia.csproj --configuration Release
+DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet test tests/A2Ui.Avalonia.Tests/A2Ui.Avalonia.Tests.csproj --configuration Release
 
 # Avalonia app (samples/client/avalonia/composer/)
 cd samples/client/avalonia/composer
@@ -173,7 +173,7 @@ DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 dotnet build --configuration Release
 
 ```bash
 dotnet csharpier agent_sdks/dotnet/src/
-dotnet csharpier renderers/avalonia/src/A2Ui.Rendering/
+dotnet csharpier renderers/avalonia/src/A2Ui.Avalonia/
 dotnet csharpier samples/client/avalonia/
 ```
 
