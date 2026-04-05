@@ -4,7 +4,7 @@ using Avalonia.Controls;
 
 namespace A2Ui.Rendering.Catalog;
 
-/// <summary>A2UI "TextField" → Avalonia TextBox.</summary>
+/// <summary>A2UI "TextField" → TextBox.</summary>
 public sealed class TextFieldCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "TextField";
@@ -13,8 +13,8 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
     {
         var tb = new TextBox
         {
-            Text        = ctx.Resolve(c.Value) ?? string.Empty,
-            Watermark   = ctx.Resolve(c.Label),
+            Text      = ctx.Resolve(c.Value) ?? string.Empty,
+            Watermark = ctx.Resolve(c.Label),
         };
         return tb;
     }
@@ -29,14 +29,13 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
     }
 }
 
-/// <summary>A2UI "DateTimeInput" → CalendarDatePicker or TimePicker.</summary>
+/// <summary>A2UI "DateTimeInput" → CalendarDatePicker.</summary>
 public sealed class DateTimeInputCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "DateTimeInput";
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
-        // Simple implementation — full implementation uses a combined picker
         var picker = new CalendarDatePicker
         {
             Watermark = ctx.Resolve(c.Label) ?? "Select date",
@@ -53,10 +52,10 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
                        IRenderContext ctx) => false;
 }
 
-/// <summary>A2UI "Select" → ComboBox.</summary>
-public sealed class SelectCatalogEntry : ICatalogEntry
+/// <summary>A2UI "ChoicePicker" → ComboBox with options.</summary>
+public sealed class ChoicePickerCatalogEntry : ICatalogEntry
 {
-    public string ComponentType => "Select";
+    public string ComponentType => "ChoicePicker";
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
@@ -64,6 +63,13 @@ public sealed class SelectCatalogEntry : ICatalogEntry
         {
             PlaceholderText = ctx.Resolve(c.Label),
         };
+
+        if (c.Options is { } opts)
+        {
+            foreach (var opt in opts)
+                combo.Items.Add(new ComboBoxItem { Content = opt.Label, Tag = opt.Value });
+        }
+
         return combo;
     }
 
@@ -71,18 +77,18 @@ public sealed class SelectCatalogEntry : ICatalogEntry
                        IRenderContext ctx) => false;
 }
 
-/// <summary>A2UI "Checkbox" → CheckBox.</summary>
-public sealed class CheckboxCatalogEntry : ICatalogEntry
+/// <summary>A2UI "CheckBox" → CheckBox control.</summary>
+public sealed class CheckBoxCatalogEntry : ICatalogEntry
 {
-    public string ComponentType => "Checkbox";
+    public string ComponentType => "CheckBox";
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
         bool isChecked = ctx.Resolve(c.Value) is "true";
         return new CheckBox
         {
-            Content     = ctx.Resolve(c.Label),
-            IsChecked   = isChecked,
+            Content   = ctx.Resolve(c.Label),
+            IsChecked = isChecked,
         };
     }
 
@@ -96,7 +102,7 @@ public sealed class CheckboxCatalogEntry : ICatalogEntry
     }
 }
 
-/// <summary>A2UI "Slider" → Avalonia Slider.</summary>
+/// <summary>A2UI "Slider" → Slider control.</summary>
 public sealed class SliderCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Slider";
@@ -104,7 +110,12 @@ public sealed class SliderCatalogEntry : ICatalogEntry
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
         double.TryParse(ctx.Resolve(c.Value), out double val);
-        return new Slider { Value = val, Minimum = 0, Maximum = 100 };
+        double.TryParse(ctx.Resolve(c.Min), out double min);
+        double max = 100;
+        if (ctx.Resolve(c.Max) is { } maxStr)
+            double.TryParse(maxStr, out max);
+
+        return new Slider { Value = val, Minimum = min, Maximum = max };
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,

@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
@@ -7,7 +5,7 @@ using Avalonia.Controls;
 namespace A2Ui.Rendering.Catalog;
 
 /// <summary>
-/// Registry of A2UI type → Avalonia control factory mappings.
+/// Registry of A2UI type → control factory mappings.
 /// The agent may ONLY reference types registered here — security boundary.
 /// </summary>
 public sealed class CatalogRegistry
@@ -33,21 +31,31 @@ public sealed class CatalogRegistry
 
     public IReadOnlyCollection<string> RegisteredTypes => _entries.Keys;
 
-    /// <summary>Build the default catalog with all built-in component types.</summary>
+    /// <summary>
+    /// Build the default catalog with all 18 v0.9 basic catalog component types.
+    /// </summary>
     public static CatalogRegistry CreateDefault() => new CatalogRegistry()
+        // Display
         .Register(new TextCatalogEntry())
-        .Register(new ButtonCatalogEntry())
-        .Register(new ColumnCatalogEntry())
-        .Register(new RowCatalogEntry())
-        .Register(new TextFieldCatalogEntry())
-        .Register(new DateTimeInputCatalogEntry())
-        .Register(new CardCatalogEntry())
         .Register(new ImageCatalogEntry())
-        .Register(new SelectCatalogEntry())
-        .Register(new CheckboxCatalogEntry())
-        .Register(new SliderCatalogEntry())
-        .Register(new TableCatalogEntry())
-        .Register(new SurfaceCatalogEntry());
+        .Register(new IconCatalogEntry())
+        .Register(new VideoCatalogEntry())
+        .Register(new AudioPlayerCatalogEntry())
+        .Register(new DividerCatalogEntry())
+        // Layout
+        .Register(new RowCatalogEntry())
+        .Register(new ColumnCatalogEntry())
+        .Register(new ListCatalogEntry())
+        .Register(new CardCatalogEntry())
+        .Register(new TabsCatalogEntry())
+        .Register(new ModalCatalogEntry())
+        // Interactive
+        .Register(new ButtonCatalogEntry())
+        .Register(new TextFieldCatalogEntry())
+        .Register(new CheckBoxCatalogEntry())
+        .Register(new ChoicePickerCatalogEntry())
+        .Register(new DateTimeInputCatalogEntry())
+        .Register(new SliderCatalogEntry());
 }
 
 internal sealed class DelegateCatalogEntry(
@@ -61,5 +69,5 @@ internal sealed class DelegateCatalogEntry(
         factory(component, dataModel, context);
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel,
-                       IRenderContext context) => false; // recreate by default
+                       IRenderContext context) => false;
 }

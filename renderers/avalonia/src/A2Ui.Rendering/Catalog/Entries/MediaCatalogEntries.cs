@@ -12,7 +12,15 @@ public sealed class ImageCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
-        var img = new Image { Stretch = Avalonia.Media.Stretch.Uniform };
+        var stretch = c.Fit switch
+        {
+            "cover"     => Avalonia.Media.Stretch.UniformToFill,
+            "fill"      => Avalonia.Media.Stretch.Fill,
+            "none"      => Avalonia.Media.Stretch.None,
+            "scaleDown" => Avalonia.Media.Stretch.Uniform,
+            _           => Avalonia.Media.Stretch.Uniform, // "contain" or default
+        };
+        var img = new Image { Stretch = stretch };
         string? url = ctx.Resolve(c.Url) ?? ctx.Resolve(c.Value);
         if (url is not null) LoadAsync(img, url);
         return img;

@@ -7,7 +7,7 @@ namespace A2Ui.Rendering.Catalog;
 
 /// <summary>
 /// A2UI "Text" → Avalonia TextBlock.
-/// Variants: h1, h2, h3, body (default), caption, label.
+/// Variants: h1, h2, h3, h4, h5, body (default), caption.
 /// </summary>
 public sealed class TextCatalogEntry : ICatalogEntry
 {
@@ -41,8 +41,9 @@ public sealed class TextCatalogEntry : ICatalogEntry
             "h1"      => "Heading1",
             "h2"      => "Heading2",
             "h3"      => "Heading3",
+            "h4"      => "Heading4",
+            "h5"      => "Heading5",
             "caption" => "Caption",
-            "label"   => "Label",
             _         => "Body",
         });
     }
