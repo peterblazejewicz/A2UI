@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
 using A2Ui.Avalonia.Gallery.Models;
@@ -46,7 +47,10 @@ public sealed class GalleryDataLoader
         CancellationToken ct)
     {
         if (!Directory.Exists(directory))
+        {
+            Debug.WriteLine($"[GalleryDataLoader] Specs directory not found: {directory}");
             return;
+        }
 
         string[] files = Directory.GetFiles(directory, "*.json");
         Array.Sort(files, StringComparer.OrdinalIgnoreCase);
@@ -61,9 +65,15 @@ public sealed class GalleryDataLoader
                 if (item is not null)
                     items.Add(item);
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
-                // Skip malformed files
+                Debug.WriteLine(
+                    $"[GalleryDataLoader] Skipping malformed JSON '{filePath}': {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                Debug.WriteLine(
+                    $"[GalleryDataLoader] Cannot read file '{filePath}': {ex.Message}");
             }
         }
     }

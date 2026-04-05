@@ -52,9 +52,9 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
 
     // ── Computed ───────────────────────────────────────────
 
-    public int TotalMessageCount => SelectedItem?.Messages.Length ?? 0;
+    public int TotalMessageCount => SelectedItem?.Messages.Count ?? 0;
     public bool CanAdvance => SelectedItem is not null
-                              && ProcessedMessageCount < SelectedItem.Messages.Length;
+                              && ProcessedMessageCount < SelectedItem.Messages.Count;
 
     // ── Commands ──────────────────────────────────────────
 
@@ -108,10 +108,20 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
         if (item is null) return;
 
         int start = ProcessedMessageCount;
-        int end = all ? item.Messages.Length : Math.Min(start + count, item.Messages.Length);
+        int end = all ? item.Messages.Count : Math.Min(start + count, item.Messages.Count);
 
         for (int i = start; i < end; i++)
-            _manager.Process(item.Messages[i]);
+        {
+            try
+            {
+                _manager.Process(item.Messages[i]);
+            }
+            catch (Exception ex) when (ex is JsonException or InvalidOperationException)
+            {
+                ActionLogs.Insert(0,
+                    $"[Error] Failed to process message {i}: {ex.Message}");
+            }
+        }
 
         ProcessedMessageCount = end;
     }

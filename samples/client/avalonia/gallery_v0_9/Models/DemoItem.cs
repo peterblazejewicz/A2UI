@@ -8,5 +8,5 @@ public sealed record DemoItem(
     string Title,
     string Filename,
     string Description,
-    A2UiMessage[] Messages,
+    IReadOnlyList<A2UiMessage> Messages,
     bool IsBasic);

@@ -19,6 +19,11 @@ public sealed partial class App : Application
             {
                 DataContext = Services.GetRequiredService<GalleryViewModel>(),
             };
+
+            desktop.ShutdownRequested += (_, _) =>
+            {
+                (Services as IDisposable)?.Dispose();
+            };
         }
         base.OnFrameworkInitializationCompleted();
     }
