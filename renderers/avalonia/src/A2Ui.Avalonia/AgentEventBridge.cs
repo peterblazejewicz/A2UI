@@ -51,10 +51,36 @@ public sealed class AgentEventBridge : IDisposable
     public void Dispose() => Stop();
 
     // Events surfaced to the app layer
-    public event EventHandler<string>? AgentTextDelta;
-    public event EventHandler?         RunStarted;
-    public event EventHandler?         RunFinished;
-    public event EventHandler<string>? RunError;
+    public event EventHandler<string>?            AgentTextDelta;
+    public event EventHandler?                    RunStarted;
+    public event EventHandler?                    RunFinished;
+    public event EventHandler<string>?            RunError;
+    /// <summary>
+    /// Fired when the user interacts with a rendered A2UI component (e.g., button click).
+    /// The app must subscribe to this and serialize the action as a
+    /// <see cref="ClientToServerMessage"/> to send back to the agent.
+    /// <para>
+    /// Wire this by connecting A2UiSurface.UserActionFired to <see cref="OnUserAction"/>:
+    /// <code>surface.UserActionFired += bridge.OnUserAction;</code>
+    /// </para>
+    /// </summary>
+    public event EventHandler<UserActionEventArgs>? UserActionReceived;
+
+    /// <summary>
+    /// Event handler to connect to <see cref="A2Ui.Avalonia.Controls.A2UiSurface.UserActionFired"/>.
+    /// Forwards the action to <see cref="UserActionReceived"/> subscribers.
+    /// </summary>
+    public void OnUserAction(object? sender, UserActionEventArgs e)
+    {
+        try
+        {
+            UserActionReceived?.Invoke(this, e);
+        }
+        catch
+        {
+            // Protect the UI thread — subscriber errors must not crash the input pipeline
+        }
+    }
 
     private async Task ProcessLoopAsync(CancellationToken ct)
     {

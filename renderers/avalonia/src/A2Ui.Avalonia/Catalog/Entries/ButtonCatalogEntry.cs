@@ -21,9 +21,9 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
 
         if (c.Action?.Event is { } actionEvent)
         {
-            string surfaceId = c.Parent ?? string.Empty; // resolved by renderer context
             string eventName = actionEvent.Name;
-            btn.Click += (_, _) => ctx.FireUserAction(surfaceId, eventName);
+            // surfaceId is always resolved by RenderContext, not the caller
+            btn.Click += (_, _) => ctx.FireUserAction(string.Empty, eventName);
         }
 
         return btn;
