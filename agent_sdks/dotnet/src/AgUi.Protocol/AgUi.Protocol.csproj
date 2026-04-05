@@ -8,11 +8,7 @@
     <RootNamespace>AgUi.Protocol</RootNamespace>
     <PackageId>AgUi.Protocol</PackageId>
     <Description>AG-UI event types and transport for .NET</Description>
-    <GeneratePackageOnFalse>true</GeneratePackageOnFalse>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.AI" Version="9.5.0" />
-  </ItemGroup>
 
 </Project>

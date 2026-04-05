@@ -7,11 +7,7 @@
     <AssemblyName>A2Ui.Core</AssemblyName>
     <RootNamespace>A2Ui.Core</RootNamespace>
     <Description>A2UI (Agent-to-UI) message model and catalog for .NET</Description>
-    <GeneratePackageOnFalse>true</GeneratePackageOnFalse>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\AgUi.Protocol/AgUi.Protocol.csproj" />
-  </ItemGroup>
 
 </Project>
