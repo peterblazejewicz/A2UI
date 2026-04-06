@@ -93,7 +93,8 @@ internal sealed class RenderContext(
     Dictionary<string, Control> cache,
     IFunctionRegistry? functionRegistry,
     Action<string, string, object?, string?> fireAction,
-    Action<string> onDataModelChanged)
+    Action<string> onDataModelChanged,
+    string? basePath = null)
     : IRenderContext
 {
     private static readonly JsonSerializerOptions s_jsonOptions = new();
@@ -163,9 +164,8 @@ internal sealed class RenderContext(
             if (comp.Children.Ids is { } ids)
                 return ids.Select(id => RenderChild(id)).OfType<Control>();
 
-            // Template children: stub — full expansion is future work
             if (comp.Children.Template is { } tmpl)
-                return RenderChild(tmpl.ComponentId) is { } ctrl ? [ctrl] : [];
+                return ExpandTemplate(tmpl);
         }
 
         // Legacy fallback: parent-based lookup
@@ -173,6 +173,43 @@ internal sealed class RenderContext(
             .Where(c => c.Parent == componentId)
             .Select(c => RenderChild(c.Id))
             .OfType<Control>();
+    }
+
+    /// <summary>
+    /// Expand a template child list by iterating over the data model array
+    /// at the template path and rendering the template component tree once
+    /// per array item, with relative path resolution scoped to each item.
+    /// </summary>
+    private IEnumerable<Control> ExpandTemplate(ChildTemplate tmpl)
+    {
+        string arrayPath = tmpl.Path.TrimStart('/');
+        int count = surface.DataModel.GetArrayLength(tmpl.Path);
+        if (count <= 0)
+            return [];
+
+        if (!surface.Components.TryGetValue(tmpl.ComponentId, out var templateComp))
+            return [];
+
+        if (!catalog.TryGetEntry(templateComp.Component, out var entry) || entry is null)
+            return [];
+
+        var controls = new List<Control>(count);
+        for (int i = 0; i < count; i++)
+        {
+            string itemBasePath = $"/{arrayPath}/{i}";
+
+            // Each template instance gets its own cache so children rendered
+            // from the same component IDs (e.g. rc_title) don't collide.
+            var instanceCache = new Dictionary<string, Control>();
+            var scopedContext = new RenderContext(
+                surface, catalog, instanceCache, functionRegistry,
+                fireAction, onDataModelChanged, itemBasePath);
+
+            var control = entry.Create(templateComp, surface.DataModel, scopedContext);
+            controls.Add(control);
+        }
+
+        return controls;
     }
 
     public void FireUserAction(string eventName, object? payload = null, string? componentId = null) =>
@@ -197,6 +234,13 @@ internal sealed class RenderContext(
                 }
             }
             return functionRegistry.Evaluate(fc.Call, resolvedArgs);
+        }
+
+        // Scope relative paths when inside a template expansion
+        if (basePath is not null && value.Path is { } path && !path.StartsWith('/'))
+        {
+            var scopedValue = DynamicValue.FromPath($"{basePath}/{path}");
+            return surface.DataModel.Resolve(scopedValue);
         }
 
         return surface.DataModel.Resolve(value);

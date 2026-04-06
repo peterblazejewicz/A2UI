@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using FluentAssertions;
@@ -9,7 +8,7 @@ namespace A2Ui.Avalonia.Tests.Integration.Minimal;
 /// <summary>
 /// Integration tests for minimal/7_incremental.json.
 /// Column with template children from /restaurants array, data model with 4 restaurants.
-/// Template expansion is stubbed (gap).
+/// Verifies template expansion renders one card per array item with scoped path resolution.
 /// </summary>
 public sealed class IncrementalListTests
 {
@@ -32,47 +31,107 @@ public sealed class IncrementalListTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
 
-        string json = result.Surface.DataModel.ToJson();
-        using JsonDocument doc = JsonDocument.Parse(json);
-        JsonElement restaurants = doc.RootElement.GetProperty("restaurants");
-        restaurants.GetArrayLength().Should().Be(4);
+        int length = result.Surface.DataModel.GetArrayLength("/restaurants");
+        length.Should().Be(4);
     }
 
     [AvaloniaFact]
-    public void DataModel_FourthRestaurant_IsSpiceRoute()
+    public void RootControl_HasFourChildren_OnePerRestaurant()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
 
-        string json = result.Surface.DataModel.ToJson();
-        using JsonDocument doc = JsonDocument.Parse(json);
-        JsonElement restaurants = doc.RootElement.GetProperty("restaurants");
-        JsonElement fourth = restaurants[3];
-        fourth.GetProperty("title").GetString().Should().Be("Spice Route");
+        // Root is a Column (StackPanel) with template children expanded
+        List<Control> rootChildren = GalleryTestHelper.GetChildren(result.RootControl).ToList();
+        rootChildren.Should().HaveCount(4,
+            "the /restaurants array has 4 items so template expansion should produce 4 cards");
     }
 
     [AvaloniaFact]
-    public void RootControl_Renders_WithoutException()
+    public void TemplateExpansion_ResolvesRestaurantTitles()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
 
-        result.RootControl.Should().NotBeNull();
+        List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
+        List<string> allTexts = textBlocks
+            .Select(tb => tb.Text)
+            .Where(t => t is not null)
+            .Cast<string>()
+            .ToList();
+
+        allTexts.Should().Contain("The Golden Fork");
+        allTexts.Should().Contain("Ocean's Bounty");
+        allTexts.Should().Contain("Pizzeria Roma");
+        allTexts.Should().Contain("Spice Route");
     }
 
     [AvaloniaFact]
-    [Trait("Gap", "TemplateChildren")]
-    public void TemplateStub_RendersOnlyTemplateComponent_NotExpandedCards()
+    public void TemplateExpansion_ResolvesAddresses()
     {
-        // Template children expansion is stubbed: the root Column renders the
-        // restaurant_card template once instead of expanding per-item.
-        // This test documents the current behavior.
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
 
-        // The root is rendered (Column with template children stub)
-        // With the stub, we expect to find TextBlocks from the template component
-        // but NOT 4 expanded copies of the card.
+        List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
+        List<string> allTexts = textBlocks
+            .Select(tb => tb.Text)
+            .Where(t => t is not null)
+            .Cast<string>()
+            .ToList();
+
+        allTexts.Should().Contain("123 Gastronomy Lane");
+        allTexts.Should().Contain("456 Shoreline Dr");
+        allTexts.Should().Contain("789 Napoli Way");
+        allTexts.Should().Contain("101 Silk Road St");
+    }
+
+    [AvaloniaFact]
+    public void TemplateExpansion_EachCardHasBookNowButton()
+    {
+        RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
+
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        // Stub renders template once, so at most 1 button (the "Book now" button)
-        buttons.Count.Should().BeLessThanOrEqualTo(1,
-            "template expansion is stubbed; only the template itself renders, not per-item copies");
+        buttons.Should().HaveCount(4,
+            "each of the 4 restaurant cards should have a 'Book now' button");
+    }
+
+    [AvaloniaFact]
+    public void TemplateExpansion_BookNowButton_FiresActionWithScopedContext()
+    {
+        RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
+
+        // Click the first "Book now" button
+        List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
+        buttons.Should().HaveCountGreaterThan(0);
+
+        GalleryTestHelper.ClickButton(buttons[0]);
+
+        result.ActionLog.Should().HaveCount(1);
+        result.ActionLog[0].EventName.Should().Be("book_now");
+
+        // The action context should have resolved the scoped "title" path
+        // for the first restaurant (The Golden Fork)
+        var context = result.ActionLog[0].Payload as Dictionary<string, string?>;
+        context.Should().NotBeNull();
+        context!["restaurantName"].Should().Be("The Golden Fork");
+    }
+
+    [AvaloniaFact]
+    public void TemplateExpansion_SecondCard_HasCorrectContent()
+    {
+        RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
+
+        // Get the second card (index 1)
+        List<Control> rootChildren = GalleryTestHelper.GetChildren(result.RootControl).ToList();
+        rootChildren.Should().HaveCountGreaterThan(1);
+
+        Control secondCard = rootChildren[1];
+        List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(secondCard);
+        List<string> texts = textBlocks
+            .Select(tb => tb.Text)
+            .Where(t => t is not null)
+            .Cast<string>()
+            .ToList();
+
+        texts.Should().Contain("Ocean's Bounty");
+        texts.Should().Contain("Fresh Daily Seafood");
+        texts.Should().Contain("456 Shoreline Dr");
     }
 }

@@ -78,6 +78,16 @@ public sealed class DataModel
         }
     }
 
+    /// <summary>
+    /// Get the number of elements in the array at the given JSON Pointer path,
+    /// or -1 if the path does not point to an array.
+    /// </summary>
+    public int GetArrayLength(string path)
+    {
+        JsonNode? node = ResolvePath(path);
+        return node is JsonArray arr ? arr.Count : -1;
+    }
+
     /// <summary>Resolve a DynamicValue. Returns null if path not found or FunctionCall.</summary>
     public string? Resolve(DynamicValue? value)
     {
