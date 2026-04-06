@@ -76,9 +76,10 @@ public sealed class AgentEventBridge : IDisposable
         {
             UserActionReceived?.Invoke(this, e);
         }
-        catch
+        catch (Exception ex)
         {
-            // Protect the UI thread — subscriber errors must not crash the input pipeline
+            System.Diagnostics.Trace.TraceError(
+                $"[AgentEventBridge] UserActionReceived subscriber threw: {ex}");
         }
     }
 
@@ -135,9 +136,11 @@ public sealed class AgentEventBridge : IDisposable
                 if (msg is not null)
                     Dispatcher.UIThread.Post(() => _surfaceManager.Process(msg));
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
-                // Partial/malformed line — skip
+                System.Diagnostics.Trace.TraceWarning(
+                    $"[AgentEventBridge] Skipping malformed A2UI line: " +
+                    $"{line[..Math.Min(line.Length, 200)]} — {ex.Message}");
             }
         }
     }
