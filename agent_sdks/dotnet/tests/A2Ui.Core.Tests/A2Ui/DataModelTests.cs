@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using A2Ui.Core;
@@ -299,6 +300,37 @@ public sealed class DataModelTests
         // Should preserve the object (not create an array) since "totals" already exists as object
         dm.Resolve(DynamicValue.FromPath("/totals/2025")).Should().Be("100");
         dm.Resolve(DynamicValue.FromPath("/totals/2026")).Should().Be("200");
+    }
+
+    [Fact]
+    public void GetArrayLength_ReturnsCount_WhenPathIsArray()
+    {
+        var dm = new DataModel();
+        dm.Apply(new UpdateDataModel { SurfaceId = "s", Path = "/", Value = JsonSerializer.SerializeToElement(new { items = new[] { 1, 2, 3 } }) });
+        dm.GetArrayLength("/items").Should().Be(3);
+    }
+
+    [Fact]
+    public void GetArrayLength_ReturnsNegativeOne_WhenPathIsObject()
+    {
+        var dm = new DataModel();
+        dm.Apply(new UpdateDataModel { SurfaceId = "s", Path = "/", Value = JsonSerializer.SerializeToElement(new { data = new { key = "val" } }) });
+        dm.GetArrayLength("/data").Should().Be(-1);
+    }
+
+    [Fact]
+    public void GetArrayLength_ReturnsNegativeOne_WhenPathDoesNotExist()
+    {
+        var dm = new DataModel();
+        dm.GetArrayLength("/nonexistent").Should().Be(-1);
+    }
+
+    [Fact]
+    public void GetArrayLength_ReturnsZero_WhenArrayIsEmpty()
+    {
+        var dm = new DataModel();
+        dm.Apply(new UpdateDataModel { SurfaceId = "s", Path = "/", Value = JsonSerializer.SerializeToElement(new { items = Array.Empty<int>() }) });
+        dm.GetArrayLength("/items").Should().Be(0);
     }
 
     [Fact]

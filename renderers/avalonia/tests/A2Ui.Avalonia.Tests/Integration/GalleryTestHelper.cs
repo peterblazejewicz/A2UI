@@ -1,5 +1,6 @@
 using System.Text.Json;
 using A2Ui.Avalonia.Catalog;
+using A2Ui.Avalonia.Functions;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
@@ -60,7 +61,7 @@ internal static class GalleryTestHelper
                 $"Surface '{lastSurfaceId}' was created but could not be retrieved.");
 
         CatalogRegistry catalog = CatalogRegistry.CreateDefault();
-        var renderer = new A2UiRenderer(catalog);
+        var renderer = new A2UiRenderer(catalog, FunctionRegistry.CreateDefault());
         var actionLog = new List<UserActionEventArgs>();
         renderer.UserActionFired += (_, args) => actionLog.Add(args);
 

@@ -1,3 +1,5 @@
+using System.Text.Json;
+using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using FluentAssertions;
@@ -110,6 +112,28 @@ public sealed class IncrementalListTests
         var context = result.ActionLog[0].Payload as Dictionary<string, string?>;
         context.Should().NotBeNull();
         context!["restaurantName"].Should().Be("The Golden Fork");
+    }
+
+    [AvaloniaFact]
+    public void TemplateExpansion_EmptyArray_ProducesZeroChildren()
+    {
+        RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
+
+        // Replace the restaurants array with an empty array
+        result.SurfaceManager.Process(new A2UiMessage
+        {
+            UpdateDataModel = new UpdateDataModel
+            {
+                SurfaceId = result.Surface.SurfaceId,
+                Path = "/restaurants",
+                Value = JsonSerializer.SerializeToElement(Array.Empty<object>()),
+            },
+        });
+
+        Control reRendered = result.ReRender();
+        List<Control> rootChildren = GalleryTestHelper.GetChildren(reRendered).ToList();
+        rootChildren.Should().HaveCount(0,
+            "an empty /restaurants array should produce zero template-expanded children");
     }
 
     [AvaloniaFact]

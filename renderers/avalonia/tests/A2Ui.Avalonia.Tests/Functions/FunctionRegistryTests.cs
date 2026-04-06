@@ -97,6 +97,28 @@ public sealed class FunctionRegistryTests
     }
 
     [Fact]
+    public void FormatDate_ShortDayOfWeek_E()
+    {
+        // 2026-03-15 is a Sunday
+        var result = Eval("formatDate", ("value", "2026-03-15T00:00:00Z"), ("format", "E"));
+        result.Should().Be("Sun");
+    }
+
+    [Fact]
+    public void FormatDate_AmPm_Token()
+    {
+        var result = Eval("formatDate", ("value", "2026-03-15T14:30:00Z"), ("format", "h:mm a"));
+        result.Should().Be("2:30 PM");
+    }
+
+    [Fact]
+    public void FormatDate_MixedDayOfWeekAndAmPm()
+    {
+        var result = Eval("formatDate", ("value", "2026-03-15T09:05:00Z"), ("format", "EEEE, h:mm a"));
+        result.Should().Be("Sunday, 9:05 AM");
+    }
+
+    [Fact]
     public void FormatString_ReturnsValueAsIs() =>
         Eval("formatString", ("value", "Hello ${/name}")).Should().Be("Hello ${/name}");
 

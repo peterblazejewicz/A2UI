@@ -17,7 +17,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_01_FlightStatus_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/01_flight-status.json");
@@ -81,7 +81,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     [Trait("Gap", "TemplateChildren")]
     public void Example_03_CalendarDay_RendersCorrectStructure()
     {
@@ -104,7 +104,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     [Trait("Gap", "TemplateChildren")]
     public void Example_04_WeatherCurrent_RendersCorrectStructure()
     {
@@ -124,7 +124,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_05_ProductCard_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/05_product-card.json");
@@ -211,7 +211,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_08_UserProfile_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/08_user-profile.json");
@@ -305,7 +305,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_11_PurchaseComplete_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/11_purchase-complete.json");
@@ -335,7 +335,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     [Trait("Gap", "TemplateChildren")]
     public void Example_12_ChatMessage_RendersCorrectStructure()
     {
@@ -357,7 +357,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     [Trait("Gap", "TemplateChildren")]
     public void Example_13_CoffeeOrder_RendersCorrectStructure()
     {
@@ -408,7 +408,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_15_AccountBalance_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/15_account-balance.json");
@@ -437,7 +437,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_16_WorkoutSummary_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/16_workout-summary.json");
@@ -463,7 +463,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_17_EventDetail_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/17_event-detail.json");
@@ -491,7 +491,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     [Trait("Gap", "TemplateChildren")]
     public void Example_18_TrackList_RendersCorrectStructure()
     {
@@ -513,7 +513,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_19_SoftwarePurchase_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/19_software-purchase.json");
@@ -603,7 +603,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_23_StepCounter_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/23_step-counter.json");
@@ -626,7 +626,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     [Trait("Gap", "TemplateChildren")]
     public void Example_24_RecipeCard_RendersCorrectStructure()
     {
@@ -688,7 +688,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_26_PodcastEpisode_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/26_podcast-episode.json");
@@ -714,7 +714,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_27_StatsCard_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/27_stats-card.json");
@@ -732,7 +732,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_28_CountdownTimer_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/28_countdown-timer.json");
@@ -787,7 +787,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     public void Example_30_LiveInvitationBuilder_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/30_live-invitation-builder.json");
@@ -841,7 +841,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     [Trait("Gap", "CheckValidation")]
     public void Example_32_AdvancedFormValidator_RendersCorrectStructure()
     {
@@ -875,7 +875,7 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "FunctionCall")]
+
     [Trait("Gap", "TemplateChildren")]
     public void Example_33_FinancialDataGrid_RendersCorrectStructure()
     {
