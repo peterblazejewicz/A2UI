@@ -146,24 +146,42 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
         ActiveSurface = null;
     }
 
+    /// <summary>
+    /// Refresh the data model JSON display from the active surface.
+    /// Called when client-side two-way bindings update the data model.
+    /// </summary>
+    public void RefreshDataModelJson()
+    {
+        if (ActiveSurface is { } surface)
+            UpdateDataModelJson(surface);
+    }
+
     // ── Action logging ────────────────────────────────────
 
     public void LogAction(UserActionEventArgs e)
     {
+        string timestamp = DateTimeOffset.UtcNow.ToString("o", System.Globalization.CultureInfo.InvariantCulture);
         string time = DateTime.Now.ToString("HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
-        string entry = $"[{time}] Action: {e.EventName} on {e.SurfaceId}";
 
-        if (e.Payload is not null)
+        // Build structured action message matching the Lit Gallery format
+        var actionMessage = new Dictionary<string, object?>
         {
-            try
-            {
-                string payload = JsonSerializer.Serialize(e.Payload, s_indentedJson);
-                entry += $"\n{payload}";
-            }
-            catch (JsonException)
-            {
-                entry += $"\n{e.Payload}";
-            }
+            ["name"] = e.EventName,
+            ["surfaceId"] = e.SurfaceId,
+            ["sourceComponentId"] = e.ComponentId,
+            ["timestamp"] = timestamp,
+            ["context"] = e.Payload,
+        };
+
+        string entry;
+        try
+        {
+            string json = JsonSerializer.Serialize(actionMessage, s_indentedJson);
+            entry = $"[{time}] Action dispatched: {e.SurfaceId}\n{json}";
+        }
+        catch (JsonException)
+        {
+            entry = $"[{time}] Action: {e.EventName} on {e.SurfaceId}";
         }
 
         ActionLogs.Insert(0, entry);

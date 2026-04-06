@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using A2Ui.Avalonia;
 using A2Ui.Avalonia.Controls;
 using A2Ui.Avalonia.Gallery.ViewModels;
 using Avalonia.Controls;
@@ -35,6 +36,7 @@ public partial class GalleryWindow : Window
 
             vm.SurfaceRefreshRequested += OnSurfaceRefreshRequested;
             _surfaceHost.UserActionFired += OnUserActionFired;
+            _surfaceHost.DataModelChanged += OnDataModelChanged;
         }
     }
 
@@ -74,12 +76,18 @@ public partial class GalleryWindow : Window
     private void OnUserActionFired(object? sender, UserActionEventArgs args) =>
         _vm?.LogAction(args);
 
+    private void OnDataModelChanged(object? sender, DataModelChangedEventArgs e) =>
+        _vm?.RefreshDataModelJson();
+
     private void UnwireViewModel()
     {
         if (_vm is not null)
             _vm.SurfaceRefreshRequested -= OnSurfaceRefreshRequested;
 
         if (_surfaceHost is not null)
+        {
             _surfaceHost.UserActionFired -= OnUserActionFired;
+            _surfaceHost.DataModelChanged -= OnDataModelChanged;
+        }
     }
 }
