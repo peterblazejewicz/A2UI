@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using A2Ui.Avalonia.Catalog;
 using A2Ui.Avalonia.Functions;
@@ -250,6 +252,10 @@ internal sealed class RenderContext(
             return null;
         }
 
+        // Special case: formatString needs template parsing with resolver access
+        if (fc.Call == "formatString")
+            return ResolveFormatString(fc, depth);
+
         var resolvedArgs = new Dictionary<string, string?>();
         if (fc.Args is not null)
         {
@@ -270,6 +276,107 @@ internal sealed class RenderContext(
             }
         }
         return functionRegistry.Evaluate(fc.Call, resolvedArgs);
+    }
+
+    /// <summary>
+    /// Handle <c>formatString</c> by parsing the template with <see cref="ExpressionParser"/>
+    /// and resolving all embedded <c>${...}</c> tokens (paths, function calls, literals).
+    /// </summary>
+    private string? ResolveFormatString(FunctionCallValue fc, int depth)
+    {
+        // Get the raw "value" arg — it's a string literal containing ${} tokens
+        string? template = null;
+        if (fc.Args is not null && fc.Args.TryGetValue("value", out JsonElement valEl))
+        {
+            try
+            {
+                var valDv = JsonSerializer.Deserialize<DynamicValue>(valEl.GetRawText(), s_jsonOptions);
+                // The template is always a string literal like "${formatDate(value: ${/start}, format: 'E, MMM d')}"
+                template = valDv?.StringLiteral;
+            }
+            catch (JsonException ex)
+            {
+                Trace.TraceWarning(
+                    $"[RenderContext] Failed to deserialize formatString 'value' arg: {ex.Message}");
+            }
+        }
+
+        if (string.IsNullOrEmpty(template))
+            return "";
+
+        try
+        {
+            var parser = new ExpressionParser();
+            IReadOnlyList<ExpressionToken> tokens = parser.Parse(template);
+
+            var sb = new StringBuilder();
+            foreach (ExpressionToken token in tokens)
+            {
+                string? resolved = ResolveExpressionToken(token, depth + 1);
+                if (resolved is not null)
+                    sb.Append(resolved);
+            }
+            return sb.ToString();
+        }
+        catch (A2UiExpressionException ex)
+        {
+            Trace.TraceWarning(
+                $"[RenderContext] Failed to parse formatString template: {ex.Message}");
+            return template;
+        }
+    }
+
+    /// <summary>
+    /// Resolve a single <see cref="ExpressionToken"/> to its string value.
+    /// </summary>
+    private string? ResolveExpressionToken(ExpressionToken token, int depth)
+    {
+        if (depth > MaxResolveDepth)
+        {
+            Trace.TraceWarning(
+                $"[RenderContext] ResolveExpressionToken exceeded max depth ({MaxResolveDepth})");
+            return null;
+        }
+
+        return token switch
+        {
+            LiteralToken lit => lit.Value,
+            PathToken path => ResolveExpressionPath(path.Path, depth),
+            BoolToken b => b.Value ? "true" : "false",
+            NumberToken n => n.Value.ToString(CultureInfo.InvariantCulture),
+            FunctionCallToken fc => ResolveExpressionFunctionCall(fc, depth),
+            _ => null,
+        };
+    }
+
+    /// <summary>
+    /// Resolve a path token from an expression, respecting scoped base paths.
+    /// </summary>
+    private string? ResolveExpressionPath(string path, int depth)
+    {
+        // Scope relative paths when inside a template expansion
+        if (basePath is not null && !path.StartsWith('/'))
+            return ResolveScopedPath(path);
+
+        return ResolveCore(DynamicValue.FromPath(path), depth);
+    }
+
+    /// <summary>
+    /// Resolve a <see cref="FunctionCallToken"/> by resolving each arg token,
+    /// then calling the function registry.
+    /// </summary>
+    private string? ResolveExpressionFunctionCall(FunctionCallToken fc, int depth)
+    {
+        if (functionRegistry is null)
+            return null;
+
+        var resolvedArgs = new Dictionary<string, string?>();
+        foreach (var (key, argToken) in fc.Args)
+        {
+            resolvedArgs[key] = ResolveExpressionToken(argToken, depth + 1);
+        }
+
+        return functionRegistry.Evaluate(fc.Name, resolvedArgs);
     }
 
     private string? ResolveScopedPath(string path)
