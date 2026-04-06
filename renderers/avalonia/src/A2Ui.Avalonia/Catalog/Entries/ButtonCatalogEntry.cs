@@ -22,8 +22,13 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
         if (c.Action?.Event is { } actionEvent)
         {
             string eventName = actionEvent.Name;
-            // surfaceId is always resolved by RenderContext, not the caller
-            btn.Click += (_, _) => ctx.FireUserAction(eventName);
+            var contextSpec = actionEvent.Context;
+            string componentId = c.Id;
+            btn.Click += (_, _) =>
+            {
+                object? payload = ResolveContext(contextSpec, ctx);
+                ctx.FireUserAction(eventName, payload, componentId);
+            };
         }
 
         return btn;
@@ -31,6 +36,22 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
                        IRenderContext ctx) => false; // recreate for simplicity
+
+    /// <summary>
+    /// Resolve the action event context dictionary at invocation time.
+    /// Each value is a DynamicValue that may reference the data model.
+    /// </summary>
+    private static Dictionary<string, string?>? ResolveContext(
+        Dictionary<string, DynamicValue>? contextSpec, IRenderContext ctx)
+    {
+        if (contextSpec is null || contextSpec.Count == 0)
+            return null;
+
+        var resolved = new Dictionary<string, string?>(contextSpec.Count);
+        foreach (var (key, dynVal) in contextSpec)
+            resolved[key] = ctx.Resolve(dynVal);
+        return resolved;
+    }
 
     private static void ApplyVariant(Button btn, string? variant)
     {

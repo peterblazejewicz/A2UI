@@ -12,9 +12,11 @@ internal static class InputEvents
     public const string ValueChanged = "valueChanged";
 }
 
-/// <summary>A2UI "TextField" → TextBox.</summary>
+/// <summary>A2UI "TextField" → TextBox with two-way data model binding.</summary>
 public sealed class TextFieldCatalogEntry : ICatalogEntry
 {
+    private const string UpdatingTag = "__updating";
+
     public string ComponentType => "TextField";
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
@@ -25,7 +27,29 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
             Watermark = ctx.Resolve(c.Label),
         };
 
-        tb.LostFocus += (_, _) => ctx.FireUserAction(InputEvents.ValueChanged, tb.Text);
+        if (c.Variant is "obscured")
+            tb.PasswordChar = '\u2022'; // bullet character
+
+        // Two-way binding: write value back to data model on every text change.
+        // Use PropertyChanged (not the TextChanged routed event) so it fires
+        // for both user input and programmatic Text assignments.
+        // The UpdatingTag guard suppresses events during programmatic updates
+        // in Update(), preventing feedback loops and phantom agent events.
+        string? bindingPath = c.Value?.Path;
+        string componentId = c.Id;
+
+        tb.PropertyChanged += (sender, args) =>
+        {
+            if (args.Property != TextBox.TextProperty) return;
+            if (sender is TextBox box && box.Tag is UpdatingTag) return;
+
+            string? newText = tb.Text;
+
+            if (bindingPath is not null)
+                ctx.UpdateDataModel(bindingPath, newText);
+
+            ctx.FireUserAction(InputEvents.ValueChanged, newText, componentId);
+        };
 
         return tb;
     }
@@ -34,7 +58,12 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
                        IRenderContext ctx)
     {
         if (existing is not TextBox tb) return false;
-        if (!tb.IsFocused) tb.Text = ctx.Resolve(c.Value) ?? string.Empty;
+        if (!tb.IsFocused)
+        {
+            tb.Tag = UpdatingTag;
+            tb.Text = ctx.Resolve(c.Value) ?? string.Empty;
+            tb.Tag = null;
+        }
         tb.Watermark = ctx.Resolve(c.Label);
         return true;
     }

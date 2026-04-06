@@ -6,36 +6,30 @@ using Avalonia.Layout;
 
 namespace A2Ui.Avalonia.Catalog;
 
-/// <summary>A2UI "Column" → StackPanel (Vertical).</summary>
+/// <summary>A2UI "Column" → vertical layout panel.</summary>
 public sealed class ColumnCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Column";
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
-        var panel = new StackPanel { Orientation = Orientation.Vertical, Spacing = 8 };
-        LayoutHelper.ApplyAlignment(panel, c);
-        foreach (var child in ctx.RenderChildren(c.Id))
-            panel.Children.Add(child);
-        return panel;
+        var children = ctx.RenderChildren(c.Id).ToList();
+        return LayoutHelper.BuildLayout(Orientation.Vertical, children, c);
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
                        IRenderContext ctx) => false;
 }
 
-/// <summary>A2UI "Row" → StackPanel (Horizontal).</summary>
+/// <summary>A2UI "Row" → horizontal layout panel.</summary>
 public sealed class RowCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Row";
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
-        var panel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        LayoutHelper.ApplyAlignment(panel, c);
-        foreach (var child in ctx.RenderChildren(c.Id))
-            panel.Children.Add(child);
-        return panel;
+        var children = ctx.RenderChildren(c.Id).ToList();
+        return LayoutHelper.BuildLayout(Orientation.Horizontal, children, c);
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
@@ -79,35 +73,136 @@ public sealed class CardCatalogEntry : ICatalogEntry
 
 internal static class LayoutHelper
 {
-    public static void ApplyAlignment(StackPanel panel, A2UiComponent c)
+    /// <summary>
+    /// Build the appropriate layout panel for the given orientation and justify mode.
+    /// Uses Grid for spaceBetween (distributes children with star-sized spacers),
+    /// StackPanel for all other modes.
+    /// </summary>
+    public static Control BuildLayout(Orientation orientation, List<Control> children,
+                                      A2UiComponent c)
     {
-        if (panel.Orientation == Orientation.Vertical)
+        if (c.Justify is "spaceBetween")
+            return BuildSpaceBetweenGrid(orientation, children, c);
+
+        var panel = new StackPanel { Orientation = orientation, Spacing = 8 };
+        foreach (var child in children)
+            panel.Children.Add(child);
+
+        // justify maps to main-axis self-alignment (packs the group start/center/end)
+        if (orientation == Orientation.Vertical)
         {
-            panel.VerticalAlignment = MapVertical(c.Justify);
-            panel.HorizontalAlignment = MapHorizontal(c.Align);
+            panel.VerticalAlignment = MapMainAxis(c.Justify);
+            panel.HorizontalAlignment = HorizontalAlignment.Stretch;
         }
         else
         {
-            panel.HorizontalAlignment = MapHorizontal(c.Justify);
-            panel.VerticalAlignment = MapVertical(c.Align);
+            panel.HorizontalAlignment = MapMainAxisH(c.Justify);
+            panel.VerticalAlignment = VerticalAlignment.Stretch;
+        }
+
+        // align maps to cross-axis alignment on each child
+        ApplyCrossAxisAlignment(children, orientation, c.Align);
+
+        return panel;
+    }
+
+    /// <summary>
+    /// Build a Grid that distributes children with star-sized spacers between them,
+    /// emulating CSS justify-content: space-between.
+    /// Layout: [Auto] [*] [Auto] [*] [Auto]  (for 3 children)
+    /// </summary>
+    private static Grid BuildSpaceBetweenGrid(Orientation orientation,
+                                               List<Control> children,
+                                               A2UiComponent c)
+    {
+        var grid = new Grid();
+
+        if (children.Count == 0)
+            return grid;
+
+        bool isHorizontal = orientation == Orientation.Horizontal;
+
+        for (int i = 0; i < children.Count; i++)
+        {
+            // Auto column/row for the child
+            if (isHorizontal)
+                grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
+            else
+                grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+
+            var child = children[i];
+            if (isHorizontal)
+                Grid.SetColumn(child, i * 2);
+            else
+                Grid.SetRow(child, i * 2);
+            grid.Children.Add(child);
+
+            // Star spacer between children (not after last)
+            if (i < children.Count - 1)
+            {
+                if (isHorizontal)
+                    grid.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+                else
+                    grid.RowDefinitions.Add(new RowDefinition(new GridLength(1, GridUnitType.Star)));
+            }
+        }
+
+        // align maps to cross-axis alignment on each child
+        ApplyCrossAxisAlignment(children, orientation, c.Align);
+
+        return grid;
+    }
+
+    /// <summary>
+    /// Apply cross-axis alignment to each child control.
+    /// For a horizontal row, cross-axis is vertical; for a vertical column, cross-axis is horizontal.
+    /// </summary>
+    private static void ApplyCrossAxisAlignment(List<Control> children,
+                                                 Orientation orientation, string? align)
+    {
+        if (align is null)
+            return;
+
+        foreach (var child in children)
+        {
+            if (orientation == Orientation.Horizontal)
+                child.VerticalAlignment = MapCrossAxisV(align);
+            else
+                child.HorizontalAlignment = MapCrossAxisH(align);
         }
     }
 
-    private static HorizontalAlignment MapHorizontal(string? value) => value switch
+    private static VerticalAlignment MapMainAxis(string? justify) => justify switch
+    {
+        "start"   => VerticalAlignment.Top,
+        "center"  => VerticalAlignment.Center,
+        "end"     => VerticalAlignment.Bottom,
+        _         => VerticalAlignment.Stretch,
+    };
+
+    private static HorizontalAlignment MapMainAxisH(string? justify) => justify switch
     {
         "start"   => HorizontalAlignment.Left,
         "center"  => HorizontalAlignment.Center,
         "end"     => HorizontalAlignment.Right,
-        "stretch" => HorizontalAlignment.Stretch,
         _         => HorizontalAlignment.Stretch,
     };
 
-    private static VerticalAlignment MapVertical(string? value) => value switch
+    private static VerticalAlignment MapCrossAxisV(string? align) => align switch
     {
         "start"   => VerticalAlignment.Top,
         "center"  => VerticalAlignment.Center,
         "end"     => VerticalAlignment.Bottom,
         "stretch" => VerticalAlignment.Stretch,
         _         => VerticalAlignment.Stretch,
+    };
+
+    private static HorizontalAlignment MapCrossAxisH(string? align) => align switch
+    {
+        "start"   => HorizontalAlignment.Left,
+        "center"  => HorizontalAlignment.Center,
+        "end"     => HorizontalAlignment.Right,
+        "stretch" => HorizontalAlignment.Stretch,
+        _         => HorizontalAlignment.Stretch,
     };
 }

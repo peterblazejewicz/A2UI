@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
@@ -42,8 +40,14 @@ public interface IRenderContext
     IEnumerable<Control> RenderChildren(string parentId);
 
     /// <summary>Fire a user action event back to the agent. SurfaceId is resolved automatically.</summary>
-    void FireUserAction(string eventName, object? payload = null);
+    void FireUserAction(string eventName, object? payload = null, string? componentId = null);
 
     /// <summary>Resolve a DynamicValue from the data model.</summary>
     string? Resolve(DynamicValue? value);
+
+    /// <summary>
+    /// Write a value back to the data model at the given JSON Pointer path.
+    /// Used for two-way binding (e.g. TextField with value: {"path": "/username"}).
+    /// </summary>
+    void UpdateDataModel(string path, string? value);
 }

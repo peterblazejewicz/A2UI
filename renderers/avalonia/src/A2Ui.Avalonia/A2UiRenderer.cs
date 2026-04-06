@@ -35,8 +35,10 @@ public sealed class A2UiRenderer
         }
 
         var context = new RenderContext(surface, _catalog, cache,
-            (surfaceId, eventName, payload) =>
-                UserActionFired?.Invoke(this, new(surfaceId, eventName, payload)));
+            (surfaceId, eventName, payload, componentId) =>
+                UserActionFired?.Invoke(this, new(surfaceId, eventName, payload, componentId)),
+            (surfaceId) =>
+                DataModelChanged?.Invoke(this, new(surfaceId)));
 
         var roots = surface.GetRootComponents().ToList();
 
@@ -50,6 +52,7 @@ public sealed class A2UiRenderer
     }
 
     public event EventHandler<UserActionEventArgs>? UserActionFired;
+    public event EventHandler<DataModelChangedEventArgs>? DataModelChanged;
 
     private Control RenderComponent(A2UiComponent component, Surface surface,
                                     RenderContext context)
@@ -84,7 +87,8 @@ internal sealed class RenderContext(
     Surface surface,
     CatalogRegistry catalog,
     Dictionary<string, Control> cache,
-    Action<string, string, object?> fireAction)
+    Action<string, string, object?, string?> fireAction,
+    Action<string> onDataModelChanged)
     : IRenderContext
 {
     public Control? RenderChild(string? childId)
@@ -93,15 +97,51 @@ internal sealed class RenderContext(
             return null;
 
         if (!catalog.TryGetEntry(c.Component, out var entry) || entry is null)
-            return null;
+        {
+            return new TextBlock
+            {
+                Text = $"[Unknown component: {c.Component}]",
+                Classes = { "Caption" },
+            };
+        }
 
         if (cache.TryGetValue(c.Id, out var existing) &&
             entry.Update(existing, c, surface.DataModel, this))
+        {
+            DetachFromParent(existing);
             return existing;
+        }
 
         var control = entry.Create(c, surface.DataModel, this);
         cache[c.Id] = control;
         return control;
+    }
+
+    /// <summary>
+    /// Detach a control from its current visual parent so it can be
+    /// safely added to a new container. Handles Panel, ContentControl,
+    /// and Decorator (Border) parent types.
+    /// </summary>
+    internal static void DetachFromParent(Control control)
+    {
+        switch (control.Parent)
+        {
+            case null:
+                break;
+            case Panel panel:
+                panel.Children.Remove(control);
+                break;
+            case ContentControl cc when ReferenceEquals(cc.Content, control):
+                cc.Content = null;
+                break;
+            case Decorator decorator when ReferenceEquals(decorator.Child, control):
+                decorator.Child = null;
+                break;
+            default:
+                System.Diagnostics.Trace.TraceWarning(
+                    $"[A2UiRenderer] Cannot detach control from unknown parent type {control.Parent.GetType().Name}");
+                break;
+        }
     }
 
     /// <summary>
@@ -128,14 +168,39 @@ internal sealed class RenderContext(
             .OfType<Control>();
     }
 
-    public void FireUserAction(string eventName, object? payload = null) =>
-        fireAction(surface.SurfaceId, eventName, payload);
+    public void FireUserAction(string eventName, object? payload = null, string? componentId = null) =>
+        fireAction(surface.SurfaceId, eventName, payload, componentId);
 
     public string? Resolve(DynamicValue? value) =>
         surface.DataModel.Resolve(value);
+
+    public void UpdateDataModel(string path, string? value)
+    {
+        try
+        {
+            var update = new UpdateDataModel
+            {
+                SurfaceId = surface.SurfaceId,
+                Path = path,
+                Value = value is not null
+                    ? System.Text.Json.JsonSerializer.SerializeToElement(value)
+                    : null,
+            };
+            surface.DataModel.Apply(update);
+            onDataModelChanged(surface.SurfaceId);
+        }
+        catch (Exception ex) when (ex is System.Text.Json.JsonException or InvalidOperationException or ArgumentException)
+        {
+            System.Diagnostics.Trace.TraceWarning(
+                $"[A2UiRenderer] Failed to update data model at path '{path}': {ex.Message}");
+        }
+    }
 }
 
 public sealed record UserActionEventArgs(
     string SurfaceId,
     string EventName,
-    object? Payload);
+    object? Payload,
+    string? ComponentId = null);
+
+public sealed record DataModelChangedEventArgs(string SurfaceId);

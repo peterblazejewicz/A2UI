@@ -24,6 +24,7 @@ public sealed class A2UiSurface : ContentControl
     {
         _renderer = new A2UiRenderer(catalog);
         _renderer.UserActionFired += OnUserActionFired;
+        _renderer.DataModelChanged += OnDataModelChanged;
 
         // Load default component styles (typography, card, button variants).
         // Consuming apps override these via Application-level styles.
@@ -40,6 +41,7 @@ public sealed class A2UiSurface : ContentControl
     }
 
     public event EventHandler<UserActionEventArgs>? UserActionFired;
+    public event EventHandler<DataModelChangedEventArgs>? DataModelChanged;
 
     /// <summary>
     /// Re-render the current surface. Call this after SurfaceManager fires
@@ -65,6 +67,13 @@ public sealed class A2UiSurface : ContentControl
 
         if (change.Property == SurfaceProperty)
         {
+            // Clear the renderer's control cache for the old surface so that
+            // stale controls (with closures over the old Surface/DataModel)
+            // are not reused when a new surface is created with the same ID.
+            var oldSurface = change.GetOldValue<Surface?>();
+            if (oldSurface is not null)
+                _renderer.ClearSurface(oldSurface.SurfaceId);
+
             var surface = change.GetNewValue<Surface?>();
             if (Dispatcher.UIThread.CheckAccess())
             {
@@ -80,4 +89,7 @@ public sealed class A2UiSurface : ContentControl
 
     private void OnUserActionFired(object? sender, UserActionEventArgs e) =>
         UserActionFired?.Invoke(this, e);
+
+    private void OnDataModelChanged(object? sender, DataModelChangedEventArgs e) =>
+        DataModelChanged?.Invoke(this, e);
 }
