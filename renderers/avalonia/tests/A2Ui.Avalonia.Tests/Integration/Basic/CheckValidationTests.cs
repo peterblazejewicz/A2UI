@@ -19,22 +19,23 @@ public sealed class CheckValidationTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    public void LoginForm_EmptyFields_ShowsValidationErrors()
+    public void LoginForm_EmptyFields_ShowsFirstValidationErrorPerField()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/09_login-form.json");
 
-        // Both email and password fields have checks that fail on empty values.
-        // The "required" and "email" checks for email-field should produce error messages.
+        // Only the FIRST failing check per field is shown (matches Lit reference).
+        // Email: "required" fails first → shows "Email is required" (not the email format error)
+        // Password: "required" fails first → shows "Password is required" (not the length error)
         List<TextBlock> allText = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
 
         allText.Should().Contain(tb => tb.Text == "Email is required",
-            "email-field 'required' check fails on empty value");
-        allText.Should().Contain(tb => tb.Text == "Please enter a valid email address",
-            "email-field 'email' check fails on empty value");
+            "email-field first check 'required' fails on empty value");
+        allText.Should().NotContain(tb => tb.Text == "Please enter a valid email address",
+            "second check should not show when first already fails");
         allText.Should().Contain(tb => tb.Text == "Password is required",
-            "password-field 'required' check fails on empty value");
-        allText.Should().Contain(tb => tb.Text == "Password must be at least 8 characters long",
-            "password-field 'length' check fails on empty value");
+            "password-field first check 'required' fails on empty value");
+        allText.Should().NotContain(tb => tb.Text == "Password must be at least 8 characters long",
+            "second check should not show when first already fails");
     }
 
     [AvaloniaFact]

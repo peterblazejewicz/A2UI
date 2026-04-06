@@ -79,18 +79,14 @@ public sealed class CheckHelperTests
 
         Control result = CheckHelper.ApplyChecks(control, component, ctx);
 
-        // Result must be a StackPanel wrapping the original control + error TextBlocks
+        // Result must be a StackPanel wrapping the original control + first failing error only
         var panel = result.Should().BeOfType<StackPanel>().Subject;
-        panel.Children.Should().HaveCount(3, "original control + 2 failing error TextBlocks");
+        panel.Children.Should().HaveCount(2, "original control + first failing error TextBlock only");
         panel.Children[0].Should().BeSameAs(control);
 
         var tb1 = panel.Children[1].Should().BeOfType<TextBlock>().Subject;
-        tb1.Text.Should().Be("ErrorOne");
+        tb1.Text.Should().Be("ErrorOne", "only the first failing check message is shown");
         tb1.Classes.Should().Contain("ValidationError");
-
-        var tb2 = panel.Children[2].Should().BeOfType<TextBlock>().Subject;
-        tb2.Text.Should().Be("ErrorTwo");
-        tb2.Classes.Should().Contain("ValidationError");
     }
 
     // ── AllChecksPassing ──────────────────────────────────────────────────

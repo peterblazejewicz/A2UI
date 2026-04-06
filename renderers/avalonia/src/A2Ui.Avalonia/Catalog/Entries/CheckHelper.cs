@@ -54,6 +54,10 @@ internal static class CheckHelper
         return null;
     }
 
+    /// <summary>
+    /// Show only the first failing check message, matching the Lit reference
+    /// behavior (which displays <c>validationErrors[0]</c> only).
+    /// </summary>
     private static void AddErrorTextBlocks(StackPanel panel, A2UiComponent c, IRenderContext ctx)
     {
         if (c.Checks is not { Length: > 0 })
@@ -70,6 +74,7 @@ internal static class CheckHelper
                     Classes = { "ValidationError" },
                     FontSize = 12,
                 });
+                break; // Only show the first failing message
             }
         }
     }
