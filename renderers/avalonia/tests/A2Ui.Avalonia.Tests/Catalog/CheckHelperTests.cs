@@ -45,7 +45,7 @@ public sealed class CheckHelperTests
     }
 
     [AvaloniaFact]
-    public void ApplyChecks_AllPassing_ReturnsOriginalControl()
+    public void ApplyChecks_AllPassing_WrapsButHasNoErrors()
     {
         var control = new TextBox();
         var component = MakeComponent(
@@ -57,7 +57,11 @@ public sealed class CheckHelperTests
 
         Control result = CheckHelper.ApplyChecks(control, component, ctx);
 
-        result.Should().BeSameAs(control, "all checks pass so no wrapping should occur");
+        // Always wraps in StackPanel when checks exist (for in-place UpdateChecks)
+        result.Should().BeOfType<StackPanel>();
+        var panel = (StackPanel)result;
+        panel.Children.Should().HaveCount(1, "all checks pass so no error TextBlocks");
+        panel.Children[0].Should().BeSameAs(control);
     }
 
     [AvaloniaFact]

@@ -76,8 +76,13 @@ public partial class GalleryWindow : Window
     private void OnUserActionFired(object? sender, UserActionEventArgs args) =>
         _vm?.LogAction(args);
 
-    private void OnDataModelChanged(object? sender, DataModelChangedEventArgs e) =>
+    private void OnDataModelChanged(object? sender, DataModelChangedEventArgs e)
+    {
         _vm?.RefreshDataModelJson();
+        // Re-render the surface so that check validations, data-bound text,
+        // and button enabled state update after two-way binding changes.
+        _surfaceHost?.Refresh();
+    }
 
     private void UnwireViewModel()
     {

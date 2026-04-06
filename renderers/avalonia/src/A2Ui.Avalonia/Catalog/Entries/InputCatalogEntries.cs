@@ -57,11 +57,10 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
                        IRenderContext ctx)
     {
-        // When checks exist, force recreate so validation messages refresh.
-        if (c.Checks is { Length: > 0 })
-            return false;
+        // Find the TextBox — either directly cached or inside a check wrapper StackPanel
+        TextBox? tb = CheckHelper.FindInner<TextBox>(existing);
+        if (tb is null) return false;
 
-        if (existing is not TextBox tb) return false;
         if (!tb.IsFocused)
         {
             tb.Tag = UpdatingTag;
@@ -69,6 +68,11 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
             tb.Tag = null;
         }
         tb.Watermark = ctx.Resolve(c.Label);
+
+        // Re-evaluate checks in place (preserves focus)
+        if (existing is StackPanel wrapper && c.Checks is { Length: > 0 })
+            CheckHelper.UpdateChecks(wrapper, c, ctx);
+
         return true;
     }
 }
@@ -162,11 +166,9 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
                        IRenderContext ctx)
     {
-        // When checks exist, force recreate so validation messages refresh.
-        if (c.Checks is { Length: > 0 })
-            return false;
+        CheckBox? cb = CheckHelper.FindInner<CheckBox>(existing);
+        if (cb is null) return false;
 
-        if (existing is not CheckBox cb) return false;
         if (!cb.IsFocused)
         {
             cb.Tag = UpdatingTag;
@@ -174,6 +176,10 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
             cb.Tag = null;
         }
         cb.Content = ctx.Resolve(c.Label);
+
+        if (existing is StackPanel wrapper && c.Checks is { Length: > 0 })
+            CheckHelper.UpdateChecks(wrapper, c, ctx);
+
         return true;
     }
 }
@@ -204,13 +210,15 @@ public sealed class SliderCatalogEntry : ICatalogEntry
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
                        IRenderContext ctx)
     {
-        // When checks exist, force recreate so validation messages refresh.
-        if (c.Checks is { Length: > 0 })
-            return false;
+        Slider? s = CheckHelper.FindInner<Slider>(existing);
+        if (s is null) return false;
 
-        if (existing is not Slider s) return false;
         if (!s.IsFocused && double.TryParse(ctx.Resolve(c.Value), out double val))
             s.Value = val;
+
+        if (existing is StackPanel wrapper && c.Checks is { Length: > 0 })
+            CheckHelper.UpdateChecks(wrapper, c, ctx);
+
         return true;
     }
 }
