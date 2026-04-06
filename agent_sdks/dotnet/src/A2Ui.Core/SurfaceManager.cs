@@ -1,5 +1,7 @@
 using System.Text.Json;
 using A2Ui.Core.Messages;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace A2Ui.Core;
 
@@ -12,6 +14,13 @@ public sealed class SurfaceManager
 {
     private readonly Dictionary<string, Surface> _surfaces = new();
     private readonly object _lock = new();
+    private readonly ILogger<SurfaceManager> _logger;
+
+    public SurfaceManager(ILoggerFactory? loggerFactory = null)
+    {
+        _logger = (loggerFactory ?? NullLoggerFactory.Instance)
+                      .CreateLogger<SurfaceManager>();
+    }
 
     public event EventHandler<SurfaceCreatedEventArgs>?    SurfaceCreated;
     public event EventHandler<SurfaceDeletedEventArgs>?    SurfaceDeleted;
@@ -39,10 +48,26 @@ public sealed class SurfaceManager
         }
 
         // Fire events outside the lock — safe for subscribers to call GetSurface
-        if (createdArgs is not null)    SurfaceCreated?.Invoke(this, createdArgs);
-        if (deletedArgs is not null)    SurfaceDeleted?.Invoke(this, deletedArgs);
-        if (componentsArgs is not null) ComponentsUpdated?.Invoke(this, componentsArgs);
-        if (dataModelArgs is not null)  DataModelUpdated?.Invoke(this, dataModelArgs);
+        if (createdArgs is not null)
+        {
+            SurfaceManagerLog.SurfaceCreated(_logger, createdArgs.Surface.SurfaceId);
+            SurfaceCreated?.Invoke(this, createdArgs);
+        }
+        if (deletedArgs is not null)
+        {
+            SurfaceManagerLog.SurfaceDeleted(_logger, deletedArgs.Surface.SurfaceId);
+            SurfaceDeleted?.Invoke(this, deletedArgs);
+        }
+        if (componentsArgs is not null)
+        {
+            SurfaceManagerLog.ComponentsUpdated(_logger, componentsArgs.Surface.SurfaceId, componentsArgs.Updated.Length);
+            ComponentsUpdated?.Invoke(this, componentsArgs);
+        }
+        if (dataModelArgs is not null)
+        {
+            SurfaceManagerLog.DataModelUpdated(_logger, dataModelArgs.Surface.SurfaceId);
+            DataModelUpdated?.Invoke(this, dataModelArgs);
+        }
     }
 
     public Surface? GetSurface(string surfaceId)
@@ -138,3 +163,22 @@ public sealed record SurfaceCreatedEventArgs(Surface Surface);
 public sealed record SurfaceDeletedEventArgs(Surface Surface);
 public sealed record ComponentsUpdatedEventArgs(Surface Surface, A2UiComponent[] Updated);
 public sealed record DataModelUpdatedEventArgs(Surface Surface);
+
+internal static partial class SurfaceManagerLog
+{
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information,
+        Message = "Surface created: {SurfaceId}")]
+    public static partial void SurfaceCreated(ILogger logger, string surfaceId);
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Information,
+        Message = "Surface deleted: {SurfaceId}")]
+    public static partial void SurfaceDeleted(ILogger logger, string surfaceId);
+
+    [LoggerMessage(EventId = 3, Level = LogLevel.Debug,
+        Message = "Components updated on {SurfaceId}: {Count} component(s)")]
+    public static partial void ComponentsUpdated(ILogger logger, string surfaceId, int count);
+
+    [LoggerMessage(EventId = 4, Level = LogLevel.Debug,
+        Message = "Data model updated on {SurfaceId}")]
+    public static partial void DataModelUpdated(ILogger logger, string surfaceId);
+}
