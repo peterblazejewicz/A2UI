@@ -1,19 +1,22 @@
+using System.Collections.Frozen;
+using System.Diagnostics;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+
 namespace A2Ui.Avalonia.Functions;
 
 /// <summary>
-/// Dictionary-based registry mapping function names to evaluation delegates.
-/// Thread-safe for reads after construction (register all functions before use).
+/// Immutable registry mapping function names to evaluation delegates.
+/// Thread-safe for all operations after construction.
+/// Use <see cref="FunctionRegistryBuilder"/> to construct instances.
 /// </summary>
 public sealed class FunctionRegistry : IFunctionRegistry
 {
-    private readonly Dictionary<string, Func<IReadOnlyDictionary<string, string?>, string?>> _functions = new();
+    private readonly FrozenDictionary<string, Func<IReadOnlyDictionary<string, string?>, string?>> _functions;
 
-    /// <summary>Register a named function. Returns this for chaining.</summary>
-    public FunctionRegistry Register(string name,
-        Func<IReadOnlyDictionary<string, string?>, string?> fn)
+    internal FunctionRegistry(Dictionary<string, Func<IReadOnlyDictionary<string, string?>, string?>> functions)
     {
-        _functions[name] = fn;
-        return this;
+        _functions = functions.ToFrozenDictionary();
     }
 
     /// <inheritdoc />
@@ -21,7 +24,7 @@ public sealed class FunctionRegistry : IFunctionRegistry
     {
         if (!_functions.TryGetValue(functionName, out var fn))
         {
-            System.Diagnostics.Trace.TraceWarning(
+            Trace.TraceWarning(
                 $"[FunctionRegistry] Unknown function: {functionName}");
             return null;
         }
@@ -30,9 +33,12 @@ public sealed class FunctionRegistry : IFunctionRegistry
         {
             return fn(resolvedArgs);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is FormatException or ArgumentException
+            or InvalidOperationException or JsonException
+            or RegexMatchTimeoutException or OverflowException
+            or KeyNotFoundException)
         {
-            System.Diagnostics.Trace.TraceWarning(
+            Trace.TraceWarning(
                 $"[FunctionRegistry] Error evaluating '{functionName}': {ex.Message}");
             return null;
         }
@@ -41,7 +47,7 @@ public sealed class FunctionRegistry : IFunctionRegistry
     /// <summary>
     /// Create a registry pre-loaded with all A2UI built-in functions.
     /// </summary>
-    public static FunctionRegistry CreateDefault() => new FunctionRegistry()
+    public static FunctionRegistry CreateDefault() => new FunctionRegistryBuilder()
         // Formatting
         .Register("capitalize", BuiltInFunctions.Capitalize)
         .Register("formatNumber", BuiltInFunctions.FormatNumber)
@@ -74,5 +80,28 @@ public sealed class FunctionRegistry : IFunctionRegistry
         .Register("length", BuiltInFunctions.Length)
         .Register("numeric", BuiltInFunctions.Numeric)
         // Void
-        .Register("openUrl", BuiltInFunctions.OpenUrl);
+        .Register("openUrl", BuiltInFunctions.OpenUrl)
+        .Build();
+}
+
+/// <summary>
+/// Builder for constructing immutable <see cref="FunctionRegistry"/> instances.
+/// </summary>
+public sealed class FunctionRegistryBuilder
+{
+    private readonly Dictionary<string, Func<IReadOnlyDictionary<string, string?>, string?>> _functions = new();
+
+    /// <summary>Register a named function. Returns this for chaining.</summary>
+    public FunctionRegistryBuilder Register(string name,
+        Func<IReadOnlyDictionary<string, string?>, string?> fn)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(fn);
+        if (!_functions.TryAdd(name, fn))
+            throw new ArgumentException($"Function '{name}' is already registered.", nameof(name));
+        return this;
+    }
+
+    /// <summary>Build the immutable <see cref="FunctionRegistry"/>.</summary>
+    public FunctionRegistry Build() => new(_functions);
 }

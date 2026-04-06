@@ -272,9 +272,10 @@ public sealed class FunctionRegistryTests
     [Fact]
     public void CustomFunction_CanBeRegistered()
     {
-        var registry = new FunctionRegistry();
-        registry.Register("myFunc", args =>
-            args.TryGetValue("x", out string? v) ? $"got:{v}" : null);
+        var registry = new FunctionRegistryBuilder()
+            .Register("myFunc", args =>
+                args.TryGetValue("x", out string? v) ? $"got:{v}" : null)
+            .Build();
 
         registry.Evaluate("myFunc", new Dictionary<string, string?> { ["x"] = "test" })
             .Should().Be("got:test");

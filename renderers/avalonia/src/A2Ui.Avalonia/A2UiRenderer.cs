@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using A2Ui.Avalonia.Catalog;
 using A2Ui.Avalonia.Functions;
@@ -97,6 +98,7 @@ internal sealed class RenderContext(
     string? basePath = null)
     : IRenderContext
 {
+    private const int MaxResolveDepth = 32;
     private static readonly JsonSerializerOptions s_jsonOptions = new();
 
     public Control? RenderChild(string? childId)
@@ -146,7 +148,7 @@ internal sealed class RenderContext(
                 decorator.Child = null;
                 break;
             default:
-                System.Diagnostics.Trace.TraceWarning(
+                Trace.TraceWarning(
                     $"[A2UiRenderer] Cannot detach control from unknown parent type {control.Parent.GetType().Name}");
                 break;
         }
@@ -215,35 +217,65 @@ internal sealed class RenderContext(
     public void FireUserAction(string eventName, object? payload = null, string? componentId = null) =>
         fireAction(surface.SurfaceId, eventName, payload, componentId);
 
-    public string? Resolve(DynamicValue? value)
+    public string? Resolve(DynamicValue? value) => ResolveCore(value, depth: 0);
+
+    private string? ResolveCore(DynamicValue? value, int depth)
     {
         if (value is null)
             return null;
 
-        if (value.FunctionCall is { } fc && functionRegistry is not null)
+        if (depth > MaxResolveDepth)
         {
-            var resolvedArgs = new Dictionary<string, string?>();
-            if (fc.Args is not null)
-            {
-                foreach (var (key, jsonEl) in fc.Args)
-                {
-                    // Deserialize JsonElement -> DynamicValue -> Resolve recursively
-                    var argValue = JsonSerializer.Deserialize<DynamicValue>(
-                        jsonEl.GetRawText(), s_jsonOptions);
-                    resolvedArgs[key] = Resolve(argValue);
-                }
-            }
-            return functionRegistry.Evaluate(fc.Call, resolvedArgs);
+            Trace.TraceWarning(
+                $"[RenderContext] Resolve exceeded max depth ({MaxResolveDepth}), returning null");
+            return null;
         }
+
+        if (value.FunctionCall is { } fc)
+            return ResolveFunction(fc, depth);
 
         // Scope relative paths when inside a template expansion
         if (basePath is not null && value.Path is { } path && !path.StartsWith('/'))
-        {
-            var scopedValue = DynamicValue.FromPath($"{basePath}/{path}");
-            return surface.DataModel.Resolve(scopedValue);
-        }
+            return ResolveScopedPath(path);
 
         return surface.DataModel.Resolve(value);
+    }
+
+    private string? ResolveFunction(FunctionCallValue fc, int depth)
+    {
+        if (functionRegistry is null)
+        {
+            Trace.TraceWarning(
+                $"[RenderContext] FunctionCall '{fc.Call}' encountered but no function registry configured");
+            return null;
+        }
+
+        var resolvedArgs = new Dictionary<string, string?>();
+        if (fc.Args is not null)
+        {
+            foreach (var (key, jsonEl) in fc.Args)
+            {
+                try
+                {
+                    var argValue = JsonSerializer.Deserialize<DynamicValue>(
+                        jsonEl.GetRawText(), s_jsonOptions);
+                    resolvedArgs[key] = ResolveCore(argValue, depth + 1);
+                }
+                catch (JsonException ex)
+                {
+                    Trace.TraceWarning(
+                        $"[RenderContext] Failed to deserialize arg '{key}' for function '{fc.Call}': {ex.Message}");
+                    resolvedArgs[key] = null;
+                }
+            }
+        }
+        return functionRegistry.Evaluate(fc.Call, resolvedArgs);
+    }
+
+    private string? ResolveScopedPath(string path)
+    {
+        var scopedValue = DynamicValue.FromPath($"{basePath}/{path}");
+        return surface.DataModel.Resolve(scopedValue);
     }
 
     public double? GetComponentWeight(string componentId) =>
@@ -258,15 +290,15 @@ internal sealed class RenderContext(
                 SurfaceId = surface.SurfaceId,
                 Path = path,
                 Value = value is not null
-                    ? System.Text.Json.JsonSerializer.SerializeToElement(value)
+                    ? JsonSerializer.SerializeToElement(value)
                     : null,
             };
             surface.DataModel.Apply(update);
             onDataModelChanged(surface.SurfaceId);
         }
-        catch (Exception ex) when (ex is System.Text.Json.JsonException or InvalidOperationException or ArgumentException)
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException or ArgumentException)
         {
-            System.Diagnostics.Trace.TraceWarning(
+            Trace.TraceWarning(
                 $"[A2UiRenderer] Failed to update data model at path '{path}': {ex.Message}");
         }
     }

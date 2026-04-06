@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -10,6 +11,11 @@ namespace A2Ui.Avalonia.Functions;
 /// </summary>
 internal static class BuiltInFunctions
 {
+    // ── Cached culture info ────────────────────────────────────────────
+
+    private static readonly NumberFormatInfo s_enUsNumberFormat =
+        CultureInfo.GetCultureInfo("en-US").NumberFormat;
+
     // ── Formatting ──────────────────────────────────────────────────────
 
     public static string? Capitalize(IReadOnlyDictionary<string, string?> args)
@@ -24,13 +30,23 @@ internal static class BuiltInFunctions
     {
         string? value = GetArg(args, "value");
         if (!TryParseDouble(value, out double num))
+        {
+            if (value is not null)
+                Trace.TraceWarning($"[BuiltInFunctions.FormatNumber] Cannot parse '{value}' as number");
             return "";
+        }
 
         int decimals = TryParseInt(GetArg(args, "decimals"), 0);
         // grouping defaults to true
         bool grouping = GetArg(args, "grouping") is not "false";
 
-        var nfi = (NumberFormatInfo)CultureInfo.GetCultureInfo("en-US").NumberFormat.Clone();
+        if (grouping && decimals == s_enUsNumberFormat.NumberDecimalDigits)
+        {
+            // Common case: reuse cached format info
+            return num.ToString($"N{decimals}", s_enUsNumberFormat);
+        }
+
+        var nfi = (NumberFormatInfo)s_enUsNumberFormat.Clone();
         if (!grouping)
             nfi.NumberGroupSeparator = "";
 
@@ -41,7 +57,11 @@ internal static class BuiltInFunctions
     {
         string? value = GetArg(args, "value");
         if (!TryParseDouble(value, out double num))
+        {
+            if (value is not null)
+                Trace.TraceWarning($"[BuiltInFunctions.FormatCurrency] Cannot parse '{value}' as number");
             return "";
+        }
 
         string currency = GetArg(args, "currency") ?? "USD";
         int decimals = TryParseInt(GetArg(args, "decimals"), 2);
@@ -56,7 +76,8 @@ internal static class BuiltInFunctions
             _ => currency + " ",
         };
 
-        var nfi = (NumberFormatInfo)CultureInfo.GetCultureInfo("en-US").NumberFormat.Clone();
+        // Currency always needs clone because we set CurrencySymbol
+        var nfi = (NumberFormatInfo)s_enUsNumberFormat.Clone();
         nfi.CurrencySymbol = symbol;
         nfi.CurrencyDecimalDigits = decimals;
         if (!grouping)
@@ -73,7 +94,10 @@ internal static class BuiltInFunctions
 
         if (!DateTime.TryParse(value, CultureInfo.InvariantCulture,
                 DateTimeStyles.RoundtripKind | DateTimeStyles.AllowWhiteSpaces, out DateTime dt))
+        {
+            Trace.TraceWarning($"[BuiltInFunctions.FormatDate] Cannot parse '{value}' as date");
             return "";
+        }
 
         string? format = GetArg(args, "format");
         if (string.IsNullOrEmpty(format))
@@ -213,7 +237,7 @@ internal static class BuiltInFunctions
         if (string.IsNullOrEmpty(value)) return "false";
         return BoolResult(Regex.IsMatch(value,
             @"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$",
-            RegexOptions.None, TimeSpan.FromSeconds(1)));
+            RegexOptions.NonBacktracking, TimeSpan.FromSeconds(1)));
     }
 
     public static string? RegexMatch(IReadOnlyDictionary<string, string?> args)
@@ -224,10 +248,11 @@ internal static class BuiltInFunctions
         try
         {
             return BoolResult(Regex.IsMatch(value, pattern,
-                RegexOptions.None, TimeSpan.FromSeconds(1)));
+                RegexOptions.NonBacktracking, TimeSpan.FromSeconds(1)));
         }
-        catch (RegexParseException)
+        catch (RegexParseException ex)
         {
+            Trace.TraceWarning($"[BuiltInFunctions.RegexMatch] Invalid pattern '{pattern}': {ex.Message}");
             return "false";
         }
     }
@@ -300,8 +325,9 @@ internal static class BuiltInFunctions
             }
             return result;
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            Trace.TraceWarning($"[BuiltInFunctions] Failed to parse JSON array: {ex.Message}");
             return [];
         }
     }
