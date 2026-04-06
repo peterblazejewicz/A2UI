@@ -1,18 +1,24 @@
-using System.Diagnostics;
 using A2Ui.Avalonia;
 using A2Ui.Avalonia.Controls;
 using A2Ui.Avalonia.Gallery.ViewModels;
 using Avalonia.Controls;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace A2Ui.Avalonia.Gallery.Views;
 
 public partial class GalleryWindow : Window
 {
+    private readonly ILogger<GalleryWindow> _logger;
     private GalleryViewModel? _vm;
     private A2UiSurface? _surfaceHost;
 
-    public GalleryWindow()
+    // Parameterless constructor required by Avalonia XAML loader (AVLN3001).
+    public GalleryWindow() : this(NullLogger<GalleryWindow>.Instance) { }
+
+    public GalleryWindow(ILogger<GalleryWindow> logger)
     {
+        _logger = logger;
         InitializeComponent();
     }
 
@@ -30,7 +36,7 @@ public partial class GalleryWindow : Window
 
             if (_surfaceHost is null)
             {
-                Debug.WriteLine("[GalleryWindow] SurfaceHost control not found in visual tree");
+                _logger.LogWarning("SurfaceHost control not found in visual tree");
                 return;
             }
 
@@ -56,7 +62,7 @@ public partial class GalleryWindow : Window
             }
             catch (Exception ex)
             {
-                Trace.TraceError($"[GalleryWindow] Failed to initialize gallery: {ex}");
+                _logger.LogError(ex, "Failed to initialize gallery");
                 Title = $"A2UI Gallery — Error: {ex.Message}";
             }
         }

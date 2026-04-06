@@ -1,4 +1,5 @@
 using A2Ui.Avalonia.Gallery.ViewModels;
+using A2Ui.Avalonia.Gallery.Views;
 using Avalonia;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,10 +16,9 @@ public sealed partial class App : Application
     {
         if (ApplicationLifetime is global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new Views.GalleryWindow
-            {
-                DataContext = Services.GetRequiredService<GalleryViewModel>(),
-            };
+            var window = Services.GetRequiredService<GalleryWindow>();
+            window.DataContext = Services.GetRequiredService<GalleryViewModel>();
+            desktop.MainWindow = window;
 
             desktop.ShutdownRequested += (_, _) =>
             {

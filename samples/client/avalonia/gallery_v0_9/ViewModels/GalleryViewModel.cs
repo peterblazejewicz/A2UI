@@ -6,6 +6,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 
 namespace A2Ui.Avalonia.Gallery.ViewModels;
 
@@ -14,10 +15,14 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
     private static readonly JsonSerializerOptions s_indentedJson = new() { WriteIndented = true };
 
     private readonly SurfaceManager _manager;
+    private readonly GalleryDataLoader _dataLoader;
+    private readonly ILogger<GalleryViewModel> _logger;
 
-    public GalleryViewModel(SurfaceManager manager)
+    public GalleryViewModel(SurfaceManager manager, GalleryDataLoader dataLoader, ILogger<GalleryViewModel> logger)
     {
         _manager = manager;
+        _dataLoader = dataLoader;
+        _logger = logger;
 
         _manager.SurfaceCreated += OnSurfaceCreated;
         _manager.SurfaceDeleted += OnSurfaceDeleted;
@@ -105,7 +110,7 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
         IsLoading = true;
         try
         {
-            IReadOnlyList<DemoItem> items = await GalleryDataLoader.LoadAsync(ct).ConfigureAwait(true);
+            IReadOnlyList<DemoItem> items = await _dataLoader.LoadAsync(ct).ConfigureAwait(true);
             foreach (DemoItem item in items)
                 DemoItems.Add(item);
 
@@ -152,8 +157,7 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
             {
                 ActionLogs.Insert(0,
                     $"[Error] Unexpected failure processing message {i}: {ex.GetType().Name}: {ex.Message}");
-                System.Diagnostics.Trace.TraceError(
-                    $"[GalleryViewModel] Unexpected exception in AdvanceMessages: {ex}");
+                _logger.LogError(ex, "Unexpected exception processing message {Index}", i);
             }
         }
 

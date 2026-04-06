@@ -1,7 +1,11 @@
+using A2Ui.Avalonia.Gallery.Services;
 using A2Ui.Avalonia.Gallery.ViewModels;
+using A2Ui.Avalonia.Gallery.Views;
 using A2Ui.Core;
 using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace A2Ui.Avalonia.Gallery;
 
@@ -13,7 +17,19 @@ internal static class Program
 
     public static AppBuilder BuildAvaloniaApp()
     {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Console(outputTemplate:
+                "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
+            .WriteTo.File(
+                Path.Combine(AppContext.BaseDirectory, "logs", "gallery-.log"),
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 7)
+            .Enrich.FromLogContext()
+            .CreateLogger();
+
         var services = new ServiceCollection();
+        services.AddLogging(builder => builder.AddSerilog(dispose: true));
         ConfigureServices(services);
         App.Services = services.BuildServiceProvider();
 
@@ -26,6 +42,8 @@ internal static class Program
     private static void ConfigureServices(IServiceCollection services)
     {
         services.AddSingleton<SurfaceManager>();
+        services.AddSingleton<GalleryDataLoader>();
         services.AddSingleton<GalleryViewModel>();
+        services.AddTransient<GalleryWindow>();
     }
 }

@@ -1,8 +1,8 @@
-using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
 using A2Ui.Avalonia.Gallery.Models;
 using A2Ui.Core.Messages;
+using Microsoft.Extensions.Logging;
 
 namespace A2Ui.Avalonia.Gallery.Services;
 
@@ -19,7 +19,14 @@ public sealed class GalleryDataLoader
         AllowTrailingCommas = true,
     };
 
-    public static async Task<IReadOnlyList<DemoItem>> LoadAsync(CancellationToken ct = default)
+    private readonly ILogger<GalleryDataLoader> _logger;
+
+    public GalleryDataLoader(ILogger<GalleryDataLoader> logger)
+    {
+        _logger = logger;
+    }
+
+    public async Task<IReadOnlyList<DemoItem>> LoadAsync(CancellationToken ct = default)
     {
         var items = new List<DemoItem>();
         string specsDir = Path.Combine(AppContext.BaseDirectory, "Specs");
@@ -45,7 +52,7 @@ public sealed class GalleryDataLoader
         return items;
     }
 
-    private static async Task LoadFromDirectoryAsync(
+    private async Task LoadFromDirectoryAsync(
         string directory,
         bool isBasic,
         List<DemoItem> items,
@@ -53,7 +60,7 @@ public sealed class GalleryDataLoader
     {
         if (!Directory.Exists(directory))
         {
-            Debug.WriteLine($"[GalleryDataLoader] Specs directory not found: {directory}");
+            _logger.LogWarning("Specs directory not found: {Directory}", directory);
             return;
         }
 
@@ -72,13 +79,11 @@ public sealed class GalleryDataLoader
             }
             catch (JsonException ex)
             {
-                Debug.WriteLine(
-                    $"[GalleryDataLoader] Skipping malformed JSON '{filePath}': {ex.Message}");
+                _logger.LogWarning(ex, "Skipping malformed JSON: {FilePath}", filePath);
             }
             catch (IOException ex)
             {
-                Debug.WriteLine(
-                    $"[GalleryDataLoader] Cannot read file '{filePath}': {ex.Message}");
+                _logger.LogWarning(ex, "Cannot read file: {FilePath}", filePath);
             }
         }
     }
