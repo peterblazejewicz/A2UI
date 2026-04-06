@@ -209,6 +209,58 @@ public sealed class ExpressionParserTests
             .WithMessage("*Expected ':'*");
     }
 
+    // ── Parse: empty string ──────────────────────────────────────────
+
+    [Fact]
+    public void Parse_EmptyString_ReturnsLiteralOrEmpty()
+    {
+        // Parse("") has no "${" so it returns [LiteralToken("")] via the early-return path.
+        // The empty-literal filter runs only inside the while-loop branch, not on this path.
+        IReadOnlyList<ExpressionToken> result = _parser.Parse("");
+        result.Should().HaveCount(1);
+        result[0].Should().Be(new LiteralToken(""));
+    }
+
+    // ── Parse: unterminated string literal ───────────────────────────
+
+    [Fact]
+    public void Parse_UnterminatedStringLiteral_Throws()
+    {
+        // An unterminated string literal inside ${ } means the closing } is never found,
+        // so ExtractInterpolationContent raises A2UiExpressionException("Unclosed interpolation").
+        // TODO(issue #4): a dedicated "Unterminated string literal" message would give a better
+        // diagnostic. For now the test verifies that parsing does not silently succeed.
+        Action act = () => _parser.Parse("${'hello");
+        act.Should().Throw<A2UiExpressionException>(
+            "an unterminated string literal inside an interpolation block must not silently succeed");
+    }
+
+    // ── Parse: malformed number ──────────────────────────────────────
+
+    [Fact]
+    public void Parse_MalformedNumber_Throws()
+    {
+        // TODO(issue #3): ParseNumberLiteral calls double.Parse which throws FormatException,
+        // not A2UiExpressionException. Once issue #3 is fixed in production code,
+        // change the assertion to .Throw<A2UiExpressionException>().
+        Action act = () => _parser.Parse("${1.2.3}");
+        act.Should().Throw<Exception>(
+            "issue #3 not yet fixed: malformed number bubbles up a raw FormatException");
+    }
+
+    // ── ResolveFormatString: empty template ──────────────────────────
+
+    [Fact]
+    public void ResolveFormatString_EmptyTemplate_ReturnsEmpty()
+    {
+        // The FunctionRegistry formatString function returns "" for a null/empty value arg.
+        var registry = FunctionRegistry.CreateDefault();
+        string? result = registry.Evaluate(
+            "formatString",
+            new Dictionary<string, string?> { ["value"] = "" });
+        result.Should().Be("", "formatString with empty value should return an empty string");
+    }
+
     // ── Parse: formatString-style compound expression ────────────────
 
     [Fact]

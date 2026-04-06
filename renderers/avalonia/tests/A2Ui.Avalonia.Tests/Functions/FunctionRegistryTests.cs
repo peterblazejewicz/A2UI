@@ -123,6 +123,17 @@ public sealed class FunctionRegistryTests
         Eval("formatString", ("value", "Hello ${/name}")).Should().Be("Hello ${/name}");
 
     [Fact]
+    public void FormatString_MalformedTemplate_ReturnsFallback()
+    {
+        // The FunctionRegistry layer passes the value arg through as-is (no expression parsing).
+        // A malformed template like "${" should be returned unchanged rather than crashing.
+        // Full expression parsing (and the fallback-on-parse-error path) lives in A2UiRenderer;
+        // at the registry level the contract is simply: return the value string.
+        string? result = Eval("formatString", ("value", "${"));
+        result.Should().Be("${", "formatString at registry level must not crash on malformed input");
+    }
+
+    [Fact]
     public void Pluralize_One_ReturnsSingular() =>
         Eval("pluralize", ("value", "1"), ("one", "item"), ("other", "items"))
             .Should().Be("item");
