@@ -1,5 +1,6 @@
 using System.Text.Json;
 using AgUi.Protocol.Events;
+using Microsoft.Extensions.Logging;
 
 namespace AgUi.Protocol.Transport;
 
@@ -19,7 +20,8 @@ public static class SseEventParser
     public static async IAsyncEnumerable<BaseEvent> ParseAsync(
         Stream sseStream,
         [System.Runtime.CompilerServices.EnumeratorCancellation]
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        ILogger? logger = null)
     {
         using var reader = new StreamReader(sseStream, leaveOpen: true);
 
@@ -39,13 +41,26 @@ public static class SseEventParser
             {
                 evt = JsonSerializer.Deserialize<BaseEvent>(json, s_options);
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
                 // Malformed event — skip, do not throw (resilient parser)
+                if (logger is not null)
+                {
+                    SseLog.MalformedEvent(logger, line, ex);
+                }
                 continue;
             }
 
             if (evt is not null) yield return evt;
         }
     }
+}
+
+internal static partial class SseLog
+{
+    [LoggerMessage(
+        EventId = 1,
+        Level = LogLevel.Warning,
+        Message = "Skipping malformed SSE event: {Line}")]
+    public static partial void MalformedEvent(ILogger logger, string line, Exception ex);
 }
