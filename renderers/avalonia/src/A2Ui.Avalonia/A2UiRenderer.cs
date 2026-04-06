@@ -1,4 +1,6 @@
+using System.Text.Json;
 using A2Ui.Avalonia.Catalog;
+using A2Ui.Avalonia.Functions;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
@@ -13,11 +15,13 @@ namespace A2Ui.Avalonia;
 public sealed class A2UiRenderer
 {
     private readonly CatalogRegistry _catalog;
+    private readonly IFunctionRegistry? _functionRegistry;
     private readonly Dictionary<string, Dictionary<string, Control>> _surfaceCaches = new();
 
-    public A2UiRenderer(CatalogRegistry catalog)
+    public A2UiRenderer(CatalogRegistry catalog, IFunctionRegistry? functionRegistry = null)
     {
         _catalog = catalog;
+        _functionRegistry = functionRegistry;
     }
 
     /// <summary>
@@ -34,7 +38,7 @@ public sealed class A2UiRenderer
             _surfaceCaches[surface.SurfaceId] = cache;
         }
 
-        var context = new RenderContext(surface, _catalog, cache,
+        var context = new RenderContext(surface, _catalog, cache, _functionRegistry,
             (surfaceId, eventName, payload, componentId) =>
                 UserActionFired?.Invoke(this, new(surfaceId, eventName, payload, componentId)),
             (surfaceId) =>
@@ -87,10 +91,13 @@ internal sealed class RenderContext(
     Surface surface,
     CatalogRegistry catalog,
     Dictionary<string, Control> cache,
+    IFunctionRegistry? functionRegistry,
     Action<string, string, object?, string?> fireAction,
     Action<string> onDataModelChanged)
     : IRenderContext
 {
+    private static readonly JsonSerializerOptions s_jsonOptions = new();
+
     public Control? RenderChild(string? childId)
     {
         if (childId is null || !surface.Components.TryGetValue(childId, out var c))
@@ -171,8 +178,29 @@ internal sealed class RenderContext(
     public void FireUserAction(string eventName, object? payload = null, string? componentId = null) =>
         fireAction(surface.SurfaceId, eventName, payload, componentId);
 
-    public string? Resolve(DynamicValue? value) =>
-        surface.DataModel.Resolve(value);
+    public string? Resolve(DynamicValue? value)
+    {
+        if (value is null)
+            return null;
+
+        if (value.FunctionCall is { } fc && functionRegistry is not null)
+        {
+            var resolvedArgs = new Dictionary<string, string?>();
+            if (fc.Args is not null)
+            {
+                foreach (var (key, jsonEl) in fc.Args)
+                {
+                    // Deserialize JsonElement -> DynamicValue -> Resolve recursively
+                    var argValue = JsonSerializer.Deserialize<DynamicValue>(
+                        jsonEl.GetRawText(), s_jsonOptions);
+                    resolvedArgs[key] = Resolve(argValue);
+                }
+            }
+            return functionRegistry.Evaluate(fc.Call, resolvedArgs);
+        }
+
+        return surface.DataModel.Resolve(value);
+    }
 
     public void UpdateDataModel(string path, string? value)
     {

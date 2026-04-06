@@ -1,4 +1,5 @@
 using A2Ui.Avalonia.Catalog;
+using A2Ui.Avalonia.Functions;
 using A2Ui.Core;
 using Avalonia;
 using Avalonia.Controls;
@@ -18,11 +19,11 @@ public sealed class A2UiSurface : ContentControl
 
     private readonly A2UiRenderer _renderer;
 
-    public A2UiSurface() : this(CatalogRegistry.CreateDefault()) { }
+    public A2UiSurface() : this(CatalogRegistry.CreateDefault(), FunctionRegistry.CreateDefault()) { }
 
-    public A2UiSurface(CatalogRegistry catalog)
+    public A2UiSurface(CatalogRegistry catalog, IFunctionRegistry? functionRegistry = null)
     {
-        _renderer = new A2UiRenderer(catalog);
+        _renderer = new A2UiRenderer(catalog, functionRegistry);
         _renderer.UserActionFired += OnUserActionFired;
         _renderer.DataModelChanged += OnDataModelChanged;
 
