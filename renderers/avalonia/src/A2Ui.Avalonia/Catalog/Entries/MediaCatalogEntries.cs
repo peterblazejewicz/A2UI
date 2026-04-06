@@ -161,9 +161,9 @@ public sealed class SurfaceCatalogEntry : ICatalogEntry
 
 internal static partial class MediaLog
 {
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Image at '{Url}' exceeds {MaxMb} MB limit ({ActualBytes} bytes), skipping")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Image at '{Url}' exceeds {MaxMb} MB limit ({ActualBytes} bytes), skipping")]
     public static partial void ImageExceedsSizeLimit(ILogger logger, string url, int maxMb, int actualBytes);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to load image from '{Url}'")]
+    [LoggerMessage(EventId = 2, Level = LogLevel.Warning, Message = "Failed to load image from '{Url}'")]
     public static partial void FailedToLoadImage(ILogger logger, string url, Exception exception);
 }

@@ -19,9 +19,9 @@ public static class SseEventParser
 
     public static async IAsyncEnumerable<BaseEvent> ParseAsync(
         Stream sseStream,
+        ILogger? logger = null,
         [System.Runtime.CompilerServices.EnumeratorCancellation]
-        CancellationToken cancellationToken = default,
-        ILogger? logger = null)
+        CancellationToken cancellationToken = default)
     {
         using var reader = new StreamReader(sseStream, leaveOpen: true);
 

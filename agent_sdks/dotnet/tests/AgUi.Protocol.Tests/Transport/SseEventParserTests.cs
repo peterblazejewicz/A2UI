@@ -73,7 +73,7 @@ public sealed class SseEventParserTests
         using var cts = new CancellationTokenSource();
 
         var events = new List<BaseEvent>();
-        await foreach (var evt in SseEventParser.ParseAsync(ToStream(sse), cts.Token))
+        await foreach (var evt in SseEventParser.ParseAsync(ToStream(sse), cancellationToken: cts.Token))
         {
             events.Add(evt);
             cts.Cancel(); // cancel after first event

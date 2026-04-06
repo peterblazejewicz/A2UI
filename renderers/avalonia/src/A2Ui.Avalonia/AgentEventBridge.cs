@@ -151,9 +151,9 @@ public sealed class AgentEventBridge : IDisposable
 
 internal static partial class BridgeLog
 {
-    [LoggerMessage(Level = LogLevel.Error, Message = "UserActionReceived subscriber threw")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Error, Message = "UserActionReceived subscriber threw")]
     public static partial void UserActionSubscriberThrew(ILogger logger, Exception exception);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipping malformed A2UI line: {LinePreview}")]
+    [LoggerMessage(EventId = 2, Level = LogLevel.Warning, Message = "Skipping malformed A2UI line: {LinePreview}")]
     public static partial void MalformedA2UiLine(ILogger logger, string linePreview, Exception exception);
 }

@@ -469,33 +469,33 @@ public sealed record DataModelChangedEventArgs(string SurfaceId);
 
 internal static partial class RendererLog
 {
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Cannot detach control from unknown parent type {ParentTypeName}")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Cannot detach control from unknown parent type {ParentTypeName}")]
     public static partial void CannotDetachFromUnknownParent(ILogger logger, string parentTypeName);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Resolve exceeded max depth ({MaxDepth}), returning null")]
+    [LoggerMessage(EventId = 2, Level = LogLevel.Warning, Message = "Resolve exceeded max depth ({MaxDepth}), returning null")]
     public static partial void ResolveExceededMaxDepth(ILogger logger, int maxDepth);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to deserialize array element for function arg")]
+    [LoggerMessage(EventId = 3, Level = LogLevel.Warning, Message = "Failed to deserialize array element for function arg")]
     public static partial void FailedToDeserializeArrayElement(ILogger logger, Exception exception);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "FunctionCall '{FunctionName}' encountered but no function registry configured")]
+    [LoggerMessage(EventId = 4, Level = LogLevel.Warning, Message = "FunctionCall '{FunctionName}' encountered but no function registry configured")]
     public static partial void NoFunctionRegistryForCall(ILogger logger, string functionName);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to deserialize arg '{ArgName}' for function '{FunctionName}'")]
+    [LoggerMessage(EventId = 5, Level = LogLevel.Warning, Message = "Failed to deserialize arg '{ArgName}' for function '{FunctionName}'")]
     public static partial void FailedToDeserializeFunctionArg(ILogger logger, string argName, string functionName, Exception exception);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to deserialize formatString 'value' arg")]
+    [LoggerMessage(EventId = 6, Level = LogLevel.Warning, Message = "Failed to deserialize formatString 'value' arg")]
     public static partial void FailedToDeserializeFormatStringArg(ILogger logger, Exception exception);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to parse formatString template")]
+    [LoggerMessage(EventId = 7, Level = LogLevel.Warning, Message = "Failed to parse formatString template")]
     public static partial void FailedToParseFormatStringTemplate(ILogger logger, Exception exception);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "ResolveExpressionToken exceeded max depth ({MaxDepth})")]
+    [LoggerMessage(EventId = 8, Level = LogLevel.Warning, Message = "ResolveExpressionToken exceeded max depth ({MaxDepth})")]
     public static partial void ExpressionTokenExceededMaxDepth(ILogger logger, int maxDepth);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Expression function '{FunctionName}' encountered but no function registry configured")]
+    [LoggerMessage(EventId = 9, Level = LogLevel.Warning, Message = "Expression function '{FunctionName}' encountered but no function registry configured")]
     public static partial void NoFunctionRegistryForExpression(ILogger logger, string functionName);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to update data model at path '{Path}'")]
+    [LoggerMessage(EventId = 10, Level = LogLevel.Warning, Message = "Failed to update data model at path '{Path}'")]
     public static partial void FailedToUpdateDataModel(ILogger logger, string path, Exception exception);
 }

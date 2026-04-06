@@ -135,6 +135,6 @@ internal static class CheckHelper
 
 internal static partial class CheckLog
 {
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to evaluate check condition")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Failed to evaluate check condition")]
     public static partial void ConditionFailed(ILogger logger, Exception exception);
 }

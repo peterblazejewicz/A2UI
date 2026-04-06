@@ -12,8 +12,17 @@ namespace A2Ui.Avalonia.Gallery;
 internal static class Program
 {
     [STAThread]
-    public static void Main(string[] args) =>
-        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+    public static void Main(string[] args)
+    {
+        try
+        {
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
+    }
 
     public static AppBuilder BuildAvaloniaApp()
     {

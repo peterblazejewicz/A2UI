@@ -233,15 +233,12 @@ internal static class BuiltInFunctions
         string? value = GetArg(args, "value");
         string? pattern = GetArg(args, "pattern");
         if (value is null || pattern is null) return "false";
-        try
-        {
-            return BoolResult(Regex.IsMatch(value, pattern,
-                RegexOptions.NonBacktracking, TimeSpan.FromSeconds(1)));
-        }
-        catch (RegexParseException)
-        {
-            return "false";
-        }
+
+        // Let RegexParseException propagate to FunctionRegistry.Evaluate,
+        // which catches ArgumentException (parent of RegexParseException)
+        // and logs it. Invalid patterns are user errors worth diagnosing.
+        return BoolResult(Regex.IsMatch(value, pattern,
+            RegexOptions.NonBacktracking, TimeSpan.FromSeconds(1)));
     }
 
     public static string? Length(IReadOnlyDictionary<string, string?> args)
@@ -299,16 +296,26 @@ internal static class BuiltInFunctions
 
     private static List<string?> ParseJsonStringArray(string json)
     {
-        using var doc = JsonDocument.Parse(json);
-        if (doc.RootElement.ValueKind != JsonValueKind.Array)
-            return [];
-
-        var result = new List<string?>();
-        foreach (JsonElement el in doc.RootElement.EnumerateArray())
+        try
         {
-            result.Add(el.ValueKind == JsonValueKind.String ? el.GetString() : el.GetRawText());
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array)
+                return [];
+
+            var result = new List<string?>();
+            foreach (JsonElement el in doc.RootElement.EnumerateArray())
+            {
+                result.Add(el.ValueKind == JsonValueKind.String ? el.GetString() : el.GetRawText());
+            }
+            return result;
         }
-        return result;
+        catch (JsonException)
+        {
+            // Return empty list on malformed JSON so And()/Or() evaluate correctly
+            // (And on empty → true, Or on empty → false) rather than propagating
+            // to FunctionRegistry.Evaluate which would return null.
+            return [];
+        }
     }
 
     /// <summary>

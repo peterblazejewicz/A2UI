@@ -121,9 +121,9 @@ public sealed class FunctionRegistryBuilder
 
 internal static partial class FunctionLog
 {
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Unknown function: {FunctionName}")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Unknown function: {FunctionName}")]
     public static partial void UnknownFunction(ILogger logger, string functionName);
 
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Error evaluating '{FunctionName}'")]
+    [LoggerMessage(EventId = 2, Level = LogLevel.Warning, Message = "Error evaluating '{FunctionName}'")]
     public static partial void ErrorEvaluatingFunction(ILogger logger, string functionName, Exception exception);
 }

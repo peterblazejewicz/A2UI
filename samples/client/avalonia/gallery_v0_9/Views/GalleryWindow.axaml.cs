@@ -2,6 +2,7 @@ using A2Ui.Avalonia;
 using A2Ui.Avalonia.Controls;
 using A2Ui.Avalonia.Gallery.ViewModels;
 using Avalonia.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -39,6 +40,12 @@ public partial class GalleryWindow : Window
                 _logger.LogWarning("SurfaceHost control not found in visual tree");
                 return;
             }
+
+            // Wire logging into the XAML-constructed A2UiSurface so that
+            // renderer, function registry, and image loading all log via Serilog.
+            var loggerFactory = App.Services.GetService<ILoggerFactory>();
+            if (loggerFactory is not null)
+                _surfaceHost.SetLoggerFactory(loggerFactory);
 
             vm.SurfaceRefreshRequested += OnSurfaceRefreshRequested;
             _surfaceHost.UserActionFired += OnUserActionFired;

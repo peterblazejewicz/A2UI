@@ -19,7 +19,7 @@ public sealed class A2UiSurface : ContentControl
     public static readonly StyledProperty<Surface?> SurfaceProperty =
         AvaloniaProperty.Register<A2UiSurface, Surface?>(nameof(Surface));
 
-    private readonly A2UiRenderer _renderer;
+    private A2UiRenderer _renderer;
 
     public A2UiSurface() : this(CatalogRegistry.CreateDefault(), FunctionRegistry.CreateDefault()) { }
 
@@ -46,6 +46,23 @@ public sealed class A2UiSurface : ContentControl
 
     public event EventHandler<UserActionEventArgs>? UserActionFired;
     public event EventHandler<DataModelChangedEventArgs>? DataModelChanged;
+
+    /// <summary>
+    /// Re-create the internal renderer with logging enabled.
+    /// Call this from code-behind after the XAML parameterless constructor
+    /// to wire logging from the application's DI container.
+    /// </summary>
+    public void SetLoggerFactory(ILoggerFactory loggerFactory)
+    {
+        _renderer.UserActionFired -= OnUserActionFired;
+        _renderer.DataModelChanged -= OnDataModelChanged;
+        _renderer = new A2UiRenderer(
+            CatalogRegistry.CreateDefault(loggerFactory),
+            FunctionRegistry.CreateDefault(loggerFactory),
+            loggerFactory);
+        _renderer.UserActionFired += OnUserActionFired;
+        _renderer.DataModelChanged += OnDataModelChanged;
+    }
 
     /// <summary>
     /// Re-render the current surface. Call this after SurfaceManager fires
