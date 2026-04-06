@@ -4,6 +4,7 @@ using A2Ui.Avalonia.Functions;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 
 namespace A2Ui.Avalonia.Tests.Integration;
@@ -150,7 +151,7 @@ internal static class GalleryTestHelper
 
     /// <summary>
     /// Yield child controls from common Avalonia container types.
-    /// Handles Panel, ContentControl, Decorator, and ScrollViewer.
+    /// Handles Panel, ContentControl, Decorator, ScrollViewer, and Popup.
     /// </summary>
     public static IEnumerable<Control> GetChildren(Control parent)
     {
@@ -173,6 +174,11 @@ internal static class GalleryTestHelper
         {
             if (decorator.Child is Control decoratorChild)
                 yield return decoratorChild;
+        }
+        else if (parent is Popup popup)
+        {
+            if (popup.Child is Control popupChild)
+                yield return popupChild;
         }
     }
 

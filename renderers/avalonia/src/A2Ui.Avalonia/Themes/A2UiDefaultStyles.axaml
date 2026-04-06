@@ -48,6 +48,15 @@
     <Setter Property="FontSize" Value="12" />
   </Style>
 
+  <!-- Modal close button (×) -->
+  <Style Selector="Button.ModalClose">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="FontSize" Value="18" />
+    <Setter Property="Padding" Value="4" />
+    <Setter Property="MinWidth" Value="30" />
+    <Setter Property="MinHeight" Value="30" />
+  </Style>
+
   <!-- Button danger variant (Fluent provides accent natively) -->
   <Style Selector="Button.danger">
     <Setter Property="Background" Value="#dc2626" />

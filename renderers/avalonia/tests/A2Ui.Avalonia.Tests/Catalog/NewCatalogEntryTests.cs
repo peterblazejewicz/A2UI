@@ -143,7 +143,7 @@ public sealed class NewCatalogEntryTests
     // ── Modal ─────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    public void ModalCatalogEntry_Create_ReturnsStackPanel()
+    public void ModalCatalogEntry_Create_ReturnsPanel()
     {
         var (dm, ctx) = Setup();
         var entry = new ModalCatalogEntry();
@@ -156,7 +156,8 @@ public sealed class NewCatalogEntryTests
 
         var control = entry.Create(c, dm, ctx);
 
-        control.Should().BeOfType<StackPanel>();
+        // Modal now returns a Panel containing the trigger + a Popup overlay
+        control.Should().BeOfType<Panel>();
     }
 
     // ── ChoicePicker ──────────────────────────────────────────────────────
