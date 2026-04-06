@@ -51,12 +51,16 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
             ctx.FireUserAction(InputEvents.ValueChanged, newText, componentId);
         };
 
-        return tb;
+        return CheckHelper.ApplyChecks(tb, c, ctx);
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
                        IRenderContext ctx)
     {
+        // When checks exist, force recreate so validation messages refresh.
+        if (c.Checks is { Length: > 0 })
+            return false;
+
         if (existing is not TextBox tb) return false;
         if (!tb.IsFocused)
         {
@@ -91,7 +95,7 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
             ctx.FireUserAction(InputEvents.ValueChanged, isoDate);
         };
 
-        return picker;
+        return CheckHelper.ApplyChecks(picker, c, ctx);
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
@@ -122,7 +126,7 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
             ctx.FireUserAction(InputEvents.ValueChanged, selectedValue);
         };
 
-        return combo;
+        return CheckHelper.ApplyChecks(combo, c, ctx);
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
@@ -152,12 +156,16 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
             ctx.FireUserAction(InputEvents.ValueChanged, cb.IsChecked == true ? "true" : "false");
         };
 
-        return cb;
+        return CheckHelper.ApplyChecks(cb, c, ctx);
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
                        IRenderContext ctx)
     {
+        // When checks exist, force recreate so validation messages refresh.
+        if (c.Checks is { Length: > 0 })
+            return false;
+
         if (existing is not CheckBox cb) return false;
         if (!cb.IsFocused)
         {
@@ -190,12 +198,16 @@ public sealed class SliderCatalogEntry : ICatalogEntry
             ctx.FireUserAction(InputEvents.ValueChanged, slider.Value.ToString("G")),
             RoutingStrategies.Bubble);
 
-        return slider;
+        return CheckHelper.ApplyChecks(slider, c, ctx);
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
                        IRenderContext ctx)
     {
+        // When checks exist, force recreate so validation messages refresh.
+        if (c.Checks is { Length: > 0 })
+            return false;
+
         if (existing is not Slider s) return false;
         if (!s.IsFocused && double.TryParse(ctx.Resolve(c.Value), out double val))
             s.Value = val;

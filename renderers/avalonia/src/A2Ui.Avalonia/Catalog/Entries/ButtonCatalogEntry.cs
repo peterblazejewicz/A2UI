@@ -19,6 +19,19 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
 
         ApplyVariant(btn, c.Variant);
 
+        // Evaluate check conditions — disable button when any check fails.
+        if (c.Checks is { Length: > 0 })
+        {
+            bool allPass = CheckHelper.AllChecksPassing(c, ctx);
+            btn.IsEnabled = allPass;
+            if (!allPass)
+            {
+                string? failedMessage = CheckHelper.FirstFailingMessage(c, ctx);
+                if (failedMessage is not null)
+                    ToolTip.SetTip(btn, failedMessage);
+            }
+        }
+
         if (c.Action?.Event is { } actionEvent)
         {
             string eventName = actionEvent.Name;

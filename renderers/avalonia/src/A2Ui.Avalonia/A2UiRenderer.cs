@@ -236,11 +236,48 @@ internal sealed class RenderContext(
         if (value.FunctionCall is { } fc)
             return ResolveFunction(fc, depth);
 
+        // ArrayLiteral: resolve each element individually and return as JSON string array.
+        // This handles cases like and/or where "values" is an array of DynamicValues
+        // (paths, function calls, etc.) that each need recursive resolution.
+        if (value.ArrayLiteral is { } arrayEl)
+            return ResolveArrayLiteral(arrayEl, depth);
+
         // Scope relative paths when inside a template expansion
         if (basePath is not null && value.Path is { } path && !path.StartsWith('/'))
             return ResolveScopedPath(path);
 
         return surface.DataModel.Resolve(value);
+    }
+
+    /// <summary>
+    /// Resolve a JSON array of DynamicValues by resolving each element individually.
+    /// Returns a JSON string array, e.g. <c>["true","false","true"]</c>, suitable for
+    /// functions like <c>and</c>/<c>or</c> that use <see cref="BuiltInFunctions.ParseJsonStringArray"/>.
+    /// </summary>
+    private string? ResolveArrayLiteral(JsonElement arrayEl, int depth)
+    {
+        if (arrayEl.ValueKind != JsonValueKind.Array)
+            return null;
+
+        var results = new List<string>();
+        foreach (JsonElement item in arrayEl.EnumerateArray())
+        {
+            try
+            {
+                var itemDv = JsonSerializer.Deserialize<DynamicValue>(
+                    item.GetRawText(), s_jsonOptions);
+                string? resolved = ResolveCore(itemDv, depth + 1);
+                results.Add(resolved ?? "");
+            }
+            catch (JsonException ex)
+            {
+                Trace.TraceWarning(
+                    $"[RenderContext] Failed to deserialize array element: {ex.Message}");
+                results.Add("");
+            }
+        }
+
+        return JsonSerializer.Serialize(results);
     }
 
     private string? ResolveFunction(FunctionCallValue fc, int depth)

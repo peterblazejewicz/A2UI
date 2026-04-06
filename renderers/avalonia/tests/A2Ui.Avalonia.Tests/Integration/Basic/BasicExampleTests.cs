@@ -241,7 +241,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-    [Trait("Gap", "CheckValidation")]
     public void Example_09_LoginForm_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/09_login-form.json");
@@ -841,8 +840,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
-    [Trait("Gap", "CheckValidation")]
     public void Example_32_AdvancedFormValidator_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/32_advanced-form-validator.json");
@@ -860,14 +857,13 @@ public sealed class BasicExampleTests
         CheckBox? cb = GalleryTestHelper.FindFirst<CheckBox>(result.RootControl);
         cb.Should().NotBeNull();
 
-        // Button: Submit Registration → register
+        // Button: Submit Registration — disabled initially due to check validation
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         buttons.Should().NotBeEmpty();
         Button? submitBtn = buttons.FirstOrDefault(b =>
             GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Submit Registration");
         submitBtn.Should().NotBeNull();
-        GalleryTestHelper.ClickButton(submitBtn!);
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "register");
+        submitBtn!.IsEnabled.Should().BeFalse("checks fail with empty form data");
     }
 
     // ──────────────────────────────────────────────────────────────────

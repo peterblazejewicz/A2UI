@@ -42,6 +42,12 @@
     <Setter Property="Padding" Value="16" />
   </Style>
 
+  <!-- Validation error text below form controls -->
+  <Style Selector="TextBlock.ValidationError">
+    <Setter Property="Foreground" Value="#E57373" />
+    <Setter Property="FontSize" Value="12" />
+  </Style>
+
   <!-- Button danger variant (Fluent provides accent natively) -->
   <Style Selector="Button.danger">
     <Setter Property="Background" Value="#dc2626" />
