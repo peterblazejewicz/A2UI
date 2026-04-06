@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
@@ -26,30 +27,85 @@ public sealed class ImageCatalogEntry : ICatalogEntry
         var img = new Image { Stretch = stretch };
         string? url = ctx.Resolve(c.Url) ?? ctx.Resolve(c.Value);
         if (url is not null)
-            _ = LoadImageAsync(img, url); // fire-and-forget; errors handled inside
+        {
+            img.Tag = url;
+            _ = LoadImageAsync(img, url, CancellationToken.None);
+        }
         return img;
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx) => false;
+                       IRenderContext ctx)
+    {
+        if (existing is not Image img)
+            return false;
 
-    private static readonly System.Net.Http.HttpClient s_http = new();
+        string? url = ctx.Resolve(c.Url) ?? ctx.Resolve(c.Value);
+        if (url is null)
+            return true; // no URL yet — keep existing control as-is
 
-    private static async Task LoadImageAsync(Image img, string url)
+        // If the image already has a source and the URL tag matches, skip reload.
+        if (img.Source is not null && img.Tag as string == url)
+            return true;
+
+        // URL changed or source not yet loaded — reload.
+        img.Tag = url;
+        _ = LoadImageAsync(img, url, CancellationToken.None);
+        return true;
+    }
+
+    private static readonly HttpClient s_http = new()
+    {
+        Timeout = TimeSpan.FromSeconds(30),
+    };
+
+    /// <summary>Maximum image download size (10 MB) to avoid unbounded memory allocation.</summary>
+    private const int MaxImageBytes = 10 * 1024 * 1024;
+
+    private static async Task LoadImageAsync(Image img, string url, CancellationToken ct)
     {
         try
         {
-            var stream = await s_http.GetStreamAsync(url).ConfigureAwait(false);
-            await using var _ = stream.ConfigureAwait(false);
-            var bitmap = new Bitmap(stream);
-            // CA2007: DispatcherOperation is not a Task; suppress for Avalonia UI thread dispatch
+            // Download to byte array — Avalonia's Bitmap constructor needs a seekable stream.
+            byte[] data = await s_http.GetByteArrayAsync(url, ct).ConfigureAwait(false);
+
+            if (data.Length > MaxImageBytes)
+            {
+                Trace.TraceWarning(
+                    $"[ImageCatalogEntry] Image at '{url}' exceeds {MaxImageBytes / (1024 * 1024)} MB limit ({data.Length} bytes), skipping.");
+                return;
+            }
+
+            using var ms = new MemoryStream(data);
+            var bitmap = new Bitmap(ms);
+
+            // Dispatcher.UIThread.InvokeAsync returns DispatcherOperation, not Task —
+            // ConfigureAwait is not applicable.
 #pragma warning disable CA2007
-            await Dispatcher.UIThread.InvokeAsync(() => img.Source = bitmap);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                // Guard against out-of-order completion: another Update() may have
+                // changed the target URL while this download was in flight.
+                if (img.Tag as string != url)
+                {
+                    bitmap.Dispose();
+                    return;
+                }
+
+                var old = img.Source as Bitmap;
+                img.Source = bitmap;
+                old?.Dispose();
+            });
 #pragma warning restore CA2007
         }
-        catch
+        catch (OperationCanceledException)
         {
-            // Broken image URL — leave the Image control empty
+            // Intentionally cancelled — not an error.
+        }
+        catch (Exception ex)
+        {
+            Trace.TraceWarning(
+                $"[ImageCatalogEntry] Failed to load image from '{url}': {ex.Message}");
         }
     }
 }
