@@ -24,4 +24,12 @@
   <ItemGroup>
     <ProjectReference Include="../../src/A2Ui.Avalonia/A2Ui.Avalonia.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="../../../../specification/v0_9/json/catalogs/minimal/examples/*.json"
+             Link="Specs/minimal/%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../../../specification/v0_9/json/catalogs/basic/examples/*.json"
+             Link="Specs/basic/%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
