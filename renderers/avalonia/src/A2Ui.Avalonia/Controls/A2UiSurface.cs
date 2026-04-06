@@ -3,6 +3,7 @@ using A2Ui.Avalonia.Functions;
 using A2Ui.Core;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Threading;
 
 namespace A2Ui.Avalonia.Controls;
@@ -57,9 +58,30 @@ public sealed class A2UiSurface : ContentControl
             return;
 
         if (Dispatcher.UIThread.CheckAccess())
-            Content = _renderer.Render(surface);
+            RenderAndRestoreFocus(surface);
         else
-            Dispatcher.UIThread.Post(() => Content = _renderer.Render(surface));
+            Dispatcher.UIThread.Post(() => RenderAndRestoreFocus(surface));
+    }
+
+    /// <summary>
+    /// Re-render the surface and restore keyboard focus to the same control.
+    /// Card/Column entries don't support in-place Update, so Render() creates
+    /// new parent containers — but leaf controls (TextBox, etc.) are reused via
+    /// the renderer cache. Detaching and reattaching them loses Avalonia focus,
+    /// so we save and restore it explicitly.
+    /// </summary>
+    private void RenderAndRestoreFocus(Surface surface)
+    {
+        // Save the currently focused element (may be a TextBox inside the surface)
+        var topLevel = TopLevel.GetTopLevel(this);
+        IInputElement? focused = topLevel?.FocusManager?.GetFocusedElement();
+
+        Content = _renderer.Render(surface);
+
+        // Restore focus: the same control instance is still in the tree
+        // (reused by the renderer cache) but lost focus during re-parenting.
+        if (focused is InputElement focusable)
+            focusable.Focus();
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
