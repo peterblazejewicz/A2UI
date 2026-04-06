@@ -47,14 +47,18 @@
                  BorderThickness="0">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="models:DemoItem">
-              <StackPanel Margin="4,8">
-                <TextBlock Text="{Binding Title}"
-                           FontWeight="Medium"
-                           FontSize="13" />
-                <TextBlock Text="{Binding Filename}"
-                           FontSize="11"
-                           Foreground="{DynamicResource GallerySubtext}" />
-              </StackPanel>
+              <Border BorderThickness="4,0,0,0"
+                      BorderBrush="Transparent"
+                      Padding="8,8,4,8">
+                <StackPanel>
+                  <TextBlock Text="{Binding Title}"
+                             FontWeight="Medium"
+                             FontSize="13" />
+                  <TextBlock Text="{Binding Filename}"
+                             FontSize="11"
+                             Foreground="{DynamicResource GallerySubtext}" />
+                </StackPanel>
+              </Border>
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>
@@ -100,12 +104,15 @@
               </TextBlock>
               <Button Content="Reset"
                       Command="{Binding ResetCommand}"
+                      Classes="accent"
                       Padding="8,4" FontSize="12" />
               <Button Content="+1 Message"
                       Command="{Binding StepOneCommand}"
+                      Classes="accent"
                       Padding="8,4" FontSize="12" />
               <Button Content="All Messages"
                       Command="{Binding StepAllCommand}"
+                      Classes="accent"
                       Padding="8,4" FontSize="12" />
             </StackPanel>
           </Grid>
@@ -115,15 +122,24 @@
         <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto"
                       Padding="24">
-          <Border MaxWidth="600"
+          <Border MaxWidth="600" MinWidth="400" MinHeight="200"
                   HorizontalAlignment="Center"
                   Background="{DynamicResource GallerySurface}"
                   BorderBrush="{DynamicResource GalleryBorder}"
                   BorderThickness="1"
                   CornerRadius="8"
                   Padding="24">
-            <controls:A2UiSurface x:Name="SurfaceHost"
-                                  Surface="{Binding ActiveSurface}" />
+            <Panel>
+              <!-- Placeholder shown when no surface components are loaded -->
+              <TextBlock Text="{Binding SurfacePlaceholder}"
+                         IsVisible="{Binding ShowPlaceholder}"
+                         Foreground="{DynamicResource GallerySubtext}"
+                         FontSize="14"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center" />
+              <controls:A2UiSurface x:Name="SurfaceHost"
+                                    Surface="{Binding ActiveSurface}" />
+            </Panel>
           </Border>
         </ScrollViewer>
       </DockPanel>

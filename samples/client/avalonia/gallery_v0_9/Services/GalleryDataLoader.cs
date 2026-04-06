@@ -37,6 +37,11 @@ public sealed class GalleryDataLoader
                 ct)
             .ConfigureAwait(false);
 
+        // Assign continuous display indices so the sidebar shows 1..N
+        // instead of the per-directory numbering from filenames.
+        for (int i = 0; i < items.Count; i++)
+            items[i] = items[i] with { Title = $"{i + 1}. {items[i].Title}" };
+
         return items;
     }
 
@@ -147,7 +152,8 @@ public sealed class GalleryDataLoader
                 surfaceId = createMessage.CreateSurface.SurfaceId;
         }
 
-        string title = name ?? DeriveTitleFromFilename(filename);
+        // Always derive title from filename (includes number prefix like Lit gallery)
+        string title = DeriveTitleFromFilename(filename);
 
         return new DemoItem(
             Id: surfaceId,
@@ -162,6 +168,12 @@ public sealed class GalleryDataLoader
     {
         string stem = Path.GetFileNameWithoutExtension(filename);
         string[] words = stem.Split(['_', '-'], StringSplitOptions.RemoveEmptyEntries);
+
+        // Skip the leading numeric token (e.g., "1", "01", "33") so that the
+        // caller can assign continuous display indices without duplication.
+        if (words.Length > 1 && words[0].All(char.IsDigit))
+            words = words[1..];
+
         return string.Join(
             ' ',
             words.Select(w =>

@@ -6,8 +6,31 @@
     <FluentTheme />
 
     <!-- Gallery shell styles (application-level, not renderer) -->
+
+    <!-- Selected list item: subtle dark background -->
     <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
       <Setter Property="Background" Value="#0E3856" />
+    </Style>
+
+    <!-- Selected list item: left cyan accent border on the inner Border -->
+    <Style Selector="ListBoxItem:selected Border">
+      <Setter Property="BorderBrush" Value="{DynamicResource GalleryAccent}" />
+    </Style>
+
+    <!-- Remove the default focus adorner rectangle from list items -->
+    <Style Selector="ListBoxItem">
+      <Setter Property="FocusAdorner" Value="{x:Null}" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <!-- Remove focus adorner from surface area controls to avoid blue outlines -->
+    <Style Selector="Border.Card">
+      <Setter Property="FocusAdorner" Value="{x:Null}" />
+    </Style>
+
+    <!-- Accent button color override (Fluent theme accent) -->
+    <Style Selector="Button.accent">
+      <Setter Property="FocusAdorner" Value="{x:Null}" />
     </Style>
   </Application.Styles>
 
