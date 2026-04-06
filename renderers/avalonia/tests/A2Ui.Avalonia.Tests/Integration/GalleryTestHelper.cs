@@ -3,7 +3,6 @@ using A2Ui.Avalonia.Catalog;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 
 namespace A2Ui.Avalonia.Tests.Integration;
