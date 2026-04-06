@@ -1,6 +1,6 @@
+using System.Diagnostics;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
-using Avalonia.Media;
 
 namespace A2Ui.Avalonia.Catalog;
 
@@ -22,7 +22,7 @@ internal static class CheckHelper
         var errors = new List<string>();
         foreach (CheckRule check in c.Checks)
         {
-            string? result = ctx.Resolve(check.Condition);
+            string? result = EvaluateCondition(check, ctx);
             if (result != "true")
                 errors.Add(check.Message);
         }
@@ -38,7 +38,6 @@ internal static class CheckHelper
             {
                 Text = error,
                 Classes = { "ValidationError" },
-                Foreground = new SolidColorBrush(Color.Parse("#E57373")),
                 FontSize = 12,
             });
         }
@@ -57,7 +56,7 @@ internal static class CheckHelper
 
         foreach (CheckRule check in c.Checks)
         {
-            if (ctx.Resolve(check.Condition) != "true")
+            if (EvaluateCondition(check, ctx) != "true")
                 return false;
         }
 
@@ -74,10 +73,28 @@ internal static class CheckHelper
 
         foreach (CheckRule check in c.Checks)
         {
-            if (ctx.Resolve(check.Condition) != "true")
+            if (EvaluateCondition(check, ctx) != "true")
                 return check.Message;
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Safely evaluate a check condition, catching any resolution exceptions.
+    /// Returns <c>null</c> (treated as failed) when evaluation throws.
+    /// </summary>
+    private static string? EvaluateCondition(CheckRule check, IRenderContext ctx)
+    {
+        try
+        {
+            return ctx.Resolve(check.Condition);
+        }
+        catch (Exception ex)
+        {
+            Trace.TraceWarning(
+                $"[CheckHelper] Failed to evaluate check condition: {ex.Message}");
+            return null;
+        }
     }
 }

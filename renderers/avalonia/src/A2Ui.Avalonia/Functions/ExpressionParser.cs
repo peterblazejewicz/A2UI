@@ -23,7 +23,7 @@ internal sealed record LiteralToken(string Value) : ExpressionToken;
 internal sealed record PathToken(string Path) : ExpressionToken;
 internal sealed record BoolToken(bool Value) : ExpressionToken;
 internal sealed record NumberToken(double Value) : ExpressionToken;
-internal sealed record FunctionCallToken(string Name, Dictionary<string, ExpressionToken> Args) : ExpressionToken;
+internal sealed record FunctionCallToken(string Name, IReadOnlyDictionary<string, ExpressionToken> Args) : ExpressionToken;
 
 /// <summary>
 /// Recursive descent parser for A2UI expressions with <c>${...}</c> interpolation.
@@ -214,15 +214,18 @@ internal sealed class ExpressionParser
     private static LiteralToken ParseStringLiteral(Scanner scanner)
     {
         char quote = scanner.Advance();
-        var chars = new List<char>();
+        var sb = new System.Text.StringBuilder();
+        bool closed = false;
 
         while (!scanner.IsAtEnd)
         {
             char c = scanner.Advance();
             if (c == '\\')
             {
+                if (scanner.IsAtEnd)
+                    break; // trailing backslash at end-of-input
                 char next = scanner.Advance();
-                chars.Add(next switch
+                sb.Append(next switch
                 {
                     'n' => '\n',
                     't' => '\t',
@@ -232,15 +235,19 @@ internal sealed class ExpressionParser
             }
             else if (c == quote)
             {
+                closed = true;
                 break;
             }
             else
             {
-                chars.Add(c);
+                sb.Append(c);
             }
         }
 
-        return new LiteralToken(new string(chars.ToArray()));
+        if (!closed)
+            throw new A2UiExpressionException($"Unterminated string literal: missing closing '{quote}'");
+
+        return new LiteralToken(sb.ToString());
     }
 
     private static NumberToken ParseNumberLiteral(Scanner scanner)
@@ -250,7 +257,8 @@ internal sealed class ExpressionParser
             scanner.Advance();
 
         string text = scanner.Input[start..scanner.Position];
-        double value = double.Parse(text, System.Globalization.CultureInfo.InvariantCulture);
+        if (!double.TryParse(text, System.Globalization.CultureInfo.InvariantCulture, out double value))
+            throw new A2UiExpressionException($"Invalid number literal: '{text}'");
         return new NumberToken(value);
     }
 
@@ -318,7 +326,7 @@ internal sealed class Scanner(string input)
     public char Advance(int count = 1)
     {
         char c = Position < Input.Length ? Input[Position] : '\0';
-        Position += count;
+        Position = Math.Min(Position + count, Input.Length);
         return c;
     }
 

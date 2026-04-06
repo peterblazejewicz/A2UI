@@ -3,6 +3,7 @@ using A2Ui.Core.Messages;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 
@@ -120,9 +121,24 @@ public sealed class ModalCatalogEntry : ICatalogEntry
 
             // Wire trigger → open, close button → close
             if (triggerControl is not null)
-                triggerControl.PointerPressed += (_, _) => popup.IsOpen = true;
+                triggerControl.Tapped += (_, _) => popup.IsOpen = true;
 
             closeBtn.Click += (_, _) => popup.IsOpen = false;
+
+            // Center popup on the top-level window once attached to visual tree
+            container.AttachedToVisualTree += (_, _) =>
+            {
+                var topLevel = TopLevel.GetTopLevel(container);
+                if (topLevel is Control topControl)
+                    popup.PlacementTarget = topControl;
+            };
+
+            // Clean up popup on detach to prevent event handler leaks
+            container.DetachedFromVisualTree += (_, _) =>
+            {
+                popup.IsOpen = false;
+                popup.Child = null;
+            };
 
             container.Children.Add(popup);
         }

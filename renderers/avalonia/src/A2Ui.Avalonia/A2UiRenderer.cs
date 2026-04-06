@@ -102,6 +102,7 @@ internal sealed class RenderContext(
 {
     private const int MaxResolveDepth = 32;
     private static readonly JsonSerializerOptions s_jsonOptions = new();
+    private static readonly ExpressionParser s_expressionParser = new();
 
     public Control? RenderChild(string? childId)
     {
@@ -271,8 +272,8 @@ internal sealed class RenderContext(
             }
             catch (JsonException ex)
             {
-                Trace.TraceWarning(
-                    $"[RenderContext] Failed to deserialize array element: {ex.Message}");
+                Trace.TraceError(
+                    $"[RenderContext] Failed to deserialize array element for function arg: {ex.Message}");
                 results.Add("");
             }
         }
@@ -343,8 +344,7 @@ internal sealed class RenderContext(
 
         try
         {
-            var parser = new ExpressionParser();
-            IReadOnlyList<ExpressionToken> tokens = parser.Parse(template);
+            IReadOnlyList<ExpressionToken> tokens = s_expressionParser.Parse(template);
 
             var sb = new StringBuilder();
             foreach (ExpressionToken token in tokens)
@@ -405,7 +405,11 @@ internal sealed class RenderContext(
     private string? ResolveExpressionFunctionCall(FunctionCallToken fc, int depth)
     {
         if (functionRegistry is null)
+        {
+            Trace.TraceWarning(
+                $"[RenderContext] Expression function '{fc.Name}' encountered but no function registry configured");
             return null;
+        }
 
         var resolvedArgs = new Dictionary<string, string?>();
         foreach (var (key, argToken) in fc.Args)
