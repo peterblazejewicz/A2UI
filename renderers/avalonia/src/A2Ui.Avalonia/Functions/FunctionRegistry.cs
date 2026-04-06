@@ -1,7 +1,8 @@
 using System.Collections.Frozen;
-using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace A2Ui.Avalonia.Functions;
 
@@ -13,10 +14,14 @@ namespace A2Ui.Avalonia.Functions;
 public sealed class FunctionRegistry : IFunctionRegistry
 {
     private readonly FrozenDictionary<string, Func<IReadOnlyDictionary<string, string?>, string?>> _functions;
+    private readonly ILogger<FunctionRegistry> _logger;
 
-    internal FunctionRegistry(Dictionary<string, Func<IReadOnlyDictionary<string, string?>, string?>> functions)
+    internal FunctionRegistry(
+        Dictionary<string, Func<IReadOnlyDictionary<string, string?>, string?>> functions,
+        ILogger<FunctionRegistry>? logger = null)
     {
         _functions = functions.ToFrozenDictionary();
+        _logger = logger ?? NullLogger<FunctionRegistry>.Instance;
     }
 
     /// <inheritdoc />
@@ -24,8 +29,7 @@ public sealed class FunctionRegistry : IFunctionRegistry
     {
         if (!_functions.TryGetValue(functionName, out var fn))
         {
-            Trace.TraceWarning(
-                $"[FunctionRegistry] Unknown function: {functionName}");
+            FunctionLog.UnknownFunction(_logger, functionName);
             return null;
         }
 
@@ -38,8 +42,7 @@ public sealed class FunctionRegistry : IFunctionRegistry
             or RegexMatchTimeoutException or OverflowException
             or KeyNotFoundException)
         {
-            Trace.TraceWarning(
-                $"[FunctionRegistry] Error evaluating '{functionName}': {ex.Message}");
+            FunctionLog.ErrorEvaluatingFunction(_logger, functionName, ex);
             return null;
         }
     }
@@ -47,7 +50,9 @@ public sealed class FunctionRegistry : IFunctionRegistry
     /// <summary>
     /// Create a registry pre-loaded with all A2UI built-in functions.
     /// </summary>
-    public static FunctionRegistry CreateDefault() => new FunctionRegistryBuilder()
+    public static FunctionRegistry CreateDefault(ILoggerFactory? loggerFactory = null) =>
+        new FunctionRegistryBuilder()
+        .WithLoggerFactory(loggerFactory)
         // Formatting
         .Register("capitalize", BuiltInFunctions.Capitalize)
         .Register("formatNumber", BuiltInFunctions.FormatNumber)
@@ -90,6 +95,7 @@ public sealed class FunctionRegistry : IFunctionRegistry
 public sealed class FunctionRegistryBuilder
 {
     private readonly Dictionary<string, Func<IReadOnlyDictionary<string, string?>, string?>> _functions = new();
+    private ILoggerFactory? _loggerFactory;
 
     /// <summary>Register a named function. Returns this for chaining.</summary>
     public FunctionRegistryBuilder Register(string name,
@@ -102,6 +108,22 @@ public sealed class FunctionRegistryBuilder
         return this;
     }
 
+    /// <summary>Set the logger factory used when building the registry.</summary>
+    public FunctionRegistryBuilder WithLoggerFactory(ILoggerFactory? loggerFactory)
+    {
+        _loggerFactory = loggerFactory;
+        return this;
+    }
+
     /// <summary>Build the immutable <see cref="FunctionRegistry"/>.</summary>
-    public FunctionRegistry Build() => new(_functions);
+    public FunctionRegistry Build() => new(_functions, _loggerFactory?.CreateLogger<FunctionRegistry>());
+}
+
+internal static partial class FunctionLog
+{
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Unknown function: {FunctionName}")]
+    public static partial void UnknownFunction(ILogger logger, string functionName);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Error evaluating '{FunctionName}'")]
+    public static partial void ErrorEvaluatingFunction(ILogger logger, string functionName, Exception exception);
 }

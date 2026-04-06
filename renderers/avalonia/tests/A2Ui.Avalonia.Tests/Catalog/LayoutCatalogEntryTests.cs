@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Layout;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -365,6 +366,7 @@ internal sealed class ChildReturningRenderContext : IRenderContext
     public string? Resolve(DynamicValue? value) => _dm.Resolve(value);
     public void UpdateDataModel(string path, string? value) { }
     public double? GetComponentWeight(string componentId) => null;
+    public ILogger? Logger => null;
 }
 
 /// <summary>
@@ -398,4 +400,5 @@ internal sealed class WeightedChildRenderContext : IRenderContext
     public void UpdateDataModel(string path, string? value) { }
     public double? GetComponentWeight(string componentId) =>
         _weights.TryGetValue(componentId, out var w) ? w : null;
+    public ILogger? Logger => null;
 }

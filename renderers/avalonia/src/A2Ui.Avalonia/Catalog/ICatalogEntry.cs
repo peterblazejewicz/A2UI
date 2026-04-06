@@ -1,6 +1,7 @@
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
+using Microsoft.Extensions.Logging;
 
 namespace A2Ui.Avalonia.Catalog;
 
@@ -56,4 +57,10 @@ public interface IRenderContext
     /// Used by layout entries to build proportional star-sized grids.
     /// </summary>
     double? GetComponentWeight(string componentId);
+
+    /// <summary>
+    /// Optional logger for catalog entries and helpers that need diagnostics.
+    /// May be null when logging is not configured.
+    /// </summary>
+    ILogger? Logger { get; }
 }

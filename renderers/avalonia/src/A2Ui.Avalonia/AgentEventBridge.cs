@@ -5,6 +5,8 @@ using A2Ui.Core.Messages;
 using AgUi.Protocol;
 using AgUi.Protocol.Events;
 using Avalonia.Threading;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace A2Ui.Avalonia;
 
@@ -23,13 +25,17 @@ public sealed class AgentEventBridge : IDisposable
 
     private readonly Channel<BaseEvent>        _channel;
     private readonly SurfaceManager            _surfaceManager;
+    private readonly ILogger<AgentEventBridge> _logger;
     private readonly ToolCallArgsAccumulator   _accumulator = new();
     private readonly Dictionary<string, string> _toolNames = new();
     private CancellationTokenSource?           _cts;
 
-    public AgentEventBridge(SurfaceManager surfaceManager, int capacity = 1024)
+    public AgentEventBridge(SurfaceManager surfaceManager,
+                            ILoggerFactory? loggerFactory = null,
+                            int capacity = 1024)
     {
         _surfaceManager = surfaceManager;
+        _logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<AgentEventBridge>();
         _channel = Channel.CreateBounded<BaseEvent>(new BoundedChannelOptions(capacity)
         {
             FullMode = BoundedChannelFullMode.Wait
@@ -78,8 +84,7 @@ public sealed class AgentEventBridge : IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Trace.TraceError(
-                $"[AgentEventBridge] UserActionReceived subscriber threw: {ex}");
+            BridgeLog.UserActionSubscriberThrew(_logger, ex);
         }
     }
 
@@ -138,10 +143,17 @@ public sealed class AgentEventBridge : IDisposable
             }
             catch (JsonException ex)
             {
-                System.Diagnostics.Trace.TraceWarning(
-                    $"[AgentEventBridge] Skipping malformed A2UI line: " +
-                    $"{line[..Math.Min(line.Length, 200)]} — {ex.Message}");
+                BridgeLog.MalformedA2UiLine(_logger, line[..Math.Min(line.Length, 200)], ex);
             }
         }
     }
+}
+
+internal static partial class BridgeLog
+{
+    [LoggerMessage(Level = LogLevel.Error, Message = "UserActionReceived subscriber threw")]
+    public static partial void UserActionSubscriberThrew(ILogger logger, Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Skipping malformed A2UI line: {LinePreview}")]
+    public static partial void MalformedA2UiLine(ILogger logger, string linePreview, Exception exception);
 }

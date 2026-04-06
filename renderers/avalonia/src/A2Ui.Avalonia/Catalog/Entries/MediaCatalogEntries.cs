@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
@@ -6,12 +5,21 @@ using Avalonia.Data;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace A2Ui.Avalonia.Catalog;
 
 /// <summary>A2UI "Image" → Avalonia Image. Loads from URL asynchronously.</summary>
 public sealed class ImageCatalogEntry : ICatalogEntry
 {
+    private readonly ILogger<ImageCatalogEntry> _logger;
+
+    public ImageCatalogEntry(ILogger<ImageCatalogEntry>? logger = null)
+    {
+        _logger = logger ?? NullLogger<ImageCatalogEntry>.Instance;
+    }
+
     public string ComponentType => "Image";
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
@@ -62,7 +70,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
     /// <summary>Maximum image download size (10 MB) to avoid unbounded memory allocation.</summary>
     private const int MaxImageBytes = 10 * 1024 * 1024;
 
-    private static async Task LoadImageAsync(Image img, string url, CancellationToken ct)
+    private async Task LoadImageAsync(Image img, string url, CancellationToken ct)
     {
         try
         {
@@ -71,8 +79,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
 
             if (data.Length > MaxImageBytes)
             {
-                Trace.TraceWarning(
-                    $"[ImageCatalogEntry] Image at '{url}' exceeds {MaxImageBytes / (1024 * 1024)} MB limit ({data.Length} bytes), skipping.");
+                MediaLog.ImageExceedsSizeLimit(_logger, url, MaxImageBytes / (1024 * 1024), data.Length);
                 return;
             }
 
@@ -104,8 +111,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
         }
         catch (Exception ex)
         {
-            Trace.TraceWarning(
-                $"[ImageCatalogEntry] Failed to load image from '{url}': {ex.Message}");
+            MediaLog.FailedToLoadImage(_logger, url, ex);
         }
     }
 }
@@ -151,4 +157,13 @@ public sealed class SurfaceCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
                        IRenderContext ctx) => false;
+}
+
+internal static partial class MediaLog
+{
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Image at '{Url}' exceeds {MaxMb} MB limit ({ActualBytes} bytes), skipping")]
+    public static partial void ImageExceedsSizeLimit(ILogger logger, string url, int maxMb, int actualBytes);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to load image from '{Url}'")]
+    public static partial void FailedToLoadImage(ILogger logger, string url, Exception exception);
 }

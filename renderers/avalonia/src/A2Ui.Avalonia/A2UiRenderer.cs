@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
@@ -8,6 +7,8 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace A2Ui.Avalonia;
 
@@ -19,12 +20,15 @@ public sealed class A2UiRenderer
 {
     private readonly CatalogRegistry _catalog;
     private readonly IFunctionRegistry? _functionRegistry;
+    private readonly ILogger<A2UiRenderer> _logger;
     private readonly Dictionary<string, Dictionary<string, Control>> _surfaceCaches = new();
 
-    public A2UiRenderer(CatalogRegistry catalog, IFunctionRegistry? functionRegistry = null)
+    public A2UiRenderer(CatalogRegistry catalog, IFunctionRegistry? functionRegistry = null,
+                        ILoggerFactory? loggerFactory = null)
     {
         _catalog = catalog;
         _functionRegistry = functionRegistry;
+        _logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<A2UiRenderer>();
     }
 
     /// <summary>
@@ -45,7 +49,8 @@ public sealed class A2UiRenderer
             (surfaceId, eventName, payload, componentId) =>
                 UserActionFired?.Invoke(this, new(surfaceId, eventName, payload, componentId)),
             (surfaceId) =>
-                DataModelChanged?.Invoke(this, new(surfaceId)));
+                DataModelChanged?.Invoke(this, new(surfaceId)),
+            logger: _logger);
 
         var roots = surface.GetRootComponents().ToList();
 
@@ -97,9 +102,11 @@ internal sealed class RenderContext(
     IFunctionRegistry? functionRegistry,
     Action<string, string, object?, string?> fireAction,
     Action<string> onDataModelChanged,
+    ILogger? logger = null,
     string? basePath = null)
     : IRenderContext
 {
+    public ILogger? Logger => logger;
     private const int MaxResolveDepth = 32;
     private static readonly JsonSerializerOptions s_jsonOptions = new();
     private static readonly ExpressionParser s_expressionParser = new();
@@ -121,7 +128,7 @@ internal sealed class RenderContext(
         if (cache.TryGetValue(c.Id, out var existing) &&
             entry.Update(existing, c, surface.DataModel, this))
         {
-            DetachFromParent(existing);
+            DetachFromParent(existing, logger);
             return existing;
         }
 
@@ -135,7 +142,7 @@ internal sealed class RenderContext(
     /// safely added to a new container. Handles Panel, ContentControl,
     /// and Decorator (Border) parent types.
     /// </summary>
-    internal static void DetachFromParent(Control control)
+    internal static void DetachFromParent(Control control, ILogger? logger = null)
     {
         switch (control.Parent)
         {
@@ -151,8 +158,8 @@ internal sealed class RenderContext(
                 decorator.Child = null;
                 break;
             default:
-                Trace.TraceWarning(
-                    $"[A2UiRenderer] Cannot detach control from unknown parent type {control.Parent.GetType().Name}");
+                if (logger is not null)
+                    RendererLog.CannotDetachFromUnknownParent(logger, control.Parent.GetType().Name);
                 break;
         }
     }
@@ -208,7 +215,7 @@ internal sealed class RenderContext(
             var instanceCache = new Dictionary<string, Control>();
             var scopedContext = new RenderContext(
                 surface, catalog, instanceCache, functionRegistry,
-                fireAction, onDataModelChanged, itemBasePath);
+                fireAction, onDataModelChanged, logger, itemBasePath);
 
             var control = entry.Create(templateComp, surface.DataModel, scopedContext);
             controls.Add(control);
@@ -229,8 +236,8 @@ internal sealed class RenderContext(
 
         if (depth > MaxResolveDepth)
         {
-            Trace.TraceWarning(
-                $"[RenderContext] Resolve exceeded max depth ({MaxResolveDepth}), returning null");
+            if (logger is not null)
+                RendererLog.ResolveExceededMaxDepth(logger, MaxResolveDepth);
             return null;
         }
 
@@ -272,8 +279,8 @@ internal sealed class RenderContext(
             }
             catch (JsonException ex)
             {
-                Trace.TraceError(
-                    $"[RenderContext] Failed to deserialize array element for function arg: {ex.Message}");
+                if (logger is not null)
+                    RendererLog.FailedToDeserializeArrayElement(logger, ex);
                 results.Add("");
             }
         }
@@ -285,8 +292,8 @@ internal sealed class RenderContext(
     {
         if (functionRegistry is null)
         {
-            Trace.TraceWarning(
-                $"[RenderContext] FunctionCall '{fc.Call}' encountered but no function registry configured");
+            if (logger is not null)
+                RendererLog.NoFunctionRegistryForCall(logger, fc.Call);
             return null;
         }
 
@@ -307,8 +314,8 @@ internal sealed class RenderContext(
                 }
                 catch (JsonException ex)
                 {
-                    Trace.TraceWarning(
-                        $"[RenderContext] Failed to deserialize arg '{key}' for function '{fc.Call}': {ex.Message}");
+                    if (logger is not null)
+                        RendererLog.FailedToDeserializeFunctionArg(logger, key, fc.Call, ex);
                     resolvedArgs[key] = null;
                 }
             }
@@ -334,8 +341,8 @@ internal sealed class RenderContext(
             }
             catch (JsonException ex)
             {
-                Trace.TraceWarning(
-                    $"[RenderContext] Failed to deserialize formatString 'value' arg: {ex.Message}");
+                if (logger is not null)
+                    RendererLog.FailedToDeserializeFormatStringArg(logger, ex);
             }
         }
 
@@ -357,8 +364,8 @@ internal sealed class RenderContext(
         }
         catch (A2UiExpressionException ex)
         {
-            Trace.TraceWarning(
-                $"[RenderContext] Failed to parse formatString template: {ex.Message}");
+            if (logger is not null)
+                RendererLog.FailedToParseFormatStringTemplate(logger, ex);
             return template;
         }
     }
@@ -370,8 +377,8 @@ internal sealed class RenderContext(
     {
         if (depth > MaxResolveDepth)
         {
-            Trace.TraceWarning(
-                $"[RenderContext] ResolveExpressionToken exceeded max depth ({MaxResolveDepth})");
+            if (logger is not null)
+                RendererLog.ExpressionTokenExceededMaxDepth(logger, MaxResolveDepth);
             return null;
         }
 
@@ -406,8 +413,8 @@ internal sealed class RenderContext(
     {
         if (functionRegistry is null)
         {
-            Trace.TraceWarning(
-                $"[RenderContext] Expression function '{fc.Name}' encountered but no function registry configured");
+            if (logger is not null)
+                RendererLog.NoFunctionRegistryForExpression(logger, fc.Name);
             return null;
         }
 
@@ -446,8 +453,8 @@ internal sealed class RenderContext(
         }
         catch (Exception ex) when (ex is JsonException or InvalidOperationException or ArgumentException)
         {
-            Trace.TraceWarning(
-                $"[A2UiRenderer] Failed to update data model at path '{path}': {ex.Message}");
+            if (logger is not null)
+                RendererLog.FailedToUpdateDataModel(logger, path, ex);
         }
     }
 }
@@ -459,3 +466,36 @@ public sealed record UserActionEventArgs(
     string? ComponentId = null);
 
 public sealed record DataModelChangedEventArgs(string SurfaceId);
+
+internal static partial class RendererLog
+{
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Cannot detach control from unknown parent type {ParentTypeName}")]
+    public static partial void CannotDetachFromUnknownParent(ILogger logger, string parentTypeName);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Resolve exceeded max depth ({MaxDepth}), returning null")]
+    public static partial void ResolveExceededMaxDepth(ILogger logger, int maxDepth);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to deserialize array element for function arg")]
+    public static partial void FailedToDeserializeArrayElement(ILogger logger, Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "FunctionCall '{FunctionName}' encountered but no function registry configured")]
+    public static partial void NoFunctionRegistryForCall(ILogger logger, string functionName);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to deserialize arg '{ArgName}' for function '{FunctionName}'")]
+    public static partial void FailedToDeserializeFunctionArg(ILogger logger, string argName, string functionName, Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to deserialize formatString 'value' arg")]
+    public static partial void FailedToDeserializeFormatStringArg(ILogger logger, Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to parse formatString template")]
+    public static partial void FailedToParseFormatStringTemplate(ILogger logger, Exception exception);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "ResolveExpressionToken exceeded max depth ({MaxDepth})")]
+    public static partial void ExpressionTokenExceededMaxDepth(ILogger logger, int maxDepth);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Expression function '{FunctionName}' encountered but no function registry configured")]
+    public static partial void NoFunctionRegistryForExpression(ILogger logger, string functionName);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to update data model at path '{Path}'")]
+    public static partial void FailedToUpdateDataModel(ILogger logger, string path, Exception exception);
+}

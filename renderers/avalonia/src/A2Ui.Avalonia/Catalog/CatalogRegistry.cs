@@ -1,6 +1,7 @@
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
+using Microsoft.Extensions.Logging;
 
 namespace A2Ui.Avalonia.Catalog;
 
@@ -34,10 +35,10 @@ public sealed class CatalogRegistry
     /// <summary>
     /// Build the default catalog with all 18 v0.9 basic catalog component types.
     /// </summary>
-    public static CatalogRegistry CreateDefault() => new CatalogRegistry()
+    public static CatalogRegistry CreateDefault(ILoggerFactory? loggerFactory = null) => new CatalogRegistry()
         // Display
         .Register(new TextCatalogEntry())
-        .Register(new ImageCatalogEntry())
+        .Register(new ImageCatalogEntry(loggerFactory?.CreateLogger<ImageCatalogEntry>()))
         .Register(new IconCatalogEntry())
         .Register(new VideoCatalogEntry())
         .Register(new AudioPlayerCatalogEntry())

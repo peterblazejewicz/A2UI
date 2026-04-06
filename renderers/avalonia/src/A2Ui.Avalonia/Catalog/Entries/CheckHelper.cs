@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
+using Microsoft.Extensions.Logging;
 
 namespace A2Ui.Avalonia.Catalog;
 
@@ -126,9 +126,15 @@ internal static class CheckHelper
         }
         catch (Exception ex)
         {
-            Trace.TraceWarning(
-                $"[CheckHelper] Failed to evaluate check condition: {ex.Message}");
+            if (ctx.Logger is not null)
+                CheckLog.ConditionFailed(ctx.Logger, ex);
             return null;
         }
     }
+}
+
+internal static partial class CheckLog
+{
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to evaluate check condition")]
+    public static partial void ConditionFailed(ILogger logger, Exception exception);
 }

@@ -3,6 +3,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
+using Microsoft.Extensions.Logging;
 using FluentAssertions;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
@@ -166,4 +167,5 @@ internal sealed class ActionCapturingRenderContext(DataModel dm) : IRenderContex
     public string? Resolve(DynamicValue? value) => dm.Resolve(value);
     public void UpdateDataModel(string path, string? value) { }
     public double? GetComponentWeight(string componentId) => null;
+    public ILogger? Logger => null;
 }

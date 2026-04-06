@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -30,11 +29,7 @@ internal static class BuiltInFunctions
     {
         string? value = GetArg(args, "value");
         if (!TryParseDouble(value, out double num))
-        {
-            if (value is not null)
-                Trace.TraceWarning($"[BuiltInFunctions.FormatNumber] Cannot parse '{value}' as number");
             return "";
-        }
 
         int decimals = TryParseInt(GetArg(args, "decimals"), 0);
         // grouping defaults to true
@@ -57,11 +52,7 @@ internal static class BuiltInFunctions
     {
         string? value = GetArg(args, "value");
         if (!TryParseDouble(value, out double num))
-        {
-            if (value is not null)
-                Trace.TraceWarning($"[BuiltInFunctions.FormatCurrency] Cannot parse '{value}' as number");
             return "";
-        }
 
         string currency = GetArg(args, "currency") ?? "USD";
         int decimals = TryParseInt(GetArg(args, "decimals"), 2);
@@ -94,10 +85,7 @@ internal static class BuiltInFunctions
 
         if (!DateTime.TryParse(value, CultureInfo.InvariantCulture,
                 DateTimeStyles.RoundtripKind | DateTimeStyles.AllowWhiteSpaces, out DateTime dt))
-        {
-            Trace.TraceWarning($"[BuiltInFunctions.FormatDate] Cannot parse '{value}' as date");
             return "";
-        }
 
         string? format = GetArg(args, "format");
         if (string.IsNullOrEmpty(format))
@@ -250,9 +238,8 @@ internal static class BuiltInFunctions
             return BoolResult(Regex.IsMatch(value, pattern,
                 RegexOptions.NonBacktracking, TimeSpan.FromSeconds(1)));
         }
-        catch (RegexParseException ex)
+        catch (RegexParseException)
         {
-            Trace.TraceWarning($"[BuiltInFunctions.RegexMatch] Invalid pattern '{pattern}': {ex.Message}");
             return "false";
         }
     }
@@ -312,24 +299,16 @@ internal static class BuiltInFunctions
 
     private static List<string?> ParseJsonStringArray(string json)
     {
-        try
-        {
-            using var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.ValueKind != JsonValueKind.Array)
-                return [];
-
-            var result = new List<string?>();
-            foreach (JsonElement el in doc.RootElement.EnumerateArray())
-            {
-                result.Add(el.ValueKind == JsonValueKind.String ? el.GetString() : el.GetRawText());
-            }
-            return result;
-        }
-        catch (JsonException ex)
-        {
-            Trace.TraceWarning($"[BuiltInFunctions] Failed to parse JSON array: {ex.Message}");
+        using var doc = JsonDocument.Parse(json);
+        if (doc.RootElement.ValueKind != JsonValueKind.Array)
             return [];
+
+        var result = new List<string?>();
+        foreach (JsonElement el in doc.RootElement.EnumerateArray())
+        {
+            result.Add(el.ValueKind == JsonValueKind.String ? el.GetString() : el.GetRawText());
         }
+        return result;
     }
 
     /// <summary>

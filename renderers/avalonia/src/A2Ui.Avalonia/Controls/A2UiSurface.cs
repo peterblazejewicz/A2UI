@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace A2Ui.Avalonia.Controls;
 
@@ -22,9 +23,10 @@ public sealed class A2UiSurface : ContentControl
 
     public A2UiSurface() : this(CatalogRegistry.CreateDefault(), FunctionRegistry.CreateDefault()) { }
 
-    public A2UiSurface(CatalogRegistry catalog, IFunctionRegistry? functionRegistry = null)
+    public A2UiSurface(CatalogRegistry catalog, IFunctionRegistry? functionRegistry = null,
+                       ILoggerFactory? loggerFactory = null)
     {
-        _renderer = new A2UiRenderer(catalog, functionRegistry);
+        _renderer = new A2UiRenderer(catalog, functionRegistry, loggerFactory);
         _renderer.UserActionFired += OnUserActionFired;
         _renderer.DataModelChanged += OnDataModelChanged;
 
