@@ -50,25 +50,36 @@ public sealed class ComplexLayoutTests
     }
 
     [AvaloniaFact]
-    public void InnerRow_IsStackPanel_Horizontal_WithJustifyStart()
+    public void InnerRow_IsGrid_BecauseChildrenHaveWeights()
     {
+        // The form_row Row has first_name/last_name with weight:1 — it should
+        // render as a star-sized Grid, not a StackPanel.
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/5_complex_layout.json");
 
-        StackPanel? innerRow = GalleryTestHelper.FindFirst<StackPanel>(result.RootControl);
-        innerRow.Should().NotBeNull();
-        innerRow!.Orientation.Should().Be(global::Avalonia.Layout.Orientation.Horizontal);
+        List<Grid> grids = GalleryTestHelper.FindAll<Grid>(result.RootControl);
+        Grid? innerRow = grids.FirstOrDefault(
+            g => g.ColumnDefinitions.Count == 2);
+
+        innerRow.Should().NotBeNull("form_row with weight:1 children must produce a Grid");
+        innerRow!.ColumnDefinitions.All(cd => cd.Width.IsStar).Should().BeTrue();
     }
 
     [AvaloniaFact]
-    [Trait("Gap", "Weight")]
-    public void Weight_NotYetApplied_TextBoxesHaveNoStarSizing()
+    public void InnerRow_UsesWeightedGrid_BothTextFieldsGetStarSizing()
     {
-        // Weight property is defined in the spec but not yet applied to controls.
-        // This test documents the current behavior: TextBoxes exist without
-        // proportional star sizing.
+        // first_name and last_name both have weight:1 → inner Row should be a
+        // proportional star-sized Grid, not a StackPanel.
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/5_complex_layout.json");
 
-        List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
-        textBoxes.Should().HaveCount(2, "weight is not applied but TextBoxes should still render");
+        // Find the Grid that has exactly 2 star-sized column definitions (the weighted row)
+        List<Grid> allGrids = GalleryTestHelper.FindAll<Grid>(result.RootControl);
+        Grid? weightedGrid = allGrids.FirstOrDefault(
+            g => g.ColumnDefinitions.Count == 2 && g.ColumnDefinitions.All(cd => cd.Width.IsStar));
+
+        weightedGrid.Should().NotBeNull("Row with weight:1 children should use a star-sized Grid");
+        weightedGrid!.ColumnDefinitions.Should().HaveCount(2);
+        weightedGrid.ColumnDefinitions[0].Width.Value.Should().Be(1, "first_name has weight 1");
+        weightedGrid.ColumnDefinitions[1].Width.Value.Should().Be(1, "last_name has weight 1");
+        weightedGrid.Children.Should().HaveCount(2);
     }
 }

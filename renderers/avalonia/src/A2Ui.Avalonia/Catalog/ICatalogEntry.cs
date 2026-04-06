@@ -50,4 +50,10 @@ public interface IRenderContext
     /// Used for two-way binding (e.g. TextField with value: {"path": "/username"}).
     /// </summary>
     void UpdateDataModel(string path, string? value);
+
+    /// <summary>
+    /// Return the weight of a component by ID, or null if unknown / no weight set.
+    /// Used by layout entries to build proportional star-sized grids.
+    /// </summary>
+    double? GetComponentWeight(string componentId);
 }

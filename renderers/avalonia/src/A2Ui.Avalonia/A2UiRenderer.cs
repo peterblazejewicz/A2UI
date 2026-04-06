@@ -246,6 +246,9 @@ internal sealed class RenderContext(
         return surface.DataModel.Resolve(value);
     }
 
+    public double? GetComponentWeight(string componentId) =>
+        surface.Components.TryGetValue(componentId, out var comp) ? comp.Weight : null;
+
     public void UpdateDataModel(string path, string? value)
     {
         try

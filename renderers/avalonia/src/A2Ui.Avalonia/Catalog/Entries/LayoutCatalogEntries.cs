@@ -14,7 +14,8 @@ public sealed class ColumnCatalogEntry : ICatalogEntry
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
         var children = ctx.RenderChildren(c.Id).ToList();
-        return LayoutHelper.BuildLayout(Orientation.Vertical, children, c);
+        double[]? weights = LayoutHelper.CollectWeights(c, ctx);
+        return LayoutHelper.BuildLayout(Orientation.Vertical, children, c, weights);
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
@@ -29,7 +30,8 @@ public sealed class RowCatalogEntry : ICatalogEntry
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
         var children = ctx.RenderChildren(c.Id).ToList();
-        return LayoutHelper.BuildLayout(Orientation.Horizontal, children, c);
+        double[]? weights = LayoutHelper.CollectWeights(c, ctx);
+        return LayoutHelper.BuildLayout(Orientation.Horizontal, children, c, weights);
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm,
@@ -74,13 +76,30 @@ public sealed class CardCatalogEntry : ICatalogEntry
 internal static class LayoutHelper
 {
     /// <summary>
+    /// Collect the weight values for all children of the given component.
+    /// Returns null when no child has a weight > 0 (falls back to normal layout).
+    /// </summary>
+    public static double[]? CollectWeights(A2UiComponent c, IRenderContext ctx)
+    {
+        if (c.Children?.Ids is not { } ids || ids.Length == 0)
+            return null;
+
+        double[] weights = ids.Select(id => ctx.GetComponentWeight(id) ?? 0).ToArray();
+        return Array.Exists(weights, w => w > 0) ? weights : null;
+    }
+
+    /// <summary>
     /// Build the appropriate layout panel for the given orientation and justify mode.
+    /// When weights are provided and any weight > 0, uses a proportional star-sized Grid.
     /// Uses Grid for spaceBetween (distributes children with star-sized spacers),
     /// StackPanel for all other modes.
     /// </summary>
     public static Control BuildLayout(Orientation orientation, List<Control> children,
-                                      A2UiComponent c)
+                                      A2UiComponent c, double[]? weights = null)
     {
+        if (weights is not null && weights.Any(w => w > 0))
+            return BuildWeightedGrid(orientation, children, c, weights);
+
         if (c.Justify is "spaceBetween")
             return BuildSpaceBetweenGrid(orientation, children, c);
 
@@ -104,6 +123,48 @@ internal static class LayoutHelper
         ApplyCrossAxisAlignment(children, orientation, c.Align);
 
         return panel;
+    }
+
+    /// <summary>
+    /// Build a Grid with proportional star-sized columns/rows based on child weights.
+    /// Children with weight > 0 get Star(weight) sizing; weight == 0 gets Auto sizing.
+    /// </summary>
+    private static Grid BuildWeightedGrid(Orientation orientation,
+                                           List<Control> children,
+                                           A2UiComponent c,
+                                           double[] weights)
+    {
+        var grid = new Grid();
+
+        if (children.Count == 0)
+            return grid;
+
+        bool isHorizontal = orientation == Orientation.Horizontal;
+
+        for (int i = 0; i < children.Count; i++)
+        {
+            double weight = i < weights.Length ? weights[i] : 0;
+            var length = weight > 0
+                ? new GridLength(weight, GridUnitType.Star)
+                : GridLength.Auto;
+
+            if (isHorizontal)
+                grid.ColumnDefinitions.Add(new ColumnDefinition(length));
+            else
+                grid.RowDefinitions.Add(new RowDefinition(length));
+
+            var child = children[i];
+            if (isHorizontal)
+                Grid.SetColumn(child, i);
+            else
+                Grid.SetRow(child, i);
+            grid.Children.Add(child);
+        }
+
+        // apply cross-axis alignment to children
+        ApplyCrossAxisAlignment(children, orientation, c.Align);
+
+        return grid;
     }
 
     /// <summary>

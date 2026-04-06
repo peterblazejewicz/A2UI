@@ -183,4 +183,6 @@ internal sealed class DataModelCapturingRenderContext(DataModel dm) : IRenderCon
         };
         dm.Apply(update);
     }
+
+    public double? GetComponentWeight(string componentId) => null;
 }

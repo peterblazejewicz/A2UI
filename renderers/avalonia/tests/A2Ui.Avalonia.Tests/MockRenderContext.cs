@@ -12,4 +12,5 @@ internal sealed class MockRenderContext(DataModel dataModel) : IRenderContext
     public void FireUserAction(string eventName, object? payload = null, string? componentId = null) { }
     public string? Resolve(DynamicValue? value) => dataModel.Resolve(value);
     public void UpdateDataModel(string path, string? value) { }
+    public double? GetComponentWeight(string componentId) => null;
 }

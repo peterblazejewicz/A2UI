@@ -165,4 +165,5 @@ internal sealed class ActionCapturingRenderContext(DataModel dm) : IRenderContex
         FiredEvents.Add((eventName, payload, componentId));
     public string? Resolve(DynamicValue? value) => dm.Resolve(value);
     public void UpdateDataModel(string path, string? value) { }
+    public double? GetComponentWeight(string componentId) => null;
 }
