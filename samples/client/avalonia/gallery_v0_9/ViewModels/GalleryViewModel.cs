@@ -34,6 +34,8 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanAdvance))]
+    [NotifyPropertyChangedFor(nameof(SurfacePlaceholder))]
+    [NotifyPropertyChangedFor(nameof(ShowPlaceholder))]
     [NotifyCanExecuteChangedFor(nameof(StepOneCommand))]
     [NotifyCanExecuteChangedFor(nameof(StepAllCommand))]
     private int _processedMessageCount;
@@ -45,7 +47,17 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
     private bool _isLoading;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SurfacePlaceholder))]
+    [NotifyPropertyChangedFor(nameof(ShowPlaceholder))]
     private Surface? _activeSurface;
+
+    /// <summary>
+    /// Tracks whether the active surface has renderable components.
+    /// Set to true when ComponentsUpdated fires; reset on surface change.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowPlaceholder))]
+    private bool _hasComponents;
 
     public ObservableCollection<DemoItem> DemoItems { get; } = [];
     public ObservableCollection<string> ActionLogs { get; } = [];
@@ -55,6 +67,21 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
     public int TotalMessageCount => SelectedItem?.Messages.Count ?? 0;
     public bool CanAdvance => SelectedItem is not null
                               && ProcessedMessageCount < SelectedItem.Messages.Count;
+
+    /// <summary>
+    /// True when the placeholder text should be visible instead of the rendered surface.
+    /// Covers three states: no messages processed yet, surface created but no components
+    /// received yet (between createSurface and first updateComponents), and no surface at all.
+    /// </summary>
+    public bool ShowPlaceholder => ActiveSurface is null || !HasComponents;
+
+    /// <summary>
+    /// Placeholder text shown in the surface area.
+    /// </summary>
+    public string SurfacePlaceholder =>
+        ProcessedMessageCount == 0
+            ? "Surface not initialized. Click '+1 Message' to begin."
+            : "Loading surface...";
 
     // ── Commands ──────────────────────────────────────────
 
@@ -121,6 +148,13 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
                 ActionLogs.Insert(0,
                     $"[Error] Failed to process message {i}: {ex.Message}");
             }
+            catch (Exception ex)
+            {
+                ActionLogs.Insert(0,
+                    $"[Error] Unexpected failure processing message {i}: {ex.GetType().Name}: {ex.Message}");
+                System.Diagnostics.Trace.TraceError(
+                    $"[GalleryViewModel] Unexpected exception in AdvanceMessages: {ex}");
+            }
         }
 
         ProcessedMessageCount = end;
@@ -143,6 +177,7 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
         ProcessedMessageCount = 0;
         CurrentDataModelJson = "{}";
         ActionLogs.Clear();
+        HasComponents = false;
         ActiveSurface = null;
     }
 
@@ -198,11 +233,15 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
     private void OnSurfaceDeleted(object? sender, SurfaceDeletedEventArgs e)
     {
         if (ActiveSurface?.SurfaceId == e.Surface.SurfaceId)
+        {
+            HasComponents = false;
             ActiveSurface = null;
+        }
     }
 
     private void OnComponentsUpdated(object? sender, ComponentsUpdatedEventArgs e)
     {
+        HasComponents = true;
         UpdateDataModelJson(e.Surface);
         SurfaceRefreshRequested?.Invoke(this, EventArgs.Empty);
     }
