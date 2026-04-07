@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "$d = $input | ConvertFrom-Json; $f = if ($d.tool_input.file_path) { $d.tool_input.file_path } elseif ($d.tool_response.filePath) { $d.tool_response.filePath } else { '' }; if ($f -match '\\.cs$') { dotnet csharpier format $f 2>$null | Out-Null }",
+            "timeout": 30,
+            "statusMessage": "Formatting with CSharpier..."
+          }
+        ]
+      }
+    ]
+  }
+}
