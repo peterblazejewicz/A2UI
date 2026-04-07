@@ -13,12 +13,14 @@ public sealed class DataModelTests
     public void Apply_UpdateDataModel_SetsNestedPath()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "main",
-            Path = "/reservation/date",
-            Value = JsonSerializer.SerializeToElement("2025-12-15"),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "main",
+                Path = "/reservation/date",
+                Value = JsonSerializer.SerializeToElement("2025-12-15"),
+            }
+        );
 
         dm.Resolve(DynamicValue.FromPath("/reservation/date")).Should().Be("2025-12-15");
     }
@@ -27,19 +29,23 @@ public sealed class DataModelTests
     public void Apply_NullPath_ReplacesEntireModel()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "main",
-            Path = "/name",
-            Value = JsonSerializer.SerializeToElement("old"),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "main",
+                Path = "/name",
+                Value = JsonSerializer.SerializeToElement("old"),
+            }
+        );
 
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "main",
-            Path = null,
-            Value = JsonSerializer.SerializeToElement(new { name = "replaced" }),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "main",
+                Path = null,
+                Value = JsonSerializer.SerializeToElement(new { name = "replaced" }),
+            }
+        );
 
         dm.Resolve(DynamicValue.FromPath("/name")).Should().Be("replaced");
     }
@@ -48,12 +54,14 @@ public sealed class DataModelTests
     public void Apply_RootPath_ReplacesEntireModel()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "main",
-            Path = "/",
-            Value = JsonSerializer.SerializeToElement(new { key = "val" }),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "main",
+                Path = "/",
+                Value = JsonSerializer.SerializeToElement(new { key = "val" }),
+            }
+        );
 
         dm.Resolve(DynamicValue.FromPath("/key")).Should().Be("val");
     }
@@ -62,20 +70,24 @@ public sealed class DataModelTests
     public void Apply_NullValue_DeletesAtPath()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "main",
-            Path = "/toDelete",
-            Value = JsonSerializer.SerializeToElement("exists"),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "main",
+                Path = "/toDelete",
+                Value = JsonSerializer.SerializeToElement("exists"),
+            }
+        );
         dm.Resolve(DynamicValue.FromPath("/toDelete")).Should().Be("exists");
 
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "main",
-            Path = "/toDelete",
-            Value = null,
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "main",
+                Path = "/toDelete",
+                Value = null,
+            }
+        );
 
         dm.Resolve(DynamicValue.FromPath("/toDelete")).Should().BeNull();
     }
@@ -84,18 +96,22 @@ public sealed class DataModelTests
     public void Apply_OverwriteExistingKey_ReplacesValue()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/count",
-            Value = JsonSerializer.SerializeToElement(1),
-        });
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/count",
-            Value = JsonSerializer.SerializeToElement(42),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/count",
+                Value = JsonSerializer.SerializeToElement(1),
+            }
+        );
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/count",
+                Value = JsonSerializer.SerializeToElement(42),
+            }
+        );
 
         dm.Resolve(DynamicValue.FromPath("/count")).Should().Be("42");
     }
@@ -140,12 +156,14 @@ public sealed class DataModelTests
     public void Resolve_NumericNodeInModel_ReturnsString()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/count",
-            Value = JsonSerializer.SerializeToElement(99),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/count",
+                Value = JsonSerializer.SerializeToElement(99),
+            }
+        );
 
         dm.Resolve(DynamicValue.FromPath("/count")).Should().Be("99");
     }
@@ -154,12 +172,14 @@ public sealed class DataModelTests
     public void Resolve_BoolNodeInModel_ReturnsString()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/active",
-            Value = JsonSerializer.SerializeToElement(true),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/active",
+                Value = JsonSerializer.SerializeToElement(true),
+            }
+        );
 
         dm.Resolve(DynamicValue.FromPath("/active")).Should().Be("true");
     }
@@ -168,12 +188,14 @@ public sealed class DataModelTests
     public void Resolve_ArrayIndex_ReturnsElement()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/items",
-            Value = JsonSerializer.SerializeToElement(new[] { "alpha", "beta", "gamma" }),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/items",
+                Value = JsonSerializer.SerializeToElement(new[] { "alpha", "beta", "gamma" }),
+            }
+        );
 
         dm.Resolve(DynamicValue.FromPath("/items/1")).Should().Be("beta");
     }
@@ -182,12 +204,14 @@ public sealed class DataModelTests
     public void SetSnapshot_ReplacesEntireModel()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/old",
-            Value = JsonSerializer.SerializeToElement("data"),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/old",
+                Value = JsonSerializer.SerializeToElement("data"),
+            }
+        );
 
         dm.SetSnapshot(JsonSerializer.SerializeToElement(new { fresh = "start" }));
 
@@ -199,10 +223,7 @@ public sealed class DataModelTests
     public void Resolve_FunctionCall_ReturnsNull()
     {
         var dm = new DataModel();
-        var fc = new DynamicValue
-        {
-            FunctionCall = new FunctionCallValue { Call = "formatDate" },
-        };
+        var fc = new DynamicValue { FunctionCall = new FunctionCallValue { Call = "formatDate" } };
 
         dm.Resolve(fc).Should().BeNull();
     }
@@ -211,12 +232,14 @@ public sealed class DataModelTests
     public void Apply_ArrayIndexPath_CreatesArrayAndSetsElement()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/items/0/name",
-            Value = JsonSerializer.SerializeToElement("Alice"),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/items/0/name",
+                Value = JsonSerializer.SerializeToElement("Alice"),
+            }
+        );
 
         dm.Resolve(DynamicValue.FromPath("/items/0/name")).Should().Be("Alice");
     }
@@ -225,18 +248,22 @@ public sealed class DataModelTests
     public void Apply_ArrayIndexPath_MultipleElements()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/items/0",
-            Value = JsonSerializer.SerializeToElement(new { name = "Alice" }),
-        });
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/items/1",
-            Value = JsonSerializer.SerializeToElement(new { name = "Bob" }),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/items/0",
+                Value = JsonSerializer.SerializeToElement(new { name = "Alice" }),
+            }
+        );
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/items/1",
+                Value = JsonSerializer.SerializeToElement(new { name = "Bob" }),
+            }
+        );
 
         dm.Resolve(DynamicValue.FromPath("/items/0/name")).Should().Be("Alice");
         dm.Resolve(DynamicValue.FromPath("/items/1/name")).Should().Be("Bob");
@@ -246,17 +273,16 @@ public sealed class DataModelTests
     public void Apply_ArrayIndexPath_PreservesExistingArray()
     {
         var dm = new DataModel();
-        dm.SetSnapshot(JsonSerializer.SerializeToElement(new
-        {
-            items = new[] { new { name = "original" } }
-        }));
+        dm.SetSnapshot(JsonSerializer.SerializeToElement(new { items = new[] { new { name = "original" } } }));
 
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/items/0/name",
-            Value = JsonSerializer.SerializeToElement("updated"),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/items/0/name",
+                Value = JsonSerializer.SerializeToElement("updated"),
+            }
+        );
 
         dm.Resolve(DynamicValue.FromPath("/items/0/name")).Should().Be("updated");
     }
@@ -265,17 +291,16 @@ public sealed class DataModelTests
     public void Apply_DeleteAtArrayPath_NullifiesElement()
     {
         var dm = new DataModel();
-        dm.SetSnapshot(JsonSerializer.SerializeToElement(new
-        {
-            items = new[] { "alpha", "beta", "gamma" }
-        }));
+        dm.SetSnapshot(JsonSerializer.SerializeToElement(new { items = new[] { "alpha", "beta", "gamma" } }));
 
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/items/1",
-            Value = null,
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/items/1",
+                Value = null,
+            }
+        );
 
         dm.Resolve(DynamicValue.FromPath("/items/1")).Should().BeNull();
         dm.Resolve(DynamicValue.FromPath("/items/2")).Should().Be("gamma");
@@ -285,17 +310,18 @@ public sealed class DataModelTests
     public void Apply_PreservesExistingObjectWhenNextSegmentIsNumeric()
     {
         var dm = new DataModel();
-        dm.SetSnapshot(JsonSerializer.SerializeToElement(new
-        {
-            totals = new Dictionary<string, int> { ["2025"] = 100 }
-        }));
+        dm.SetSnapshot(
+            JsonSerializer.SerializeToElement(new { totals = new Dictionary<string, int> { ["2025"] = 100 } })
+        );
 
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/totals/2026",
-            Value = JsonSerializer.SerializeToElement(200),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/totals/2026",
+                Value = JsonSerializer.SerializeToElement(200),
+            }
+        );
 
         // Should preserve the object (not create an array) since "totals" already exists as object
         dm.Resolve(DynamicValue.FromPath("/totals/2025")).Should().Be("100");
@@ -306,7 +332,14 @@ public sealed class DataModelTests
     public void GetArrayLength_ReturnsCount_WhenPathIsArray()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel { SurfaceId = "s", Path = "/", Value = JsonSerializer.SerializeToElement(new { items = new[] { 1, 2, 3 } }) });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/",
+                Value = JsonSerializer.SerializeToElement(new { items = new[] { 1, 2, 3 } }),
+            }
+        );
         dm.GetArrayLength("/items").Should().Be(3);
     }
 
@@ -314,7 +347,14 @@ public sealed class DataModelTests
     public void GetArrayLength_ReturnsNegativeOne_WhenPathIsObject()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel { SurfaceId = "s", Path = "/", Value = JsonSerializer.SerializeToElement(new { data = new { key = "val" } }) });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/",
+                Value = JsonSerializer.SerializeToElement(new { data = new { key = "val" } }),
+            }
+        );
         dm.GetArrayLength("/data").Should().Be(-1);
     }
 
@@ -329,7 +369,14 @@ public sealed class DataModelTests
     public void GetArrayLength_ReturnsZero_WhenArrayIsEmpty()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel { SurfaceId = "s", Path = "/", Value = JsonSerializer.SerializeToElement(new { items = Array.Empty<int>() }) });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/",
+                Value = JsonSerializer.SerializeToElement(new { items = Array.Empty<int>() }),
+            }
+        );
         dm.GetArrayLength("/items").Should().Be(0);
     }
 
@@ -344,12 +391,14 @@ public sealed class DataModelTests
     public void ToJson_AfterApply_ReflectsState()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/name",
-            Value = JsonSerializer.SerializeToElement("Alice"),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/name",
+                Value = JsonSerializer.SerializeToElement("Alice"),
+            }
+        );
 
         var json = dm.ToJson();
         json.Should().Contain("\"name\"");
@@ -360,15 +409,95 @@ public sealed class DataModelTests
     public void ToJson_Indented_ProducesFormattedOutput()
     {
         var dm = new DataModel();
-        dm.Apply(new UpdateDataModel
-        {
-            SurfaceId = "s",
-            Path = "/key",
-            Value = JsonSerializer.SerializeToElement("val"),
-        });
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/key",
+                Value = JsonSerializer.SerializeToElement("val"),
+            }
+        );
 
         var json = dm.ToJson(indented: true);
         json.Should().Contain("\n");
         json.Should().Contain("  ");
+    }
+
+    // --- RFC 6901 JSON Pointer escaping tests ---
+
+    [Fact]
+    public void Apply_PathWithTilde1Escape_ResolvesSlashInKey()
+    {
+        var dm = new DataModel();
+        // ~1 should unescape to / in the key name
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/a~1b",
+                Value = JsonSerializer.SerializeToElement("slash-key"),
+            }
+        );
+
+        dm.Resolve(DynamicValue.FromPath("/a~1b")).Should().Be("slash-key");
+    }
+
+    [Fact]
+    public void Apply_PathWithTilde0Escape_ResolvesTildeInKey()
+    {
+        var dm = new DataModel();
+        // ~0 should unescape to ~ in the key name
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/a~0b",
+                Value = JsonSerializer.SerializeToElement("tilde-key"),
+            }
+        );
+
+        dm.Resolve(DynamicValue.FromPath("/a~0b")).Should().Be("tilde-key");
+    }
+
+    [Fact]
+    public void Apply_PathWithBothEscapes_ResolvesCorrectly()
+    {
+        var dm = new DataModel();
+        // ~01 should become ~1 (tilde then 1), not /
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/~01",
+                Value = JsonSerializer.SerializeToElement("both"),
+            }
+        );
+
+        dm.Resolve(DynamicValue.FromPath("/~01")).Should().Be("both");
+    }
+
+    [Fact]
+    public void Apply_DeletePathWithEscapedSegments_RemovesKey()
+    {
+        var dm = new DataModel();
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/a~1b",
+                Value = JsonSerializer.SerializeToElement("to-delete"),
+            }
+        );
+
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/a~1b",
+                Value = null,
+            }
+        );
+
+        dm.Resolve(DynamicValue.FromPath("/a~1b")).Should().BeNull();
     }
 }

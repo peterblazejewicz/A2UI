@@ -15,14 +15,17 @@ public sealed class SurfaceManagerTests
         Surface? created = null;
         sm.SurfaceCreated += (_, e) => created = e.Surface;
 
-        sm.Process(new A2UiMessage
-        {
-            CreateSurface = new CreateSurface
+        sm.Process(
+            new A2UiMessage
             {
-                SurfaceId = "main",
-                CatalogId = "https://a2ui.org/specification/v0_9/basic_catalog.json",
+                Version = "v0.9",
+                CreateSurface = new CreateSurface
+                {
+                    SurfaceId = "main",
+                    CatalogId = "https://a2ui.org/specification/v0_9/basic_catalog.json",
+                },
             }
-        });
+        );
 
         created.Should().NotBeNull();
         created!.SurfaceId.Should().Be("main");
@@ -36,16 +39,19 @@ public sealed class SurfaceManagerTests
         Surface? created = null;
         sm.SurfaceCreated += (_, e) => created = e.Surface;
 
-        sm.Process(new A2UiMessage
-        {
-            CreateSurface = new CreateSurface
+        sm.Process(
+            new A2UiMessage
             {
-                SurfaceId = "themed",
-                CatalogId = "test",
-                Theme = JsonSerializer.SerializeToElement(new { primaryColor = "#FF0000" }),
-                SendDataModel = true,
+                Version = "v0.9",
+                CreateSurface = new CreateSurface
+                {
+                    SurfaceId = "themed",
+                    CatalogId = "test",
+                    Theme = JsonSerializer.SerializeToElement(new { primaryColor = "#FF0000" }),
+                    SendDataModel = true,
+                },
             }
-        });
+        );
 
         created!.Theme.Should().NotBeNull();
         created.SendDataModel.Should().BeTrue();
@@ -60,7 +66,8 @@ public sealed class SurfaceManagerTests
 
         var msg = new A2UiMessage
         {
-            CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" }
+            Version = "v0.9",
+            CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" },
         };
 
         sm.Process(msg);
@@ -76,14 +83,20 @@ public sealed class SurfaceManagerTests
         Surface? deleted = null;
         sm.SurfaceDeleted += (_, e) => deleted = e.Surface;
 
-        sm.Process(new A2UiMessage
-        {
-            CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" }
-        });
-        sm.Process(new A2UiMessage
-        {
-            DeleteSurface = new DeleteSurface { SurfaceId = "s1" }
-        });
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" },
+            }
+        );
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                DeleteSurface = new DeleteSurface { SurfaceId = "s1" },
+            }
+        );
 
         deleted.Should().NotBeNull();
         deleted!.SurfaceId.Should().Be("s1");
@@ -97,10 +110,13 @@ public sealed class SurfaceManagerTests
         bool deleteFired = false;
         sm.SurfaceDeleted += (_, _) => deleteFired = true;
 
-        sm.Process(new A2UiMessage
-        {
-            DeleteSurface = new DeleteSurface { SurfaceId = "ghost" }
-        });
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                DeleteSurface = new DeleteSurface { SurfaceId = "ghost" },
+            }
+        );
 
         deleteFired.Should().BeFalse();
     }
@@ -112,22 +128,33 @@ public sealed class SurfaceManagerTests
         ComponentsUpdatedEventArgs? updatedArgs = null;
         sm.ComponentsUpdated += (_, e) => updatedArgs = e;
 
-        sm.Process(new A2UiMessage
-        {
-            CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" }
-        });
-        sm.Process(new A2UiMessage
-        {
-            UpdateComponents = new UpdateComponents
+        sm.Process(
+            new A2UiMessage
             {
-                SurfaceId = "s1",
-                Components =
-                [
-                    new A2UiComponent { Id = "root", Component = "Column" },
-                    new A2UiComponent { Id = "t1", Component = "Text", Parent = "root" },
-                ]
+                Version = "v0.9",
+                CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" },
             }
-        });
+        );
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                UpdateComponents = new UpdateComponents
+                {
+                    SurfaceId = "s1",
+                    Components =
+                    [
+                        new A2UiComponent { Id = "root", Component = "Column" },
+                        new A2UiComponent
+                        {
+                            Id = "t1",
+                            Component = "Text",
+                            Parent = "root",
+                        },
+                    ],
+                },
+            }
+        );
 
         updatedArgs.Should().NotBeNull();
         var surface = sm.GetSurface("s1");
@@ -142,14 +169,17 @@ public sealed class SurfaceManagerTests
         bool fired = false;
         sm.ComponentsUpdated += (_, _) => fired = true;
 
-        sm.Process(new A2UiMessage
-        {
-            UpdateComponents = new UpdateComponents
+        sm.Process(
+            new A2UiMessage
             {
-                SurfaceId = "ghost",
-                Components = [new A2UiComponent { Id = "t1", Component = "Text" }]
+                Version = "v0.9",
+                UpdateComponents = new UpdateComponents
+                {
+                    SurfaceId = "ghost",
+                    Components = [new A2UiComponent { Id = "t1", Component = "Text" }],
+                },
             }
-        });
+        );
 
         fired.Should().BeFalse();
     }
@@ -161,19 +191,25 @@ public sealed class SurfaceManagerTests
         bool fired = false;
         sm.DataModelUpdated += (_, _) => fired = true;
 
-        sm.Process(new A2UiMessage
-        {
-            CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" }
-        });
-        sm.Process(new A2UiMessage
-        {
-            UpdateDataModel = new UpdateDataModel
+        sm.Process(
+            new A2UiMessage
             {
-                SurfaceId = "s1",
-                Path = "/user/name",
-                Value = JsonSerializer.SerializeToElement("Alice"),
+                Version = "v0.9",
+                CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" },
             }
-        });
+        );
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                UpdateDataModel = new UpdateDataModel
+                {
+                    SurfaceId = "s1",
+                    Path = "/user/name",
+                    Value = JsonSerializer.SerializeToElement("Alice"),
+                },
+            }
+        );
 
         fired.Should().BeTrue();
         var surface = sm.GetSurface("s1")!;
@@ -187,42 +223,43 @@ public sealed class SurfaceManagerTests
         bool fired = false;
         sm.DataModelUpdated += (_, _) => fired = true;
 
-        sm.Process(new A2UiMessage
-        {
-            UpdateDataModel = new UpdateDataModel
+        sm.Process(
+            new A2UiMessage
             {
-                SurfaceId = "ghost",
-                Path = "/x",
-                Value = JsonSerializer.SerializeToElement(1),
+                Version = "v0.9",
+                UpdateDataModel = new UpdateDataModel
+                {
+                    SurfaceId = "ghost",
+                    Path = "/x",
+                    Value = JsonSerializer.SerializeToElement(1),
+                },
             }
-        });
+        );
 
         fired.Should().BeFalse();
     }
 
     [Fact]
-    public void Process_EmptyMessage_NoOp()
+    public void Process_EmptyMessage_ThrowsValidation()
     {
         var sm = new SurfaceManager();
-        bool anyFired = false;
-        sm.SurfaceCreated += (_, _) => anyFired = true;
-        sm.SurfaceDeleted += (_, _) => anyFired = true;
-        sm.ComponentsUpdated += (_, _) => anyFired = true;
-        sm.DataModelUpdated += (_, _) => anyFired = true;
 
-        sm.Process(new A2UiMessage());
+        var act = () => sm.Process(new A2UiMessage());
 
-        anyFired.Should().BeFalse();
+        act.Should().Throw<A2UiMessageValidationException>();
     }
 
     [Fact]
     public void GetSurface_ExistingSurface_ReturnsSurface()
     {
         var sm = new SurfaceManager();
-        sm.Process(new A2UiMessage
-        {
-            CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" }
-        });
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" },
+            }
+        );
 
         sm.GetSurface("s1").Should().NotBeNull();
         sm.GetSurface("nope").Should().BeNull();
@@ -232,23 +269,39 @@ public sealed class SurfaceManagerTests
     public void Surface_GetRootComponents_ReturnsNullParentComponents()
     {
         var sm = new SurfaceManager();
-        sm.Process(new A2UiMessage
-        {
-            CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" }
-        });
-        sm.Process(new A2UiMessage
-        {
-            UpdateComponents = new UpdateComponents
+        sm.Process(
+            new A2UiMessage
             {
-                SurfaceId = "s1",
-                Components =
-                [
-                    new A2UiComponent { Id = "root", Component = "Column" },
-                    new A2UiComponent { Id = "child1", Component = "Text", Parent = "root" },
-                    new A2UiComponent { Id = "child2", Component = "Text", Parent = "root" },
-                ]
+                Version = "v0.9",
+                CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" },
             }
-        });
+        );
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                UpdateComponents = new UpdateComponents
+                {
+                    SurfaceId = "s1",
+                    Components =
+                    [
+                        new A2UiComponent { Id = "root", Component = "Column" },
+                        new A2UiComponent
+                        {
+                            Id = "child1",
+                            Component = "Text",
+                            Parent = "root",
+                        },
+                        new A2UiComponent
+                        {
+                            Id = "child2",
+                            Component = "Text",
+                            Parent = "root",
+                        },
+                    ],
+                },
+            }
+        );
 
         var surface = sm.GetSurface("s1")!;
         var roots = surface.GetRootComponents().ToList();
@@ -260,27 +313,34 @@ public sealed class SurfaceManagerTests
     public void Surface_GetRootComponents_V09ForwardRef_FindsRootById()
     {
         var sm = new SurfaceManager();
-        sm.Process(new A2UiMessage
-        {
-            CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" }
-        });
-        sm.Process(new A2UiMessage
-        {
-            UpdateComponents = new UpdateComponents
+        sm.Process(
+            new A2UiMessage
             {
-                SurfaceId = "s1",
-                Components =
-                [
-                    new A2UiComponent
-                    {
-                        Id = "root", Component = "Column",
-                        Children = ChildList.FromIds("t1", "t2"),
-                    },
-                    new A2UiComponent { Id = "t1", Component = "Text" },
-                    new A2UiComponent { Id = "t2", Component = "Text" },
-                ]
+                Version = "v0.9",
+                CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" },
             }
-        });
+        );
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                UpdateComponents = new UpdateComponents
+                {
+                    SurfaceId = "s1",
+                    Components =
+                    [
+                        new A2UiComponent
+                        {
+                            Id = "root",
+                            Component = "Column",
+                            Children = ChildList.FromIds("t1", "t2"),
+                        },
+                        new A2UiComponent { Id = "t1", Component = "Text" },
+                        new A2UiComponent { Id = "t2", Component = "Text" },
+                    ],
+                },
+            }
+        );
 
         var roots = sm.GetSurface("s1")!.GetRootComponents().ToList();
         roots.Should().ContainSingle();
@@ -291,27 +351,34 @@ public sealed class SurfaceManagerTests
     public void Surface_GetRootComponents_NoExplicitRoot_ExcludesReferencedChildren()
     {
         var sm = new SurfaceManager();
-        sm.Process(new A2UiMessage
-        {
-            CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" }
-        });
-        sm.Process(new A2UiMessage
-        {
-            UpdateComponents = new UpdateComponents
+        sm.Process(
+            new A2UiMessage
             {
-                SurfaceId = "s1",
-                Components =
-                [
-                    new A2UiComponent
-                    {
-                        Id = "col1", Component = "Column",
-                        Children = ChildList.FromIds("t1", "t2"),
-                    },
-                    new A2UiComponent { Id = "t1", Component = "Text" },
-                    new A2UiComponent { Id = "t2", Component = "Text" },
-                ]
+                Version = "v0.9",
+                CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" },
             }
-        });
+        );
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                UpdateComponents = new UpdateComponents
+                {
+                    SurfaceId = "s1",
+                    Components =
+                    [
+                        new A2UiComponent
+                        {
+                            Id = "col1",
+                            Component = "Column",
+                            Children = ChildList.FromIds("t1", "t2"),
+                        },
+                        new A2UiComponent { Id = "t1", Component = "Text" },
+                        new A2UiComponent { Id = "t2", Component = "Text" },
+                    ],
+                },
+            }
+        );
 
         var roots = sm.GetSurface("s1")!.GetRootComponents().ToList();
         roots.Should().ContainSingle();

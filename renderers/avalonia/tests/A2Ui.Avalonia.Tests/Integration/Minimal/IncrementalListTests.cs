@@ -43,8 +43,9 @@ public sealed class IncrementalListTests
 
         // Root is a Column (StackPanel) with template children expanded
         List<Control> rootChildren = GalleryTestHelper.GetChildren(result.RootControl).ToList();
-        rootChildren.Should().HaveCount(4,
-            "the /restaurants array has 4 items so template expansion should produce 4 cards");
+        rootChildren
+            .Should()
+            .HaveCount(4, "the /restaurants array has 4 items so template expansion should produce 4 cards");
     }
 
     [AvaloniaFact]
@@ -53,11 +54,7 @@ public sealed class IncrementalListTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        List<string> allTexts = textBlocks
-            .Select(tb => tb.Text)
-            .Where(t => t is not null)
-            .Cast<string>()
-            .ToList();
+        List<string> allTexts = textBlocks.Select(tb => tb.Text).Where(t => t is not null).Cast<string>().ToList();
 
         allTexts.Should().Contain("The Golden Fork");
         allTexts.Should().Contain("Ocean's Bounty");
@@ -71,11 +68,7 @@ public sealed class IncrementalListTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        List<string> allTexts = textBlocks
-            .Select(tb => tb.Text)
-            .Where(t => t is not null)
-            .Cast<string>()
-            .ToList();
+        List<string> allTexts = textBlocks.Select(tb => tb.Text).Where(t => t is not null).Cast<string>().ToList();
 
         allTexts.Should().Contain("123 Gastronomy Lane");
         allTexts.Should().Contain("456 Shoreline Dr");
@@ -89,8 +82,7 @@ public sealed class IncrementalListTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
 
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().HaveCount(4,
-            "each of the 4 restaurant cards should have a 'Book now' button");
+        buttons.Should().HaveCount(4, "each of the 4 restaurant cards should have a 'Book now' button");
     }
 
     [AvaloniaFact]
@@ -120,20 +112,24 @@ public sealed class IncrementalListTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
 
         // Replace the restaurants array with an empty array
-        result.SurfaceManager.Process(new A2UiMessage
-        {
-            UpdateDataModel = new UpdateDataModel
+        result.SurfaceManager.Process(
+            new A2UiMessage
             {
-                SurfaceId = result.Surface.SurfaceId,
-                Path = "/restaurants",
-                Value = JsonSerializer.SerializeToElement(Array.Empty<object>()),
-            },
-        });
+                Version = "v0.9",
+                UpdateDataModel = new UpdateDataModel
+                {
+                    SurfaceId = result.Surface.SurfaceId,
+                    Path = "/restaurants",
+                    Value = JsonSerializer.SerializeToElement(Array.Empty<object>()),
+                },
+            }
+        );
 
         Control reRendered = result.ReRender();
         List<Control> rootChildren = GalleryTestHelper.GetChildren(reRendered).ToList();
-        rootChildren.Should().HaveCount(0,
-            "an empty /restaurants array should produce zero template-expanded children");
+        rootChildren
+            .Should()
+            .HaveCount(0, "an empty /restaurants array should produce zero template-expanded children");
     }
 
     [AvaloniaFact]
@@ -147,11 +143,7 @@ public sealed class IncrementalListTests
 
         Control secondCard = rootChildren[1];
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(secondCard);
-        List<string> texts = textBlocks
-            .Select(tb => tb.Text)
-            .Where(t => t is not null)
-            .Cast<string>()
-            .ToList();
+        List<string> texts = textBlocks.Select(tb => tb.Text).Where(t => t is not null).Cast<string>().ToList();
 
         texts.Should().Contain("Ocean's Bounty");
         texts.Should().Contain("Fresh Daily Seafood");
