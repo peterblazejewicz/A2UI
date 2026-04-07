@@ -96,7 +96,26 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
         return CheckHelper.ApplyChecks(picker, c, ctx);
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
+    {
+        CalendarDatePicker? picker = CheckHelper.FindInner<CalendarDatePicker>(existing);
+        if (picker is null)
+            return false;
+
+        if (!picker.IsFocused)
+        {
+            var raw = ctx.Resolve(c.Value);
+            picker.SelectedDate =
+                raw is not null && DateOnly.TryParse(raw, out var date) ? date.ToDateTime(TimeOnly.MinValue) : null;
+        }
+
+        picker.Watermark = ctx.Resolve(c.Label) ?? "Select date";
+
+        if (existing is StackPanel wrapper && c.Checks is { Length: > 0 })
+            CheckHelper.UpdateChecks(wrapper, c, ctx);
+
+        return true;
+    }
 }
 
 /// <summary>
@@ -124,7 +143,34 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
         return CheckHelper.ApplyChecks(control, c, ctx);
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
+    {
+        // Only support in-place update for the simple ComboBox case (mutuallyExclusive, non-filterable).
+        // Multi-select and filterable variants require full re-create.
+        ComboBox? combo = CheckHelper.FindInner<ComboBox>(existing);
+        if (combo is null)
+            return false;
+
+        combo.PlaceholderText = ctx.Resolve(c.Label);
+
+        // Update selected index to match current data model value
+        var currentValues = ResolveCurrentValues(c.Value, ctx);
+        int selectedIndex = -1;
+        for (int i = 0; i < combo.Items.Count; i++)
+        {
+            if (combo.Items[i] is ComboBoxItem item && item.Tag is string val && currentValues.Contains(val))
+            {
+                selectedIndex = i;
+                break;
+            }
+        }
+        combo.SelectedIndex = selectedIndex;
+
+        if (existing is StackPanel wrapper && c.Checks is { Length: > 0 })
+            CheckHelper.UpdateChecks(wrapper, c, ctx);
+
+        return true;
+    }
 
     private static Control CreateMutuallyExclusive(
         A2UiComponent c,
