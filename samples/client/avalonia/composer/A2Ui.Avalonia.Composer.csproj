@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
@@ -30,5 +29,4 @@
     <ProjectReference Include="../../../../agent_sdks/dotnet/src/A2Ui.Core/A2Ui.Core.csproj" />
     <ProjectReference Include="../../../../agent_sdks/dotnet/src/AgUi.Protocol/AgUi.Protocol.csproj" />
   </ItemGroup>
-
 </Project>

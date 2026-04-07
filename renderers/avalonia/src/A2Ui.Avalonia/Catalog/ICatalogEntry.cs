@@ -27,8 +27,7 @@ public interface ICatalogEntry
     /// Update an existing control in-place (avoids full recreate).
     /// Return false to signal the renderer should recreate instead.
     /// </summary>
-    bool Update(Control existing, A2UiComponent component, DataModel dataModel,
-                IRenderContext context);
+    bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context);
 }
 
 /// <summary>Context passed to factory methods for cross-cutting concerns.</summary>

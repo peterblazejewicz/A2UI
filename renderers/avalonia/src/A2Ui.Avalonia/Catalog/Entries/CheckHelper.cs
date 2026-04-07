@@ -45,7 +45,8 @@ internal static class CheckHelper
     /// Try to find the inner input control inside a CheckHelper wrapper panel.
     /// Returns null if <paramref name="existing"/> is not a check wrapper.
     /// </summary>
-    public static T? FindInner<T>(Control existing) where T : Control
+    public static T? FindInner<T>(Control existing)
+        where T : Control
     {
         if (existing is T direct)
             return direct;
@@ -68,12 +69,14 @@ internal static class CheckHelper
             string? result = EvaluateCondition(check, ctx);
             if (result != "true")
             {
-                panel.Children.Add(new TextBlock
-                {
-                    Text = check.Message,
-                    Classes = { "ValidationError" },
-                    FontSize = 12,
-                });
+                panel.Children.Add(
+                    new TextBlock
+                    {
+                        Text = check.Message,
+                        Classes = { "ValidationError" },
+                        FontSize = 12,
+                    }
+                );
                 break; // Only show the first failing message
             }
         }

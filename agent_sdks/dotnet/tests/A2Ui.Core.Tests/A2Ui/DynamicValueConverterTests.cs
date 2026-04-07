@@ -111,11 +111,7 @@ public sealed class DynamicValueConverterTests
     {
         var dv = new DynamicValue
         {
-            FunctionCall = new FunctionCallValue
-            {
-                Call = "required",
-                ReturnType = "boolean",
-            }
+            FunctionCall = new FunctionCallValue { Call = "required", ReturnType = "boolean" },
         };
         var json = JsonSerializer.Serialize(dv, s_opts);
 

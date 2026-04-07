@@ -21,8 +21,7 @@ public sealed class ChildListConverterTests
     [Fact]
     public void Read_Template_ParsesComponentIdAndPath()
     {
-        var result = JsonSerializer.Deserialize<ChildList>(
-            """{"componentId":"item-tmpl","path":"/items"}""", s_opts);
+        var result = JsonSerializer.Deserialize<ChildList>("""{"componentId":"item-tmpl","path":"/items"}""", s_opts);
 
         result.Should().NotBeNull();
         result!.IsTemplate.Should().BeTrue();
@@ -94,7 +93,8 @@ public sealed class ChildListConverterTests
     [Fact]
     public void Component_WithAccessibility_Deserializes()
     {
-        var json = """{"id":"btn1","component":"Button","accessibility":{"label":"Submit form","description":"Submits the reservation"}}""";
+        var json =
+            """{"id":"btn1","component":"Button","accessibility":{"label":"Submit form","description":"Submits the reservation"}}""";
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
         comp!.Accessibility.Should().NotBeNull();
@@ -105,7 +105,8 @@ public sealed class ChildListConverterTests
     [Fact]
     public void Component_WithChecks_Deserializes()
     {
-        var json = """{"id":"tf1","component":"TextField","checks":[{"condition":{"call":"required","args":{"value":{"path":"/name"}}},"message":"Name is required"}]}""";
+        var json =
+            """{"id":"tf1","component":"TextField","checks":[{"condition":{"call":"required","args":{"value":{"path":"/name"}}},"message":"Name is required"}]}""";
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
         comp!.Checks.Should().HaveCount(1);
@@ -117,7 +118,8 @@ public sealed class ChildListConverterTests
     [Fact]
     public void Component_WithChoiceOptions_Deserializes()
     {
-        var json = """{"id":"cp1","component":"ChoicePicker","options":[{"label":"Red","value":"red"},{"label":"Blue","value":"blue"}],"displayStyle":"chips","filterable":true}""";
+        var json =
+            """{"id":"cp1","component":"ChoicePicker","options":[{"label":"Red","value":"red"},{"label":"Blue","value":"blue"}],"displayStyle":"chips","filterable":true}""";
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
         comp!.Options.Should().HaveCount(2);
@@ -130,7 +132,8 @@ public sealed class ChildListConverterTests
     [Fact]
     public void Component_WithTabs_Deserializes()
     {
-        var json = """{"id":"tabs1","component":"Tabs","tabs":[{"title":"Info","child":"panel1"},{"title":"Settings","child":"panel2"}]}""";
+        var json =
+            """{"id":"tabs1","component":"Tabs","tabs":[{"title":"Info","child":"panel1"},{"title":"Settings","child":"panel2"}]}""";
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
         comp!.Tabs.Should().HaveCount(2);

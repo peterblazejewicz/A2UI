@@ -119,8 +119,7 @@ public sealed class ExpressionParserTests
     public void Parse_MaxDepthExceeded_ThrowsA2UiExpressionException()
     {
         Action act = () => _parser.Parse("depth", 11);
-        act.Should().Throw<A2UiExpressionException>()
-            .WithMessage("*Max recursion depth*");
+        act.Should().Throw<A2UiExpressionException>().WithMessage("*Max recursion depth*");
     }
 
     // ── Parse: unclosed interpolation ────────────────────────────────
@@ -129,8 +128,7 @@ public sealed class ExpressionParserTests
     public void Parse_UnclosedInterpolation_ThrowsA2UiExpressionException()
     {
         Action act = () => _parser.Parse("hello ${world");
-        act.Should().Throw<A2UiExpressionException>()
-            .WithMessage("*Unclosed interpolation*");
+        act.Should().Throw<A2UiExpressionException>().WithMessage("*Unclosed interpolation*");
     }
 
     // ── Parse: invalid function syntax ───────────────────────────────
@@ -139,8 +137,7 @@ public sealed class ExpressionParserTests
     public void Parse_MissingClosingParenthesis_Throws()
     {
         Action act = () => _parser.Parse("${add(a: 1, b: 2}");
-        act.Should().Throw<A2UiExpressionException>()
-            .WithMessage("*Expected ')'*");
+        act.Should().Throw<A2UiExpressionException>().WithMessage("*Expected ')'*");
     }
 
     // ── Parse: unexpected characters at end ──────────────────────────
@@ -149,8 +146,7 @@ public sealed class ExpressionParserTests
     public void Parse_UnexpectedCharactersAtEnd_Throws()
     {
         Action act = () => _parser.Parse("${true false}");
-        act.Should().Throw<A2UiExpressionException>()
-            .WithMessage("*Unexpected characters*");
+        act.Should().Throw<A2UiExpressionException>().WithMessage("*Unexpected characters*");
     }
 
     // ── ParseExpression: empty identifiers ───────────────────────────
@@ -205,8 +201,7 @@ public sealed class ExpressionParserTests
     public void ParseExpression_MissingColonInFunctionArgs_Throws()
     {
         Action act = () => _parser.ParseExpression("add(a 10, b: 20)");
-        act.Should().Throw<A2UiExpressionException>()
-            .WithMessage("*Expected ':'*");
+        act.Should().Throw<A2UiExpressionException>().WithMessage("*Expected ':'*");
     }
 
     // ── Parse: empty string ──────────────────────────────────────────
@@ -231,8 +226,10 @@ public sealed class ExpressionParserTests
         // TODO(issue #4): a dedicated "Unterminated string literal" message would give a better
         // diagnostic. For now the test verifies that parsing does not silently succeed.
         Action act = () => _parser.Parse("${'hello");
-        act.Should().Throw<A2UiExpressionException>(
-            "an unterminated string literal inside an interpolation block must not silently succeed");
+        act.Should()
+            .Throw<A2UiExpressionException>(
+                "an unterminated string literal inside an interpolation block must not silently succeed"
+            );
     }
 
     // ── Parse: malformed number ──────────────────────────────────────
@@ -244,8 +241,7 @@ public sealed class ExpressionParserTests
         // not A2UiExpressionException. Once issue #3 is fixed in production code,
         // change the assertion to .Throw<A2UiExpressionException>().
         Action act = () => _parser.Parse("${1.2.3}");
-        act.Should().Throw<Exception>(
-            "issue #3 not yet fixed: malformed number bubbles up a raw FormatException");
+        act.Should().Throw<Exception>("issue #3 not yet fixed: malformed number bubbles up a raw FormatException");
     }
 
     // ── ResolveFormatString: empty template ──────────────────────────
@@ -255,9 +251,7 @@ public sealed class ExpressionParserTests
     {
         // The FunctionRegistry formatString function returns "" for a null/empty value arg.
         var registry = FunctionRegistry.CreateDefault();
-        string? result = registry.Evaluate(
-            "formatString",
-            new Dictionary<string, string?> { ["value"] = "" });
+        string? result = registry.Evaluate("formatString", new Dictionary<string, string?> { ["value"] = "" });
         result.Should().Be("", "formatString with empty value should return an empty string");
     }
 
@@ -266,7 +260,8 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_FormatStringTemplate_ParsesNestedFunctionCalls()
     {
-        string template = "${formatDate(value: ${/start}, format: 'E, MMM d')} - ${formatDate(value: ${/end}, format: 'h:mm a')}";
+        string template =
+            "${formatDate(value: ${/start}, format: 'E, MMM d')} - ${formatDate(value: ${/end}, format: 'h:mm a')}";
         IReadOnlyList<ExpressionToken> result = _parser.Parse(template);
 
         result.Should().HaveCount(3);

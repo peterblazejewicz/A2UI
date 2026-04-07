@@ -75,8 +75,10 @@ public sealed class LoginFormTests
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
         GalleryTestHelper.SetText(textBoxes[0], "alice");
 
-        result.Surface.DataModel.Resolve(
-            new A2Ui.Core.Messages.DynamicValue { Path = "/username" }).Should().Be("alice");
+        result
+            .Surface.DataModel.Resolve(new A2Ui.Core.Messages.DynamicValue { Path = "/username" })
+            .Should()
+            .Be("alice");
     }
 
     [AvaloniaFact]
@@ -87,8 +89,10 @@ public sealed class LoginFormTests
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
         GalleryTestHelper.SetText(textBoxes[1], "secret123");
 
-        result.Surface.DataModel.Resolve(
-            new A2Ui.Core.Messages.DynamicValue { Path = "/password" }).Should().Be("secret123");
+        result
+            .Surface.DataModel.Resolve(new A2Ui.Core.Messages.DynamicValue { Path = "/password" })
+            .Should()
+            .Be("secret123");
     }
 
     [AvaloniaFact]
@@ -104,8 +108,7 @@ public sealed class LoginFormTests
         button.Should().NotBeNull();
         GalleryTestHelper.ClickButton(button!);
 
-        UserActionEventArgs loginAction = result.ActionLog
-            .Single(a => a.EventName == "login_submitted");
+        UserActionEventArgs loginAction = result.ActionLog.Single(a => a.EventName == "login_submitted");
         loginAction.Payload.Should().BeOfType<Dictionary<string, string?>>();
 
         var payload = (Dictionary<string, string?>)loginAction.Payload!;

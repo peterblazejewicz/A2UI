@@ -86,7 +86,8 @@ public sealed class EventSerializationTests
     [Fact]
     public void ToolCallStartEvent_RoundTrip_PreservesFields()
     {
-        var json = """{"type":"TOOL_CALL_START","toolCallId":"tc1","toolCallName":"render_ui","parentMessageId":"m1"}""";
+        var json =
+            """{"type":"TOOL_CALL_START","toolCallId":"tc1","toolCallName":"render_ui","parentMessageId":"m1"}""";
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
@@ -100,7 +101,8 @@ public sealed class EventSerializationTests
     [Fact]
     public void ToolCallResultEvent_RoundTrip_SupportsStructuredContent()
     {
-        var json = """{"type":"TOOL_CALL_RESULT","messageId":"m1","toolCallId":"tc1","content":{"output":"done"},"role":"tool"}""";
+        var json =
+            """{"type":"TOOL_CALL_RESULT","messageId":"m1","toolCallId":"tc1","content":{"output":"done"},"role":"tool"}""";
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
@@ -147,7 +149,8 @@ public sealed class EventSerializationTests
     [Fact]
     public void ActivitySnapshotEvent_RoundTrip_PreservesAllFields()
     {
-        var json = """{"type":"ACTIVITY_SNAPSHOT","messageId":"m1","activityType":"thinking","activity":{"step":"plan"},"replace":true}""";
+        var json =
+            """{"type":"ACTIVITY_SNAPSHOT","messageId":"m1","activityType":"thinking","activity":{"step":"plan"},"replace":true}""";
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
@@ -161,7 +164,8 @@ public sealed class EventSerializationTests
     [Fact]
     public void ActivityDeltaEvent_RoundTrip_PreservesFields()
     {
-        var json = """{"type":"ACTIVITY_DELTA","messageId":"m1","activityType":"thinking","patch":[{"op":"replace","path":"/step","value":"execute"}]}""";
+        var json =
+            """{"type":"ACTIVITY_DELTA","messageId":"m1","activityType":"thinking","patch":[{"op":"replace","path":"/step","value":"execute"}]}""";
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
@@ -212,7 +216,8 @@ public sealed class EventSerializationTests
     [Fact]
     public void ReasoningEncryptedValueEvent_RoundTrip_CorrectEnumCasing()
     {
-        var json = """{"type":"REASONING_ENCRYPTED_VALUE","subtype":"tool-call","entityId":"e1","encryptedValue":"abc123"}""";
+        var json =
+            """{"type":"REASONING_ENCRYPTED_VALUE","subtype":"tool-call","entityId":"e1","encryptedValue":"abc123"}""";
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
@@ -226,7 +231,8 @@ public sealed class EventSerializationTests
     [Fact]
     public void ReasoningSubtype_Message_SerializesAsLowercase()
     {
-        var json = """{"type":"REASONING_ENCRYPTED_VALUE","subtype":"message","entityId":"e2","encryptedValue":"xyz"}""";
+        var json =
+            """{"type":"REASONING_ENCRYPTED_VALUE","subtype":"message","entityId":"e2","encryptedValue":"xyz"}""";
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
@@ -266,11 +272,14 @@ public sealed class EventSerializationTests
     {
         string deltaValue = eventType switch
         {
-            "TEXT_MESSAGE_CONTENT" or "REASONING_MESSAGE_CONTENT"
-                or "TEXT_MESSAGE_CHUNK" or "REASONING_MESSAGE_CHUNK"
-                or "TOOL_CALL_ARGS" or "TOOL_CALL_CHUNK" => "\"test delta\"",
+            "TEXT_MESSAGE_CONTENT"
+            or "REASONING_MESSAGE_CONTENT"
+            or "TEXT_MESSAGE_CHUNK"
+            or "REASONING_MESSAGE_CHUNK"
+            or "TOOL_CALL_ARGS"
+            or "TOOL_CALL_CHUNK" => "\"test delta\"",
             "STATE_DELTA" or "ACTIVITY_DELTA" => "[{\"op\":\"replace\",\"path\":\"/test\",\"value\":42}]",
-            _ => "[]"
+            _ => "[]",
         };
 
         string extraFields = eventType switch
@@ -279,10 +288,11 @@ public sealed class EventSerializationTests
             "TOOL_CALL_RESULT" => ",\"content\":\"result\"",
             "TOOL_CALL_START" => ",\"toolCallName\":\"render_ui\"",
             "MESSAGES_SNAPSHOT" => ",\"messages\":[]",
-            _ => ""
+            _ => "",
         };
 
-        var json = $$"""{"type":"{{eventType}}","message":"test","threadId":"t","runId":"r","messageId":"m","toolCallId":"tc","snapshot":{},"name":"n","value":"v","delta":{{deltaValue}},"stepName":"s","activity":{},"patch":{{deltaValue}},"event":{},"source":"src"{{extraFields}}}""";
+        var json =
+            $$"""{"type":"{{eventType}}","message":"test","threadId":"t","runId":"r","messageId":"m","toolCallId":"tc","snapshot":{},"name":"n","value":"v","delta":{{deltaValue}},"stepName":"s","activity":{},"patch":{{deltaValue}},"event":{},"source":"src"{{extraFields}}}""";
 
         var act = () => JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 

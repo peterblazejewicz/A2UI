@@ -23,8 +23,11 @@ public sealed class A2UiRenderer
     private readonly ILogger<A2UiRenderer> _logger;
     private readonly Dictionary<string, Dictionary<string, Control>> _surfaceCaches = new();
 
-    public A2UiRenderer(CatalogRegistry catalog, IFunctionRegistry? functionRegistry = null,
-                        ILoggerFactory? loggerFactory = null)
+    public A2UiRenderer(
+        CatalogRegistry catalog,
+        IFunctionRegistry? functionRegistry = null,
+        ILoggerFactory? loggerFactory = null
+    )
     {
         _catalog = catalog;
         _functionRegistry = functionRegistry;
@@ -45,12 +48,16 @@ public sealed class A2UiRenderer
             _surfaceCaches[surface.SurfaceId] = cache;
         }
 
-        var context = new RenderContext(surface, _catalog, cache, _functionRegistry,
+        var context = new RenderContext(
+            surface,
+            _catalog,
+            cache,
+            _functionRegistry,
             (surfaceId, eventName, payload, componentId) =>
                 UserActionFired?.Invoke(this, new(surfaceId, eventName, payload, componentId)),
-            (surfaceId) =>
-                DataModelChanged?.Invoke(this, new(surfaceId)),
-            logger: _logger);
+            (surfaceId) => DataModelChanged?.Invoke(this, new(surfaceId)),
+            logger: _logger
+        );
 
         var roots = surface.GetRootComponents().ToList();
 
@@ -66,16 +73,11 @@ public sealed class A2UiRenderer
     public event EventHandler<UserActionEventArgs>? UserActionFired;
     public event EventHandler<DataModelChangedEventArgs>? DataModelChanged;
 
-    private Control RenderComponent(A2UiComponent component, Surface surface,
-                                    RenderContext context)
+    private Control RenderComponent(A2UiComponent component, Surface surface, RenderContext context)
     {
         if (!_catalog.TryGetEntry(component.Component, out var entry) || entry is null)
         {
-            return new TextBlock
-            {
-                Text    = $"[Unknown component: {component.Component}]",
-                Classes = { "Caption" },
-            };
+            return new TextBlock { Text = $"[Unknown component: {component.Component}]", Classes = { "Caption" } };
         }
 
         var cache = _surfaceCaches.GetValueOrDefault(surface.SurfaceId);
@@ -103,8 +105,8 @@ internal sealed class RenderContext(
     Action<string, string, object?, string?> fireAction,
     Action<string> onDataModelChanged,
     ILogger? logger = null,
-    string? basePath = null)
-    : IRenderContext
+    string? basePath = null
+) : IRenderContext
 {
     public ILogger? Logger => logger;
     private const int MaxResolveDepth = 32;
@@ -118,15 +120,10 @@ internal sealed class RenderContext(
 
         if (!catalog.TryGetEntry(c.Component, out var entry) || entry is null)
         {
-            return new TextBlock
-            {
-                Text = $"[Unknown component: {c.Component}]",
-                Classes = { "Caption" },
-            };
+            return new TextBlock { Text = $"[Unknown component: {c.Component}]", Classes = { "Caption" } };
         }
 
-        if (cache.TryGetValue(c.Id, out var existing) &&
-            entry.Update(existing, c, surface.DataModel, this))
+        if (cache.TryGetValue(c.Id, out var existing) && entry.Update(existing, c, surface.DataModel, this))
         {
             DetachFromParent(existing, logger);
             return existing;
@@ -170,8 +167,7 @@ internal sealed class RenderContext(
     /// </summary>
     public IEnumerable<Control> RenderChildren(string componentId)
     {
-        if (surface.Components.TryGetValue(componentId, out var comp) &&
-            comp.Children is not null)
+        if (surface.Components.TryGetValue(componentId, out var comp) && comp.Children is not null)
         {
             if (comp.Children.Ids is { } ids)
                 return ids.Select(id => RenderChild(id)).OfType<Control>();
@@ -181,8 +177,8 @@ internal sealed class RenderContext(
         }
 
         // Legacy fallback: parent-based lookup
-        return surface.Components.Values
-            .Where(c => c.Parent == componentId)
+        return surface
+            .Components.Values.Where(c => c.Parent == componentId)
             .Select(c => RenderChild(c.Id))
             .OfType<Control>();
     }
@@ -214,8 +210,15 @@ internal sealed class RenderContext(
             // from the same component IDs (e.g. rc_title) don't collide.
             var instanceCache = new Dictionary<string, Control>();
             var scopedContext = new RenderContext(
-                surface, catalog, instanceCache, functionRegistry,
-                fireAction, onDataModelChanged, logger, itemBasePath);
+                surface,
+                catalog,
+                instanceCache,
+                functionRegistry,
+                fireAction,
+                onDataModelChanged,
+                logger,
+                itemBasePath
+            );
 
             var control = entry.Create(templateComp, surface.DataModel, scopedContext);
             controls.Add(control);
@@ -272,8 +275,7 @@ internal sealed class RenderContext(
         {
             try
             {
-                var itemDv = JsonSerializer.Deserialize<DynamicValue>(
-                    item.GetRawText(), s_jsonOptions);
+                var itemDv = JsonSerializer.Deserialize<DynamicValue>(item.GetRawText(), s_jsonOptions);
                 string? resolved = ResolveCore(itemDv, depth + 1);
                 results.Add(resolved ?? "");
             }
@@ -308,8 +310,7 @@ internal sealed class RenderContext(
             {
                 try
                 {
-                    var argValue = JsonSerializer.Deserialize<DynamicValue>(
-                        jsonEl.GetRawText(), s_jsonOptions);
+                    var argValue = JsonSerializer.Deserialize<DynamicValue>(jsonEl.GetRawText(), s_jsonOptions);
                     resolvedArgs[key] = ResolveCore(argValue, depth + 1);
                 }
                 catch (JsonException ex)
@@ -444,9 +445,7 @@ internal sealed class RenderContext(
             {
                 SurfaceId = surface.SurfaceId,
                 Path = path,
-                Value = value is not null
-                    ? JsonSerializer.SerializeToElement(value)
-                    : null,
+                Value = value is not null ? JsonSerializer.SerializeToElement(value) : null,
             };
             surface.DataModel.Apply(update);
             onDataModelChanged(surface.SurfaceId);
@@ -463,26 +462,52 @@ public sealed record UserActionEventArgs(
     string SurfaceId,
     string EventName,
     object? Payload,
-    string? ComponentId = null);
+    string? ComponentId = null
+);
 
 public sealed record DataModelChangedEventArgs(string SurfaceId);
 
 internal static partial class RendererLog
 {
-    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Cannot detach control from unknown parent type {ParentTypeName}")]
+    [LoggerMessage(
+        EventId = 1,
+        Level = LogLevel.Warning,
+        Message = "Cannot detach control from unknown parent type {ParentTypeName}"
+    )]
     public static partial void CannotDetachFromUnknownParent(ILogger logger, string parentTypeName);
 
-    [LoggerMessage(EventId = 2, Level = LogLevel.Warning, Message = "Resolve exceeded max depth ({MaxDepth}), returning null")]
+    [LoggerMessage(
+        EventId = 2,
+        Level = LogLevel.Warning,
+        Message = "Resolve exceeded max depth ({MaxDepth}), returning null"
+    )]
     public static partial void ResolveExceededMaxDepth(ILogger logger, int maxDepth);
 
-    [LoggerMessage(EventId = 3, Level = LogLevel.Warning, Message = "Failed to deserialize array element for function arg")]
+    [LoggerMessage(
+        EventId = 3,
+        Level = LogLevel.Warning,
+        Message = "Failed to deserialize array element for function arg"
+    )]
     public static partial void FailedToDeserializeArrayElement(ILogger logger, Exception exception);
 
-    [LoggerMessage(EventId = 4, Level = LogLevel.Warning, Message = "FunctionCall '{FunctionName}' encountered but no function registry configured")]
+    [LoggerMessage(
+        EventId = 4,
+        Level = LogLevel.Warning,
+        Message = "FunctionCall '{FunctionName}' encountered but no function registry configured"
+    )]
     public static partial void NoFunctionRegistryForCall(ILogger logger, string functionName);
 
-    [LoggerMessage(EventId = 5, Level = LogLevel.Warning, Message = "Failed to deserialize arg '{ArgName}' for function '{FunctionName}'")]
-    public static partial void FailedToDeserializeFunctionArg(ILogger logger, string argName, string functionName, Exception exception);
+    [LoggerMessage(
+        EventId = 5,
+        Level = LogLevel.Warning,
+        Message = "Failed to deserialize arg '{ArgName}' for function '{FunctionName}'"
+    )]
+    public static partial void FailedToDeserializeFunctionArg(
+        ILogger logger,
+        string argName,
+        string functionName,
+        Exception exception
+    );
 
     [LoggerMessage(EventId = 6, Level = LogLevel.Warning, Message = "Failed to deserialize formatString 'value' arg")]
     public static partial void FailedToDeserializeFormatStringArg(ILogger logger, Exception exception);
@@ -490,10 +515,18 @@ internal static partial class RendererLog
     [LoggerMessage(EventId = 7, Level = LogLevel.Warning, Message = "Failed to parse formatString template")]
     public static partial void FailedToParseFormatStringTemplate(ILogger logger, Exception exception);
 
-    [LoggerMessage(EventId = 8, Level = LogLevel.Warning, Message = "ResolveExpressionToken exceeded max depth ({MaxDepth})")]
+    [LoggerMessage(
+        EventId = 8,
+        Level = LogLevel.Warning,
+        Message = "ResolveExpressionToken exceeded max depth ({MaxDepth})"
+    )]
     public static partial void ExpressionTokenExceededMaxDepth(ILogger logger, int maxDepth);
 
-    [LoggerMessage(EventId = 9, Level = LogLevel.Warning, Message = "Expression function '{FunctionName}' encountered but no function registry configured")]
+    [LoggerMessage(
+        EventId = 9,
+        Level = LogLevel.Warning,
+        Message = "Expression function '{FunctionName}' encountered but no function registry configured"
+    )]
     public static partial void NoFunctionRegistryForExpression(ILogger logger, string functionName);
 
     [LoggerMessage(EventId = 10, Level = LogLevel.Warning, Message = "Failed to update data model at path '{Path}'")]

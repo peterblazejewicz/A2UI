@@ -14,7 +14,10 @@ public sealed partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        if (ApplicationLifetime is global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+        if (
+            ApplicationLifetime
+            is global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+        )
         {
             var window = Services.GetRequiredService<GalleryWindow>();
             window.DataContext = Services.GetRequiredService<GalleryViewModel>();

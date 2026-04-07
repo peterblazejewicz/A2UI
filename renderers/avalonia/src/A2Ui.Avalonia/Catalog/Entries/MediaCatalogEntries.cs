@@ -26,11 +26,11 @@ public sealed class ImageCatalogEntry : ICatalogEntry
     {
         var stretch = c.Fit switch
         {
-            "cover"     => Stretch.UniformToFill,
-            "fill"      => Stretch.Fill,
-            "none"      => Stretch.None,
+            "cover" => Stretch.UniformToFill,
+            "fill" => Stretch.Fill,
+            "none" => Stretch.None,
             "scaleDown" => Stretch.Uniform,
-            _           => Stretch.Uniform, // "contain" or default
+            _ => Stretch.Uniform, // "contain" or default
         };
         var img = new Image { Stretch = stretch };
         string? url = ctx.Resolve(c.Url) ?? ctx.Resolve(c.Value);
@@ -42,8 +42,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
         return img;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
         if (existing is not Image img)
             return false;
@@ -62,10 +61,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
         return true;
     }
 
-    private static readonly HttpClient s_http = new()
-    {
-        Timeout = TimeSpan.FromSeconds(30),
-    };
+    private static readonly HttpClient s_http = new() { Timeout = TimeSpan.FromSeconds(30) };
 
     /// <summary>Maximum image download size (10 MB) to avoid unbounded memory allocation.</summary>
     private const int MaxImageBytes = 10 * 1024 * 1024;
@@ -128,18 +124,13 @@ public sealed class TableCatalogEntry : ICatalogEntry
         {
             foreach (var col in cols)
             {
-                grid.Columns.Add(new DataGridTextColumn
-                {
-                    Header  = col.Header,
-                    Binding = new Binding(col.Field),
-                });
+                grid.Columns.Add(new DataGridTextColumn { Header = col.Header, Binding = new Binding(col.Field) });
             }
         }
         return grid;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
 }
 
 /// <summary>A2UI "Surface" → root container (extension, not in v0.9 spec).</summary>
@@ -155,13 +146,16 @@ public sealed class SurfaceCatalogEntry : ICatalogEntry
         return panel;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
 }
 
 internal static partial class MediaLog
 {
-    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Image at '{Url}' exceeds {MaxMb} MB limit ({ActualBytes} bytes), skipping")]
+    [LoggerMessage(
+        EventId = 1,
+        Level = LogLevel.Warning,
+        Message = "Image at '{Url}' exceeds {MaxMb} MB limit ({ActualBytes} bytes), skipping"
+    )]
     public static partial void ImageExceedsSizeLimit(ILogger logger, string url, int maxMb, int actualBytes);
 
     [LoggerMessage(EventId = 2, Level = LogLevel.Warning, Message = "Failed to load image from '{Url}'")]

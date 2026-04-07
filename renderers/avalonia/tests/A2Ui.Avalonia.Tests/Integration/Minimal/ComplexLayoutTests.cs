@@ -45,8 +45,7 @@ public sealed class ComplexLayoutTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/5_complex_layout.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        textBlocks.Should().Contain(tb =>
-            tb.Text == "Please fill out all fields." && tb.Classes.Contains("Caption"));
+        textBlocks.Should().Contain(tb => tb.Text == "Please fill out all fields." && tb.Classes.Contains("Caption"));
     }
 
     [AvaloniaFact]
@@ -57,8 +56,7 @@ public sealed class ComplexLayoutTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/5_complex_layout.json");
 
         List<Grid> grids = GalleryTestHelper.FindAll<Grid>(result.RootControl);
-        Grid? innerRow = grids.FirstOrDefault(
-            g => g.ColumnDefinitions.Count == 2);
+        Grid? innerRow = grids.FirstOrDefault(g => g.ColumnDefinitions.Count == 2);
 
         innerRow.Should().NotBeNull("form_row with weight:1 children must produce a Grid");
         innerRow!.ColumnDefinitions.All(cd => cd.Width.IsStar).Should().BeTrue();
@@ -73,8 +71,9 @@ public sealed class ComplexLayoutTests
 
         // Find the Grid that has exactly 2 star-sized column definitions (the weighted row)
         List<Grid> allGrids = GalleryTestHelper.FindAll<Grid>(result.RootControl);
-        Grid? weightedGrid = allGrids.FirstOrDefault(
-            g => g.ColumnDefinitions.Count == 2 && g.ColumnDefinitions.All(cd => cd.Width.IsStar));
+        Grid? weightedGrid = allGrids.FirstOrDefault(g =>
+            g.ColumnDefinitions.Count == 2 && g.ColumnDefinitions.All(cd => cd.Width.IsStar)
+        );
 
         weightedGrid.Should().NotBeNull("Row with weight:1 children should use a star-sized Grid");
         weightedGrid!.ColumnDefinitions.Should().HaveCount(2);

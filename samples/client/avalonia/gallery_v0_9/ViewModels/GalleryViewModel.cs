@@ -70,8 +70,7 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
     // ── Computed ───────────────────────────────────────────
 
     public int TotalMessageCount => SelectedItem?.Messages.Count ?? 0;
-    public bool CanAdvance => SelectedItem is not null
-                              && ProcessedMessageCount < SelectedItem.Messages.Count;
+    public bool CanAdvance => SelectedItem is not null && ProcessedMessageCount < SelectedItem.Messages.Count;
 
     /// <summary>
     /// True when the placeholder text should be visible instead of the rendered surface.
@@ -84,9 +83,7 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
     /// Placeholder text shown in the surface area.
     /// </summary>
     public string SurfacePlaceholder =>
-        ProcessedMessageCount == 0
-            ? "Surface not initialized. Click '+1 Message' to begin."
-            : "Loading surface...";
+        ProcessedMessageCount == 0 ? "Surface not initialized. Click '+1 Message' to begin." : "Loading surface...";
 
     // ── Commands ──────────────────────────────────────────
 
@@ -127,7 +124,8 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
 
     partial void OnSelectedItemChanged(DemoItem? value)
     {
-        if (value is null) return;
+        if (value is null)
+            return;
         ResetSurface();
         AdvanceMessages(all: true);
     }
@@ -137,7 +135,8 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
     private void AdvanceMessages(bool all = false, int count = 0)
     {
         DemoItem? item = SelectedItem;
-        if (item is null) return;
+        if (item is null)
+            return;
 
         int start = ProcessedMessageCount;
         int end = all ? item.Messages.Count : Math.Min(start + count, item.Messages.Count);
@@ -150,13 +149,14 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
             }
             catch (Exception ex) when (ex is JsonException or InvalidOperationException)
             {
-                ActionLogs.Insert(0,
-                    $"[Error] Failed to process message {i}: {ex.Message}");
+                ActionLogs.Insert(0, $"[Error] Failed to process message {i}: {ex.Message}");
             }
             catch (Exception ex)
             {
-                ActionLogs.Insert(0,
-                    $"[Error] Unexpected failure processing message {i}: {ex.GetType().Name}: {ex.Message}");
+                ActionLogs.Insert(
+                    0,
+                    $"[Error] Unexpected failure processing message {i}: {ex.GetType().Name}: {ex.Message}"
+                );
                 _logger.LogError(ex, "Unexpected exception processing message {Index}", i);
             }
         }
@@ -167,15 +167,18 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
     private void ResetSurface()
     {
         DemoItem? item = SelectedItem;
-        if (item is null) return;
+        if (item is null)
+            return;
 
         if (_manager.GetSurface(item.Id) is not null)
         {
-            _manager.Process(new A2UiMessage
-            {
-                Version = "v0.9",
-                DeleteSurface = new DeleteSurface { SurfaceId = item.Id },
-            });
+            _manager.Process(
+                new A2UiMessage
+                {
+                    Version = "v0.9",
+                    DeleteSurface = new DeleteSurface { SurfaceId = item.Id },
+                }
+            );
         }
 
         ProcessedMessageCount = 0;

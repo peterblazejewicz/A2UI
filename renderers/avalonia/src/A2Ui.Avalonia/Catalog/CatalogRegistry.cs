@@ -21,8 +21,10 @@ public sealed class CatalogRegistry
     }
 
     /// <summary>Register a simple factory function without implementing ICatalogEntry.</summary>
-    public CatalogRegistry Register(string componentType,
-        Func<A2UiComponent, DataModel, IRenderContext, Control> factory)
+    public CatalogRegistry Register(
+        string componentType,
+        Func<A2UiComponent, DataModel, IRenderContext, Control> factory
+    )
     {
         return Register(new DelegateCatalogEntry(componentType, factory));
     }
@@ -35,40 +37,40 @@ public sealed class CatalogRegistry
     /// <summary>
     /// Build the default catalog with all 18 v0.9 basic catalog component types.
     /// </summary>
-    public static CatalogRegistry CreateDefault(ILoggerFactory? loggerFactory = null) => new CatalogRegistry()
-        // Display
-        .Register(new TextCatalogEntry())
-        .Register(new ImageCatalogEntry(loggerFactory?.CreateLogger<ImageCatalogEntry>()))
-        .Register(new IconCatalogEntry())
-        .Register(new VideoCatalogEntry())
-        .Register(new AudioPlayerCatalogEntry())
-        .Register(new DividerCatalogEntry())
-        // Layout
-        .Register(new RowCatalogEntry())
-        .Register(new ColumnCatalogEntry())
-        .Register(new ListCatalogEntry())
-        .Register(new CardCatalogEntry())
-        .Register(new TabsCatalogEntry())
-        .Register(new ModalCatalogEntry())
-        // Interactive
-        .Register(new ButtonCatalogEntry())
-        .Register(new TextFieldCatalogEntry())
-        .Register(new CheckBoxCatalogEntry())
-        .Register(new ChoicePickerCatalogEntry())
-        .Register(new DateTimeInputCatalogEntry())
-        .Register(new SliderCatalogEntry());
+    public static CatalogRegistry CreateDefault(ILoggerFactory? loggerFactory = null) =>
+        new CatalogRegistry()
+            // Display
+            .Register(new TextCatalogEntry())
+            .Register(new ImageCatalogEntry(loggerFactory?.CreateLogger<ImageCatalogEntry>()))
+            .Register(new IconCatalogEntry())
+            .Register(new VideoCatalogEntry())
+            .Register(new AudioPlayerCatalogEntry())
+            .Register(new DividerCatalogEntry())
+            // Layout
+            .Register(new RowCatalogEntry())
+            .Register(new ColumnCatalogEntry())
+            .Register(new ListCatalogEntry())
+            .Register(new CardCatalogEntry())
+            .Register(new TabsCatalogEntry())
+            .Register(new ModalCatalogEntry())
+            // Interactive
+            .Register(new ButtonCatalogEntry())
+            .Register(new TextFieldCatalogEntry())
+            .Register(new CheckBoxCatalogEntry())
+            .Register(new ChoicePickerCatalogEntry())
+            .Register(new DateTimeInputCatalogEntry())
+            .Register(new SliderCatalogEntry());
 }
 
 internal sealed class DelegateCatalogEntry(
     string componentType,
-    Func<A2UiComponent, DataModel, IRenderContext, Control> factory) : ICatalogEntry
+    Func<A2UiComponent, DataModel, IRenderContext, Control> factory
+) : ICatalogEntry
 {
     public string ComponentType => componentType;
 
-    public Control Create(A2UiComponent component, DataModel dataModel,
-                          IRenderContext context) =>
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context) =>
         factory(component, dataModel, context);
 
-    public bool Update(Control existing, A2UiComponent component, DataModel dataModel,
-                       IRenderContext context) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
 }

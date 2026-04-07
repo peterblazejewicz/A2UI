@@ -23,57 +23,48 @@ public sealed class FunctionRegistryTests
         Eval("capitalize", ("value", "hello")).Should().Be("Hello");
 
     [Fact]
-    public void Capitalize_Empty_ReturnsEmpty() =>
-        Eval("capitalize", ("value", "")).Should().Be("");
+    public void Capitalize_Empty_ReturnsEmpty() => Eval("capitalize", ("value", "")).Should().Be("");
 
     [Fact]
-    public void Capitalize_Null_ReturnsEmpty() =>
-        Eval("capitalize", ("value", null)).Should().Be("");
+    public void Capitalize_Null_ReturnsEmpty() => Eval("capitalize", ("value", null)).Should().Be("");
 
     [Fact]
     public void FormatNumber_WithDecimals_ReturnsGrouped()
     {
-        Eval("formatNumber", ("value", "1234.5"), ("decimals", "2"))
-            .Should().Be("1,234.50");
+        Eval("formatNumber", ("value", "1234.5"), ("decimals", "2")).Should().Be("1,234.50");
     }
 
     [Fact]
     public void FormatNumber_NoGrouping_ReturnsPlain()
     {
-        Eval("formatNumber", ("value", "1234.5"), ("decimals", "2"), ("grouping", "false"))
-            .Should().Be("1234.50");
+        Eval("formatNumber", ("value", "1234.5"), ("decimals", "2"), ("grouping", "false")).Should().Be("1234.50");
     }
 
     [Fact]
-    public void FormatNumber_InvalidInput_ReturnsEmpty() =>
-        Eval("formatNumber", ("value", "abc")).Should().Be("");
+    public void FormatNumber_InvalidInput_ReturnsEmpty() => Eval("formatNumber", ("value", "abc")).Should().Be("");
 
     [Fact]
     public void FormatCurrency_USD_ReturnsFormatted()
     {
-        Eval("formatCurrency", ("value", "99.99"), ("currency", "USD"))
-            .Should().Be("$99.99");
+        Eval("formatCurrency", ("value", "99.99"), ("currency", "USD")).Should().Be("$99.99");
     }
 
     [Fact]
     public void FormatCurrency_LargeValue_ReturnsGrouped()
     {
-        Eval("formatCurrency", ("value", "1234.5"), ("currency", "USD"))
-            .Should().Be("$1,234.50");
+        Eval("formatCurrency", ("value", "1234.5"), ("currency", "USD")).Should().Be("$1,234.50");
     }
 
     [Fact]
     public void FormatCurrency_EUR_ReturnsEuroSymbol()
     {
-        Eval("formatCurrency", ("value", "50"), ("currency", "EUR"))
-            .Should().Contain("\u20ac");
+        Eval("formatCurrency", ("value", "50"), ("currency", "EUR")).Should().Contain("\u20ac");
     }
 
     [Fact]
     public void FormatDate_CustomFormat_ReturnsFormatted()
     {
-        Eval("formatDate", ("value", "2026-03-15T10:30:00Z"), ("format", "MMMM d, yyyy"))
-            .Should().Be("March 15, 2026");
+        Eval("formatDate", ("value", "2026-03-15T10:30:00Z"), ("format", "MMMM d, yyyy")).Should().Be("March 15, 2026");
     }
 
     [Fact]
@@ -92,8 +83,7 @@ public sealed class FunctionRegistryTests
     public void FormatDate_DayOfWeek_ReturnsName()
     {
         // 2026-03-15 is a Sunday
-        Eval("formatDate", ("value", "2026-03-15T10:30:00Z"), ("format", "EEEE"))
-            .Should().Be("Sunday");
+        Eval("formatDate", ("value", "2026-03-15T10:30:00Z"), ("format", "EEEE")).Should().Be("Sunday");
     }
 
     [Fact]
@@ -135,46 +125,39 @@ public sealed class FunctionRegistryTests
 
     [Fact]
     public void Pluralize_One_ReturnsSingular() =>
-        Eval("pluralize", ("value", "1"), ("one", "item"), ("other", "items"))
-            .Should().Be("item");
+        Eval("pluralize", ("value", "1"), ("one", "item"), ("other", "items")).Should().Be("item");
 
     [Fact]
     public void Pluralize_Many_ReturnsPlural() =>
-        Eval("pluralize", ("value", "5"), ("one", "item"), ("other", "items"))
-            .Should().Be("items");
+        Eval("pluralize", ("value", "5"), ("one", "item"), ("other", "items")).Should().Be("items");
 
     [Fact]
     public void Pluralize_Zero_ReturnsZeroForm() =>
         Eval("pluralize", ("value", "0"), ("zero", "no items"), ("one", "item"), ("other", "items"))
-            .Should().Be("no items");
+            .Should()
+            .Be("no items");
 
     // ── Arithmetic ──────────────────────────────────────────────────
 
     [Fact]
-    public void Add_TwoNumbers_ReturnsSum() =>
-        Eval("add", ("a", "3"), ("b", "4")).Should().Be("7");
+    public void Add_TwoNumbers_ReturnsSum() => Eval("add", ("a", "3"), ("b", "4")).Should().Be("7");
 
     [Fact]
-    public void Subtract_TwoNumbers_ReturnsDifference() =>
-        Eval("subtract", ("a", "10"), ("b", "3")).Should().Be("7");
+    public void Subtract_TwoNumbers_ReturnsDifference() => Eval("subtract", ("a", "10"), ("b", "3")).Should().Be("7");
 
     [Fact]
-    public void Multiply_TwoNumbers_ReturnsProduct() =>
-        Eval("multiply", ("a", "3"), ("b", "4")).Should().Be("12");
+    public void Multiply_TwoNumbers_ReturnsProduct() => Eval("multiply", ("a", "3"), ("b", "4")).Should().Be("12");
 
     [Fact]
-    public void Divide_TwoNumbers_ReturnsQuotient() =>
-        Eval("divide", ("a", "10"), ("b", "4")).Should().Be("2.5");
+    public void Divide_TwoNumbers_ReturnsQuotient() => Eval("divide", ("a", "10"), ("b", "4")).Should().Be("2.5");
 
     [Fact]
-    public void Divide_ByZero_ReturnsInfinity() =>
-        Eval("divide", ("a", "10"), ("b", "0")).Should().Be("\u221e");
+    public void Divide_ByZero_ReturnsInfinity() => Eval("divide", ("a", "10"), ("b", "0")).Should().Be("\u221e");
 
     // ── Comparison ──────────────────────────────────────────────────
 
     [Fact]
-    public void Equals_SameStrings_ReturnsTrue() =>
-        Eval("equals", ("a", "hello"), ("b", "hello")).Should().Be("true");
+    public void Equals_SameStrings_ReturnsTrue() => Eval("equals", ("a", "hello"), ("b", "hello")).Should().Be("true");
 
     [Fact]
     public void Equals_DifferentStrings_ReturnsFalse() =>
@@ -189,38 +172,30 @@ public sealed class FunctionRegistryTests
         Eval("greater_than", ("a", "10"), ("b", "5")).Should().Be("true");
 
     [Fact]
-    public void LessThan_SmallerFirst_ReturnsTrue() =>
-        Eval("less_than", ("a", "3"), ("b", "10")).Should().Be("true");
+    public void LessThan_SmallerFirst_ReturnsTrue() => Eval("less_than", ("a", "3"), ("b", "10")).Should().Be("true");
 
     [Fact]
-    public void LessThan_Equal_ReturnsFalse() =>
-        Eval("less_than", ("a", "5"), ("b", "5")).Should().Be("false");
+    public void LessThan_Equal_ReturnsFalse() => Eval("less_than", ("a", "5"), ("b", "5")).Should().Be("false");
 
     // ── Logical ─────────────────────────────────────────────────────
 
     [Fact]
-    public void And_AllTruthy_ReturnsTrue() =>
-        Eval("and", ("values", """["yes", "1", "true"]""")).Should().Be("true");
+    public void And_AllTruthy_ReturnsTrue() => Eval("and", ("values", """["yes", "1", "true"]""")).Should().Be("true");
 
     [Fact]
-    public void And_OneFalsy_ReturnsFalse() =>
-        Eval("and", ("values", """["yes", "", "true"]""")).Should().Be("false");
+    public void And_OneFalsy_ReturnsFalse() => Eval("and", ("values", """["yes", "", "true"]""")).Should().Be("false");
 
     [Fact]
-    public void Or_OneTruthy_ReturnsTrue() =>
-        Eval("or", ("values", """["", "0", "hello"]""")).Should().Be("true");
+    public void Or_OneTruthy_ReturnsTrue() => Eval("or", ("values", """["", "0", "hello"]""")).Should().Be("true");
 
     [Fact]
-    public void Or_AllFalsy_ReturnsFalse() =>
-        Eval("or", ("values", """["", "0", "false"]""")).Should().Be("false");
+    public void Or_AllFalsy_ReturnsFalse() => Eval("or", ("values", """["", "0", "false"]""")).Should().Be("false");
 
     [Fact]
-    public void Not_Truthy_ReturnsFalse() =>
-        Eval("not", ("value", "hello")).Should().Be("false");
+    public void Not_Truthy_ReturnsFalse() => Eval("not", ("value", "hello")).Should().Be("false");
 
     [Fact]
-    public void Not_Falsy_ReturnsTrue() =>
-        Eval("not", ("value", "")).Should().Be("true");
+    public void Not_Falsy_ReturnsTrue() => Eval("not", ("value", "")).Should().Be("true");
 
     // ── String predicates ───────────────────────────────────────────
 
@@ -243,24 +218,19 @@ public sealed class FunctionRegistryTests
     // ── Validation ──────────────────────────────────────────────────
 
     [Fact]
-    public void Required_NonEmpty_ReturnsTrue() =>
-        Eval("required", ("value", "something")).Should().Be("true");
+    public void Required_NonEmpty_ReturnsTrue() => Eval("required", ("value", "something")).Should().Be("true");
 
     [Fact]
-    public void Required_Empty_ReturnsFalse() =>
-        Eval("required", ("value", "")).Should().Be("false");
+    public void Required_Empty_ReturnsFalse() => Eval("required", ("value", "")).Should().Be("false");
 
     [Fact]
-    public void Required_Null_ReturnsFalse() =>
-        Eval("required", ("value", null)).Should().Be("false");
+    public void Required_Null_ReturnsFalse() => Eval("required", ("value", null)).Should().Be("false");
 
     [Fact]
-    public void Email_Valid_ReturnsTrue() =>
-        Eval("email", ("value", "test@example.com")).Should().Be("true");
+    public void Email_Valid_ReturnsTrue() => Eval("email", ("value", "test@example.com")).Should().Be("true");
 
     [Fact]
-    public void Email_Invalid_ReturnsFalse() =>
-        Eval("email", ("value", "not-an-email")).Should().Be("false");
+    public void Email_Invalid_ReturnsFalse() => Eval("email", ("value", "not-an-email")).Should().Be("false");
 
     [Fact]
     public void Regex_Match_ReturnsTrue() =>
@@ -287,30 +257,25 @@ public sealed class FunctionRegistryTests
         Eval("numeric", ("value", "15"), ("min", "1"), ("max", "10")).Should().Be("false");
 
     [Fact]
-    public void Numeric_NotANumber_ReturnsFalse() =>
-        Eval("numeric", ("value", "abc")).Should().Be("false");
+    public void Numeric_NotANumber_ReturnsFalse() => Eval("numeric", ("value", "abc")).Should().Be("false");
 
     // ── Void ────────────────────────────────────────────────────────
 
     [Fact]
-    public void OpenUrl_ReturnsNull() =>
-        Eval("openUrl", ("url", "https://example.com")).Should().BeNull();
+    public void OpenUrl_ReturnsNull() => Eval("openUrl", ("url", "https://example.com")).Should().BeNull();
 
     // ── Registry behavior ───────────────────────────────────────────
 
     [Fact]
-    public void UnknownFunction_ReturnsNull() =>
-        Eval("nonExistentFunction", ("x", "y")).Should().BeNull();
+    public void UnknownFunction_ReturnsNull() => Eval("nonExistentFunction", ("x", "y")).Should().BeNull();
 
     [Fact]
     public void CustomFunction_CanBeRegistered()
     {
         var registry = new FunctionRegistryBuilder()
-            .Register("myFunc", args =>
-                args.TryGetValue("x", out string? v) ? $"got:{v}" : null)
+            .Register("myFunc", args => args.TryGetValue("x", out string? v) ? $"got:{v}" : null)
             .Build();
 
-        registry.Evaluate("myFunc", new Dictionary<string, string?> { ["x"] = "test" })
-            .Should().Be("got:test");
+        registry.Evaluate("myFunc", new Dictionary<string, string?> { ["x"] = "test" }).Should().Be("got:test");
     }
 }

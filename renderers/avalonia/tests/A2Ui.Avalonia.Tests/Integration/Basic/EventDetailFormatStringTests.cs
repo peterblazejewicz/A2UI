@@ -35,10 +35,15 @@ public sealed class EventDetailFormatStringTests
         // formatDate with 'h:mm a' on 2025-12-19T15:30:00Z → "3:30 PM"
         // Combined: "Fri, Dec 19 • 2:00 PM - 3:30 PM"
         TextBlock? timeText = texts.FirstOrDefault(tb =>
-            tb.Text is not null && tb.Text.Contains("\u2022") && tb.Text.Contains("Dec 19"));
+            tb.Text is not null && tb.Text.Contains("\u2022") && tb.Text.Contains("Dec 19")
+        );
 
-        timeText.Should().NotBeNull("the time-text component should render a formatted date string with bullet separator");
-        timeText!.Text.Should().Contain("Fri, Dec 19", "formatDate with 'E, MMM d' should produce abbreviated day and month");
+        timeText
+            .Should()
+            .NotBeNull("the time-text component should render a formatted date string with bullet separator");
+        timeText!
+            .Text.Should()
+            .Contain("Fri, Dec 19", "formatDate with 'E, MMM d' should produce abbreviated day and month");
         timeText.Text.Should().Contain("PM", "formatDate with 'h:mm a' should produce AM/PM time format");
     }
 }

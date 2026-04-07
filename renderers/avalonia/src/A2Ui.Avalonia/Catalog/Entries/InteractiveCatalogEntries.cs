@@ -16,9 +16,7 @@ public sealed class ListCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
-        var orientation = c.Direction == "horizontal"
-            ? Orientation.Horizontal
-            : Orientation.Vertical;
+        var orientation = c.Direction == "horizontal" ? Orientation.Horizontal : Orientation.Vertical;
 
         var panel = new StackPanel { Orientation = orientation, Spacing = 4 };
         foreach (var child in ctx.RenderChildren(c.Id))
@@ -27,8 +25,7 @@ public sealed class ListCatalogEntry : ICatalogEntry
         return new ScrollViewer { Content = panel };
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
 }
 
 /// <summary>A2UI "Tabs" → TabControl.</summary>
@@ -44,19 +41,14 @@ public sealed class TabsCatalogEntry : ICatalogEntry
         {
             foreach (var tab in tabs)
             {
-                tc.Items.Add(new TabItem
-                {
-                    Header  = tab.Title,
-                    Content = ctx.RenderChild(tab.Child),
-                });
+                tc.Items.Add(new TabItem { Header = tab.Title, Content = ctx.RenderChild(tab.Child) });
             }
         }
 
         return tc;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
 }
 
 /// <summary>
@@ -91,11 +83,7 @@ public sealed class ModalCatalogEntry : ICatalogEntry
             };
 
             // Close button positioned at the top-right of the popup content
-            var closeBtn = new Button
-            {
-                Content = "×",
-                HorizontalAlignment = HorizontalAlignment.Right,
-            };
+            var closeBtn = new Button { Content = "×", HorizontalAlignment = HorizontalAlignment.Right };
             closeBtn.Classes.Add("ModalClose");
 
             // Stack: close button above the rendered content
@@ -146,6 +134,5 @@ public sealed class ModalCatalogEntry : ICatalogEntry
         return container;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
 }

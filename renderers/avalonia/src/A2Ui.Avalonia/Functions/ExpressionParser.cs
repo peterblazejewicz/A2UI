@@ -20,10 +20,15 @@ namespace A2Ui.Avalonia.Functions;
 internal abstract record ExpressionToken;
 
 internal sealed record LiteralToken(string Value) : ExpressionToken;
+
 internal sealed record PathToken(string Path) : ExpressionToken;
+
 internal sealed record BoolToken(bool Value) : ExpressionToken;
+
 internal sealed record NumberToken(double Value) : ExpressionToken;
-internal sealed record FunctionCallToken(string Name, IReadOnlyDictionary<string, ExpressionToken> Args) : ExpressionToken;
+
+internal sealed record FunctionCallToken(string Name, IReadOnlyDictionary<string, ExpressionToken> Args)
+    : ExpressionToken;
 
 /// <summary>
 /// Recursive descent parser for A2UI expressions with <c>${...}</c> interpolation.
@@ -101,7 +106,8 @@ internal sealed class ExpressionParser
         if (!scanner.IsAtEnd)
         {
             throw new A2UiExpressionException(
-                $"Unexpected characters at end of expression: '{expr[scanner.Position..]}'");
+                $"Unexpected characters at end of expression: '{expr[scanner.Position..]}'"
+            );
         }
 
         return result;
@@ -188,7 +194,8 @@ internal sealed class ExpressionParser
             if (!scanner.Match(':'))
             {
                 throw new A2UiExpressionException(
-                    $"Expected ':' after argument name '{argName}' in function '{funcName}'");
+                    $"Expected ':' after argument name '{argName}' in function '{funcName}'"
+                );
             }
 
             scanner.SkipWhitespace();
@@ -204,8 +211,7 @@ internal sealed class ExpressionParser
 
         if (!scanner.Match(')'))
         {
-            throw new A2UiExpressionException(
-                $"Expected ')' after function arguments for '{funcName}'");
+            throw new A2UiExpressionException($"Expected ')' after function arguments for '{funcName}'");
         }
 
         return new FunctionCallToken(funcName, args);
@@ -225,13 +231,15 @@ internal sealed class ExpressionParser
                 if (scanner.IsAtEnd)
                     break; // trailing backslash at end-of-input
                 char next = scanner.Advance();
-                sb.Append(next switch
-                {
-                    'n' => '\n',
-                    't' => '\t',
-                    'r' => '\r',
-                    _ => next,
-                });
+                sb.Append(
+                    next switch
+                    {
+                        'n' => '\n',
+                        't' => '\t',
+                        'r' => '\r',
+                        _ => next,
+                    }
+                );
             }
             else if (c == quote)
             {
@@ -300,11 +308,9 @@ internal sealed class ExpressionParser
         return scanner.Input[start..(scanner.Position - 1)];
     }
 
-    private static bool IsAlNum(char c) =>
-        (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
+    private static bool IsAlNum(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
 
-    private static bool IsDigit(char c) =>
-        c >= '0' && c <= '9';
+    private static bool IsDigit(char c) => c >= '0' && c <= '9';
 }
 
 /// <summary>
@@ -340,8 +346,7 @@ internal sealed class Scanner(string input)
         return false;
     }
 
-    public bool Matches(string expected) =>
-        Input.AsSpan(Position).StartsWith(expected);
+    public bool Matches(string expected) => Input.AsSpan(Position).StartsWith(expected);
 
     public bool MatchesKeyword(string keyword)
     {
@@ -352,8 +357,12 @@ internal sealed class Scanner(string input)
         if (afterEnd < Input.Length)
         {
             char next = Input[afterEnd];
-            if ((next >= 'a' && next <= 'z') || (next >= 'A' && next <= 'Z') ||
-                (next >= '0' && next <= '9') || next == '_')
+            if (
+                (next >= 'a' && next <= 'z')
+                || (next >= 'A' && next <= 'Z')
+                || (next >= '0' && next <= '9')
+                || next == '_'
+            )
             {
                 return false;
             }
@@ -376,6 +385,10 @@ internal sealed class Scanner(string input)
 public sealed class A2UiExpressionException : Exception
 {
     public A2UiExpressionException() { }
-    public A2UiExpressionException(string message) : base(message) { }
-    public A2UiExpressionException(string message, Exception innerException) : base(message, innerException) { }
+
+    public A2UiExpressionException(string message)
+        : base(message) { }
+
+    public A2UiExpressionException(string message, Exception innerException)
+        : base(message, innerException) { }
 }

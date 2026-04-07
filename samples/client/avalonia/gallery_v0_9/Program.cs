@@ -28,12 +28,14 @@ internal static class Program
     {
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.Console(outputTemplate:
-                "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
+            .WriteTo.Console(
+                outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}"
+            )
             .WriteTo.File(
                 Path.Combine(AppContext.BaseDirectory, "logs", "gallery-.log"),
                 rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: 7)
+                retainedFileCountLimit: 7
+            )
             .Enrich.FromLogContext()
             .CreateLogger();
 
@@ -42,10 +44,7 @@ internal static class Program
         ConfigureServices(services);
         App.Services = services.BuildServiceProvider();
 
-        return AppBuilder.Configure<App>()
-                         .UsePlatformDetect()
-                         .WithInterFont()
-                         .LogToTrace();
+        return AppBuilder.Configure<App>().UsePlatformDetect().WithInterFont().LogToTrace();
     }
 
     private static void ConfigureServices(IServiceCollection services)

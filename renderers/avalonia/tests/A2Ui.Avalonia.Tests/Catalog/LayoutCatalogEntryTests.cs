@@ -18,13 +18,16 @@ public sealed class LayoutCatalogEntryTests
     {
         var entry = new RowCatalogEntry();
         var dm = new DataModel();
-        var ctx = new ChildReturningRenderContext(dm,
+        var ctx = new ChildReturningRenderContext(
+            dm,
             new TextBlock { Text = "Left" },
-            new TextBlock { Text = "Right" });
+            new TextBlock { Text = "Right" }
+        );
 
         var component = new A2UiComponent
         {
-            Id = "row1", Component = "Row",
+            Id = "row1",
+            Component = "Row",
             Children = ChildList.FromIds(["c1", "c2"]),
         };
 
@@ -42,13 +45,16 @@ public sealed class LayoutCatalogEntryTests
     {
         var entry = new RowCatalogEntry();
         var dm = new DataModel();
-        var ctx = new ChildReturningRenderContext(dm,
+        var ctx = new ChildReturningRenderContext(
+            dm,
             new TextBlock { Text = "Left" },
-            new TextBlock { Text = "Right" });
+            new TextBlock { Text = "Right" }
+        );
 
         var component = new A2UiComponent
         {
-            Id = "row1", Component = "Row",
+            Id = "row1",
+            Component = "Row",
             Children = ChildList.FromIds(["c1", "c2"]),
             Justify = "spaceBetween",
             Align = "center",
@@ -74,7 +80,8 @@ public sealed class LayoutCatalogEntryTests
 
         var component = new A2UiComponent
         {
-            Id = "row1", Component = "Row",
+            Id = "row1",
+            Component = "Row",
             Children = ChildList.FromIds(["c1"]),
             Justify = "center",
         };
@@ -93,13 +100,16 @@ public sealed class LayoutCatalogEntryTests
     {
         var entry = new ColumnCatalogEntry();
         var dm = new DataModel();
-        var ctx = new ChildReturningRenderContext(dm,
+        var ctx = new ChildReturningRenderContext(
+            dm,
             new TextBlock { Text = "Top" },
-            new TextBlock { Text = "Bottom" });
+            new TextBlock { Text = "Bottom" }
+        );
 
         var component = new A2UiComponent
         {
-            Id = "col1", Component = "Column",
+            Id = "col1",
+            Component = "Column",
             Children = ChildList.FromIds(["c1", "c2"]),
             Justify = "start",
         };
@@ -118,13 +128,16 @@ public sealed class LayoutCatalogEntryTests
     {
         var entry = new ColumnCatalogEntry();
         var dm = new DataModel();
-        var ctx = new ChildReturningRenderContext(dm,
+        var ctx = new ChildReturningRenderContext(
+            dm,
             new TextBlock { Text = "Top" },
-            new TextBlock { Text = "Bottom" });
+            new TextBlock { Text = "Bottom" }
+        );
 
         var component = new A2UiComponent
         {
-            Id = "col1", Component = "Column",
+            Id = "col1",
+            Component = "Column",
             Children = ChildList.FromIds(["c1", "c2"]),
             Justify = "spaceBetween",
         };
@@ -152,7 +165,8 @@ public sealed class LayoutCatalogEntryTests
 
         var component = new A2UiComponent
         {
-            Id = "row1", Component = "Row",
+            Id = "row1",
+            Component = "Row",
             Children = ChildList.FromIds(["c1", "c2"]),
             Align = "center",
         };
@@ -175,7 +189,8 @@ public sealed class LayoutCatalogEntryTests
 
         var component = new A2UiComponent
         {
-            Id = "col1", Component = "Column",
+            Id = "col1",
+            Component = "Column",
             Children = ChildList.FromIds(["c1", "c2"]),
             Align = "center",
         };
@@ -196,7 +211,8 @@ public sealed class LayoutCatalogEntryTests
 
         var component = new A2UiComponent
         {
-            Id = "row2", Component = "Row",
+            Id = "row2",
+            Component = "Row",
             Children = ChildList.FromIds([]),
             Justify = "spaceBetween",
         };
@@ -216,14 +232,17 @@ public sealed class LayoutCatalogEntryTests
     {
         var entry = new RowCatalogEntry();
         var dm = new DataModel();
-        var ctx = new WeightedChildRenderContext(dm,
+        var ctx = new WeightedChildRenderContext(
+            dm,
             new Dictionary<string, double> { ["c1"] = 1, ["c2"] = 1 },
             new TextBlock { Text = "Left" },
-            new TextBlock { Text = "Right" });
+            new TextBlock { Text = "Right" }
+        );
 
         var component = new A2UiComponent
         {
-            Id = "row1", Component = "Row",
+            Id = "row1",
+            Component = "Row",
             Children = ChildList.FromIds(["c1", "c2"]),
         };
 
@@ -244,14 +263,17 @@ public sealed class LayoutCatalogEntryTests
     {
         var entry = new RowCatalogEntry();
         var dm = new DataModel();
-        var ctx = new WeightedChildRenderContext(dm,
+        var ctx = new WeightedChildRenderContext(
+            dm,
             new Dictionary<string, double> { ["c1"] = 2, ["c2"] = 1 },
             new TextBlock { Text = "Wide" },
-            new TextBlock { Text = "Narrow" });
+            new TextBlock { Text = "Narrow" }
+        );
 
         var component = new A2UiComponent
         {
-            Id = "row1", Component = "Row",
+            Id = "row1",
+            Component = "Row",
             Children = ChildList.FromIds(["c1", "c2"]),
         };
 
@@ -269,14 +291,17 @@ public sealed class LayoutCatalogEntryTests
     {
         var entry = new RowCatalogEntry();
         var dm = new DataModel();
-        var ctx = new WeightedChildRenderContext(dm,
+        var ctx = new WeightedChildRenderContext(
+            dm,
             new Dictionary<string, double> { ["c1"] = 0, ["c2"] = 1 },
             new TextBlock { Text = "Auto" },
-            new TextBlock { Text = "Star" });
+            new TextBlock { Text = "Star" }
+        );
 
         var component = new A2UiComponent
         {
-            Id = "row1", Component = "Row",
+            Id = "row1",
+            Component = "Row",
             Children = ChildList.FromIds(["c1", "c2"]),
         };
 
@@ -294,14 +319,17 @@ public sealed class LayoutCatalogEntryTests
     {
         var entry = new ColumnCatalogEntry();
         var dm = new DataModel();
-        var ctx = new WeightedChildRenderContext(dm,
+        var ctx = new WeightedChildRenderContext(
+            dm,
             new Dictionary<string, double> { ["r1"] = 1, ["r2"] = 3 },
             new TextBlock { Text = "Top" },
-            new TextBlock { Text = "Bottom" });
+            new TextBlock { Text = "Bottom" }
+        );
 
         var component = new A2UiComponent
         {
-            Id = "col1", Component = "Column",
+            Id = "col1",
+            Component = "Column",
             Children = ChildList.FromIds(["r1", "r2"]),
         };
 
@@ -322,13 +350,16 @@ public sealed class LayoutCatalogEntryTests
         // When all weights are null/0, normal StackPanel layout is used
         var entry = new RowCatalogEntry();
         var dm = new DataModel();
-        var ctx = new ChildReturningRenderContext(dm,
+        var ctx = new ChildReturningRenderContext(
+            dm,
             new TextBlock { Text = "Left" },
-            new TextBlock { Text = "Right" });
+            new TextBlock { Text = "Right" }
+        );
 
         var component = new A2UiComponent
         {
-            Id = "row1", Component = "Row",
+            Id = "row1",
+            Component = "Row",
             Children = ChildList.FromIds(["c1", "c2"]),
         };
 
@@ -353,8 +384,7 @@ internal sealed class ChildReturningRenderContext : IRenderContext
         _children = new Queue<Control>(children);
     }
 
-    public Control? RenderChild(string? childId) =>
-        _children.Count > 0 ? _children.Dequeue() : null;
+    public Control? RenderChild(string? childId) => _children.Count > 0 ? _children.Dequeue() : null;
 
     public IEnumerable<Control> RenderChildren(string parentId)
     {
@@ -363,9 +393,13 @@ internal sealed class ChildReturningRenderContext : IRenderContext
     }
 
     public void FireUserAction(string eventName, object? payload = null, string? componentId = null) { }
+
     public string? Resolve(DynamicValue? value) => _dm.Resolve(value);
+
     public void UpdateDataModel(string path, string? value) { }
+
     public double? GetComponentWeight(string componentId) => null;
+
     public ILogger? Logger => null;
 }
 
@@ -378,16 +412,14 @@ internal sealed class WeightedChildRenderContext : IRenderContext
     private readonly Queue<Control> _children;
     private readonly Dictionary<string, double> _weights;
 
-    public WeightedChildRenderContext(DataModel dm, Dictionary<string, double> weights,
-                                      params Control[] children)
+    public WeightedChildRenderContext(DataModel dm, Dictionary<string, double> weights, params Control[] children)
     {
         _dm = dm;
         _weights = weights;
         _children = new Queue<Control>(children);
     }
 
-    public Control? RenderChild(string? childId) =>
-        _children.Count > 0 ? _children.Dequeue() : null;
+    public Control? RenderChild(string? childId) => _children.Count > 0 ? _children.Dequeue() : null;
 
     public IEnumerable<Control> RenderChildren(string parentId)
     {
@@ -396,9 +428,12 @@ internal sealed class WeightedChildRenderContext : IRenderContext
     }
 
     public void FireUserAction(string eventName, object? payload = null, string? componentId = null) { }
+
     public string? Resolve(DynamicValue? value) => _dm.Resolve(value);
+
     public void UpdateDataModel(string path, string? value) { }
-    public double? GetComponentWeight(string componentId) =>
-        _weights.TryGetValue(componentId, out var w) ? w : null;
+
+    public double? GetComponentWeight(string componentId) => _weights.TryGetValue(componentId, out var w) ? w : null;
+
     public ILogger? Logger => null;
 }

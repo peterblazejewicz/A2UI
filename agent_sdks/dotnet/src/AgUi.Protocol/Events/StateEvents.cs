@@ -8,7 +8,8 @@ namespace AgUi.Protocol.Events;
 /// </summary>
 public sealed record StateSnapshotEvent : BaseEvent
 {
-    [JsonPropertyName("snapshot")] public required JsonElement Snapshot { get; init; }
+    [JsonPropertyName("snapshot")]
+    public required JsonElement Snapshot { get; init; }
 }
 
 /// <summary>
@@ -18,25 +19,39 @@ public sealed record StateSnapshotEvent : BaseEvent
 /// </summary>
 public sealed record StateDeltaEvent : BaseEvent
 {
-    [JsonPropertyName("delta")] public required JsonElement[] Delta { get; init; }
+    [JsonPropertyName("delta")]
+    public required JsonElement[] Delta { get; init; }
 }
 
 public sealed record MessagesSnapshotEvent : BaseEvent
 {
-    [JsonPropertyName("messages")] public required JsonElement[] Messages { get; init; }
+    [JsonPropertyName("messages")]
+    public required JsonElement[] Messages { get; init; }
 }
 
 public sealed record ActivitySnapshotEvent : BaseEvent
 {
-    [JsonPropertyName("messageId")]    public string?             MessageId    { get; init; }
-    [JsonPropertyName("activityType")] public string?             ActivityType { get; init; }
-    [JsonPropertyName("activity")]     public required JsonElement Activity     { get; init; }
-    [JsonPropertyName("replace")]      public bool?               Replace      { get; init; }
+    [JsonPropertyName("messageId")]
+    public string? MessageId { get; init; }
+
+    [JsonPropertyName("activityType")]
+    public string? ActivityType { get; init; }
+
+    [JsonPropertyName("activity")]
+    public required JsonElement Activity { get; init; }
+
+    [JsonPropertyName("replace")]
+    public bool? Replace { get; init; }
 }
 
 public sealed record ActivityDeltaEvent : BaseEvent
 {
-    [JsonPropertyName("messageId")]    public string?               MessageId    { get; init; }
-    [JsonPropertyName("activityType")] public string?               ActivityType { get; init; }
-    [JsonPropertyName("patch")]        public required JsonElement[] Patch        { get; init; }
+    [JsonPropertyName("messageId")]
+    public string? MessageId { get; init; }
+
+    [JsonPropertyName("activityType")]
+    public string? ActivityType { get; init; }
+
+    [JsonPropertyName("patch")]
+    public required JsonElement[] Patch { get; init; }
 }

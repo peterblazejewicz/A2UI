@@ -25,7 +25,8 @@ public sealed class ModalPopupTests
         // The trigger "watch-trailer-btn" is a Button with child text "Watch Trailer"
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         Button? trailerBtn = buttons.FirstOrDefault(b =>
-            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Watch Trailer");
+            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Watch Trailer"
+        );
 
         trailerBtn.Should().NotBeNull("trigger button 'Watch Trailer' must be visible");
     }
@@ -101,8 +102,9 @@ public sealed class ModalPopupTests
 
         Popup? popup = FindPopup(result.RootControl);
         popup.Should().NotBeNull();
-        popup!.Placement.Should().Be(PlacementMode.Center,
-            "modal popup must be centered relative to its placement target");
+        popup!
+            .Placement.Should()
+            .Be(PlacementMode.Center, "modal popup must be centered relative to its placement target");
     }
 
     // ──────────────────────────────────────────────────────────────────

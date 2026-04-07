@@ -15,7 +15,8 @@ public partial class GalleryWindow : Window
     private A2UiSurface? _surfaceHost;
 
     // Parameterless constructor required by Avalonia XAML loader (AVLN3001).
-    public GalleryWindow() : this(NullLogger<GalleryWindow>.Instance) { }
+    public GalleryWindow()
+        : this(NullLogger<GalleryWindow>.Instance) { }
 
     public GalleryWindow(ILogger<GalleryWindow> logger)
     {
@@ -83,11 +84,9 @@ public partial class GalleryWindow : Window
         base.OnClosed(e);
     }
 
-    private void OnSurfaceRefreshRequested(object? sender, EventArgs e) =>
-        _surfaceHost?.Refresh();
+    private void OnSurfaceRefreshRequested(object? sender, EventArgs e) => _surfaceHost?.Refresh();
 
-    private void OnUserActionFired(object? sender, UserActionEventArgs args) =>
-        _vm?.LogAction(args);
+    private void OnUserActionFired(object? sender, UserActionEventArgs args) => _vm?.LogAction(args);
 
     private void OnDataModelChanged(object? sender, DataModelChangedEventArgs e)
     {

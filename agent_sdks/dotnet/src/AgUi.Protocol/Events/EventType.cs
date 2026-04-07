@@ -17,14 +17,14 @@ public enum EventType
     TextMessageStart,
     TextMessageContent,
     TextMessageEnd,
-    TextMessageChunk,       // convenience, auto-expands
+    TextMessageChunk, // convenience, auto-expands
 
     // Tool Call (stable)
     ToolCallStart,
     ToolCallArgs,
     ToolCallEnd,
     ToolCallResult,
-    ToolCallChunk,          // convenience, auto-expands
+    ToolCallChunk, // convenience, auto-expands
 
     // State (stable)
     StateSnapshot,

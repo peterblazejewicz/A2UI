@@ -4,20 +4,27 @@ namespace AgUi.Protocol.Events;
 
 public sealed record TextMessageStartEvent : BaseEvent
 {
-    [JsonPropertyName("messageId")] public required string MessageId { get; init; }
-    [JsonPropertyName("role")]      public string Role { get; init; } = "assistant";
+    [JsonPropertyName("messageId")]
+    public required string MessageId { get; init; }
+
+    [JsonPropertyName("role")]
+    public string Role { get; init; } = "assistant";
 }
 
 public sealed record TextMessageContentEvent : BaseEvent
 {
-    [JsonPropertyName("messageId")] public required string MessageId { get; init; }
+    [JsonPropertyName("messageId")]
+    public required string MessageId { get; init; }
+
     /// <summary>Non-empty text chunk. Concatenate all chunks for a messageId.</summary>
-    [JsonPropertyName("delta")]     public required string Delta     { get; init; }
+    [JsonPropertyName("delta")]
+    public required string Delta { get; init; }
 }
 
 public sealed record TextMessageEndEvent : BaseEvent
 {
-    [JsonPropertyName("messageId")] public required string MessageId { get; init; }
+    [JsonPropertyName("messageId")]
+    public required string MessageId { get; init; }
 }
 
 /// <summary>
@@ -26,7 +33,12 @@ public sealed record TextMessageEndEvent : BaseEvent
 /// </summary>
 public sealed record TextMessageChunkEvent : BaseEvent
 {
-    [JsonPropertyName("messageId")] public string? MessageId { get; init; }
-    [JsonPropertyName("role")]      public string? Role      { get; init; }
-    [JsonPropertyName("delta")]     public string? Delta     { get; init; }
+    [JsonPropertyName("messageId")]
+    public string? MessageId { get; init; }
+
+    [JsonPropertyName("role")]
+    public string? Role { get; init; }
+
+    [JsonPropertyName("delta")]
+    public string? Delta { get; init; }
 }

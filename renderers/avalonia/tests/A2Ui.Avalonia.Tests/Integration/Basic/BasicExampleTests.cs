@@ -17,7 +17,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_01_FlightStatus_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/01_flight-status.json");
@@ -69,8 +68,7 @@ public sealed class BasicExampleTests
         buttons.Should().HaveCountGreaterThanOrEqualTo(2);
 
         // Click send button
-        Button? sendBtn = buttons.FirstOrDefault(b =>
-            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Send email");
+        Button? sendBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Send email");
         sendBtn.Should().NotBeNull();
         GalleryTestHelper.ClickButton(sendBtn!);
         result.ActionLog.Should().ContainSingle(a => a.EventName == "send");
@@ -81,7 +79,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     [Trait("Gap", "TemplateChildren")]
     public void Example_03_CalendarDay_RendersCorrectStructure()
     {
@@ -104,7 +101,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     [Trait("Gap", "TemplateChildren")]
     public void Example_04_WeatherCurrent_RendersCorrectStructure()
     {
@@ -124,7 +120,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_05_ProductCard_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/05_product-card.json");
@@ -140,8 +135,7 @@ public sealed class BasicExampleTests
 
         // Add to Cart button
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        Button? cartBtn = buttons.FirstOrDefault(b =>
-            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Add to Cart");
+        Button? cartBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Add to Cart");
         cartBtn.Should().NotBeNull();
         GalleryTestHelper.ClickButton(cartBtn!);
         result.ActionLog.Should().ContainSingle(a => a.EventName == "addToCart");
@@ -211,7 +205,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_08_UserProfile_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/08_user-profile.json");
@@ -264,8 +257,7 @@ public sealed class BasicExampleTests
         buttons.Should().HaveCountGreaterThanOrEqualTo(2);
 
         // Click signup link button
-        Button? signupBtn = buttons.FirstOrDefault(b =>
-            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Sign up");
+        Button? signupBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Sign up");
         signupBtn.Should().NotBeNull();
         GalleryTestHelper.ClickButton(signupBtn!);
         result.ActionLog.Should().ContainSingle(a => a.EventName == "signup");
@@ -292,8 +284,7 @@ public sealed class BasicExampleTests
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         buttons.Should().HaveCountGreaterThanOrEqualTo(2);
 
-        Button? yesBtn = buttons.FirstOrDefault(b =>
-            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Yes");
+        Button? yesBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Yes");
         yesBtn.Should().NotBeNull();
         GalleryTestHelper.ClickButton(yesBtn!);
         result.ActionLog.Should().ContainSingle(a => a.EventName == "accept");
@@ -304,7 +295,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_11_PurchaseComplete_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/11_purchase-complete.json");
@@ -323,7 +313,8 @@ public sealed class BasicExampleTests
         // Button: View Order Details
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         Button? viewBtn = buttons.FirstOrDefault(b =>
-            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "View Order Details");
+            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "View Order Details"
+        );
         viewBtn.Should().NotBeNull();
         GalleryTestHelper.ClickButton(viewBtn!);
         result.ActionLog.Should().ContainSingle(a => a.EventName == "view_details");
@@ -334,7 +325,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     [Trait("Gap", "TemplateChildren")]
     public void Example_12_ChatMessage_RendersCorrectStructure()
     {
@@ -356,7 +346,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     [Trait("Gap", "TemplateChildren")]
     public void Example_13_CoffeeOrder_RendersCorrectStructure()
     {
@@ -407,7 +396,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_15_AccountBalance_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/15_account-balance.json");
@@ -425,7 +413,8 @@ public sealed class BasicExampleTests
         buttons.Should().HaveCountGreaterThanOrEqualTo(2);
 
         Button? transferBtn = buttons.FirstOrDefault(b =>
-            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Transfer");
+            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Transfer"
+        );
         transferBtn.Should().NotBeNull();
         GalleryTestHelper.ClickButton(transferBtn!);
         result.ActionLog.Should().ContainSingle(a => a.EventName == "transfer");
@@ -436,7 +425,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_16_WorkoutSummary_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/16_workout-summary.json");
@@ -462,7 +450,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_17_EventDetail_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/17_event-detail.json");
@@ -478,8 +465,7 @@ public sealed class BasicExampleTests
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         buttons.Should().HaveCountGreaterThanOrEqualTo(2);
 
-        Button? acceptBtn = buttons.FirstOrDefault(b =>
-            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Accept");
+        Button? acceptBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Accept");
         acceptBtn.Should().NotBeNull();
         GalleryTestHelper.ClickButton(acceptBtn!);
         result.ActionLog.Should().ContainSingle(a => a.EventName == "accept");
@@ -490,7 +476,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     [Trait("Gap", "TemplateChildren")]
     public void Example_18_TrackList_RendersCorrectStructure()
     {
@@ -512,7 +497,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_19_SoftwarePurchase_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/19_software-purchase.json");
@@ -589,7 +573,11 @@ public sealed class BasicExampleTests
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
         texts.Should().Contain(tb => tb.Text == "VISA");
-        texts.Should().Contain(tb => tb.Text == "\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 4242");
+        texts
+            .Should()
+            .Contain(tb =>
+                tb.Text == "\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 4242"
+            );
         texts.Should().Contain(tb => tb.Text == "SARAH JOHNSON");
         texts.Should().Contain(tb => tb.Text == "CARD HOLDER");
         texts.Should().Contain(tb => tb.Text == "EXPIRES");
@@ -602,7 +590,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_23_StepCounter_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/23_step-counter.json");
@@ -625,7 +612,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     [Trait("Gap", "TemplateChildren")]
     public void Example_24_RecipeCard_RendersCorrectStructure()
     {
@@ -675,8 +661,7 @@ public sealed class BasicExampleTests
 
         // Click Call button
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        Button? callBtn = buttons.FirstOrDefault(b =>
-            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Call");
+        Button? callBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Call");
         callBtn.Should().NotBeNull();
         GalleryTestHelper.ClickButton(callBtn!);
         result.ActionLog.Should().ContainSingle(a => a.EventName == "call");
@@ -687,7 +672,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_26_PodcastEpisode_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/26_podcast-episode.json");
@@ -713,7 +697,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_27_StatsCard_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/27_stats-card.json");
@@ -731,7 +714,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_28_CountdownTimer_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/28_countdown-timer.json");
@@ -775,7 +757,8 @@ public sealed class BasicExampleTests
         // Button: Watch Trailer → open_trailer
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         Button? trailerBtn = buttons.FirstOrDefault(b =>
-            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Watch Trailer");
+            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Watch Trailer"
+        );
         trailerBtn.Should().NotBeNull();
         GalleryTestHelper.ClickButton(trailerBtn!);
         result.ActionLog.Should().ContainSingle(a => a.EventName == "open_trailer");
@@ -786,7 +769,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     public void Example_30_LiveInvitationBuilder_RendersCorrectStructure()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/30_live-invitation-builder.json");
@@ -861,7 +843,8 @@ public sealed class BasicExampleTests
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         buttons.Should().NotBeEmpty();
         Button? submitBtn = buttons.FirstOrDefault(b =>
-            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Submit Registration");
+            GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Submit Registration"
+        );
         submitBtn.Should().NotBeNull();
         submitBtn!.IsEnabled.Should().BeFalse("checks fail with empty form data");
     }
@@ -871,7 +854,6 @@ public sealed class BasicExampleTests
     // ──────────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
-
     [Trait("Gap", "TemplateChildren")]
     public void Example_33_FinancialDataGrid_RendersCorrectStructure()
     {

@@ -3,8 +3,8 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using Microsoft.Extensions.Logging;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -111,12 +111,14 @@ public sealed class TextFieldCatalogEntryTests
 
         var comp1 = new A2UiComponent
         {
-            Id = "tf4", Component = "TextField",
+            Id = "tf4",
+            Component = "TextField",
             Value = DynamicValue.FromString("before"),
         };
         var comp2 = new A2UiComponent
         {
-            Id = "tf4", Component = "TextField",
+            Id = "tf4",
+            Component = "TextField",
             Value = DynamicValue.FromString("after"),
         };
 
@@ -138,7 +140,8 @@ public sealed class TextFieldCatalogEntryTests
 
         var comp = new A2UiComponent
         {
-            Id = "tf5", Component = "TextField",
+            Id = "tf5",
+            Component = "TextField",
             Value = DynamicValue.FromPath("/name"),
         };
 
@@ -148,7 +151,8 @@ public sealed class TextFieldCatalogEntryTests
         // Programmatic update via Update() should NOT fire valueChanged
         var comp2 = new A2UiComponent
         {
-            Id = "tf5", Component = "TextField",
+            Id = "tf5",
+            Component = "TextField",
             Value = DynamicValue.FromString("server-value"),
         };
         entry.Update(control, comp2, dm, ctx);
@@ -165,6 +169,7 @@ internal sealed class DataModelCapturingRenderContext(DataModel dm) : IRenderCon
     public List<(string EventName, object? Payload, string? ComponentId)> FiredActions { get; } = [];
 
     public Control? RenderChild(string? childId) => null;
+
     public IEnumerable<Control> RenderChildren(string parentId) => [];
 
     public void FireUserAction(string eventName, object? payload = null, string? componentId = null) =>
@@ -178,13 +183,12 @@ internal sealed class DataModelCapturingRenderContext(DataModel dm) : IRenderCon
         {
             SurfaceId = "test",
             Path = path,
-            Value = value is not null
-                ? System.Text.Json.JsonSerializer.SerializeToElement(value)
-                : null,
+            Value = value is not null ? System.Text.Json.JsonSerializer.SerializeToElement(value) : null,
         };
         dm.Apply(update);
     }
 
     public double? GetComponentWeight(string componentId) => null;
+
     public ILogger? Logger => null;
 }

@@ -48,8 +48,7 @@ public sealed class RowLayoutTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/2_row_layout.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        textBlocks.Should().AllSatisfy(tb =>
-            tb.VerticalAlignment.Should().Be(VerticalAlignment.Center));
+        textBlocks.Should().AllSatisfy(tb => tb.VerticalAlignment.Should().Be(VerticalAlignment.Center));
     }
 
     [AvaloniaFact]

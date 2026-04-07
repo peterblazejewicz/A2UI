@@ -18,7 +18,8 @@ public sealed class FunctionRegistry : IFunctionRegistry
 
     internal FunctionRegistry(
         Dictionary<string, Func<IReadOnlyDictionary<string, string?>, string?>> functions,
-        ILogger<FunctionRegistry>? logger = null)
+        ILogger<FunctionRegistry>? logger = null
+    )
     {
         _functions = functions.ToFrozenDictionary();
         _logger = logger ?? NullLogger<FunctionRegistry>.Instance;
@@ -37,10 +38,16 @@ public sealed class FunctionRegistry : IFunctionRegistry
         {
             return fn(resolvedArgs);
         }
-        catch (Exception ex) when (ex is FormatException or ArgumentException
-            or InvalidOperationException or JsonException
-            or RegexMatchTimeoutException or OverflowException
-            or KeyNotFoundException)
+        catch (Exception ex)
+            when (ex
+                    is FormatException
+                        or ArgumentException
+                        or InvalidOperationException
+                        or JsonException
+                        or RegexMatchTimeoutException
+                        or OverflowException
+                        or KeyNotFoundException
+            )
         {
             FunctionLog.ErrorEvaluatingFunction(_logger, functionName, ex);
             return null;
@@ -52,41 +59,41 @@ public sealed class FunctionRegistry : IFunctionRegistry
     /// </summary>
     public static FunctionRegistry CreateDefault(ILoggerFactory? loggerFactory = null) =>
         new FunctionRegistryBuilder()
-        .WithLoggerFactory(loggerFactory)
-        // Formatting
-        .Register("capitalize", BuiltInFunctions.Capitalize)
-        .Register("formatNumber", BuiltInFunctions.FormatNumber)
-        .Register("formatCurrency", BuiltInFunctions.FormatCurrency)
-        .Register("formatDate", BuiltInFunctions.FormatDate)
-        .Register("formatString", BuiltInFunctions.FormatString)
-        .Register("pluralize", BuiltInFunctions.Pluralize)
-        // Arithmetic
-        .Register("add", BuiltInFunctions.Add)
-        .Register("subtract", BuiltInFunctions.Subtract)
-        .Register("multiply", BuiltInFunctions.Multiply)
-        .Register("divide", BuiltInFunctions.Divide)
-        // Comparison
-        .Register("equals", BuiltInFunctions.Equals)
-        .Register("not_equals", BuiltInFunctions.NotEquals)
-        .Register("greater_than", BuiltInFunctions.GreaterThan)
-        .Register("less_than", BuiltInFunctions.LessThan)
-        // Logical
-        .Register("and", BuiltInFunctions.And)
-        .Register("or", BuiltInFunctions.Or)
-        .Register("not", BuiltInFunctions.Not)
-        // String predicates
-        .Register("contains", BuiltInFunctions.Contains)
-        .Register("starts_with", BuiltInFunctions.StartsWith)
-        .Register("ends_with", BuiltInFunctions.EndsWith)
-        // Validation
-        .Register("required", BuiltInFunctions.Required)
-        .Register("email", BuiltInFunctions.Email)
-        .Register("regex", BuiltInFunctions.RegexMatch)
-        .Register("length", BuiltInFunctions.Length)
-        .Register("numeric", BuiltInFunctions.Numeric)
-        // Void
-        .Register("openUrl", BuiltInFunctions.OpenUrl)
-        .Build();
+            .WithLoggerFactory(loggerFactory)
+            // Formatting
+            .Register("capitalize", BuiltInFunctions.Capitalize)
+            .Register("formatNumber", BuiltInFunctions.FormatNumber)
+            .Register("formatCurrency", BuiltInFunctions.FormatCurrency)
+            .Register("formatDate", BuiltInFunctions.FormatDate)
+            .Register("formatString", BuiltInFunctions.FormatString)
+            .Register("pluralize", BuiltInFunctions.Pluralize)
+            // Arithmetic
+            .Register("add", BuiltInFunctions.Add)
+            .Register("subtract", BuiltInFunctions.Subtract)
+            .Register("multiply", BuiltInFunctions.Multiply)
+            .Register("divide", BuiltInFunctions.Divide)
+            // Comparison
+            .Register("equals", BuiltInFunctions.Equals)
+            .Register("not_equals", BuiltInFunctions.NotEquals)
+            .Register("greater_than", BuiltInFunctions.GreaterThan)
+            .Register("less_than", BuiltInFunctions.LessThan)
+            // Logical
+            .Register("and", BuiltInFunctions.And)
+            .Register("or", BuiltInFunctions.Or)
+            .Register("not", BuiltInFunctions.Not)
+            // String predicates
+            .Register("contains", BuiltInFunctions.Contains)
+            .Register("starts_with", BuiltInFunctions.StartsWith)
+            .Register("ends_with", BuiltInFunctions.EndsWith)
+            // Validation
+            .Register("required", BuiltInFunctions.Required)
+            .Register("email", BuiltInFunctions.Email)
+            .Register("regex", BuiltInFunctions.RegexMatch)
+            .Register("length", BuiltInFunctions.Length)
+            .Register("numeric", BuiltInFunctions.Numeric)
+            // Void
+            .Register("openUrl", BuiltInFunctions.OpenUrl)
+            .Build();
 }
 
 /// <summary>
@@ -98,8 +105,7 @@ public sealed class FunctionRegistryBuilder
     private ILoggerFactory? _loggerFactory;
 
     /// <summary>Register a named function. Returns this for chaining.</summary>
-    public FunctionRegistryBuilder Register(string name,
-        Func<IReadOnlyDictionary<string, string?>, string?> fn)
+    public FunctionRegistryBuilder Register(string name, Func<IReadOnlyDictionary<string, string?>, string?> fn)
     {
         ArgumentNullException.ThrowIfNull(name);
         ArgumentNullException.ThrowIfNull(fn);

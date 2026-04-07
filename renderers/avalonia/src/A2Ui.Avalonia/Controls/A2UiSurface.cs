@@ -16,15 +16,20 @@ namespace A2Ui.Avalonia.Controls;
 /// </summary>
 public sealed class A2UiSurface : ContentControl
 {
-    public static readonly StyledProperty<Surface?> SurfaceProperty =
-        AvaloniaProperty.Register<A2UiSurface, Surface?>(nameof(Surface));
+    public static readonly StyledProperty<Surface?> SurfaceProperty = AvaloniaProperty.Register<A2UiSurface, Surface?>(
+        nameof(Surface)
+    );
 
     private A2UiRenderer _renderer;
 
-    public A2UiSurface() : this(CatalogRegistry.CreateDefault(), FunctionRegistry.CreateDefault()) { }
+    public A2UiSurface()
+        : this(CatalogRegistry.CreateDefault(), FunctionRegistry.CreateDefault()) { }
 
-    public A2UiSurface(CatalogRegistry catalog, IFunctionRegistry? functionRegistry = null,
-                       ILoggerFactory? loggerFactory = null)
+    public A2UiSurface(
+        CatalogRegistry catalog,
+        IFunctionRegistry? functionRegistry = null,
+        ILoggerFactory? loggerFactory = null
+    )
     {
         _renderer = new A2UiRenderer(catalog, functionRegistry, loggerFactory);
         _renderer.UserActionFired += OnUserActionFired;
@@ -32,10 +37,12 @@ public sealed class A2UiSurface : ContentControl
 
         // Load default component styles (typography, card, button variants).
         // Consuming apps override these via Application-level styles.
-        Styles.Add(new global::Avalonia.Markup.Xaml.Styling.StyleInclude(new Uri("avares://A2Ui.Avalonia"))
-        {
-            Source = new Uri("avares://A2Ui.Avalonia/Themes/A2UiDefaultStyles.axaml"),
-        });
+        Styles.Add(
+            new global::Avalonia.Markup.Xaml.Styling.StyleInclude(new Uri("avares://A2Ui.Avalonia"))
+            {
+                Source = new Uri("avares://A2Ui.Avalonia/Themes/A2UiDefaultStyles.axaml"),
+            }
+        );
     }
 
     public Surface? Surface
@@ -59,7 +66,8 @@ public sealed class A2UiSurface : ContentControl
         _renderer = new A2UiRenderer(
             CatalogRegistry.CreateDefault(loggerFactory),
             FunctionRegistry.CreateDefault(loggerFactory),
-            loggerFactory);
+            loggerFactory
+        );
         _renderer.UserActionFired += OnUserActionFired;
         _renderer.DataModelChanged += OnDataModelChanged;
     }
@@ -123,15 +131,12 @@ public sealed class A2UiSurface : ContentControl
             }
             else
             {
-                Dispatcher.UIThread.Post(() =>
-                    Content = surface is null ? null : _renderer.Render(surface));
+                Dispatcher.UIThread.Post(() => Content = surface is null ? null : _renderer.Render(surface));
             }
         }
     }
 
-    private void OnUserActionFired(object? sender, UserActionEventArgs e) =>
-        UserActionFired?.Invoke(this, e);
+    private void OnUserActionFired(object? sender, UserActionEventArgs e) => UserActionFired?.Invoke(this, e);
 
-    private void OnDataModelChanged(object? sender, DataModelChangedEventArgs e) =>
-        DataModelChanged?.Invoke(this, e);
+    private void OnDataModelChanged(object? sender, DataModelChangedEventArgs e) => DataModelChanged?.Invoke(this, e);
 }

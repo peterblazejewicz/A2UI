@@ -35,8 +35,7 @@ public sealed class CapitalizedTextTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/6_capitalized_text.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        textBlocks.Should().Contain(tb =>
-            tb.Text == "Capitalized output:" && tb.Classes.Contains("Caption"));
+        textBlocks.Should().Contain(tb => tb.Text == "Capitalized output:" && tb.Classes.Contains("Caption"));
     }
 
     [AvaloniaFact]
@@ -90,7 +89,9 @@ public sealed class CapitalizedTextTests
 
         GalleryTestHelper.SetText(textBox!, "hello");
 
-        result.Surface.DataModel.Resolve(
-            new A2Ui.Core.Messages.DynamicValue { Path = "/inputValue" }).Should().Be("hello");
+        result
+            .Surface.DataModel.Resolve(new A2Ui.Core.Messages.DynamicValue { Path = "/inputValue" })
+            .Should()
+            .Be("hello");
     }
 }

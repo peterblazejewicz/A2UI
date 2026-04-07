@@ -31,8 +31,11 @@ public sealed record DynamicValue
     public bool IsLiteral => !IsBound && !IsFunction;
 
     public static DynamicValue FromString(string value) => new() { StringLiteral = value };
+
     public static DynamicValue FromPath(string path) => new() { Path = path };
+
     public static DynamicValue FromNumber(double value) => new() { NumberLiteral = value };
+
     public static DynamicValue FromBool(bool value) => new() { BoolLiteral = value };
 }
 
@@ -54,8 +57,7 @@ public sealed record FunctionCallValue
 
 internal sealed class DynamicValueConverter : JsonConverter<DynamicValue>
 {
-    public override DynamicValue? Read(ref Utf8JsonReader reader,
-        Type typeToConvert, JsonSerializerOptions options)
+    public override DynamicValue? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         return reader.TokenType switch
         {
@@ -63,10 +65,7 @@ internal sealed class DynamicValueConverter : JsonConverter<DynamicValue>
             JsonTokenType.Number => DynamicValue.FromNumber(reader.GetDouble()),
             JsonTokenType.True => DynamicValue.FromBool(true),
             JsonTokenType.False => DynamicValue.FromBool(false),
-            JsonTokenType.StartArray => new DynamicValue
-            {
-                ArrayLiteral = JsonElement.ParseValue(ref reader),
-            },
+            JsonTokenType.StartArray => new DynamicValue { ArrayLiteral = JsonElement.ParseValue(ref reader) },
             JsonTokenType.StartObject => ReadObject(ref reader),
             _ => null,
         };
@@ -89,8 +88,7 @@ internal sealed class DynamicValueConverter : JsonConverter<DynamicValue>
         return null;
     }
 
-    public override void Write(Utf8JsonWriter writer, DynamicValue value,
-        JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, DynamicValue value, JsonSerializerOptions options)
     {
         if (value.Path is not null)
         {

@@ -31,11 +31,15 @@
 
   <!-- Spec JSON files: linked from specification/, copied to output at build -->
   <ItemGroup>
-    <Content Include="../../../../specification/v0_9/json/catalogs/minimal/examples/*.json"
-             Link="Specs/minimal/%(Filename)%(Extension)"
-             CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="../../../../specification/v0_9/json/catalogs/basic/examples/*.json"
-             Link="Specs/basic/%(Filename)%(Extension)"
-             CopyToOutputDirectory="PreserveNewest" />
+    <Content
+      Include="../../../../specification/v0_9/json/catalogs/minimal/examples/*.json"
+      Link="Specs/minimal/%(Filename)%(Extension)"
+      CopyToOutputDirectory="PreserveNewest"
+    />
+    <Content
+      Include="../../../../specification/v0_9/json/catalogs/basic/examples/*.json"
+      Link="Specs/basic/%(Filename)%(Extension)"
+      CopyToOutputDirectory="PreserveNewest"
+    />
   </ItemGroup>
 </Project>

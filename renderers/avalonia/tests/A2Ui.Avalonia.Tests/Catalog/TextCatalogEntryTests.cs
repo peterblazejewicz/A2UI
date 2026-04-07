@@ -13,14 +13,14 @@ public sealed class TextCatalogEntryTests
     public void TextCatalogEntry_Create_WithLiteralText_SetsTextBlockText()
     {
         // Arrange
-        var entry  = new TextCatalogEntry();
-        var dm     = new DataModel();
-        var ctx    = new MockRenderContext(dm);
+        var entry = new TextCatalogEntry();
+        var dm = new DataModel();
+        var ctx = new MockRenderContext(dm);
         var component = new A2UiComponent
         {
-            Id        = "t1",
+            Id = "t1",
             Component = "Text",
-            Text      = DynamicValue.FromString("Hello World"),
+            Text = DynamicValue.FromString("Hello World"),
         };
 
         // Act
@@ -36,14 +36,14 @@ public sealed class TextCatalogEntryTests
     {
         // Arrange
         var entry = new TextCatalogEntry();
-        var dm    = new DataModel();
-        var ctx   = new MockRenderContext(dm);
+        var dm = new DataModel();
+        var ctx = new MockRenderContext(dm);
         var component = new A2UiComponent
         {
-            Id        = "h1",
+            Id = "h1",
             Component = "Text",
-            Text      = DynamicValue.FromString("Title"),
-            Variant   = "h1",
+            Text = DynamicValue.FromString("Title"),
+            Variant = "h1",
         };
 
         // Act
@@ -58,12 +58,20 @@ public sealed class TextCatalogEntryTests
     {
         // Arrange
         var entry = new TextCatalogEntry();
-        var dm    = new DataModel();
-        var ctx   = new MockRenderContext(dm);
-        var comp1 = new A2UiComponent { Id = "t1", Component = "Text",
-                                         Text = DynamicValue.FromString("Before") };
-        var comp2 = new A2UiComponent { Id = "t1", Component = "Text",
-                                         Text = DynamicValue.FromString("After") };
+        var dm = new DataModel();
+        var ctx = new MockRenderContext(dm);
+        var comp1 = new A2UiComponent
+        {
+            Id = "t1",
+            Component = "Text",
+            Text = DynamicValue.FromString("Before"),
+        };
+        var comp2 = new A2UiComponent
+        {
+            Id = "t1",
+            Component = "Text",
+            Text = DynamicValue.FromString("After"),
+        };
 
         var control = entry.Create(comp1, dm, ctx);
 

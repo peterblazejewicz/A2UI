@@ -20,21 +20,24 @@ public static class SseEventParser
     public static async IAsyncEnumerable<BaseEvent> ParseAsync(
         Stream sseStream,
         ILogger? logger = null,
-        [System.Runtime.CompilerServices.EnumeratorCancellation]
-        CancellationToken cancellationToken = default)
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default
+    )
     {
         using var reader = new StreamReader(sseStream, leaveOpen: true);
 
         while (!cancellationToken.IsCancellationRequested)
         {
             string? line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
-            if (line is null) break;
+            if (line is null)
+                break;
 
             // SSE data line format: "data: {json}"
-            if (!line.StartsWith("data:", StringComparison.Ordinal)) continue;
+            if (!line.StartsWith("data:", StringComparison.Ordinal))
+                continue;
 
             ReadOnlySpan<char> json = line.AsSpan(5).TrimStart();
-            if (json.IsEmpty || json.SequenceEqual("[DONE]")) continue;
+            if (json.IsEmpty || json.SequenceEqual("[DONE]"))
+                continue;
 
             BaseEvent? evt = null;
             try
@@ -51,16 +54,14 @@ public static class SseEventParser
                 continue;
             }
 
-            if (evt is not null) yield return evt;
+            if (evt is not null)
+                yield return evt;
         }
     }
 }
 
 internal static partial class SseLog
 {
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Warning,
-        Message = "Skipping malformed SSE event: {Line}")]
+    [LoggerMessage(EventId = 1, Level = LogLevel.Warning, Message = "Skipping malformed SSE event: {Line}")]
     public static partial void MalformedEvent(ILogger logger, string line, Exception ex);
 }

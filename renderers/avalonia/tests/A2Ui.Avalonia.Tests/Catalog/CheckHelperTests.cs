@@ -28,7 +28,12 @@ public sealed class CheckHelperTests
         new CheckRule { Condition = DynamicValue.FromString("false"), Message = message };
 
     private static A2UiComponent MakeComponent(CheckRule[]? checks) =>
-        new A2UiComponent { Id = "c1", Component = "TextField", Checks = checks };
+        new A2UiComponent
+        {
+            Id = "c1",
+            Component = "TextField",
+            Checks = checks,
+        };
 
     // ── ApplyChecks ───────────────────────────────────────────────────────
 
@@ -48,11 +53,7 @@ public sealed class CheckHelperTests
     public void ApplyChecks_AllPassing_WrapsButHasNoErrors()
     {
         var control = new TextBox();
-        var component = MakeComponent(
-        [
-            PassingCheck("error1"),
-            PassingCheck("error2"),
-        ]);
+        var component = MakeComponent([PassingCheck("error1"), PassingCheck("error2")]);
         var ctx = MakeCtx();
 
         Control result = CheckHelper.ApplyChecks(control, component, ctx);
@@ -68,8 +69,7 @@ public sealed class CheckHelperTests
     public void ApplyChecks_MixedPassFail_AddsOnlyFailingMessages()
     {
         var control = new TextBox();
-        var component = MakeComponent(
-        [
+        var component = MakeComponent([
             PassingCheck("ShouldNotAppear"),
             FailingCheck("ErrorOne"),
             PassingCheck("AlsoShouldNotAppear"),
@@ -105,12 +105,7 @@ public sealed class CheckHelperTests
     [AvaloniaFact]
     public void AllChecksPassing_OneFailing_ReturnsFalse()
     {
-        var component = MakeComponent(
-        [
-            PassingCheck(),
-            FailingCheck("Must be valid"),
-            PassingCheck(),
-        ]);
+        var component = MakeComponent([PassingCheck(), FailingCheck("Must be valid"), PassingCheck()]);
         var ctx = MakeCtx();
 
         bool result = CheckHelper.AllChecksPassing(component, ctx);
@@ -123,11 +118,7 @@ public sealed class CheckHelperTests
     [AvaloniaFact]
     public void FirstFailingMessage_AllPass_ReturnsNull()
     {
-        var component = MakeComponent(
-        [
-            PassingCheck("pass1"),
-            PassingCheck("pass2"),
-        ]);
+        var component = MakeComponent([PassingCheck("pass1"), PassingCheck("pass2")]);
         var ctx = MakeCtx();
 
         string? result = CheckHelper.FirstFailingMessage(component, ctx);
@@ -138,11 +129,7 @@ public sealed class CheckHelperTests
     [AvaloniaFact]
     public void FirstFailingMessage_FirstFails_ReturnsItsMessage()
     {
-        var component = MakeComponent(
-        [
-            FailingCheck("FirstError"),
-            FailingCheck("SecondError"),
-        ]);
+        var component = MakeComponent([FailingCheck("FirstError"), FailingCheck("SecondError")]);
         var ctx = MakeCtx();
 
         string? result = CheckHelper.FirstFailingMessage(component, ctx);

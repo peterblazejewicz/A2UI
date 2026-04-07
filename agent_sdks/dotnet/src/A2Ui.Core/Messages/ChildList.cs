@@ -23,8 +23,12 @@ public sealed record ChildList
     public bool IsTemplate => Template is not null;
 
     public static ChildList FromIds(params string[] ids) => new() { Ids = ids };
+
     public static ChildList FromTemplate(string componentId, string path) =>
-        new() { Template = new ChildTemplate { ComponentId = componentId, Path = path } };
+        new()
+        {
+            Template = new ChildTemplate { ComponentId = componentId, Path = path },
+        };
 }
 
 /// <summary>
@@ -32,14 +36,16 @@ public sealed record ChildList
 /// </summary>
 public sealed record ChildTemplate
 {
-    [JsonPropertyName("componentId")] public required string ComponentId { get; init; }
-    [JsonPropertyName("path")]        public required string Path        { get; init; }
+    [JsonPropertyName("componentId")]
+    public required string ComponentId { get; init; }
+
+    [JsonPropertyName("path")]
+    public required string Path { get; init; }
 }
 
 internal sealed class ChildListConverter : JsonConverter<ChildList>
 {
-    public override ChildList? Read(ref Utf8JsonReader reader,
-        Type typeToConvert, JsonSerializerOptions options)
+    public override ChildList? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.StartArray)
         {
@@ -56,8 +62,7 @@ internal sealed class ChildListConverter : JsonConverter<ChildList>
         {
             using var doc = JsonDocument.ParseValue(ref reader);
             var root = doc.RootElement;
-            if (root.TryGetProperty("componentId", out var compIdEl) &&
-                root.TryGetProperty("path", out var pathEl))
+            if (root.TryGetProperty("componentId", out var compIdEl) && root.TryGetProperty("path", out var pathEl))
             {
                 return ChildList.FromTemplate(compIdEl.GetString()!, pathEl.GetString()!);
             }
@@ -66,8 +71,7 @@ internal sealed class ChildListConverter : JsonConverter<ChildList>
         return null;
     }
 
-    public override void Write(Utf8JsonWriter writer, ChildList value,
-        JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, ChildList value, JsonSerializerOptions options)
     {
         if (value.Template is not null)
         {

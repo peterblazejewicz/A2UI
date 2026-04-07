@@ -31,18 +31,9 @@ public sealed class GalleryDataLoader
         var items = new List<DemoItem>();
         string specsDir = Path.Combine(AppContext.BaseDirectory, "Specs");
 
-        await LoadFromDirectoryAsync(
-                Path.Combine(specsDir, "minimal"),
-                isBasic: false,
-                items,
-                ct)
+        await LoadFromDirectoryAsync(Path.Combine(specsDir, "minimal"), isBasic: false, items, ct)
             .ConfigureAwait(false);
-        await LoadFromDirectoryAsync(
-                Path.Combine(specsDir, "basic"),
-                isBasic: true,
-                items,
-                ct)
-            .ConfigureAwait(false);
+        await LoadFromDirectoryAsync(Path.Combine(specsDir, "basic"), isBasic: true, items, ct).ConfigureAwait(false);
 
         // Assign continuous display indices so the sidebar shows 1..N
         // instead of the per-directory numbering from filenames.
@@ -56,7 +47,8 @@ public sealed class GalleryDataLoader
         string directory,
         bool isBasic,
         List<DemoItem> items,
-        CancellationToken ct)
+        CancellationToken ct
+    )
     {
         if (!Directory.Exists(directory))
         {
@@ -72,8 +64,7 @@ public sealed class GalleryDataLoader
             ct.ThrowIfCancellationRequested();
             try
             {
-                DemoItem? item = await LoadFileAsync(filePath, isBasic, ct)
-                    .ConfigureAwait(false);
+                DemoItem? item = await LoadFileAsync(filePath, isBasic, ct).ConfigureAwait(false);
                 if (item is not null)
                     items.Add(item);
             }
@@ -88,10 +79,7 @@ public sealed class GalleryDataLoader
         }
     }
 
-    private static async Task<DemoItem?> LoadFileAsync(
-        string filePath,
-        bool isBasic,
-        CancellationToken ct)
+    private static async Task<DemoItem?> LoadFileAsync(string filePath, bool isBasic, CancellationToken ct)
     {
         string json = await File.ReadAllTextAsync(filePath, ct).ConfigureAwait(false);
         using JsonDocument doc = JsonDocument.Parse(json);
@@ -104,8 +92,7 @@ public sealed class GalleryDataLoader
 
         if (root.ValueKind == JsonValueKind.Array)
         {
-            messages =
-                JsonSerializer.Deserialize<A2UiMessage[]>(root.GetRawText(), s_jsonOptions) ?? [];
+            messages = JsonSerializer.Deserialize<A2UiMessage[]>(root.GetRawText(), s_jsonOptions) ?? [];
         }
         else
         {
@@ -115,10 +102,7 @@ public sealed class GalleryDataLoader
                 description = descEl.GetString();
 
             if (root.TryGetProperty("messages", out JsonElement messagesEl))
-                messages =
-                    JsonSerializer.Deserialize<A2UiMessage[]>(
-                        messagesEl.GetRawText(),
-                        s_jsonOptions) ?? [];
+                messages = JsonSerializer.Deserialize<A2UiMessage[]>(messagesEl.GetRawText(), s_jsonOptions) ?? [];
             else
                 return null;
         }
@@ -140,19 +124,14 @@ public sealed class GalleryDataLoader
             var createMsg = new A2UiMessage
             {
                 Version = "v0.9",
-                CreateSurface = new CreateSurface
-                {
-                    SurfaceId = surfaceId,
-                    CatalogId = catalogId,
-                },
+                CreateSurface = new CreateSurface { SurfaceId = surfaceId, CatalogId = catalogId },
             };
             messages = [createMsg, .. messages];
         }
         else
         {
             // Use the surfaceId from the createSurface message
-            A2UiMessage? createMessage = messages.FirstOrDefault(m =>
-                m.CreateSurface is not null);
+            A2UiMessage? createMessage = messages.FirstOrDefault(m => m.CreateSurface is not null);
             if (createMessage?.CreateSurface is not null)
                 surfaceId = createMessage.CreateSurface.SurfaceId;
         }
@@ -166,7 +145,8 @@ public sealed class GalleryDataLoader
             Filename: filename,
             Description: description ?? $"Source: {filename}",
             Messages: messages,
-            IsBasic: isBasic);
+            IsBasic: isBasic
+        );
     }
 
     private static string DeriveTitleFromFilename(string filename)
@@ -181,9 +161,7 @@ public sealed class GalleryDataLoader
 
         return string.Join(
             ' ',
-            words.Select(w =>
-                string.IsNullOrEmpty(w)
-                    ? w
-                    : char.ToUpper(w[0], CultureInfo.InvariantCulture) + w[1..]));
+            words.Select(w => string.IsNullOrEmpty(w) ? w : char.ToUpper(w[0], CultureInfo.InvariantCulture) + w[1..])
+        );
     }
 }

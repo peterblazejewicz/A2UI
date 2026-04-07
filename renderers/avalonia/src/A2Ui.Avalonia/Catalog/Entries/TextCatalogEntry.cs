@@ -16,11 +16,7 @@ public sealed class TextCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
-        var tb = new TextBlock
-        {
-            Text = ctx.Resolve(c.Text) ?? string.Empty,
-            TextWrapping = TextWrapping.Wrap,
-        };
+        var tb = new TextBlock { Text = ctx.Resolve(c.Text) ?? string.Empty, TextWrapping = TextWrapping.Wrap };
 
         ApplyVariant(tb, c.Variant);
         return tb;
@@ -28,7 +24,8 @@ public sealed class TextCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
-        if (existing is not TextBlock tb) return false;
+        if (existing is not TextBlock tb)
+            return false;
         tb.Text = ctx.Resolve(c.Text) ?? string.Empty;
         ApplyVariant(tb, c.Variant);
         return true;
@@ -37,15 +34,17 @@ public sealed class TextCatalogEntry : ICatalogEntry
     private static void ApplyVariant(TextBlock tb, string? variant)
     {
         tb.Classes.Clear();
-        tb.Classes.Add(variant switch
-        {
-            "h1"      => "Heading1",
-            "h2"      => "Heading2",
-            "h3"      => "Heading3",
-            "h4"      => "Heading4",
-            "h5"      => "Heading5",
-            "caption" => "Caption",
-            _         => "Body",
-        });
+        tb.Classes.Add(
+            variant switch
+            {
+                "h1" => "Heading1",
+                "h2" => "Heading2",
+                "h3" => "Heading3",
+                "h4" => "Heading4",
+                "h5" => "Heading5",
+                "caption" => "Caption",
+                _ => "Body",
+            }
+        );
     }
 }

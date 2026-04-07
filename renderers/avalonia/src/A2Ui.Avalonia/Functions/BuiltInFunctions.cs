@@ -12,8 +12,7 @@ internal static class BuiltInFunctions
 {
     // ── Cached culture info ────────────────────────────────────────────
 
-    private static readonly NumberFormatInfo s_enUsNumberFormat =
-        CultureInfo.GetCultureInfo("en-US").NumberFormat;
+    private static readonly NumberFormatInfo s_enUsNumberFormat = CultureInfo.GetCultureInfo("en-US").NumberFormat;
 
     // ── Formatting ──────────────────────────────────────────────────────
 
@@ -83,8 +82,14 @@ internal static class BuiltInFunctions
         if (string.IsNullOrEmpty(value))
             return "";
 
-        if (!DateTime.TryParse(value, CultureInfo.InvariantCulture,
-                DateTimeStyles.RoundtripKind | DateTimeStyles.AllowWhiteSpaces, out DateTime dt))
+        if (
+            !DateTime.TryParse(
+                value,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.RoundtripKind | DateTimeStyles.AllowWhiteSpaces,
+                out DateTime dt
+            )
+        )
             return "";
 
         string? format = GetArg(args, "format");
@@ -123,19 +128,15 @@ internal static class BuiltInFunctions
 
     // ── Arithmetic ──────────────────────────────────────────────────────
 
-    public static string? Add(IReadOnlyDictionary<string, string?> args) =>
-        BinaryMath(args, (a, b) => a + b);
+    public static string? Add(IReadOnlyDictionary<string, string?> args) => BinaryMath(args, (a, b) => a + b);
 
-    public static string? Subtract(IReadOnlyDictionary<string, string?> args) =>
-        BinaryMath(args, (a, b) => a - b);
+    public static string? Subtract(IReadOnlyDictionary<string, string?> args) => BinaryMath(args, (a, b) => a - b);
 
-    public static string? Multiply(IReadOnlyDictionary<string, string?> args) =>
-        BinaryMath(args, (a, b) => a * b);
+    public static string? Multiply(IReadOnlyDictionary<string, string?> args) => BinaryMath(args, (a, b) => a * b);
 
     public static string? Divide(IReadOnlyDictionary<string, string?> args)
     {
-        if (!TryParseDouble(GetArg(args, "a"), out double a) ||
-            !TryParseDouble(GetArg(args, "b"), out double b))
+        if (!TryParseDouble(GetArg(args, "a"), out double a) || !TryParseDouble(GetArg(args, "b"), out double b))
             return null;
         // ReSharper disable once CompareOfFloatsByEqualityOperator
         if (b == 0.0)
@@ -153,16 +154,14 @@ internal static class BuiltInFunctions
 
     public static string? GreaterThan(IReadOnlyDictionary<string, string?> args)
     {
-        if (!TryParseDouble(GetArg(args, "a"), out double a) ||
-            !TryParseDouble(GetArg(args, "b"), out double b))
+        if (!TryParseDouble(GetArg(args, "a"), out double a) || !TryParseDouble(GetArg(args, "b"), out double b))
             return "false";
         return BoolResult(a > b);
     }
 
     public static string? LessThan(IReadOnlyDictionary<string, string?> args)
     {
-        if (!TryParseDouble(GetArg(args, "a"), out double a) ||
-            !TryParseDouble(GetArg(args, "b"), out double b))
+        if (!TryParseDouble(GetArg(args, "a"), out double a) || !TryParseDouble(GetArg(args, "b"), out double b))
             return "false";
         return BoolResult(a > b is false && a != b);
     }
@@ -172,7 +171,8 @@ internal static class BuiltInFunctions
     public static string? And(IReadOnlyDictionary<string, string?> args)
     {
         string? values = GetArg(args, "values");
-        if (values is null) return "false";
+        if (values is null)
+            return "false";
         var items = ParseJsonStringArray(values);
         return BoolResult(items.All(IsTruthy));
     }
@@ -180,7 +180,8 @@ internal static class BuiltInFunctions
     public static string? Or(IReadOnlyDictionary<string, string?> args)
     {
         string? values = GetArg(args, "values");
-        if (values is null) return "false";
+        if (values is null)
+            return "false";
         var items = ParseJsonStringArray(values);
         return BoolResult(items.Any(IsTruthy));
     }
@@ -194,7 +195,8 @@ internal static class BuiltInFunctions
     {
         string? str = GetArg(args, "string");
         string? sub = GetArg(args, "substring");
-        if (str is null || sub is null) return "false";
+        if (str is null || sub is null)
+            return "false";
         return BoolResult(str.Contains(sub, StringComparison.Ordinal));
     }
 
@@ -202,7 +204,8 @@ internal static class BuiltInFunctions
     {
         string? str = GetArg(args, "string");
         string? prefix = GetArg(args, "prefix");
-        if (str is null || prefix is null) return "false";
+        if (str is null || prefix is null)
+            return "false";
         return BoolResult(str.StartsWith(prefix, StringComparison.Ordinal));
     }
 
@@ -210,7 +213,8 @@ internal static class BuiltInFunctions
     {
         string? str = GetArg(args, "string");
         string? suffix = GetArg(args, "suffix");
-        if (str is null || suffix is null) return "false";
+        if (str is null || suffix is null)
+            return "false";
         return BoolResult(str.EndsWith(suffix, StringComparison.Ordinal));
     }
 
@@ -222,23 +226,29 @@ internal static class BuiltInFunctions
     public static string? Email(IReadOnlyDictionary<string, string?> args)
     {
         string? value = GetArg(args, "value");
-        if (string.IsNullOrEmpty(value)) return "false";
-        return BoolResult(Regex.IsMatch(value,
-            @"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$",
-            RegexOptions.NonBacktracking, TimeSpan.FromSeconds(1)));
+        if (string.IsNullOrEmpty(value))
+            return "false";
+        return BoolResult(
+            Regex.IsMatch(
+                value,
+                @"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$",
+                RegexOptions.NonBacktracking,
+                TimeSpan.FromSeconds(1)
+            )
+        );
     }
 
     public static string? RegexMatch(IReadOnlyDictionary<string, string?> args)
     {
         string? value = GetArg(args, "value");
         string? pattern = GetArg(args, "pattern");
-        if (value is null || pattern is null) return "false";
+        if (value is null || pattern is null)
+            return "false";
 
         // Let RegexParseException propagate to FunctionRegistry.Evaluate,
         // which catches ArgumentException (parent of RegexParseException)
         // and logs it. Invalid patterns are user errors worth diagnosing.
-        return BoolResult(Regex.IsMatch(value, pattern,
-            RegexOptions.NonBacktracking, TimeSpan.FromSeconds(1)));
+        return BoolResult(Regex.IsMatch(value, pattern, RegexOptions.NonBacktracking, TimeSpan.FromSeconds(1)));
     }
 
     public static string? Length(IReadOnlyDictionary<string, string?> args)
@@ -271,8 +281,7 @@ internal static class BuiltInFunctions
         args.TryGetValue(key, out string? v) ? v : null;
 
     private static bool TryParseDouble(string? s, out double result) =>
-        double.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands,
-            CultureInfo.InvariantCulture, out result);
+        double.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out result);
 
     private static bool TryParseInt(string? s, out int result) =>
         int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out result);
@@ -282,17 +291,14 @@ internal static class BuiltInFunctions
 
     private static string BoolResult(bool b) => b ? "true" : "false";
 
-    private static string? BinaryMath(IReadOnlyDictionary<string, string?> args,
-        Func<double, double, double> op)
+    private static string? BinaryMath(IReadOnlyDictionary<string, string?> args, Func<double, double, double> op)
     {
-        if (!TryParseDouble(GetArg(args, "a"), out double a) ||
-            !TryParseDouble(GetArg(args, "b"), out double b))
+        if (!TryParseDouble(GetArg(args, "a"), out double a) || !TryParseDouble(GetArg(args, "b"), out double b))
             return null;
         return op(a, b).ToString(CultureInfo.InvariantCulture);
     }
 
-    private static bool IsTruthy(string? v) =>
-        v is not (null or "" or "false" or "0");
+    private static bool IsTruthy(string? v) => v is not (null or "" or "false" or "0");
 
     private static List<string?> ParseJsonStringArray(string json)
     {

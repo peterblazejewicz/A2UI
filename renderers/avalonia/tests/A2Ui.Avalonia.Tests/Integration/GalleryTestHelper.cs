@@ -34,7 +34,8 @@ internal static class GalleryTestHelper
         {
             throw new FileNotFoundException(
                 $"Spec example not found at '{basePath}'. Ensure the file is copied to the test output directory.",
-                basePath);
+                basePath
+            );
         }
 
         string json = File.ReadAllText(basePath);
@@ -54,12 +55,15 @@ internal static class GalleryTestHelper
         if (lastSurfaceId is null)
         {
             throw new InvalidOperationException(
-                $"No surface was created after replaying messages from '{specSubPath}'.");
+                $"No surface was created after replaying messages from '{specSubPath}'."
+            );
         }
 
-        Surface surface = surfaceManager.GetSurface(lastSurfaceId)
+        Surface surface =
+            surfaceManager.GetSurface(lastSurfaceId)
             ?? throw new InvalidOperationException(
-                $"Surface '{lastSurfaceId}' was created but could not be retrieved.");
+                $"Surface '{lastSurfaceId}' was created but could not be retrieved."
+            );
 
         CatalogRegistry catalog = CatalogRegistry.CreateDefault();
         var renderer = new A2UiRenderer(catalog, FunctionRegistry.CreateDefault());
@@ -85,15 +89,15 @@ internal static class GalleryTestHelper
         {
             messagesElement = root;
         }
-        else if (root.ValueKind == JsonValueKind.Object
-                 && root.TryGetProperty("messages", out JsonElement msgProp))
+        else if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("messages", out JsonElement msgProp))
         {
             messagesElement = msgProp;
         }
         else
         {
             throw new JsonException(
-                "Spec JSON must be either an array of messages or an object with a 'messages' property.");
+                "Spec JSON must be either an array of messages or an object with a 'messages' property."
+            );
         }
 
         var messages = new List<A2UiMessage>();
@@ -113,7 +117,8 @@ internal static class GalleryTestHelper
     /// <summary>
     /// Find the first control of type <typeparamref name="T"/> in the visual tree.
     /// </summary>
-    public static T? FindFirst<T>(Control root) where T : Control
+    public static T? FindFirst<T>(Control root)
+        where T : Control
     {
         if (root is T match)
             return match;
@@ -131,14 +136,16 @@ internal static class GalleryTestHelper
     /// <summary>
     /// Collect all controls of type <typeparamref name="T"/> in the visual tree.
     /// </summary>
-    public static List<T> FindAll<T>(Control root) where T : Control
+    public static List<T> FindAll<T>(Control root)
+        where T : Control
     {
         var results = new List<T>();
         CollectAll(root, results);
         return results;
     }
 
-    private static void CollectAll<T>(Control current, List<T> results) where T : Control
+    private static void CollectAll<T>(Control current, List<T> results)
+        where T : Control
     {
         if (current is T match)
             results.Add(match);
@@ -207,7 +214,8 @@ internal sealed record RenderResult(
     Surface Surface,
     A2UiRenderer Renderer,
     SurfaceManager SurfaceManager,
-    List<UserActionEventArgs> ActionLog)
+    List<UserActionEventArgs> ActionLog
+)
 {
     /// <summary>
     /// Re-render the surface (e.g. after processing additional messages).
