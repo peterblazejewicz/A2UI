@@ -3,6 +3,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
+using Avalonia.Layout;
 using FluentAssertions;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
@@ -24,7 +25,8 @@ public sealed class NewCatalogEntryTests
         var entry = new IconCatalogEntry();
         var c = new A2UiComponent
         {
-            Id = "i1", Component = "Icon",
+            Id = "i1",
+            Component = "Icon",
             Name = DynamicValue.FromString("send"),
         };
 
@@ -41,7 +43,8 @@ public sealed class NewCatalogEntryTests
         var entry = new IconCatalogEntry();
         var c = new A2UiComponent
         {
-            Id = "i2", Component = "Icon",
+            Id = "i2",
+            Component = "Icon",
             Name = DynamicValue.FromString("unknownIcon"),
         };
 
@@ -64,6 +67,27 @@ public sealed class NewCatalogEntryTests
         control.Should().BeOfType<Separator>();
     }
 
+    [AvaloniaFact]
+    public void DividerCatalogEntry_Create_VerticalAxis_SetsWidthAndAlignment()
+    {
+        var (dm, ctx) = Setup();
+        var entry = new DividerCatalogEntry();
+        var c = new A2UiComponent
+        {
+            Id = "d2",
+            Component = "Divider",
+            Axis = "vertical",
+        };
+
+        var control = entry.Create(c, dm, ctx);
+
+        control.Should().BeOfType<Separator>();
+        var sep = (Separator)control;
+        sep.Width.Should().Be(1);
+        sep.VerticalAlignment.Should().Be(VerticalAlignment.Stretch);
+        sep.HorizontalAlignment.Should().Be(HorizontalAlignment.Center);
+    }
+
     // ── Video ─────────────────────────────────────────────────────────────
 
     [AvaloniaFact]
@@ -73,7 +97,8 @@ public sealed class NewCatalogEntryTests
         var entry = new VideoCatalogEntry();
         var c = new A2UiComponent
         {
-            Id = "v1", Component = "Video",
+            Id = "v1",
+            Component = "Video",
             Url = DynamicValue.FromString("https://example.com/video.mp4"),
         };
 
@@ -93,7 +118,8 @@ public sealed class NewCatalogEntryTests
         var entry = new AudioPlayerCatalogEntry();
         var c = new A2UiComponent
         {
-            Id = "a1", Component = "AudioPlayer",
+            Id = "a1",
+            Component = "AudioPlayer",
             Url = DynamicValue.FromString("https://example.com/audio.mp3"),
         };
 
@@ -126,12 +152,13 @@ public sealed class NewCatalogEntryTests
         var entry = new TabsCatalogEntry();
         var c = new A2UiComponent
         {
-            Id = "tabs1", Component = "Tabs",
+            Id = "tabs1",
+            Component = "Tabs",
             Tabs =
             [
                 new TabDefinition { Title = "Tab 1", Child = "p1" },
                 new TabDefinition { Title = "Tab 2", Child = "p2" },
-            ]
+            ],
         };
 
         var control = entry.Create(c, dm, ctx);
@@ -149,7 +176,8 @@ public sealed class NewCatalogEntryTests
         var entry = new ModalCatalogEntry();
         var c = new A2UiComponent
         {
-            Id = "m1", Component = "Modal",
+            Id = "m1",
+            Component = "Modal",
             Trigger = "btn1",
             Content = "panel1",
         };
@@ -169,12 +197,13 @@ public sealed class NewCatalogEntryTests
         var entry = new ChoicePickerCatalogEntry();
         var c = new A2UiComponent
         {
-            Id = "cp1", Component = "ChoicePicker",
+            Id = "cp1",
+            Component = "ChoicePicker",
             Options =
             [
                 new ChoiceOption { Label = "Red", Value = "red" },
                 new ChoiceOption { Label = "Blue", Value = "blue" },
-            ]
+            ],
         };
 
         var control = entry.Create(c, dm, ctx);
@@ -192,7 +221,8 @@ public sealed class NewCatalogEntryTests
         var entry = new CheckBoxCatalogEntry();
         var c = new A2UiComponent
         {
-            Id = "cb1", Component = "CheckBox",
+            Id = "cb1",
+            Component = "CheckBox",
             Label = DynamicValue.FromString("Accept terms"),
             Value = DynamicValue.FromBool(true),
         };
@@ -214,7 +244,8 @@ public sealed class NewCatalogEntryTests
         var entry = new SliderCatalogEntry();
         var c = new A2UiComponent
         {
-            Id = "s1", Component = "Slider",
+            Id = "s1",
+            Component = "Slider",
             Value = DynamicValue.FromNumber(50),
             Min = DynamicValue.FromNumber(10),
             Max = DynamicValue.FromNumber(200),
