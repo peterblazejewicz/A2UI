@@ -37,8 +37,6 @@ events through A2UI message processing to Avalonia desktop controls.
 
 **Shared build settings** (`Directory.Build.props`): `Nullable: enable`, `TreatWarningsAsErrors: true`, `LangVersion: latest`, Roslynator + NetAnalyzers enabled.
 
-**Test suite:** 472 tests (102 + 58 + 312), 0 failures.
-
 ---
 
 ## 3. Protocol Coverage
@@ -135,33 +133,96 @@ Each entry provides `Create()` (initial render) and `Update()` (in-place refresh
 
 ---
 
-## 5. Bridge Architecture
+## 5. Actors & Components
 
-`AgentEventBridge` connects AG-UI event streams to the A2UI rendering pipeline.
+### 5.1 Component Roles
 
-### Threading Model
+The implementation is organized around distinct actors, each owning a specific
+responsibility in the protocol pipeline. The table below maps each C# class to
+its role in the AG-UI / A2UI processing chain.
 
+| Actor | Class | Layer | Responsibility |
+|-------|-------|-------|----------------|
+| **SSE Parser** | `SseEventParser` | `AgUi.Protocol` | Reads SSE frames from an HTTP stream, emits typed `BaseEvent` objects. Handles reconnection and malformed frames. |
+| **Event Type Model** | `BaseEvent` + 28 derived records | `AgUi.Protocol` | Strongly-typed AG-UI events with `[JsonDerivedType]` polymorphic deserialization. |
+| **Tool-Call Accumulator** | `ToolCallArgsAccumulator` | `AgUi.Protocol` | Concatenates `TOOL_CALL_ARGS` deltas by `toolCallId` until `TOOL_CALL_END` completes them. |
+| **Envelope Validator** | `A2UiMessage.Validate()`, `ClientToServerMessage.Validate()` | `A2Ui.Core` | Enforces protocol envelope constraints: version required, exactly-one-operation. |
+| **Surface Manager** | `SurfaceManager` | `A2Ui.Core` | Manages surface lifecycle (create/delete) and applies component/data-model updates. Thread-safe via lock; events fired outside lock. |
+| **Surface** | `Surface` | `A2Ui.Core` | Per-surface state container: component map, data model, theme, sendDataModel flag. |
+| **Data Model** | `DataModel` | `A2Ui.Core` | Per-surface JSON state store. Resolves `DynamicValue` paths, applies RFC 6901 pointer operations. |
+| **Protocol DTOs** | `ServerCapabilities`, `ClientCapabilities`, `ClientDataModel` | `A2Ui.Core` | Serialization contracts for transport-layer metadata exchange. |
+| **Agent Event Bridge** | `AgentEventBridge` | `A2Ui.Avalonia` | Connects AG-UI events to the rendering pipeline. Owns the async channel, background processing loop, and UI-thread dispatch. |
+| **Catalog Registry** | `CatalogRegistry` | `A2Ui.Avalonia` | Maps component type strings to `ICatalogEntry` implementations. Extensible via `Register()`. |
+| **Catalog Entries** | 18 `ICatalogEntry` implementations | `A2Ui.Avalonia` | Each entry creates and updates one Avalonia control type from an `A2UiComponent`. |
+| **Render Context** | `RenderContext` (implements `IRenderContext`) | `A2Ui.Avalonia` | Scoped rendering environment: resolves `DynamicValue`, renders children/templates, fires user actions, writes data model updates. |
+| **Function Registry** | `FunctionRegistry` | `A2Ui.Avalonia` | Maps function names to evaluation delegates (26 built-in). Used by `ExpressionParser` during `DynamicValue` resolution. |
+| **Input Helper** | `InputHelper` | `A2Ui.Avalonia` | Shared write-back pattern: updates data model then fires `valueChanged` action. Used by all input catalog entries. |
+| **Check Helper** | `CheckHelper` | `A2Ui.Avalonia` | Evaluates `CheckRule` conditions and renders validation messages on input controls. |
+| **Renderer** | `A2UiRenderer` | `A2Ui.Avalonia` | Orchestrates rendering: walks component tree, delegates to catalog entries via render context, caches controls for in-place updates. |
+| **Surface Control** | `A2UiSurface` | `A2Ui.Avalonia` | Avalonia `UserControl` that hosts the rendered tree. Bridges user interactions back to `AgentEventBridge`. |
+
+### 5.2 Pipeline Diagram
+
+```mermaid
+graph TB
+  subgraph "AG-UI Protocol Layer (AgUi.Protocol)"
+    Agent["Agent / SSE Source"]
+    Parser["SseEventParser"]
+    Events["BaseEvent (28 types)"]
+    Acc["ToolCallArgsAccumulator"]
+  end
+
+  subgraph "Bridge (A2Ui.Avalonia)"
+    Channel["Channel&lt;BaseEvent&gt;<br/><i>bounded, backpressure</i>"]
+    Loop["ProcessLoopAsync<br/><i>background task</i>"]
+    PostSafe["PostSafe()<br/><i>UI thread dispatch</i>"]
+  end
+
+  subgraph "A2UI Core Layer (A2Ui.Core)"
+    Validate["A2UiMessage.Validate()"]
+    SM["SurfaceManager"]
+    Surface["Surface + DataModel"]
+    DTOs["ProtocolContracts DTOs"]
+  end
+
+  subgraph "Renderer Layer (A2Ui.Avalonia)"
+    Renderer["A2UiRenderer"]
+    Ctx["RenderContext"]
+    Registry["CatalogRegistry"]
+    Entries["ICatalogEntry (×18)"]
+    FuncReg["FunctionRegistry (×26)"]
+    Helpers["InputHelper / CheckHelper"]
+    SurfCtrl["A2UiSurface"]
+  end
+
+  Agent --> Parser --> Events
+  Events --> Channel --> Loop
+  Loop --> Acc
+  Loop --> Validate --> PostSafe --> SM
+  SM --> Surface
+  SM --> Renderer
+  Renderer --> Ctx
+  Renderer --> Registry --> Entries
+  Ctx --> FuncReg
+  Entries --> Helpers
+  Entries --> SurfCtrl
+  SurfCtrl -- "UserActionFired" --> Loop
+  DTOs -. "transport metadata" .-> SM
 ```
-Agent thread ──WriteEventAsync──► Channel<BaseEvent> (bounded, backpressure)
-                                       │
-Background task ◄──ProcessLoopAsync────┘
-   │  Accumulates TOOL_CALL_ARGS deltas
-   │  Deserializes JSONL → A2UiMessage
-   │  Calls msg.Validate()
-   ▼
-UI thread ◄──PostSafe()── SurfaceManager.Process()
-   │  Lock for state mutation
-   │  Events fired outside lock
-   ▼
-A2UiRenderer + A2UiSurface ── renders Avalonia controls
-```
 
-### Safety guarantees
+### 5.3 Threading Model
 
-- **PostSafe()** wraps all `Dispatcher.UIThread.Post` lambdas in try-catch, preventing subscriber exceptions from crashing the Avalonia dispatcher
-- **SurfaceManager** warns on dropped operations (unknown surfaceId, duplicate create)
-- **Root component** absence triggers a warning log after `updateComponents`
-- **Malformed payloads** are logged and skipped; processing continues
+| Thread | Owner | Work |
+|--------|-------|------|
+| Agent / caller thread | External | Writes `BaseEvent` to the bounded channel via `WriteEventAsync` |
+| Background task | `AgentEventBridge.ProcessLoopAsync` | Reads channel, accumulates tool-call deltas, deserializes JSONL, validates messages |
+| UI thread | `AgentEventBridge.PostSafe` → Avalonia dispatcher | Executes `SurfaceManager.Process()`, renderer updates, event handler callbacks |
+
+**Safety guarantees:**
+- `PostSafe()` wraps all dispatcher lambdas in try-catch — subscriber exceptions cannot crash the app
+- `SurfaceManager` acquires lock for state mutation, fires events outside lock to prevent deadlocks
+- Dropped operations (unknown surfaceId, duplicate create) and root absence are logged at warning level
+- Malformed JSONL payloads are logged and skipped; bridge continues processing
 
 ---
 
@@ -186,8 +247,8 @@ code review and accepted with rationale.
 ### Build & Test
 
 ```bash
-dotnet build A2Ui.slnx --configuration Release   # 0 warnings, 0 errors
-dotnet test A2Ui.slnx --configuration Release     # 472 passed, 0 failed
+dotnet build A2Ui.slnx --configuration Release
+dotnet test A2Ui.slnx --configuration Release
 ```
 
 ### Requirement Traceability
@@ -195,12 +256,12 @@ dotnet test A2Ui.slnx --configuration Release     # 472 passed, 0 failed
 | Requirement | Implementation | Test Evidence |
 |-------------|---------------|---------------|
 | AG-UI 28 event discriminators | `BaseEvent.cs` (28 `[JsonDerivedType]`) | `EventSerializationTests.cs` |
-| A2UI server envelope validation | `A2UiMessage.Validate()` | `A2UiMessageTests.cs` (12 validation tests) |
+| A2UI server envelope validation | `A2UiMessage.Validate()` | `A2UiMessageTests.cs` |
 | A2UI client envelope validation | `ClientToServerMessage.Validate()` | `A2UiMessageTests.cs` |
 | 18/18 catalog components | `CatalogRegistry.CreateDefault()` | `CatalogRegistryTests.cs` + integration tests |
-| RFC 6901 JSON Pointer escaping | `DataModel.SplitPath()` | `DataModelTests.cs` (4 escaping tests) |
-| Bridge E2E tool-call → surface | `AgentEventBridge` | `AgentEventBridgeTests.cs` (9 tests incl. 3 E2E) |
-| Protocol negotiation DTOs | `ProtocolContracts.cs` | `ProtocolContractsTests.cs` (7 round-trip tests) |
+| RFC 6901 JSON Pointer escaping | `DataModel.SplitPath()` | `DataModelTests.cs` |
+| Bridge E2E tool-call → surface | `AgentEventBridge` | `AgentEventBridgeTests.cs` |
+| Protocol negotiation DTOs | `ProtocolContracts.cs` | `ProtocolContractsTests.cs` |
 
 ---
 
