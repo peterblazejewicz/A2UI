@@ -17,9 +17,16 @@ public sealed class DataModel
 
     private JsonObject _root = new();
 
+    /// <summary>
+    /// Split a JSON Pointer path into unescaped segments per RFC 6901.
+    /// Order matters: ~1 → / before ~0 → ~.
+    /// </summary>
+    private static string[] SplitPath(string path) => path.TrimStart('/').Split('/').Select(UnescapeSegment).ToArray();
+
+    private static string UnescapeSegment(string segment) => segment.Replace("~1", "/").Replace("~0", "~");
+
     /// <summary>Serialize the current data model state to a JSON string.</summary>
-    public string ToJson(bool indented = false) =>
-        _root.ToJsonString(indented ? s_indentedOptions : s_compactOptions);
+    public string ToJson(bool indented = false) => _root.ToJsonString(indented ? s_indentedOptions : s_compactOptions);
 
     /// <summary>Replace the entire data model.</summary>
     public void SetSnapshot(JsonElement snapshot)
@@ -44,7 +51,7 @@ public sealed class DataModel
             return;
         }
 
-        var segments = update.Path.TrimStart('/').Split('/');
+        var segments = SplitPath(update.Path);
 
         // Null value → delete at path
         if (update.Value is null)
@@ -73,7 +80,8 @@ public sealed class DataModel
         }
         else if (container is JsonArray arr && int.TryParse(lastSeg, out int idx))
         {
-            while (arr.Count <= idx) arr.Add(null);
+            while (arr.Count <= idx)
+                arr.Add(null);
             arr[idx] = newValue;
         }
     }
@@ -91,11 +99,16 @@ public sealed class DataModel
     /// <summary>Resolve a DynamicValue. Returns null if path not found or FunctionCall.</summary>
     public string? Resolve(DynamicValue? value)
     {
-        if (value is null) return null;
-        if (value.StringLiteral is not null) return value.StringLiteral;
-        if (value.NumberLiteral is not null) return value.NumberLiteral.Value.ToString(CultureInfo.InvariantCulture);
-        if (value.BoolLiteral is not null) return value.BoolLiteral.Value ? "true" : "false";
-        if (value.Path is not null) return ResolvePathAsString(value.Path);
+        if (value is null)
+            return null;
+        if (value.StringLiteral is not null)
+            return value.StringLiteral;
+        if (value.NumberLiteral is not null)
+            return value.NumberLiteral.Value.ToString(CultureInfo.InvariantCulture);
+        if (value.BoolLiteral is not null)
+            return value.BoolLiteral.Value ? "true" : "false";
+        if (value.Path is not null)
+            return ResolvePathAsString(value.Path);
         // FunctionCall and ArrayLiteral: not resolvable to string at model layer
         return null;
     }
@@ -108,7 +121,7 @@ public sealed class DataModel
 
     private JsonNode? ResolvePath(string path)
     {
-        var segments = path.TrimStart('/').Split('/');
+        var segments = SplitPath(path);
         JsonNode? node = _root;
 
         foreach (var seg in segments)
@@ -146,7 +159,8 @@ public sealed class DataModel
 
         if (parent is JsonArray arr && int.TryParse(segment, out int idx))
         {
-            while (arr.Count <= idx) arr.Add(null);
+            while (arr.Count <= idx)
+                arr.Add(null);
 
             if (arr[idx] is JsonObject or JsonArray)
                 return arr[idx]!;
@@ -157,8 +171,9 @@ public sealed class DataModel
         }
 
         throw new JsonException(
-            $"Cannot navigate segment '{segment}' on a {parent.GetType().Name} node. " +
-            "Expected JsonObject or JsonArray as parent.");
+            $"Cannot navigate segment '{segment}' on a {parent.GetType().Name} node. "
+                + "Expected JsonObject or JsonArray as parent."
+        );
     }
 
     private void DeleteAtPath(string[] segments)
@@ -176,7 +191,13 @@ public sealed class DataModel
             string seg = segments[i];
             if (current is JsonObject obj && obj.ContainsKey(seg))
                 current = obj[seg]!;
-            else if (current is JsonArray arr && int.TryParse(seg, out int idx) && idx >= 0 && idx < arr.Count && arr[idx] is not null)
+            else if (
+                current is JsonArray arr
+                && int.TryParse(seg, out int idx)
+                && idx >= 0
+                && idx < arr.Count
+                && arr[idx] is not null
+            )
                 current = arr[idx]!;
             else
                 return; // path doesn't exist, nothing to delete
@@ -186,21 +207,32 @@ public sealed class DataModel
         string lastSeg = segments[^1];
         if (current is JsonObject parentObj)
             parentObj.Remove(lastSeg);
-        else if (current is JsonArray parentArr && int.TryParse(lastSeg, out int lastIdx) && lastIdx >= 0 && lastIdx < parentArr.Count)
+        else if (
+            current is JsonArray parentArr
+            && int.TryParse(lastSeg, out int lastIdx)
+            && lastIdx >= 0
+            && lastIdx < parentArr.Count
+        )
             parentArr[lastIdx] = null;
     }
 
     private static string? NodeToString(JsonNode? node)
     {
-        if (node is null) return null;
+        if (node is null)
+            return null;
 
         if (node is JsonValue val)
         {
-            if (val.TryGetValue<string>(out var s)) return s;
-            if (val.TryGetValue<double>(out var d)) return d.ToString(CultureInfo.InvariantCulture);
-            if (val.TryGetValue<bool>(out var b)) return b ? "true" : "false";
-            if (val.TryGetValue<int>(out var i)) return i.ToString(CultureInfo.InvariantCulture);
-            if (val.TryGetValue<long>(out var l)) return l.ToString(CultureInfo.InvariantCulture);
+            if (val.TryGetValue<string>(out var s))
+                return s;
+            if (val.TryGetValue<double>(out var d))
+                return d.ToString(CultureInfo.InvariantCulture);
+            if (val.TryGetValue<bool>(out var b))
+                return b ? "true" : "false";
+            if (val.TryGetValue<int>(out var i))
+                return i.ToString(CultureInfo.InvariantCulture);
+            if (val.TryGetValue<long>(out var l))
+                return l.ToString(CultureInfo.InvariantCulture);
         }
 
         // Objects and arrays: JSON stringify
