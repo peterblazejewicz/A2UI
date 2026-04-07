@@ -47,15 +47,16 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
         return btn;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx) => false; // recreate for simplicity
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false; // recreate for simplicity
 
     /// <summary>
     /// Resolve the action event context dictionary at invocation time.
     /// Each value is a DynamicValue that may reference the data model.
     /// </summary>
     private static Dictionary<string, string?>? ResolveContext(
-        Dictionary<string, DynamicValue>? contextSpec, IRenderContext ctx)
+        Dictionary<string, DynamicValue>? contextSpec,
+        IRenderContext ctx
+    )
     {
         if (contextSpec is null || contextSpec.Count == 0)
             return null;
@@ -69,7 +70,11 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
     private static void ApplyVariant(Button btn, string? variant)
     {
         btn.Classes.Clear();
-        if (variant is "primary") btn.Classes.Add("accent");
-        else if (variant is "danger") btn.Classes.Add("danger");
+        if (variant is "primary")
+            btn.Classes.Add("accent");
+        else if (variant is "danger")
+            btn.Classes.Add("danger");
+        else if (variant is "borderless")
+            btn.Classes.Add("borderless");
     }
 }
