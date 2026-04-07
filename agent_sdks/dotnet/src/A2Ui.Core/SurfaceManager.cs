@@ -115,6 +115,12 @@ public sealed class SurfaceManager
             return null;
         }
         surface.UpdateComponents(uc.Components);
+
+        // Warn if the surface still has no "root" component after this update.
+        // Spec requires exactly one component with id "root" (a2ui_protocol.md:320).
+        if (!surface.Components.ContainsKey("root"))
+            SurfaceManagerLog.RootComponentMissing(_logger, uc.SurfaceId);
+
         return new(surface, uc.Components);
     }
 
@@ -224,4 +230,11 @@ internal static partial class SurfaceManagerLog
         Message = "Ignoring {Operation} for unknown surface '{SurfaceId}'"
     )]
     public static partial void UnknownSurfaceOp(ILogger logger, string operation, string surfaceId);
+
+    [LoggerMessage(
+        EventId = 7,
+        Level = LogLevel.Warning,
+        Message = "Surface '{SurfaceId}' has no component with id 'root'; renderer will use fallback heuristic"
+    )]
+    public static partial void RootComponentMissing(ILogger logger, string surfaceId);
 }
