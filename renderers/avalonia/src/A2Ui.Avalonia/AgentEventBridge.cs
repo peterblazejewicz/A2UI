@@ -23,23 +23,20 @@ public sealed class AgentEventBridge : IDisposable
         "update_surface",
     };
 
-    private readonly Channel<BaseEvent>        _channel;
-    private readonly SurfaceManager            _surfaceManager;
+    private readonly Channel<BaseEvent> _channel;
+    private readonly SurfaceManager _surfaceManager;
     private readonly ILogger<AgentEventBridge> _logger;
-    private readonly ToolCallArgsAccumulator   _accumulator = new();
+    private readonly ToolCallArgsAccumulator _accumulator = new();
     private readonly Dictionary<string, string> _toolNames = new();
-    private CancellationTokenSource?           _cts;
+    private CancellationTokenSource? _cts;
 
-    public AgentEventBridge(SurfaceManager surfaceManager,
-                            ILoggerFactory? loggerFactory = null,
-                            int capacity = 1024)
+    public AgentEventBridge(SurfaceManager surfaceManager, ILoggerFactory? loggerFactory = null, int capacity = 1024)
     {
         _surfaceManager = surfaceManager;
         _logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<AgentEventBridge>();
-        _channel = Channel.CreateBounded<BaseEvent>(new BoundedChannelOptions(capacity)
-        {
-            FullMode = BoundedChannelFullMode.Wait
-        });
+        _channel = Channel.CreateBounded<BaseEvent>(
+            new BoundedChannelOptions(capacity) { FullMode = BoundedChannelFullMode.Wait }
+        );
     }
 
     /// <summary>Write an event from the agent (call from agent thread).</summary>
@@ -54,13 +51,15 @@ public sealed class AgentEventBridge : IDisposable
     }
 
     public void Stop() => _cts?.Cancel();
+
     public void Dispose() => Stop();
 
     // Events surfaced to the app layer
-    public event EventHandler<string>?            AgentTextDelta;
-    public event EventHandler?                    RunStarted;
-    public event EventHandler?                    RunFinished;
-    public event EventHandler<string>?            RunError;
+    public event EventHandler<string>? AgentTextDelta;
+    public event EventHandler? RunStarted;
+    public event EventHandler? RunFinished;
+    public event EventHandler<string>? RunError;
+
     /// <summary>
     /// Fired when the user interacts with a rendered A2UI component (e.g., button click).
     /// The app must subscribe to this and serialize the action as a
@@ -95,19 +94,19 @@ public sealed class AgentEventBridge : IDisposable
             switch (evt)
             {
                 case RunStartedEvent:
-                    Dispatcher.UIThread.Post(() => RunStarted?.Invoke(this, EventArgs.Empty));
+                    PostSafe(() => RunStarted?.Invoke(this, EventArgs.Empty));
                     break;
 
                 case RunFinishedEvent:
-                    Dispatcher.UIThread.Post(() => RunFinished?.Invoke(this, EventArgs.Empty));
+                    PostSafe(() => RunFinished?.Invoke(this, EventArgs.Empty));
                     break;
 
                 case RunErrorEvent err:
-                    Dispatcher.UIThread.Post(() => RunError?.Invoke(this, err.Message));
+                    PostSafe(() => RunError?.Invoke(this, err.Message));
                     break;
 
                 case TextMessageContentEvent tc:
-                    Dispatcher.UIThread.Post(() => AgentTextDelta?.Invoke(this, tc.Delta));
+                    PostSafe(() => AgentTextDelta?.Invoke(this, tc.Delta));
                     break;
 
                 case ToolCallStartEvent start:
@@ -120,14 +119,33 @@ public sealed class AgentEventBridge : IDisposable
 
                 case ToolCallEndEvent end:
                     string json = _accumulator.Complete(end.ToolCallId);
-                    bool isA2Ui = _toolNames.TryGetValue(end.ToolCallId, out var toolName)
-                                  && s_a2uiToolNames.Contains(toolName);
+                    bool isA2Ui =
+                        _toolNames.TryGetValue(end.ToolCallId, out var toolName) && s_a2uiToolNames.Contains(toolName);
                     _toolNames.Remove(end.ToolCallId);
                     if (isA2Ui && !string.IsNullOrWhiteSpace(json))
                         ProcessA2UiPayload(json);
                     break;
             }
         }
+    }
+
+    /// <summary>
+    /// Post an action to the UI thread, catching any exceptions to prevent
+    /// unhandled exceptions from crashing the Avalonia dispatcher thread.
+    /// </summary>
+    private void PostSafe(Action action)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                BridgeLog.UiThreadActionFailed(_logger, ex);
+            }
+        });
     }
 
     private void ProcessA2UiPayload(string json)
@@ -139,11 +157,21 @@ public sealed class AgentEventBridge : IDisposable
             {
                 var msg = JsonSerializer.Deserialize<A2UiMessage>(line.Trim());
                 if (msg is not null)
-                    Dispatcher.UIThread.Post(() => _surfaceManager.Process(msg));
+                {
+                    // Validate on background thread — skip invalid messages
+                    // SurfaceManager.Process() also validates defensively,
+                    // but catching here prevents posting invalid work to UI thread
+                    msg.Validate();
+                    PostSafe(() => _surfaceManager.Process(msg));
+                }
             }
             catch (JsonException ex)
             {
                 BridgeLog.MalformedA2UiLine(_logger, line[..Math.Min(line.Length, 200)], ex);
+            }
+            catch (A2UiMessageValidationException ex)
+            {
+                BridgeLog.InvalidA2UiMessage(_logger, line[..Math.Min(line.Length, 200)], ex);
             }
         }
     }
@@ -156,4 +184,14 @@ internal static partial class BridgeLog
 
     [LoggerMessage(EventId = 2, Level = LogLevel.Warning, Message = "Skipping malformed A2UI line: {LinePreview}")]
     public static partial void MalformedA2UiLine(ILogger logger, string linePreview, Exception exception);
+
+    [LoggerMessage(EventId = 3, Level = LogLevel.Warning, Message = "Skipping invalid A2UI message: {LinePreview}")]
+    public static partial void InvalidA2UiMessage(ILogger logger, string linePreview, Exception exception);
+
+    [LoggerMessage(
+        EventId = 4,
+        Level = LogLevel.Error,
+        Message = "Exception in UI thread action dispatched by AgentEventBridge"
+    )]
+    public static partial void UiThreadActionFailed(ILogger logger, Exception exception);
 }
