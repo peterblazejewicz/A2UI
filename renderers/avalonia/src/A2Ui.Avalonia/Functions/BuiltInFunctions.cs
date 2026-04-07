@@ -12,7 +12,23 @@ internal static class BuiltInFunctions
 {
     // ── Cached culture info ────────────────────────────────────────────
 
-    private static readonly NumberFormatInfo s_enUsNumberFormat = CultureInfo.GetCultureInfo("en-US").NumberFormat;
+    private static readonly NumberFormatInfo s_enUsNumberFormat = CreateEnUsNumberFormat();
+
+    /// <summary>
+    /// Create en-US number format, falling back to InvariantCulture in
+    /// globalization-invariant mode (Docker containers, trimmed apps).
+    /// </summary>
+    private static NumberFormatInfo CreateEnUsNumberFormat()
+    {
+        try
+        {
+            return CultureInfo.GetCultureInfo("en-US").NumberFormat;
+        }
+        catch (CultureNotFoundException)
+        {
+            return CultureInfo.InvariantCulture.NumberFormat;
+        }
+    }
 
     // ── Formatting ──────────────────────────────────────────────────────
 
