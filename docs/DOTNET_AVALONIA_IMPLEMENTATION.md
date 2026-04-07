@@ -224,6 +224,169 @@ graph TB
 - Dropped operations (unknown surfaceId, duplicate create) and root absence are logged at warning level
 - Malformed JSONL payloads are logged and skipped; bridge continues processing
 
+### 5.4 Agent Event → Surface Update Flow
+
+The primary data path: an agent sends AG-UI events that ultimately create or
+update a rendered surface.
+
+```mermaid
+sequenceDiagram
+  participant Agent as Agent / SSE Source
+  participant Parser as SseEventParser
+  participant Bridge as AgentEventBridge
+  participant Acc as ToolCallArgsAccumulator
+  participant Val as A2UiMessage.Validate()
+  participant SM as SurfaceManager
+  participant Surface as Surface + DataModel
+  participant Renderer as A2UiRenderer
+  participant UI as A2UiSurface
+
+  Agent->>Parser: SSE data frames
+  Parser->>Bridge: typed BaseEvent stream
+  Bridge->>Bridge: WriteEventAsync → Channel
+
+  Note over Bridge: ProcessLoopAsync (background task)
+  Bridge->>Bridge: ToolCallStartEvent → store toolName
+  Bridge->>Acc: ToolCallArgsEvent → accumulate delta
+  Bridge->>Acc: ToolCallEndEvent → Complete(toolCallId)
+  Acc-->>Bridge: assembled JSON string
+
+  Bridge->>Bridge: Split JSONL lines
+  Bridge->>Val: Deserialize + Validate each line
+  Val-->>Bridge: validated A2UiMessage
+
+  Note over Bridge,SM: PostSafe() → UI thread
+  Bridge->>SM: Process(message)
+
+  alt createSurface
+    SM->>Surface: new Surface(surfaceId, catalogId)
+    SM-->>Renderer: SurfaceCreated event
+  else updateComponents
+    SM->>Surface: UpdateComponents(components[])
+    SM-->>Renderer: ComponentsUpdated event
+  else updateDataModel
+    SM->>Surface: DataModel.Apply(path, value)
+    SM-->>Renderer: DataModelUpdated event
+  end
+
+  Renderer->>Renderer: Walk component tree via RenderContext
+  Renderer->>UI: Attach/update Avalonia control tree
+```
+
+### 5.5 UI Write-Back Path
+
+When the user interacts with an input control, the value flows back through the
+data model and out as a client-to-server action.
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant Control as Avalonia Control<br/>(TextBox, ComboBox, etc.)
+  participant Entry as ICatalogEntry
+  participant Helper as InputHelper
+  participant Ctx as RenderContext
+  participant DM as DataModel
+  participant Surface as A2UiSurface
+  participant Bridge as AgentEventBridge
+  participant App as Transport / App Layer
+
+  User->>Control: type / select / drag
+  Control->>Entry: event handler fires
+
+  Entry->>Helper: NotifyValueChanged(ctx, bindingPath, value, componentId)
+  Helper->>Ctx: UpdateDataModel(path, value)
+  Ctx->>DM: Apply(path, value)
+  Note over DM: Local data model updated
+  Ctx-->>Surface: DataModelChanged event
+
+  Helper->>Ctx: FireUserAction("valueChanged", value, componentId)
+  Ctx-->>Surface: UserActionFired event
+
+  Surface->>Bridge: OnUserAction(eventArgs)
+  Bridge-->>App: UserActionReceived event
+  Note over App: Serialize ClientToServerMessage<br/>Attach ClientDataModel metadata<br/>Send to agent via transport
+```
+
+### 5.6 Component Rendering Lifecycle
+
+How the renderer decides between creating a new control and updating an existing one.
+
+```mermaid
+flowchart TD
+  Start["ComponentsUpdated event received"]
+  Cached{"Control cached<br/>for this component?"}
+  Update["Call entry.Update(existing, component, dm, ctx)"]
+  Updated{"Update returned<br/>true?"}
+  Create["Call entry.Create(component, dm, ctx)"]
+  Cache["Cache control by componentId"]
+  Done["Control in visual tree"]
+
+  Start --> Cached
+  Cached -- "yes" --> Update
+  Cached -- "no" --> Create
+  Update --> Updated
+  Updated -- "yes (in-place)" --> Done
+  Updated -- "false (re-create)" --> Create
+  Create --> Cache --> Done
+```
+
+**In-place update support by component:**
+
+| Supports `Update() → true` | Always re-creates (`Update() → false`) |
+|----|-----|
+| TextField, CheckBox, Slider, DateTimeInput, ChoicePicker (ComboBox), Text, Icon, Divider, Image | Button, Card, Tabs, Modal, Row, Column, List, Video, AudioPlayer, ChoicePicker (multi-select/filterable) |
+
+### 5.7 DynamicValue Resolution
+
+How `RenderContext.Resolve()` turns a `DynamicValue` into a concrete string
+used by catalog entries for labels, text, bound values, etc.
+
+```mermaid
+flowchart TD
+  DV["DynamicValue"]
+  Literal{"Is literal?<br/>(string / number / bool)"}
+  Bound{"Has path?<br/>(data binding)"}
+  Func{"Has functionCall?"}
+  ResolvePath["DataModel.ResolvePath(path)<br/>RFC 6901 pointer + ~0/~1 unescape"]
+  EvalFunc["FunctionRegistry.Evaluate(call, args)<br/>→ ExpressionParser resolves nested args"]
+  ToString["Convert to string"]
+  Null["return null"]
+
+  DV --> Literal
+  Literal -- "yes" --> ToString
+  Literal -- "no" --> Bound
+  Bound -- "yes" --> ResolvePath --> ToString
+  Bound -- "no" --> Func
+  Func -- "yes" --> EvalFunc --> ToString
+  Func -- "no" --> Null
+```
+
+### 5.8 Template Expansion (List Component)
+
+How `List` with `children.template` renders one child per data model array item.
+
+```mermaid
+sequenceDiagram
+  participant Renderer as A2UiRenderer
+  participant Ctx as RenderContext
+  participant DM as DataModel
+  participant Entry as ICatalogEntry (child)
+
+  Renderer->>Ctx: RenderChildren("list-1")
+  Ctx->>Ctx: Detect children.template on "list-1"
+  Ctx->>DM: GetArrayLength(template.dataPath)
+  DM-->>Ctx: N items
+
+  loop for each index 0..N-1
+    Ctx->>Ctx: Create scoped RenderContext<br/>pathPrefix = dataPath/[index]
+    Ctx->>Entry: Create(templateComponent, dm, scopedCtx)
+    Note over Entry: DynamicValue paths resolve relative<br/>to /dataPath/[index]/...
+    Entry-->>Renderer: Avalonia Control
+  end
+
+  Renderer->>Renderer: Add N children to List panel
+```
+
 ---
 
 ## 6. Design Decisions
