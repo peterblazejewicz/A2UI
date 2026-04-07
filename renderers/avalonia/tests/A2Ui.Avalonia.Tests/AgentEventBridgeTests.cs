@@ -141,4 +141,128 @@ public sealed class AgentEventBridgeTests
 
         delta.Should().Be("Hello, world!");
     }
+
+    // ── End-to-end tool call → surface processing tests ──
+
+    [AvaloniaFact]
+    public async Task ProcessLoop_ValidRenderUiToolCall_CreatesSurface()
+    {
+        var sm = new SurfaceManager();
+        using var bridge = new AgentEventBridge(sm);
+
+        bool surfaceCreated = false;
+        sm.SurfaceCreated += (_, _) => surfaceCreated = true;
+
+        bridge.Start();
+
+        // Simulate a complete render_ui tool call with a createSurface JSONL payload
+        await bridge
+            .WriteEventAsync(new ToolCallStartEvent { ToolCallId = "tc-e2e", ToolCallName = "render_ui" })
+            .ConfigureAwait(true);
+        await bridge
+            .WriteEventAsync(
+                new ToolCallArgsEvent
+                {
+                    ToolCallId = "tc-e2e",
+                    Delta = """{"version":"v0.9","createSurface":{"surfaceId":"e2e-test","catalogId":"basic"}}""",
+                }
+            )
+            .ConfigureAwait(true);
+        await bridge.WriteEventAsync(new ToolCallEndEvent { ToolCallId = "tc-e2e" }).ConfigureAwait(true);
+
+        await DrainAndPumpAsync().ConfigureAwait(true);
+        bridge.Stop();
+
+        surfaceCreated.Should().BeTrue("the bridge should process valid render_ui tool calls");
+        sm.GetSurface("e2e-test").Should().NotBeNull();
+        sm.GetSurface("e2e-test")!.CatalogId.Should().Be("basic");
+    }
+
+    [AvaloniaFact]
+    public async Task ProcessLoop_ValidRenderUiToolCall_ProcessesUpdateComponents()
+    {
+        var sm = new SurfaceManager();
+        using var bridge = new AgentEventBridge(sm);
+
+        bridge.Start();
+
+        // First tool call: createSurface
+        await bridge
+            .WriteEventAsync(new ToolCallStartEvent { ToolCallId = "tc-create", ToolCallName = "render_ui" })
+            .ConfigureAwait(true);
+        await bridge
+            .WriteEventAsync(
+                new ToolCallArgsEvent
+                {
+                    ToolCallId = "tc-create",
+                    Delta = """{"version":"v0.9","createSurface":{"surfaceId":"e2e-uc","catalogId":"basic"}}""",
+                }
+            )
+            .ConfigureAwait(true);
+        await bridge.WriteEventAsync(new ToolCallEndEvent { ToolCallId = "tc-create" }).ConfigureAwait(true);
+
+        await DrainAndPumpAsync().ConfigureAwait(true);
+
+        // Second tool call: updateComponents (multi-line JSONL)
+        string updateJsonl =
+            """{"version":"v0.9","updateComponents":{"surfaceId":"e2e-uc","components":[{"id":"root","component":"Column"},{"id":"t1","component":"Text"}]}}""";
+
+        await bridge
+            .WriteEventAsync(new ToolCallStartEvent { ToolCallId = "tc-update", ToolCallName = "render_ui" })
+            .ConfigureAwait(true);
+        await bridge
+            .WriteEventAsync(new ToolCallArgsEvent { ToolCallId = "tc-update", Delta = updateJsonl })
+            .ConfigureAwait(true);
+        await bridge.WriteEventAsync(new ToolCallEndEvent { ToolCallId = "tc-update" }).ConfigureAwait(true);
+
+        await DrainAndPumpAsync().ConfigureAwait(true);
+        bridge.Stop();
+
+        var surface = sm.GetSurface("e2e-uc");
+        surface.Should().NotBeNull();
+        surface!.Components.Should().HaveCount(2);
+        surface.Components.Should().ContainKey("root");
+        surface.Components.Should().ContainKey("t1");
+    }
+
+    [AvaloniaFact]
+    public async Task ProcessLoop_InvalidToolCallPayload_SkipsAndContinues()
+    {
+        var sm = new SurfaceManager();
+        using var bridge = new AgentEventBridge(sm);
+
+        bridge.Start();
+
+        // First tool call: invalid JSON payload
+        await bridge
+            .WriteEventAsync(new ToolCallStartEvent { ToolCallId = "tc-bad", ToolCallName = "render_ui" })
+            .ConfigureAwait(true);
+        await bridge
+            .WriteEventAsync(new ToolCallArgsEvent { ToolCallId = "tc-bad", Delta = "not valid json {{{" })
+            .ConfigureAwait(true);
+        await bridge.WriteEventAsync(new ToolCallEndEvent { ToolCallId = "tc-bad" }).ConfigureAwait(true);
+
+        await DrainAndPumpAsync().ConfigureAwait(true);
+
+        // Second tool call: valid payload — bridge should have recovered
+        await bridge
+            .WriteEventAsync(new ToolCallStartEvent { ToolCallId = "tc-good", ToolCallName = "render_ui" })
+            .ConfigureAwait(true);
+        await bridge
+            .WriteEventAsync(
+                new ToolCallArgsEvent
+                {
+                    ToolCallId = "tc-good",
+                    Delta = """{"version":"v0.9","createSurface":{"surfaceId":"recovered","catalogId":"basic"}}""",
+                }
+            )
+            .ConfigureAwait(true);
+        await bridge.WriteEventAsync(new ToolCallEndEvent { ToolCallId = "tc-good" }).ConfigureAwait(true);
+
+        await DrainAndPumpAsync().ConfigureAwait(true);
+        bridge.Stop();
+
+        // The invalid payload should have been skipped; the valid one should succeed
+        sm.GetSurface("recovered").Should().NotBeNull("bridge should recover from invalid payloads");
+    }
 }
