@@ -14,6 +14,10 @@ Deliverables living inside this repository:
 **Branch:** `feature/dotnet-avalonia-renderer`
 **Host:** Windows 11 Pro (development workstation)
 
+> **Implementation status:** See [`docs/DOTNET_AVALONIA_IMPLEMENTATION.md`](docs/DOTNET_AVALONIA_IMPLEMENTATION.md)
+> for the authoritative status tracker — protocol coverage, actor/component map,
+> architecture diagrams, design decisions, and review history.
+
 ---
 
 ## Repository Structure (actual)
@@ -45,10 +49,10 @@ A2UI/                                  ← repo root (fork of google/A2UI)
 ├── agent_sdks/                        ← SDK implementations per language
 │   ├── python/                        ← existing reference implementation
 │   ├── java/                          ← existing reference implementation
-│   └── dotnet/                        ← OUR NEW CODE
+│   └── dotnet/                        ← OUR .NET/C# CODE
 │       ├── src/
-│       │   ├── AgUi.Protocol/         ← AG-UI 28-event types + SSE transport
-│       │   └── A2Ui.Core/             ← A2UI message model, DynamicValue, SurfaceManager
+│       │   ├── AgUi.Protocol/         ← AG-UI 28-event types, SSE parser, tool-call accumulator
+│       │   └── A2Ui.Core/             ← A2UI messages, validation, SurfaceManager, DataModel, ProtocolContracts
 │       ├── tests/
 │       │   ├── AgUi.Protocol.Tests/
 │       │   └── A2Ui.Core.Tests/
@@ -59,11 +63,11 @@ A2UI/                                  ← repo root (fork of google/A2UI)
 │   ├── angular/                       ← existing Angular renderer
 │   ├── web_core/                      ← shared web core
 │   ├── markdown/
-│   └── avalonia/                      ← OUR NEW CODE
+│   └── avalonia/                      ← OUR AVALONIA RENDERER
 │       ├── src/
-│       │   └── A2Ui.Avalonia/        ← catalog registry + 18 v0.9 catalog entries
+│       │   └── A2Ui.Avalonia/        ← catalog registry, 18 entries, function registry, bridge
 │       └── tests/
-│           └── A2Ui.Avalonia.Tests/  ← Avalonia.Headless.XUnit
+│           └── A2Ui.Avalonia.Tests/  ← Avalonia.Headless.XUnit + integration tests
 │
 ├── samples/
 │   ├── agent/adk/                     ← Python reference agents
@@ -169,6 +173,9 @@ dotnet build samples/client/avalonia/gallery_v0_9/A2Ui.Avalonia.Gallery.csproj -
 dotnet csharpier .
 ```
 
+A PostToolUse hook in `.claude/settings.json` auto-formats `.cs` files after
+every Write/Edit — manual formatting is rarely needed.
+
 ---
 
 ## Git Workflow
@@ -208,6 +215,9 @@ Extension: `RAW` `CUSTOM`
 **A2UI messages (client→server):**
 `action` `error`
 
+**Transport metadata schemas (not first-class messages — flow via A2A/MCP metadata):**
+`ServerCapabilities` `ClientCapabilities` `ClientDataModel`
+
 **Catalog types from `specification/v0_9/json/basic_catalog.json` (18 types):**
 Display: `Text` `Image` `Icon` `Video` `AudioPlayer` `Divider`
 Layout: `Row` `Column` `List` `Card` `Tabs` `Modal`
@@ -215,23 +225,21 @@ Interactive: `Button` `TextField` `CheckBox` `ChoicePicker` `DateTimeInput` `Sli
 
 ---
 
-## Existing Code to Study Before Writing Any .NET
+## Reference Code
 
 ```bash
-# 1. Read the spec first
+# 1. Spec (authoritative)
 cat specification/v0_9/docs/a2ui_protocol.md
 
-# 2. Python SDK — understand the message model
-ls agent_sdks/python/src/
+# 2. Our .NET implementation — the code itself
+ls agent_sdks/dotnet/src/AgUi.Protocol/      # AG-UI events + SSE transport
+ls agent_sdks/dotnet/src/A2Ui.Core/          # A2UI messages, state, validation
+ls renderers/avalonia/src/A2Ui.Avalonia/     # Avalonia renderer + bridge
 
-# 3. Lit renderer — simplest catalog pattern
-ls renderers/lit/src/
-
-# 4. Angular renderer — typed catalog entries, closest to C# structure
-ls renderers/angular/src/
-
-# 5. Lit gallery — source for the Avalonia gallery port
-ls samples/client/lit/gallery_v0_9/
+# 3. Other SDK/renderer implementations (for cross-reference)
+ls agent_sdks/python/src/                    # Python SDK (reference)
+ls renderers/lit/src/                        # Lit renderer (simplest catalog)
+ls renderers/angular/src/                    # Angular renderer (typed, closest to C#)
 
 # Flutter renderer is external: https://github.com/flutter/genui
 ```
