@@ -1,8 +1,10 @@
 using A2Ui.Core;
 using A2Ui.Core.Messages;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 
 namespace A2Ui.Avalonia.Catalog;
 
@@ -21,11 +23,7 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
-        var tb = new TextBox
-        {
-            Text      = ctx.Resolve(c.Value) ?? string.Empty,
-            Watermark = ctx.Resolve(c.Label),
-        };
+        var tb = new TextBox { Text = ctx.Resolve(c.Value) ?? string.Empty, Watermark = ctx.Resolve(c.Label) };
 
         if (c.Variant is "obscured")
             tb.PasswordChar = '\u2022'; // bullet character
@@ -40,26 +38,23 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
 
         tb.PropertyChanged += (sender, args) =>
         {
-            if (args.Property != TextBox.TextProperty) return;
-            if (sender is TextBox box && box.Tag is UpdatingTag) return;
+            if (args.Property != TextBox.TextProperty)
+                return;
+            if (sender is TextBox box && box.Tag is UpdatingTag)
+                return;
 
-            string? newText = tb.Text;
-
-            if (bindingPath is not null)
-                ctx.UpdateDataModel(bindingPath, newText);
-
-            ctx.FireUserAction(InputEvents.ValueChanged, newText, componentId);
+            InputHelper.NotifyValueChanged(ctx, bindingPath, tb.Text, componentId);
         };
 
         return CheckHelper.ApplyChecks(tb, c, ctx);
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
         // Find the TextBox — either directly cached or inside a check wrapper StackPanel
         TextBox? tb = CheckHelper.FindInner<TextBox>(existing);
-        if (tb is null) return false;
+        if (tb is null)
+            return false;
 
         if (!tb.IsFocused)
         {
@@ -84,57 +79,252 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
-        var picker = new CalendarDatePicker
-        {
-            Watermark = ctx.Resolve(c.Label) ?? "Select date",
-        };
+        var picker = new CalendarDatePicker { Watermark = ctx.Resolve(c.Label) ?? "Select date" };
 
         var raw = ctx.Resolve(c.Value);
         if (raw is not null && DateOnly.TryParse(raw, out var date))
             picker.SelectedDate = date.ToDateTime(TimeOnly.MinValue);
 
+        string? dateBindingPath = c.Value?.Path;
+        string dateComponentId = c.Id;
         picker.SelectedDateChanged += (_, _) =>
         {
             string? isoDate = picker.SelectedDate?.ToString("yyyy-MM-dd");
-            ctx.FireUserAction(InputEvents.ValueChanged, isoDate);
+            InputHelper.NotifyValueChanged(ctx, dateBindingPath, isoDate, dateComponentId);
         };
 
         return CheckHelper.ApplyChecks(picker, c, ctx);
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
 }
 
-/// <summary>A2UI "ChoicePicker" → ComboBox with options.</summary>
+/// <summary>
+/// A2UI "ChoicePicker" → variant-aware control.
+/// - mutuallyExclusive (default): ComboBox, or AutoCompleteBox when filterable.
+/// - multipleSelection: ListBox with CheckBox items (checkbox style) or
+///   WrapPanel with ToggleButton items (chips style).
+/// Value is always a DynamicStringList (array of selected values).
+/// </summary>
 public sealed class ChoicePickerCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "ChoicePicker";
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
-        var combo = new ComboBox
-        {
-            PlaceholderText = ctx.Resolve(c.Label),
-        };
+        string? bindingPath = c.Value?.Path;
+        string componentId = c.Id;
+        bool isMultiple = c.Variant is "multipleSelection";
+        var currentValues = ResolveCurrentValues(c.Value, ctx);
 
-        if (c.Options is { } opts)
+        Control control = isMultiple
+            ? CreateMultipleSelection(c, ctx, bindingPath, componentId, currentValues)
+            : CreateMutuallyExclusive(c, ctx, bindingPath, componentId, currentValues);
+
+        return CheckHelper.ApplyChecks(control, c, ctx);
+    }
+
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+
+    private static Control CreateMutuallyExclusive(
+        A2UiComponent c,
+        IRenderContext ctx,
+        string? bindingPath,
+        string componentId,
+        HashSet<string> currentValues
+    )
+    {
+        if (c.Filterable is true)
         {
-            foreach (var opt in opts)
-                combo.Items.Add(new ComboBoxItem { Content = opt.Label, Tag = opt.Value });
+            var autoComplete = new AutoCompleteBox
+            {
+                Watermark = ctx.Resolve(c.Label),
+                FilterMode = AutoCompleteFilterMode.ContainsOrdinal,
+            };
+
+            if (c.Options is { } opts)
+                autoComplete.ItemsSource = opts.Select(o => o.Label).ToArray();
+
+            // Set initial selected text
+            if (currentValues.Count > 0 && c.Options is { } options)
+            {
+                var match = options.FirstOrDefault(o => currentValues.Contains(o.Value));
+                if (match is not null)
+                    autoComplete.Text = match.Label;
+            }
+
+            autoComplete.SelectionChanged += (_, _) =>
+            {
+                // Map selected label back to value
+                string? selectedLabel = autoComplete.SelectedItem as string;
+                string? selectedValue = c.Options?.FirstOrDefault(o => o.Label == selectedLabel)?.Value;
+                if (selectedValue is not null)
+                    InputHelper.NotifyValueChanged(ctx, bindingPath, selectedValue, componentId);
+            };
+
+            return autoComplete;
+        }
+
+        var combo = new ComboBox { PlaceholderText = ctx.Resolve(c.Label) };
+
+        if (c.Options is { } comboOpts)
+        {
+            int selectedIndex = -1;
+            for (int i = 0; i < comboOpts.Length; i++)
+            {
+                combo.Items.Add(new ComboBoxItem { Content = comboOpts[i].Label, Tag = comboOpts[i].Value });
+                if (currentValues.Contains(comboOpts[i].Value))
+                    selectedIndex = i;
+            }
+            if (selectedIndex >= 0)
+                combo.SelectedIndex = selectedIndex;
         }
 
         combo.SelectionChanged += (_, _) =>
         {
             string? selectedValue = (combo.SelectedItem as ComboBoxItem)?.Tag as string;
-            ctx.FireUserAction(InputEvents.ValueChanged, selectedValue);
+            InputHelper.NotifyValueChanged(ctx, bindingPath, selectedValue, componentId);
         };
 
-        return CheckHelper.ApplyChecks(combo, c, ctx);
+        return combo;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx) => false;
+    private static Control CreateMultipleSelection(
+        A2UiComponent c,
+        IRenderContext ctx,
+        string? bindingPath,
+        string componentId,
+        HashSet<string> currentValues
+    )
+    {
+        bool useChips = c.DisplayStyle is "chips";
+
+        if (useChips)
+        {
+            var panel = new WrapPanel { Orientation = Orientation.Horizontal };
+            if (c.Options is { } opts)
+            {
+                foreach (var opt in opts)
+                {
+                    var toggle = new ToggleButton
+                    {
+                        Content = opt.Label,
+                        Tag = opt.Value,
+                        IsChecked = currentValues.Contains(opt.Value),
+                        Margin = new Thickness(2),
+                    };
+                    toggle.Classes.Add("chip");
+                    panel.Children.Add(toggle);
+                }
+            }
+
+            // Fire on any toggle change
+            panel.AddHandler(
+                ToggleButton.IsCheckedChangedEvent,
+                (_, _) =>
+                {
+                    var selected = panel
+                        .Children.OfType<ToggleButton>()
+                        .Where(t => t.IsChecked == true)
+                        .Select(t => t.Tag as string)
+                        .Where(v => v is not null)
+                        .ToArray();
+                    string serialized = System.Text.Json.JsonSerializer.Serialize(selected);
+                    InputHelper.NotifyValueChanged(ctx, bindingPath, serialized, componentId);
+                },
+                RoutingStrategies.Bubble
+            );
+
+            return panel;
+        }
+
+        // Default: checkbox-style ListBox
+        var listBox = new ListBox { SelectionMode = SelectionMode.Multiple | SelectionMode.Toggle };
+
+        if (c.Options is { } listOpts)
+        {
+            foreach (var opt in listOpts)
+            {
+                var item = new ListBoxItem
+                {
+                    Content = new CheckBox { Content = opt.Label, IsChecked = currentValues.Contains(opt.Value) },
+                    Tag = opt.Value,
+                };
+                listBox.Items.Add(item);
+            }
+        }
+
+        // SelectionChanged is the source of truth — sync CheckBox visuals from it
+        listBox.SelectionChanged += (_, _) =>
+        {
+            // Sync CheckBox visuals to match actual selection state
+            foreach (var lbi in listBox.Items.OfType<ListBoxItem>())
+            {
+                if (lbi.Content is CheckBox innerCb)
+                    innerCb.IsChecked = listBox.SelectedItems!.Contains(lbi);
+            }
+
+            var selected = listBox
+                .SelectedItems!.OfType<ListBoxItem>()
+                .Select(item => item.Tag as string)
+                .Where(v => v is not null)
+                .ToArray();
+            string serialized = System.Text.Json.JsonSerializer.Serialize(selected);
+            InputHelper.NotifyValueChanged(ctx, bindingPath, serialized, componentId);
+        };
+
+        // Apply initial selection to ListBox model (CheckBox IsChecked was set during construction)
+        foreach (var item in listBox.Items.OfType<ListBoxItem>())
+        {
+            if (item.Content is CheckBox cb && cb.IsChecked == true)
+                listBox.SelectedItems!.Add(item);
+        }
+
+        return listBox;
+    }
+
+    /// <summary>
+    /// Resolve the current selected values from the data model.
+    /// The value is a DynamicStringList — it may be a JSON array literal or a bound path.
+    /// </summary>
+    private static HashSet<string> ResolveCurrentValues(DynamicValue? value, IRenderContext ctx)
+    {
+        if (value is null)
+            return [];
+
+        // If it's an array literal, extract string values
+        if (value.ArrayLiteral is { } arr)
+        {
+            var set = new HashSet<string>();
+            foreach (var el in arr.EnumerateArray())
+            {
+                if (el.ValueKind == System.Text.Json.JsonValueKind.String)
+                    set.Add(el.GetString()!);
+            }
+            return set;
+        }
+
+        // If bound to a path, resolve and try to parse as JSON array
+        string? resolved = ctx.Resolve(value);
+        if (resolved is null)
+            return [];
+
+        // Could be a JSON array string like ["a","b"] or a single value
+        if (resolved.StartsWith('['))
+        {
+            try
+            {
+                var items = System.Text.Json.JsonSerializer.Deserialize<string[]>(resolved);
+                return items is not null ? new HashSet<string>(items) : [];
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                return [resolved];
+            }
+        }
+
+        return [resolved];
+    }
 }
 
 /// <summary>A2UI "CheckBox" → CheckBox control.</summary>
@@ -147,27 +337,24 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
         bool isChecked = ctx.Resolve(c.Value) is "true";
-        var cb = new CheckBox
-        {
-            Content   = ctx.Resolve(c.Label),
-            IsChecked = isChecked,
-        };
+        var cb = new CheckBox { Content = ctx.Resolve(c.Label), IsChecked = isChecked };
 
         cb.IsCheckedChanged += (sender, _) =>
         {
             // Skip events fired by programmatic updates in Update()
-            if (sender is CheckBox box && box.Tag is UpdatingTag) return;
+            if (sender is CheckBox box && box.Tag is UpdatingTag)
+                return;
             ctx.FireUserAction(InputEvents.ValueChanged, cb.IsChecked == true ? "true" : "false");
         };
 
         return CheckHelper.ApplyChecks(cb, c, ctx);
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
         CheckBox? cb = CheckHelper.FindInner<CheckBox>(existing);
-        if (cb is null) return false;
+        if (cb is null)
+            return false;
 
         if (!cb.IsFocused)
         {
@@ -197,21 +384,31 @@ public sealed class SliderCatalogEntry : ICatalogEntry
         if (ctx.Resolve(c.Max) is { } maxStr)
             double.TryParse(maxStr, out max);
 
-        var slider = new Slider { Value = val, Minimum = min, Maximum = max };
+        var slider = new Slider
+        {
+            Value = val,
+            Minimum = min,
+            Maximum = max,
+        };
 
         // Fire on thumb drag complete, not on every pixel move
-        slider.AddHandler(Thumb.DragCompletedEvent, (_, _) =>
-            ctx.FireUserAction(InputEvents.ValueChanged, slider.Value.ToString("G")),
-            RoutingStrategies.Bubble);
+        string? sliderBindingPath = c.Value?.Path;
+        string sliderComponentId = c.Id;
+        slider.AddHandler(
+            Thumb.DragCompletedEvent,
+            (_, _) =>
+                InputHelper.NotifyValueChanged(ctx, sliderBindingPath, slider.Value.ToString("G"), sliderComponentId),
+            RoutingStrategies.Bubble
+        );
 
         return CheckHelper.ApplyChecks(slider, c, ctx);
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm,
-                       IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
         Slider? s = CheckHelper.FindInner<Slider>(existing);
-        if (s is null) return false;
+        if (s is null)
+            return false;
 
         if (!s.IsFocused && double.TryParse(ctx.Resolve(c.Value), out double val))
             s.Value = val;
