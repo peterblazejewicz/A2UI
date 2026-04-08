@@ -1,5 +1,19 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "$d = $input | ConvertFrom-Json; $f = $d.tool_input.file_path; if ($f -match 'specification[\\\\/]') { Write-Output '{\"decision\": \"block\", \"reason\": \"specification/ is read-only upstream reference\"}' } else { Write-Output '{\"decision\": \"approve\"}' }",
+            "timeout": 5,
+            "statusMessage": "Checking spec directory..."
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Write|Edit",
