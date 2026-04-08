@@ -10,7 +10,7 @@ Deliverables living inside this repository:
 - `renderers/avalonia/` — Avalonia renderer: catalog registry + control implementations
 - `samples/client/avalonia/` — Gallery v0.9 port (Shell client planned next)
 
-**Fork:** `https://github.com/<your-handle>/A2UI`
+**Fork:** `https://github.com/peterblazejewicz/A2UI`
 **Branch:** `feature/dotnet-avalonia-renderer`
 **Host:** Windows 11 Pro (development workstation)
 
@@ -75,7 +75,7 @@ A2UI/                                  ← repo root (fork of google/A2UI)
 │           └── gallery_v0_9/          ← v0.9 local gallery (MVVM desktop app)
 │
 └── tools/
-    └── composer/                      ← original web Composer (source to study for port)
+    └── composer/                      ← original web Composer (upstream, not ported)
 ```
 
 ---
@@ -127,7 +127,7 @@ export DOTNET_CLI_TELEMETRY_OPTOUT=1
 Run from the repo root:
 
 ```bash
-# Build everything (all 8 projects)
+# Build everything (all 7 projects)
 dotnet build A2Ui.slnx --configuration Release
 
 # Test everything
@@ -221,38 +221,9 @@ Interactive: `Button` `TextField` `CheckBox` `ChoicePicker` `DateTimeInput` `Sli
 
 ---
 
-## Reference Code
+## Cross-Reference Implementations
 
-```bash
-# 1. Spec (authoritative)
-cat specification/v0_9/docs/a2ui_protocol.md
-
-# 2. Our .NET implementation — the code itself
-ls agent_sdks/dotnet/src/AgUi.Protocol/      # AG-UI events + SSE transport
-ls agent_sdks/dotnet/src/A2Ui.Core/          # A2UI messages, state, validation
-ls renderers/avalonia/src/A2Ui.Avalonia/     # Avalonia renderer + bridge
-
-# 3. Other SDK/renderer implementations (for cross-reference)
-ls agent_sdks/python/src/                    # Python SDK (reference)
-ls renderers/lit/src/                        # Lit renderer (simplest catalog)
-ls renderers/angular/src/                    # Angular renderer (typed, closest to C#)
-
-# Flutter renderer is external: https://github.com/flutter/genui
-```
-
----
-
-## Licenses
-
-| Component | License |
-|-----------|---------|
-| A2UI spec + this repo | Apache 2.0 |
-| AG-UI spec | MIT |
-| Avalonia | MIT |
-| CommunityToolkit.Mvvm | MIT |
-| xUnit | Apache 2.0 |
-| FluentAssertions | Apache 2.0 |
-| NSubstitute | BSD 3-Clause |
-| Coverlet | MIT |
-| CSharpier | Apache 2.0 |
-| Roslynator | MIT |
+For porting decisions, compare with existing SDK/renderer implementations:
+- `agent_sdks/python/src/` — Python SDK (reference)
+- `renderers/lit/src/` — Lit renderer (simplest catalog)
+- `renderers/angular/src/` — Angular renderer (typed, closest to C#)
