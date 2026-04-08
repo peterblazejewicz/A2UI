@@ -29,9 +29,6 @@ A2UI/                                  ← repo root (fork of google/A2UI)
 ├── global.json                        ← .NET SDK version pin
 ├── Directory.Build.props              ← shared MSBuild settings (Nullable, analyzers)
 ├── Directory.Packages.props           ← central package management
-├── .claude/
-│   ├── commands/                      ← /slash commands
-│   └── skills/                        ← auto-loaded skill instructions
 │
 ├── specification/                     ← A2UI protocol specs (read-only reference)
 │   ├── v0_8/                          ← stable
@@ -242,19 +239,6 @@ ls renderers/angular/src/                    # Angular renderer (typed, closest 
 
 # Flutter renderer is external: https://github.com/flutter/genui
 ```
-
----
-
-## Available Slash Commands
-
-| Command | Purpose |
-|---------|---------|
-| `/env-check` | Verify dotnet, git, Ollama model |
-| `/scan-repo` | Read spec files and map existing renderers |
-| `/dotnet-build` | Build with error summary |
-| `/dotnet-test` | Run tests with pass/fail summary |
-| `/coverage` | Generate coverage report |
-| `/new-feature` | Scaffold feature branch |
 
 ---
 
