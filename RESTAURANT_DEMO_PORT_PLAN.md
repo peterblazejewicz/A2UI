@@ -13,7 +13,7 @@ The Restaurant Demo is the premier candidate because it exercises the most proto
 - **Client app name:** `Shell` → `samples/client/avalonia/Shell/` (PascalCase per .NET convention, matches Lit client naming)
 - **Phase 1 transport:** A2A over HTTP (matches existing Python agent)
 - **Phase 2 LLM provider:** Ollama for local development (no API key needed)
-- **Composer scaffold:** Will be removed separately — not used as a starting point
+- **Composer scaffold:** Removed (was empty, not used as starting point)
 
 ---
 
@@ -59,7 +59,7 @@ The Restaurant Demo is the premier candidate because it exercises the most proto
 
 #### A. Avalonia Shell Client (`samples/client/avalonia/Shell/`)
 
-New project — fresh, not based on the Composer scaffold.
+New project (Composer scaffold has been removed).
 
 | Component | Purpose | Reuse from Gallery? |
 |-----------|---------|-------------------|

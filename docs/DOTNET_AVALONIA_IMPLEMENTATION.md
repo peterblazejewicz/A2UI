@@ -22,7 +22,7 @@ events through A2UI message processing to Avalonia desktop controls.
 
 ## 2. Solution Structure
 
-**Solution file:** `A2Ui.slnx` (8 projects, 38 hand-authored source files)
+**Solution file:** `A2Ui.slnx` (7 projects, 38 hand-authored source files)
 
 | Project | Path | Purpose |
 |---------|------|---------|
@@ -33,7 +33,6 @@ events through A2UI message processing to Avalonia desktop controls.
 | `A2Ui.Core.Tests` | `agent_sdks/dotnet/tests/A2Ui.Core.Tests/` | Message, validation, data model, surface manager tests |
 | `A2Ui.Avalonia.Tests` | `renderers/avalonia/tests/A2Ui.Avalonia.Tests/` | Headless renderer, catalog entry, integration, bridge tests |
 | `A2Ui.Avalonia.Gallery` | `samples/client/avalonia/gallery_v0_9/` | Offline spec-example replay harness |
-| `A2Ui.Avalonia.Composer` | `samples/client/avalonia/composer/` | Scaffold for future agent-connected app |
 
 **Shared build settings** (`Directory.Build.props`): `Nullable: enable`, `TreatWarningsAsErrors: true`, `LangVersion: latest`, Roslynator + NetAnalyzers enabled.
 
@@ -398,7 +397,7 @@ code review and accepted with rationale.
 |----------|-----------|
 | `DynamicValue` union covers `DynamicBoolean`/`DynamicString`/etc. | The spec's `DynamicBoolean` is a schema constraint, not a distinct runtime type. One union type handles all shapes correctly. |
 | No chunk-event expansion helper | No reference implementation (Python, Java, Lit, Angular) provides this. Chunk events deserialize correctly; expansion is consumer-side. |
-| No `sendDataModel` packaging in Core | Core stores the flag; packaging depends on transport (A2A, MCP). Belongs in Composer/transport layer. |
+| No `sendDataModel` packaging in Core | Core stores the flag; packaging depends on transport (A2A, MCP). Belongs in Shell/transport layer. |
 | Permissive `GetRootComponents()` fallbacks | Supports incremental loading and backward compatibility. Root absence is surfaced via warning log, not rejection. |
 | ChoicePicker multi-select returns `false` from `Update()` | ComboBox variant updates in-place. Multi-select/filterable variants re-create due to state sync complexity. Acceptable trade-off. |
 | `CultureInfo.GetCultureInfo("en-US")` with fallback | FormatNumber/FormatCurrency target en-US formatting. Falls back to InvariantCulture in globalization-invariant mode (Docker, trimmed apps). |
@@ -442,7 +441,7 @@ dotnet test A2Ui.slnx --configuration Release
 
 | Priority | Item | Notes |
 |----------|------|-------|
-| Next | **Composer app** | Agent-connected round-trip over A2A/MCP transport |
+| Next | **Shell client** | Agent-connected round-trip over A2A transport (see `RESTAURANT_DEMO_PORT_PLAN.md`) |
 | Next | **Transport bindings** | Wire `ProtocolContracts` DTOs into A2A AgentCard / MCP initialization |
 | Later | **v0.10 review** | Evaluate `specification/v0_10/` when draft stabilizes |
 | Later | **Media controls** | LibVLCSharp or similar for Video/AudioPlayer |

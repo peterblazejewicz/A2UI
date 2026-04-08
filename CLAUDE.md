@@ -8,7 +8,7 @@ contributed directly to this fork of `google/A2UI` (Apache 2.0).
 Deliverables living inside this repository:
 - `agent_sdks/dotnet/` — C# SDK: AG-UI event types + A2UI message model
 - `renderers/avalonia/` — Avalonia renderer: catalog registry + control implementations
-- `samples/client/avalonia/` — Gallery v0.9 port + Composer scaffold (future)
+- `samples/client/avalonia/` — Gallery v0.9 port (Shell client planned next)
 
 **Fork:** `https://github.com/<your-handle>/A2UI`
 **Branch:** `feature/dotnet-avalonia-renderer`
@@ -25,7 +25,7 @@ Deliverables living inside this repository:
 ```
 A2UI/                                  ← repo root (fork of google/A2UI)
 ├── CLAUDE.md                          ← you are here
-├── A2Ui.slnx                         ← solution file (all 8 .NET projects)
+├── A2Ui.slnx                         ← solution file (all 7 .NET projects)
 ├── global.json                        ← .NET SDK version pin
 ├── Directory.Build.props              ← shared MSBuild settings (Nullable, analyzers)
 ├── Directory.Packages.props           ← central package management
@@ -75,8 +75,7 @@ A2UI/                                  ← repo root (fork of google/A2UI)
 │       ├── lit/                       ← existing web clients
 │       ├── angular/                   ← existing Angular clients
 │       └── avalonia/                  ← OUR NEW CODE
-│           ├── gallery_v0_9/          ← v0.9 local gallery (MVVM desktop app)
-│           └── composer/              ← placeholder scaffold for future agent-connected app
+│           └── gallery_v0_9/          ← v0.9 local gallery (MVVM desktop app)
 │
 └── tools/
     └── composer/                      ← original web Composer (source to study for port)
