@@ -221,6 +221,19 @@ Interactive: `Button` `TextField` `CheckBox` `ChoicePicker` `DateTimeInput` `Sli
 
 ---
 
+## Next Milestone
+
+**Restaurant Demo Shell** — see `RESTAURANT_DEMO_PORT_PLAN.md` for full plan.
+Key decisions: A2A over HTTP transport, v0.8 `userAction` outbound format
+(Python agent compatibility), v0.9 inbound messages.
+
+**Gotcha — action wire format:** Python agents read `DataPart.data.userAction`
+(v0.8 envelope). Our `ClientToServerMessage` is v0.9 format. For Phase 1,
+the Shell must serialize the v0.8 shape. See `samples/client/lit/shell/app.ts:492`
+and `samples/agent/adk/restaurant_finder/agent_executor.py:73-85`.
+
+---
+
 ## Cross-Reference Implementations
 
 For porting decisions, compare with existing SDK/renderer implementations:
