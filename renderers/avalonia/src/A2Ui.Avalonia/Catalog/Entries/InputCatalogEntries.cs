@@ -72,39 +72,78 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
     }
 }
 
-/// <summary>A2UI "DateTimeInput" → CalendarDatePicker.</summary>
+/// <summary>
+/// A2UI "DateTimeInput" → date picker, time picker, or both.
+/// Respects <see cref="A2UiComponent.EnableDate"/> (default true) and
+/// <see cref="A2UiComponent.EnableTime"/> (default false) to choose the control layout:
+/// <list type="bullet">
+///   <item>Date only → <see cref="CalendarDatePicker"/>, output <c>yyyy-MM-dd</c></item>
+///   <item>Date + time → <see cref="StackPanel"/> with CalendarDatePicker + TimePicker, output <c>yyyy-MM-ddTHH:mm:ss</c></item>
+///   <item>Time only → <see cref="TimePicker"/>, output <c>HH:mm:ss</c></item>
+/// </list>
+/// </summary>
 public sealed class DateTimeInputCatalogEntry : ICatalogEntry
 {
+    private const string DateTimeTag = "__dateTime";
+    private const string TimeOnlyTag = "__timeOnly";
+
     public string ComponentType => "DateTimeInput";
 
     public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
-        var picker = new CalendarDatePicker { Watermark = ctx.Resolve(c.Label) ?? "Select date" };
-
+        bool enableDate = c.EnableDate ?? true;
+        bool enableTime = c.EnableTime ?? false;
+        string? bindingPath = c.Value?.Path;
+        string componentId = c.Id;
         var raw = ctx.Resolve(c.Value);
-        if (raw is not null && DateOnly.TryParse(raw, out var date))
-            picker.SelectedDate = date.ToDateTime(TimeOnly.MinValue);
 
-        string? dateBindingPath = c.Value?.Path;
-        string dateComponentId = c.Id;
-        picker.SelectedDateChanged += (_, _) =>
-        {
-            string? isoDate = picker.SelectedDate?.ToString("yyyy-MM-dd");
-            InputHelper.NotifyValueChanged(ctx, dateBindingPath, isoDate, dateComponentId);
-        };
+        if (enableDate && enableTime)
+            return CheckHelper.ApplyChecks(CreateDateTimePicker(raw, bindingPath, componentId, ctx, c), c, ctx);
 
-        return CheckHelper.ApplyChecks(picker, c, ctx);
+        if (!enableDate && enableTime)
+            return CheckHelper.ApplyChecks(CreateTimePicker(raw, bindingPath, componentId, ctx), c, ctx);
+
+        // Default: date only
+        return CheckHelper.ApplyChecks(CreateDatePicker(raw, bindingPath, componentId, ctx, c), c, ctx);
     }
 
     public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
     {
+        var raw = ctx.Resolve(c.Value);
+
+        // Date + time composite panel
+        if (CheckHelper.FindInner<StackPanel>(existing) is { Tag: DateTimeTag } panel)
+        {
+            var datePicker = panel.Children.OfType<CalendarDatePicker>().FirstOrDefault();
+            var timePicker = panel.Children.OfType<TimePicker>().FirstOrDefault();
+            if (datePicker is null || timePicker is null)
+                return false;
+
+            if (!datePicker.IsFocused && raw is not null && DateTime.TryParse(raw, out var dt))
+            {
+                datePicker.SelectedDate = dt.Date;
+                timePicker.SelectedTime = dt.TimeOfDay;
+            }
+
+            datePicker.Watermark = ctx.Resolve(c.Label) ?? "Select date";
+            return true;
+        }
+
+        // Time only
+        if (CheckHelper.FindInner<TimePicker>(existing) is { } tp)
+        {
+            if (raw is not null && TimeSpan.TryParse(raw, out var ts))
+                tp.SelectedTime = ts;
+            return true;
+        }
+
+        // Date only (original)
         CalendarDatePicker? picker = CheckHelper.FindInner<CalendarDatePicker>(existing);
         if (picker is null)
             return false;
 
         if (!picker.IsFocused)
         {
-            var raw = ctx.Resolve(c.Value);
             picker.SelectedDate =
                 raw is not null && DateOnly.TryParse(raw, out var date) ? date.ToDateTime(TimeOnly.MinValue) : null;
         }
@@ -115,6 +154,91 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
             CheckHelper.UpdateChecks(wrapper, c, ctx);
 
         return true;
+    }
+
+    private static CalendarDatePicker CreateDatePicker(
+        string? raw,
+        string? bindingPath,
+        string componentId,
+        IRenderContext ctx,
+        A2UiComponent c
+    )
+    {
+        var picker = new CalendarDatePicker { Watermark = ctx.Resolve(c.Label) ?? "Select date" };
+
+        if (raw is not null && DateOnly.TryParse(raw, out var date))
+            picker.SelectedDate = date.ToDateTime(TimeOnly.MinValue);
+
+        picker.SelectedDateChanged += (_, _) =>
+        {
+            string? isoDate = picker.SelectedDate?.ToString("yyyy-MM-dd");
+            InputHelper.NotifyValueChanged(ctx, bindingPath, isoDate, componentId);
+        };
+
+        return picker;
+    }
+
+    private static StackPanel CreateDateTimePicker(
+        string? raw,
+        string? bindingPath,
+        string componentId,
+        IRenderContext ctx,
+        A2UiComponent c
+    )
+    {
+        var datePicker = new CalendarDatePicker { Watermark = ctx.Resolve(c.Label) ?? "Select date" };
+        var timePicker = new TimePicker { ClockIdentifier = "24HourClock" };
+
+        if (raw is not null && DateTime.TryParse(raw, out var dt))
+        {
+            datePicker.SelectedDate = dt.Date;
+            timePicker.SelectedTime = dt.TimeOfDay;
+        }
+
+        void NotifyCombined()
+        {
+            var d = datePicker.SelectedDate;
+            var t = timePicker.SelectedTime;
+            if (d is null && t is null)
+            {
+                InputHelper.NotifyValueChanged(ctx, bindingPath, null, componentId);
+                return;
+            }
+
+            var dateVal = d?.Date ?? DateTime.Today;
+            var timeVal = t ?? TimeSpan.Zero;
+            string iso = new DateTime(dateVal.Ticks + timeVal.Ticks).ToString("yyyy-MM-ddTHH:mm:ss");
+            InputHelper.NotifyValueChanged(ctx, bindingPath, iso, componentId);
+        }
+
+        datePicker.SelectedDateChanged += (_, _) => NotifyCombined();
+        timePicker.SelectedTimeChanged += (_, _) => NotifyCombined();
+
+        var panel = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = 8,
+            Tag = DateTimeTag,
+            Children = { datePicker, timePicker },
+        };
+
+        return panel;
+    }
+
+    private static TimePicker CreateTimePicker(string? raw, string? bindingPath, string componentId, IRenderContext ctx)
+    {
+        var timePicker = new TimePicker { ClockIdentifier = "24HourClock", Tag = TimeOnlyTag };
+
+        if (raw is not null && TimeSpan.TryParse(raw, out var ts))
+            timePicker.SelectedTime = ts;
+
+        timePicker.SelectedTimeChanged += (_, _) =>
+        {
+            string? isoTime = timePicker.SelectedTime?.ToString(@"hh\:mm\:ss");
+            InputHelper.NotifyValueChanged(ctx, bindingPath, isoTime, componentId);
+        };
+
+        return timePicker;
     }
 }
 
