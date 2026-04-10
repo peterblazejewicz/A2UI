@@ -17,6 +17,29 @@ The Restaurant Demo is the premier candidate because it exercises the most proto
 
 ---
 
+## Status (last updated 2026-04-10)
+
+**Branch:** `feature/restaurant-demo-shell`
+
+| Item | Status | Notes |
+|---|---|---|
+| Fix #1 — v0.8 `userAction` envelope | ✅ Done | `Shell/Services/UserActionSerializer.cs` — emits v0.8 `userAction` with `name` (not `actionName`) to match Lit shell convention. Isolated in the Shell sample; `A2Ui.Core` stays v0.9-pure. |
+| Fix #2 — A2A extension version | ✅ Done | `Shell/Services/A2AAgentClient.cs:17` — hardcodes `X-A2A-Extensions: https://a2ui.org/a2a-extension/a2ui/v0.9`. Python agent's `try_activate_a2ui_extension()` selects v0.9. |
+| Fix #3 — `DateTimeInput` time picker | ✅ Done | Commit `feat(avalonia-renderer): DateTimeInput enableDate/enableTime support`. Covers all three variants (date / date+time / time) with tagged panels and in-place `Update()`. |
+| Fix #4 — `SurfaceManager.Clear()` | ✅ Done | Commit `feat(dotnet-sdk): SurfaceManager.Clear()`. Called from `ShellViewModel.SendAsync` and `HandleUserActionAsync` before each round-trip. |
+| Phase 1 — Shell client scaffold | ✅ Code complete | Commit `feat(avalonia-app): Restaurant demo Shell client scaffold (Phase 1)`. All planned files present: `A2AAgentClient`, `UserActionSerializer`, `A2AProtocol` wire types, `ShellViewModel`, `ShellWindow`, `Program.cs` DI. Builds green, all tests pass on 2026-04-10. |
+| Phase 1 — Functional verification | ⏳ In progress | User is running through the 8-step test matrix at the bottom of this doc against the Python `restaurant_finder` agent on localhost:10002. |
+| Phase 2 — .NET agent (MS Agent Framework + Ollama) | ⬜ Not started | Blocked on Phase 1 verification. |
+| Phase 3 — Contact lookup | ⬜ Not started | |
+| Phase 4 — Orchestrator | ⬜ Not started | |
+
+### Known implementation notes
+
+- `A2AAgentClient` mutates `HttpClient.DefaultRequestHeaders` in the constructor (line 35). Fine for DI-scoped typed client; would leak if a shared `HttpMessageHandler` were reused across multiple `A2AAgentClient` instances with different extension versions. Acceptable for Phase 1.
+- `ShellViewModel.Clear()` is called on both text queries AND actions. The plan only strictly requires it for new prompts, but clearing on actions mirrors the Lit shell's per-round-trip surface replacement (list → booking form → confirmation).
+
+---
+
 ## Complete Sample Inventory
 
 | Sample | Type | LLM? | Protocol | Complexity | Porting Value |
