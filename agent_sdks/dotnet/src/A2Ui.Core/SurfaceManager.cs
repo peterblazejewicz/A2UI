@@ -75,6 +75,29 @@ public sealed class SurfaceManager
         }
     }
 
+    /// <summary>
+    /// Removes all tracked surfaces and fires <see cref="SurfaceDeleted"/> for each.
+    /// Used when a new prompt is sent and old surfaces should be discarded.
+    /// </summary>
+    public void Clear()
+    {
+        List<Surface> cleared;
+        lock (_lock)
+        {
+            cleared = [.. _surfaces.Values];
+            _surfaces.Clear();
+        }
+
+        foreach (var surface in cleared)
+        {
+            SurfaceManagerLog.SurfaceDeleted(_logger, surface.SurfaceId);
+            SurfaceDeleted?.Invoke(this, new SurfaceDeletedEventArgs(surface));
+        }
+
+        if (cleared.Count > 0)
+            SurfaceManagerLog.SurfacesCleared(_logger, cleared.Count);
+    }
+
     public Surface? GetSurface(string surfaceId)
     {
         lock (_lock)
@@ -237,4 +260,7 @@ internal static partial class SurfaceManagerLog
         Message = "Surface '{SurfaceId}' has no component with id 'root'; renderer will use fallback heuristic"
     )]
     public static partial void RootComponentMissing(ILogger logger, string surfaceId);
+
+    [LoggerMessage(EventId = 8, Level = LogLevel.Information, Message = "Cleared {Count} surface(s)")]
+    public static partial void SurfacesCleared(ILogger logger, int count);
 }

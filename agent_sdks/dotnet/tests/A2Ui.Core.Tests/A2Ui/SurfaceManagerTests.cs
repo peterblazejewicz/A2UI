@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using A2Ui.Core;
@@ -345,6 +346,73 @@ public sealed class SurfaceManagerTests
         var roots = sm.GetSurface("s1")!.GetRootComponents().ToList();
         roots.Should().ContainSingle();
         roots[0].Id.Should().Be("root");
+    }
+
+    [Fact]
+    public void Clear_RemovesAllSurfaces_FiresDeletedForEach()
+    {
+        var sm = new SurfaceManager();
+        var deletedIds = new List<string>();
+        sm.SurfaceDeleted += (_, e) => deletedIds.Add(e.Surface.SurfaceId);
+
+        foreach (var id in new[] { "s1", "s2", "s3" })
+        {
+            sm.Process(
+                new A2UiMessage
+                {
+                    Version = "v0.9",
+                    CreateSurface = new CreateSurface { SurfaceId = id, CatalogId = "c" },
+                }
+            );
+        }
+
+        sm.Clear();
+
+        deletedIds.Should().HaveCount(3);
+        deletedIds.Should().Contain(["s1", "s2", "s3"]);
+        sm.GetSurface("s1").Should().BeNull();
+        sm.GetSurface("s2").Should().BeNull();
+        sm.GetSurface("s3").Should().BeNull();
+    }
+
+    [Fact]
+    public void Clear_EmptyManager_NoEventsRaised()
+    {
+        var sm = new SurfaceManager();
+        bool fired = false;
+        sm.SurfaceDeleted += (_, _) => fired = true;
+
+        sm.Clear();
+
+        fired.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Clear_AllowsRecreateAfterClear()
+    {
+        var sm = new SurfaceManager();
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" },
+            }
+        );
+
+        sm.Clear();
+
+        Surface? recreated = null;
+        sm.SurfaceCreated += (_, e) => recreated = e.Surface;
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                CreateSurface = new CreateSurface { SurfaceId = "s1", CatalogId = "c" },
+            }
+        );
+
+        recreated.Should().NotBeNull();
+        recreated!.SurfaceId.Should().Be("s1");
     }
 
     [Fact]
