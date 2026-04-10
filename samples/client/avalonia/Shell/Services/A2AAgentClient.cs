@@ -13,8 +13,12 @@ namespace A2Ui.Avalonia.Shell.Services;
 public sealed class A2AAgentClient : IA2AClient
 {
     private const string A2UiMimeType = "application/json+a2ui";
-    private const string A2UiExtensionHeader = "X-A2A-Extensions";
-    private const string A2UiExtensionUri = "https://a2ui.org/a2a-extension/a2ui/v0.9";
+
+    /// <summary>A2A extension negotiation header name. Used by DI at client registration time.</summary>
+    internal const string A2UiExtensionHeader = "X-A2A-Extensions";
+
+    /// <summary>A2UI v0.9 extension URI. Used by DI at client registration time.</summary>
+    internal const string A2UiExtensionUri = "https://a2ui.org/a2a-extension/a2ui/v0.9";
 
     private static readonly JsonSerializerOptions s_camelCase = new()
     {
@@ -31,8 +35,6 @@ public sealed class A2AAgentClient : IA2AClient
         _http = http;
         _config = config;
         _logger = logger;
-
-        _http.DefaultRequestHeaders.TryAddWithoutValidation(A2UiExtensionHeader, A2UiExtensionUri);
     }
 
     public async Task<string> GetAgentNameAsync(CancellationToken ct = default)

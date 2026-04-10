@@ -5,7 +5,6 @@ using A2Ui.Avalonia.Shell.Views;
 using A2Ui.Core;
 using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace A2Ui.Avalonia.Shell;
@@ -60,7 +59,19 @@ internal static class Program
         );
 
         services.AddSingleton<SurfaceManager>();
-        services.AddHttpClient<IA2AClient, A2AAgentClient>();
+
+        // Typed HttpClient for the A2A agent. The A2UI extension version is configured
+        // here (not inside A2AAgentClient's constructor) so the wire contract is
+        // declarative and visible at the DI boundary. See RESTAURANT_DEMO_PORT_PLAN.md
+        // Fix #2 — the Shell requests v0.9 A2UI messages from the agent.
+        services.AddHttpClient<IA2AClient, A2AAgentClient>(http =>
+        {
+            http.DefaultRequestHeaders.TryAddWithoutValidation(
+                A2AAgentClient.A2UiExtensionHeader,
+                A2AAgentClient.A2UiExtensionUri
+            );
+        });
+
         services.AddSingleton<ShellViewModel>();
         services.AddTransient<ShellWindow>();
     }
