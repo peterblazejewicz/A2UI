@@ -15,5 +15,6 @@
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/client/avalonia/gallery_v0_9/A2Ui.Avalonia.Gallery.csproj" />
+    <Project Path="samples/client/avalonia/Shell/A2Ui.Avalonia.Shell.csproj" />
   </Folder>
 </Solution>

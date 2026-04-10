@@ -9,6 +9,12 @@
     <CLSCompliant>true</CLSCompliant>
   </PropertyGroup>
 
+  <!-- Suppress NU1903 (transitive vulnerability) for Tmds.DBus.Protocol pulled by Avalonia.
+       Cannot be resolved until Avalonia updates to a patched version. -->
+  <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-xrw6-gwf8-vvr9" />
+  </ItemGroup>
+
   <ItemGroup Label="Analyzers" Condition="$(MSBuildProjectName) != ''">
     <PackageReference Include="Roslynator.Analyzers" Version="4.15.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.100" PrivateAssets="all" />

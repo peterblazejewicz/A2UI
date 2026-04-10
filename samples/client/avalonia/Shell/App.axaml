@@ -1,0 +1,17 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="A2Ui.Avalonia.Shell.App"
+             RequestedThemeVariant="Dark">
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+
+  <Application.Resources>
+    <SolidColorBrush x:Key="ShellBackground" Color="#0f172a" />
+    <SolidColorBrush x:Key="ShellPanel" Color="#1e293b" />
+    <SolidColorBrush x:Key="ShellAccent" Color="#38bdf8" />
+    <SolidColorBrush x:Key="ShellText" Color="#f1f5f9" />
+    <SolidColorBrush x:Key="ShellSubtext" Color="#94a3b8" />
+    <SolidColorBrush x:Key="ShellBorder" Color="#1e3a5f" />
+  </Application.Resources>
+</Application>

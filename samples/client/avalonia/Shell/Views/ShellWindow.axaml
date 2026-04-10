@@ -1,0 +1,75 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:a2ui="clr-namespace:A2Ui.Avalonia.Controls;assembly=A2Ui.Avalonia"
+        x:Class="A2Ui.Avalonia.Shell.Views.ShellWindow"
+        Title="A2UI Shell"
+        Width="900" Height="700"
+        Background="{DynamicResource ShellBackground}">
+
+  <DockPanel>
+    <!-- Header -->
+    <Border DockPanel.Dock="Top"
+            Background="{DynamicResource ShellPanel}"
+            Padding="16,10"
+            BorderBrush="{DynamicResource ShellBorder}"
+            BorderThickness="0,0,0,1">
+      <DockPanel>
+        <TextBlock Text="A2UI Shell"
+                   FontSize="16" FontWeight="Bold"
+                   Foreground="{DynamicResource ShellText}"
+                   VerticalAlignment="Center" />
+        <TextBlock x:Name="AgentNameText"
+                   Text="{Binding StatusText}"
+                   FontSize="13"
+                   Foreground="{DynamicResource ShellSubtext}"
+                   VerticalAlignment="Center"
+                   Margin="12,0,0,0" />
+      </DockPanel>
+    </Border>
+
+    <!-- Error bar -->
+    <Border DockPanel.Dock="Top"
+            Background="#7f450a"
+            Padding="16,6"
+            IsVisible="{Binding ErrorText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+      <TextBlock Text="{Binding ErrorText}"
+                 Foreground="#fbbf24"
+                 FontSize="13" />
+    </Border>
+
+    <!-- Input bar -->
+    <Border DockPanel.Dock="Bottom"
+            Background="{DynamicResource ShellPanel}"
+            Padding="12,8"
+            BorderBrush="{DynamicResource ShellBorder}"
+            BorderThickness="0,1,0,0">
+      <DockPanel>
+        <Button DockPanel.Dock="Right"
+                Content="Send"
+                Command="{Binding SendCommand}"
+                Margin="8,0,0,0"
+                MinWidth="80"
+                VerticalAlignment="Stretch" />
+        <TextBox x:Name="PromptInput"
+                 Text="{Binding PromptText, Mode=TwoWay}"
+                 Watermark="Ask the agent something..."
+                 AcceptsReturn="False"
+                 VerticalAlignment="Center" />
+      </DockPanel>
+    </Border>
+
+    <!-- Surface area -->
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto"
+                  Padding="16">
+      <ItemsControl x:Name="SurfaceList"
+                    ItemsSource="{Binding Surfaces}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <a2ui:A2UiSurface Surface="{Binding}" Margin="0,0,0,12" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </DockPanel>
+</Window>
