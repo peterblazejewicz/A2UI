@@ -5,45 +5,24 @@ issues against the upstream repo. Keep this file updated as more are found.
 
 **Quick status (re-evaluated 2026-04-11 after rebase and verification via
 GitHub/PyPI):**
-- Item 1 — **STILL NEEDS UPSTREAM PR.** Verified that upstream `main` still
-  has `os.path.join`-based URI construction in
-  `agent_sdks/python/src/a2ui/schema/validator.py`. No upstream commit has
-  addressed this. My fix is rebased onto the post-#1091 flattened layout and
-  is the only source of the urljoin correction. Venv in-place patch is now
-  obsolete — see note in item 1 below.
-- Item 2 — **RESOLVED.** Both follow-ups have already happened upstream:
-  (a) `a2ui-agent-sdk` 0.2.0 (2026-04-08) and 0.2.1 (2026-04-10) on PyPI
-  include `RELAXED_PATH_PATTERN` from PR #1084; (b) `restaurant_finder`
-  switched to an editable install pointing at `../../../../agent_sdks/python`
-  so it no longer consumes PyPI builds anyway. Any in-place patch of
-  `.venv/Lib/site-packages/a2ui/core/schema/validator.py` should be discarded
-  and the venv rebuilt with `uv sync`. Item 2 can be archived after verification.
-- Item 3 — needs an upstream PR. Fixed locally in
-  `samples/client/lit/package.json`. Bash-only `for` loop in `build:renderer`
-  broke every Windows contributor trying to run the lit demos. Upstream has
-  not touched this file; my commit is the only fix.
-- **Upstream context (informational):** PR #1091 ("refactor: flatten core
-  directory structure", commit `f9b732af`) moved the Python SDK validator
-  from `a2ui/core/schema/` to `a2ui/schema/`. It does NOT touch the substance
-  of item 1 — the `os.path.join` bug is still present in the repo's vendored
-  source at the new path and my fix applies cleanly there. An unrelated
-  upstream change also flipped `restaurant_finder/pyproject.toml` to consume
-  `a2ui-agent-sdk` as `editable = true` from local source, which is what
-  collapses item 2 entirely.
-- Item 4 — **KNOWN LIMITATION, NOT UPSTREAM-FIXABLE.** Windows users running
-  `npm run demo:restaurant` (or any `demo:*` script) hit a missing
-  `@rollup/rollup-win32-x64-msvc` native binary due to npm bug
+
+- **Item 1 — NEEDS UPSTREAM PR.** Python SDK validator still uses
+  `os.path.join` for sibling URI construction, breaking Windows. Verified
+  against upstream `main`; PRs #1084 and #1091 did not address it. My fix
+  is rebased onto the post-#1091 flattened layout and is the only source
+  of the `urljoin` correction.
+- **Item 2 — RESOLVED.** PR #1084 (`RELAXED_PATH_PATTERN`) shipped in
+  `a2ui-agent-sdk` 0.2.0/0.2.1 on PyPI, and `restaurant_finder` also
+  switched to an editable install of the vendored source. Archived below.
+- **Item 3 — NEEDS UPSTREAM PR.** `samples/client/lit/package.json`
+  `build:renderer` script uses a bash-only `for` loop that breaks every
+  Windows contributor. Fixed locally; upstream untouched.
+- **Item 4 — KNOWN LIMITATION, NOT UPSTREAM-FIXABLE.** Windows
+  `@rollup/rollup-win32-x64-msvc` native binary missing due to npm bug
   [`npm/cli#4828`](https://github.com/npm/cli/issues/4828). Workaround
-  documented in [`WINDOWS_SETUP.md`](WINDOWS_SETUP.md): delete
-  `samples/client/lit/node_modules/` and
-  `samples/client/lit/package-lock.json`, then `npm install`. The
-  regenerated lockfile **stays local** — we do not push it upstream
-  because this fork treats the lit workspace as read-only reference
-  material for the .NET/C# port, not as a workspace we maintain. See
-  item 4 block below for the full diagnostic, the rejected fix
-  alternatives (including the previously-documented `--no-save`
-  approach that turned out not to survive subsequent `npm install`
-  runs), and the verified working command sequence.
+  documented in [`WINDOWS_SETUP.md`](WINDOWS_SETUP.md) — the regenerated
+  lockfile **stays local** since this fork treats `samples/client/lit/`
+  as read-only reference material for the .NET/C# port.
 
 ---
 
@@ -130,77 +109,28 @@ below.)
 
 ---
 
-## 2. Python SDK — strict JSON-Pointer check rejects relative `path` fields
+## 2. Python SDK — strict JSON-Pointer check rejects relative `path` fields ✅ RESOLVED
 
-**Status:** **RESOLVED (2026-04-11) — no further upstream action needed.**
-Two independent upstream changes have fully closed this item:
+**Status:** RESOLVED 2026-04-11. No further upstream action needed; kept
+in this file only so the item number does not renumber.
 
-1. **PyPI release cut (verified via `https://pypi.org/pypi/a2ui-agent-sdk/json`):**
-   `a2ui-agent-sdk` versions 0.2.0 (2026-04-08) and 0.2.1 (2026-04-10) both
-   post-date PR #1084's merge on 2026-04-07, so they ship `RELAXED_PATH_PATTERN`.
-   Original ask ("cut a new PyPI version that includes commit `0b4352eb`") is
-   satisfied.
-2. **Editable install migration:**
-   `samples/agent/adk/restaurant_finder/pyproject.toml` now has
-   `[tool.uv.sources] a2ui-agent-sdk = { path = "../../../../agent_sdks/python",
-   editable = true }`, so the restaurant_finder venv consumes the vendored
-   source directly rather than a PyPI build. The vendored source has carried
-   `RELAXED_PATH_PATTERN` since commit `0b4352eb`, so editable-reinstall
-   already provides the fix without touching PyPI at all.
+**Summary of closure:**
+- Upstream PR #1084 introduced `RELAXED_PATH_PATTERN` (accepts both absolute
+  RFC 6901 pointers AND relative paths inside `List` template bindings).
+  Released as `a2ui-agent-sdk` 0.2.0 (2026-04-08) and 0.2.1 (2026-04-10) on PyPI.
+- `samples/agent/adk/restaurant_finder/pyproject.toml` independently
+  migrated to an editable install of the vendored source, so the
+  restaurant_finder venv now consumes `agent_sdks/python/` directly
+  and doesn't depend on a PyPI release at all.
 
-Either of these alone would have closed the item. Both are now in place.
+**Cleanup still owed** per workspace: discard any old in-place patch at
+`.venv/Lib/site-packages/a2ui/core/schema/validator.py` and rebuild the
+venv with `uv sync`. The installed package now lives at
+`a2ui/schema/validator.py` (post-#1091 flat layout).
 
-**Cleanup still owed in this workspace:** the old in-place patch at
-`.venv/Lib/site-packages/a2ui/core/schema/validator.py` (if still present)
-should be discarded and the venv rebuilt with `uv sync` so it reflects
-the editable install from vendored source. After rebuild, the installed
-package will sit at `a2ui/schema/validator.py` (post-#1091 flat layout),
-not the historical `a2ui/core/schema/` path.
-
-**Historical context retained below for reference.**
-
-**Package originally affected:** `a2ui-agent-sdk` (PyPI 0.1.1), file
-`a2ui/core/schema/validator.py` at the time, function
-`_validate_recursion_and_paths` and module-level `JSON_POINTER_PATTERN`.
-Current layout (since PRs #1084 and #1091): `a2ui/schema/validator.py`,
-same function, now using `RELAXED_PATH_PATTERN`.
-
-**Symptom:** With item 1 fixed, validating
-`samples/agent/adk/restaurant_finder/examples/0.9/single_column_list.json`
-raises:
-
-```
-ValueError: Failed to validate example examples/0.9\single_column_list.json:
-Invalid JSON Pointer syntax: 'imageUrl'
-```
-
-**Root cause:** the 0.1.1 validator walks the entire A2UI message tree and,
-for every dict with a `"path"` key whose value is a string, asserts the
-string matches the RFC 6901 absolute-JSON-Pointer regex
-(`^(?:\/(?:[^~\/]|~[01])*)*$` — must start with `/` or be empty).
-
-But v0.9 `List` components use *relative* data paths inside their `List.data`
-template (e.g. `"path": "imageUrl"`, `"path": "name"`, `"path": "rating"`),
-because inside a template binding the root is each item of the bound array,
-not the surface data model root. A leading `/` would actually be semantically
-incorrect there — it would re-root the lookup.
-
-**Fix shipped upstream:** commit `0b4352eb` replaces `JSON_POINTER_PATTERN`
-with a new `RELAXED_PATH_PATTERN` that alternates between the old absolute
-form and a new relative form:
-
-```python
-RELAXED_PATH_PATTERN = re.compile(
-    r"^(?:(?:\/(?:[^~\/]|~[01])*)*|(?:[^~\/]|~[01])+(?:\/(?:[^~\/]|~[01])*)*)$"
-)
-```
-
-and updates the error message from `"Invalid JSON Pointer syntax"` to
-`"Invalid path syntax"`. The check in `_validate_recursion_and_paths` is
-updated to use the new pattern. Total delta: ~5 lines.
-
-**What was applied to the installed copy:** the same 5-line delta, with a
-comment block naming commit `0b4352eb` as the origin. No other changes.
+Historical context (root cause, symptom, regex diff) is preserved in
+git history — see the commit that introduced this entry, plus
+`0b4352eb` in `google/A2UI` for the upstream fix.
 
 ---
 
