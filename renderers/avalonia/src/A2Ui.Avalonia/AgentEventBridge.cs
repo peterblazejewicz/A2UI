@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using System.Threading.Channels;
 using A2Ui.Core;
@@ -28,12 +29,14 @@ public sealed class AgentEventBridge : IDisposable
     private readonly ILogger<AgentEventBridge> _logger;
     private readonly ToolCallArgsAccumulator _accumulator = new();
     private readonly Dictionary<string, string> _toolNames = new();
+    private readonly int _capacity;
     private CancellationTokenSource? _cts;
 
     public AgentEventBridge(SurfaceManager surfaceManager, ILoggerFactory? loggerFactory = null, int capacity = 1024)
     {
         _surfaceManager = surfaceManager;
         _logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<AgentEventBridge>();
+        _capacity = capacity;
         _channel = Channel.CreateBounded<BaseEvent>(
             new BoundedChannelOptions(capacity) { FullMode = BoundedChannelFullMode.Wait }
         );
@@ -89,43 +92,81 @@ public sealed class AgentEventBridge : IDisposable
 
     private async Task ProcessLoopAsync(CancellationToken ct)
     {
-        await foreach (var evt in _channel.Reader.ReadAllAsync(ct).ConfigureAwait(false))
+        BridgeLog.ProcessLoopStarted(_logger, _capacity);
+        var stopwatch = Stopwatch.StartNew();
+        int eventCount = 0;
+
+        using var activity = Diagnostics.BridgeSource.StartActivity("EventBridge.ProcessLoop", ActivityKind.Consumer);
+
+        try
         {
-            switch (evt)
+            await foreach (var evt in _channel.Reader.ReadAllAsync(ct).ConfigureAwait(false))
             {
-                case RunStartedEvent:
-                    PostSafe(() => RunStarted?.Invoke(this, EventArgs.Empty));
-                    break;
+                eventCount++;
+                string eventType = evt.GetType().Name;
+                BridgeLog.EventDispatched(_logger, eventType, eventCount);
 
-                case RunFinishedEvent:
-                    PostSafe(() => RunFinished?.Invoke(this, EventArgs.Empty));
-                    break;
+                using var dispatchActivity = Diagnostics.BridgeSource.StartActivity(
+                    "EventBridge.DispatchEvent",
+                    ActivityKind.Internal
+                );
+                dispatchActivity?.SetTag("a2ui.event_type", eventType);
+                dispatchActivity?.SetTag("a2ui.event_index", eventCount);
 
-                case RunErrorEvent err:
-                    PostSafe(() => RunError?.Invoke(this, err.Message));
-                    break;
+                switch (evt)
+                {
+                    case RunStartedEvent:
+                        PostSafe(() => RunStarted?.Invoke(this, EventArgs.Empty));
+                        break;
 
-                case TextMessageContentEvent tc:
-                    PostSafe(() => AgentTextDelta?.Invoke(this, tc.Delta));
-                    break;
+                    case RunFinishedEvent:
+                        PostSafe(() => RunFinished?.Invoke(this, EventArgs.Empty));
+                        break;
 
-                case ToolCallStartEvent start:
-                    _toolNames[start.ToolCallId] = start.ToolCallName;
-                    break;
+                    case RunErrorEvent err:
+                        PostSafe(() => RunError?.Invoke(this, err.Message));
+                        break;
 
-                case ToolCallArgsEvent args:
-                    _accumulator.OnArgs(args);
-                    break;
+                    case TextMessageContentEvent tc:
+                        PostSafe(() => AgentTextDelta?.Invoke(this, tc.Delta));
+                        break;
 
-                case ToolCallEndEvent end:
-                    string json = _accumulator.Complete(end.ToolCallId);
-                    bool isA2Ui =
-                        _toolNames.TryGetValue(end.ToolCallId, out var toolName) && s_a2uiToolNames.Contains(toolName);
-                    _toolNames.Remove(end.ToolCallId);
-                    if (isA2Ui && !string.IsNullOrWhiteSpace(json))
-                        ProcessA2UiPayload(json);
-                    break;
+                    case ToolCallStartEvent start:
+                        _toolNames[start.ToolCallId] = start.ToolCallName;
+                        break;
+
+                    case ToolCallArgsEvent args:
+                        _accumulator.OnArgs(args);
+                        break;
+
+                    case ToolCallEndEvent end:
+                        string json = _accumulator.Complete(end.ToolCallId);
+                        bool isA2Ui =
+                            _toolNames.TryGetValue(end.ToolCallId, out var toolName)
+                            && s_a2uiToolNames.Contains(toolName);
+                        _toolNames.Remove(end.ToolCallId);
+                        if (isA2Ui && !string.IsNullOrWhiteSpace(json))
+                            ProcessA2UiPayload(json, end.ToolCallId);
+                        break;
+                }
             }
+
+            stopwatch.Stop();
+            BridgeLog.ProcessLoopCompleted(_logger, eventCount, stopwatch.ElapsedMilliseconds);
+        }
+        catch (OperationCanceledException)
+        {
+            // Normal shutdown via Stop()/Dispose() — log at Information as completed.
+            stopwatch.Stop();
+            BridgeLog.ProcessLoopCompleted(_logger, eventCount, stopwatch.ElapsedMilliseconds);
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            activity?.AddException(ex);
+            BridgeLog.ProcessLoopFailed(_logger, eventCount, stopwatch.ElapsedMilliseconds, ex);
+            throw;
         }
     }
 
@@ -148,9 +189,10 @@ public sealed class AgentEventBridge : IDisposable
         });
     }
 
-    private void ProcessA2UiPayload(string json)
+    private void ProcessA2UiPayload(string json, string toolCallId)
     {
         // A2UI payload is JSONL — one A2UiMessage per line
+        int messageCount = 0;
         foreach (var line in json.Split('\n', StringSplitOptions.RemoveEmptyEntries))
         {
             try
@@ -163,6 +205,7 @@ public sealed class AgentEventBridge : IDisposable
                     // but catching here prevents posting invalid work to UI thread
                     msg.Validate();
                     PostSafe(() => _surfaceManager.Process(msg));
+                    messageCount++;
                 }
             }
             catch (JsonException ex)
@@ -174,6 +217,7 @@ public sealed class AgentEventBridge : IDisposable
                 BridgeLog.InvalidA2UiMessage(_logger, line[..Math.Min(line.Length, 200)], ex);
             }
         }
+        BridgeLog.A2UiMessageReceived(_logger, toolCallId, messageCount);
     }
 }
 
@@ -194,4 +238,39 @@ internal static partial class BridgeLog
         Message = "Exception in UI thread action dispatched by AgentEventBridge"
     )]
     public static partial void UiThreadActionFailed(ILogger logger, Exception exception);
+
+    [LoggerMessage(
+        EventId = 5,
+        Level = LogLevel.Information,
+        Message = "Event processing loop started (channel capacity={ChannelCapacity})"
+    )]
+    public static partial void ProcessLoopStarted(ILogger logger, int channelCapacity);
+
+    [LoggerMessage(
+        EventId = 6,
+        Level = LogLevel.Information,
+        Message = "Event processing loop completed: eventCount={EventCount}, durationMs={DurationMs}"
+    )]
+    public static partial void ProcessLoopCompleted(ILogger logger, int eventCount, long durationMs);
+
+    [LoggerMessage(
+        EventId = 7,
+        Level = LogLevel.Error,
+        Message = "Event processing loop failed after {EventCount} events in {DurationMs}ms"
+    )]
+    public static partial void ProcessLoopFailed(ILogger logger, int eventCount, long durationMs, Exception exception);
+
+    [LoggerMessage(
+        EventId = 8,
+        Level = LogLevel.Debug,
+        Message = "AG-UI event dispatched: eventType={EventType}, eventIndex={EventIndex}"
+    )]
+    public static partial void EventDispatched(ILogger logger, string eventType, int eventIndex);
+
+    [LoggerMessage(
+        EventId = 9,
+        Level = LogLevel.Debug,
+        Message = "A2UI message received from tool call: toolCallId={ToolCallId}, messageCount={MessageCount}"
+    )]
+    public static partial void A2UiMessageReceived(ILogger logger, string toolCallId, int messageCount);
 }
