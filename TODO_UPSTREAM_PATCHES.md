@@ -3,27 +3,62 @@
 Collected issues found while working in this fork that should be filed as PRs /
 issues against the upstream repo. Keep this file updated as more are found.
 
-**Quick status (2026-04-11):**
-- Item 1 — needs an upstream PR. Fixed locally in `agent_sdks/python/src/...`
-  and in the restaurant-finder venv.
-- Item 2 — already fixed upstream in commit `0b4352eb` (PR #1084), just not
-  yet released to PyPI. Needs a new `a2ui-agent-sdk` version cut. Venv was
-  patched in-place to backport the fix.
+**Quick status (re-evaluated 2026-04-11 after rebase and verification via
+GitHub/PyPI):**
+- Item 1 — **STILL NEEDS UPSTREAM PR.** Verified that upstream `main` still
+  has `os.path.join`-based URI construction in
+  `agent_sdks/python/src/a2ui/schema/validator.py`. No upstream commit has
+  addressed this. My fix is rebased onto the post-#1091 flattened layout and
+  is the only source of the urljoin correction. Venv in-place patch is now
+  obsolete — see note in item 1 below.
+- Item 2 — **RESOLVED.** Both follow-ups have already happened upstream:
+  (a) `a2ui-agent-sdk` 0.2.0 (2026-04-08) and 0.2.1 (2026-04-10) on PyPI
+  include `RELAXED_PATH_PATTERN` from PR #1084; (b) `restaurant_finder`
+  switched to an editable install pointing at `../../../../agent_sdks/python`
+  so it no longer consumes PyPI builds anyway. Any in-place patch of
+  `.venv/Lib/site-packages/a2ui/core/schema/validator.py` should be discarded
+  and the venv rebuilt with `uv sync`. Item 2 can be archived after verification.
 - Item 3 — needs an upstream PR. Fixed locally in
   `samples/client/lit/package.json`. Bash-only `for` loop in `build:renderer`
-  broke every Windows contributor trying to run the lit demos.
+  broke every Windows contributor trying to run the lit demos. Upstream has
+  not touched this file; my commit is the only fix.
+- **Upstream context (informational):** PR #1091 ("refactor: flatten core
+  directory structure", commit `f9b732af`) moved the Python SDK validator
+  from `a2ui/core/schema/` to `a2ui/schema/`. It does NOT touch the substance
+  of item 1 — the `os.path.join` bug is still present in the repo's vendored
+  source at the new path and my fix applies cleanly there. An unrelated
+  upstream change also flipped `restaurant_finder/pyproject.toml` to consume
+  `a2ui-agent-sdk` as `editable = true` from local source, which is what
+  collapses item 2 entirely.
 
 ---
 
 ## 1. Python SDK — `os.path.join` used to build URIs (Windows-breaking)
 
-**Status:** Fixed locally in this fork at `agent_sdks/python/src/a2ui/core/schema/validator.py`.
-Installed copy at `.venv/Lib/site-packages/a2ui/core/schema/validator.py` was
-patched in-place as a temporary unblock; a clean reinstall from source or a
-published fix on PyPI will supersede it.
+**Status:** Fixed locally in this fork at `agent_sdks/python/src/a2ui/schema/validator.py`.
+**Upstream main still has the bug** (verified 2026-04-11 against
+`https://raw.githubusercontent.com/google/A2UI/main/agent_sdks/python/src/a2ui/schema/validator.py`
+— both `_build_0_8_validator` and `_build_0_9_validator` still use
+`os.path.join` for sibling URI construction). So this remains a real
+upstream PR target; PRs #1084 and #1091 did not address it.
+
+The old `.venv/Lib/site-packages/a2ui/core/schema/validator.py` in-place
+patch that was previously listed here is now obsolete:
+`samples/agent/adk/restaurant_finder/pyproject.toml` pins
+`a2ui-agent-sdk` as `editable = true` pointing at
+`../../../../agent_sdks/python`, so `uv sync` rebuilds the venv directly
+against the vendored source where my fix lives. No manual patching needed
+in the venv going forward — just `uv sync` after any source change.
+
+**Note on path:** upstream commit `f9b732af` (PR #1091, "refactor: flatten core
+directory structure and relocate a2a parts logic") moved the source from
+`a2ui/core/schema/` to `a2ui/schema/`. The fix commit in this fork was rebased
+onto the new layout. The installed PyPI 0.1.1 copy still uses the old
+`a2ui/core/schema/` layout because it pre-dates #1091, so the venv-patch path
+intentionally retains `core/`.
 
 **Package affected:** `a2ui-agent-sdk` (PyPI 0.1.1) — same source lives at
-`agent_sdks/python/src/a2ui/core/schema/validator.py`.
+`agent_sdks/python/src/a2ui/schema/validator.py`.
 
 **Symptom:** On Windows, starting the Python restaurant agent
 (`samples/agent/adk/restaurant_finder`) fails during example validation with:
@@ -72,8 +107,8 @@ include_examples=True, validate_examples=True)` no longer raises on
 below.)
 
 **Upstream PR sketch:**
-- File: `agent_sdks/python/src/a2ui/core/schema/validator.py`
-- Lines touched: ~173–178 (v0.8) and ~215–222 (v0.9)
+- File: `agent_sdks/python/src/a2ui/schema/validator.py` (post-#1091 layout)
+- Lines touched: ~171–176 (v0.8) and ~212–220 (v0.9)
 - Also add a Windows CI job or at least a unit test that builds a v0.9
   validator and resolves the `catalog.json#/$defs/theme` ref — the test
   would have caught this on any platform, since the broken URI can be
@@ -83,22 +118,38 @@ below.)
 
 ## 2. Python SDK — strict JSON-Pointer check rejects relative `path` fields
 
-**Status:** ALREADY FIXED UPSTREAM in this fork's git history at commit
-`0b4352eb` (PR #1084, "A2UI v0.9 Path Resolution and Agent Updates", merged
-2026-04-08). The vendored source at
-`agent_sdks/python/src/a2ui/core/schema/validator.py` carries the fix. The
-**PyPI release `a2ui-agent-sdk==0.1.1` pre-dates this commit**, so the
-pip/uv-installed copy is stale and still hits the bug. The installed copy
-inside `samples/agent/adk/.venv` was patched in-place with the same 5-line
-delta as a temporary unblock; a clean venv rebuild pulling from PyPI would
-re-introduce the bug until a new release is cut.
+**Status:** **RESOLVED (2026-04-11) — no further upstream action needed.**
+Two independent upstream changes have fully closed this item:
 
-**Therefore the upstream ask for item 2 is not a code PR but a release:**
-cut a new `a2ui-agent-sdk` PyPI version that includes commit `0b4352eb`.
+1. **PyPI release cut (verified via `https://pypi.org/pypi/a2ui-agent-sdk/json`):**
+   `a2ui-agent-sdk` versions 0.2.0 (2026-04-08) and 0.2.1 (2026-04-10) both
+   post-date PR #1084's merge on 2026-04-07, so they ship `RELAXED_PATH_PATTERN`.
+   Original ask ("cut a new PyPI version that includes commit `0b4352eb`") is
+   satisfied.
+2. **Editable install migration:**
+   `samples/agent/adk/restaurant_finder/pyproject.toml` now has
+   `[tool.uv.sources] a2ui-agent-sdk = { path = "../../../../agent_sdks/python",
+   editable = true }`, so the restaurant_finder venv consumes the vendored
+   source directly rather than a PyPI build. The vendored source has carried
+   `RELAXED_PATH_PATTERN` since commit `0b4352eb`, so editable-reinstall
+   already provides the fix without touching PyPI at all.
 
-**Package affected:** `a2ui-agent-sdk` (PyPI 0.1.1), file
-`a2ui/core/schema/validator.py`, function `_validate_recursion_and_paths`
-and module-level `JSON_POINTER_PATTERN`.
+Either of these alone would have closed the item. Both are now in place.
+
+**Cleanup still owed in this workspace:** the old in-place patch at
+`.venv/Lib/site-packages/a2ui/core/schema/validator.py` (if still present)
+should be discarded and the venv rebuilt with `uv sync` so it reflects
+the editable install from vendored source. After rebuild, the installed
+package will sit at `a2ui/schema/validator.py` (post-#1091 flat layout),
+not the historical `a2ui/core/schema/` path.
+
+**Historical context retained below for reference.**
+
+**Package originally affected:** `a2ui-agent-sdk` (PyPI 0.1.1), file
+`a2ui/core/schema/validator.py` at the time, function
+`_validate_recursion_and_paths` and module-level `JSON_POINTER_PATTERN`.
+Current layout (since PRs #1084 and #1091): `a2ui/schema/validator.py`,
+same function, now using `RELAXED_PATH_PATTERN`.
 
 **Symptom:** With item 1 fixed, validating
 `samples/agent/adk/restaurant_finder/examples/0.9/single_column_list.json`
@@ -220,10 +271,11 @@ The preceding shell parse error no longer occurs.
   Windows path-separator bug; item 3 is a lit-samples Windows shell-syntax
   bug. Both are pure portability fixes that unblock Windows contributors with
   no behavior change on POSIX systems.
-- **Item 2 is a release-hygiene follow-up.** Once a new `a2ui-agent-sdk` is
-  published to PyPI, the in-place patch in `.venv/Lib/site-packages/a2ui/core/
-  schema/validator.py` should be removed and the dependency pin in
-  `samples/agent/adk/restaurant_finder/pyproject.toml` bumped.
+- **Item 2 is RESOLVED** (see item 2 status block above). The PyPI release
+  0.2.0/0.2.1 and the editable-install migration in
+  `restaurant_finder/pyproject.toml` independently both close it. Only local
+  cleanup remains: discard any stale `.venv/Lib/site-packages/a2ui/core/schema/`
+  patch and `uv sync`.
 - **A single upstream PR could bundle item 1 with a CI addition** — e.g., a
   Windows job in the Python SDK workflow, or a unit test that constructs the
   v0.9 validator and inspects the registered URI keys for backslashes. Such a
@@ -231,8 +283,3 @@ The preceding shell parse error no longer occurs.
   observed directly in the registry.
 - The .NET SDK/Avalonia renderer in this fork is unaffected; items 1 and 2 are
   Python reference SDK bugs, item 3 is a lit samples build-script bug.
-- Long-term cleanup: consider installing `agent_sdks/python/` as an editable
-  dependency (`uv pip install -e ../../agent_sdks/python`) in the restaurant
-  finder venv so the Python samples and the vendored source stay in lockstep
-  automatically. Requires confirming that the custom `pack_specs_hook.py`
-  build hook works in editable mode and populates `src/a2ui/assets/` correctly.
