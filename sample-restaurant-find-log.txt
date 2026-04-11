@@ -1,0 +1,2373 @@
+> @a2ui/lit-samples@0.8.1 demo:restaurant
+> npm install && npm run build:renderer && concurrently -k -n "SHELL,REST" -c "magenta,blue" "npm run serve:shell" "npm run serve:agent:restaurant"
+
+
+up to date, audited 231 packages in 625ms
+
+52 packages are looking for funding
+  run `npm fund` for details
+
+2 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+> @a2ui/lit-samples@0.8.1 build:renderer
+> npm --prefix ../../../renderers/web_core install && npm --prefix ../../../renderers/web_core run build && npm --prefix ../../../renderers/markdown/markdown-it install && npm --prefix ../../../renderers/markdown/markdown-it run build && npm --prefix ../../../renderers/lit install && npm --prefix ../../../renderers/lit run build
+
+npm warn Unknown project config "always-auth" (//us-npm.pkg.dev/oss-exit-gate-prod/a2ui--npm/:always-auth). This will stop working in the next major version of npm.
+
+up to date, audited 322 packages in 545ms
+
+85 packages are looking for funding
+  run `npm fund` for details
+
+8 vulnerabilities (4 low, 2 moderate, 2 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+npm warn Unknown project config "always-auth" (//us-npm.pkg.dev/oss-exit-gate-prod/a2ui--npm/:always-auth). This will stop working in the next major version of npm.
+
+> @a2ui/web_core@0.9.1-alpha.0 build
+> wireit
+
+✅ Ran 0 scripts and skipped 2 in 0s.
+npm warn Unknown project config "always-auth" (//us-npm.pkg.dev/oss-exit-gate-prod/a2ui--npm/:always-auth). This will stop working in the next major version of npm.
+
+up to date, audited 137 packages in 576ms
+
+16 packages are looking for funding
+  run `npm fund` for details
+
+5 vulnerabilities (3 moderate, 2 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+npm warn Unknown project config "always-auth" (//us-npm.pkg.dev/oss-exit-gate-prod/a2ui--npm/:always-auth). This will stop working in the next major version of npm.
+
+> @a2ui/markdown-it@0.0.2 build
+> wireit
+
+✅ Ran 0 scripts and skipped 1 in 0s.
+npm warn Unknown project config "always-auth" (//us-npm.pkg.dev/oss-exit-gate-prod/a2ui--npm/:always-auth). This will stop working in the next major version of npm.
+
+up to date, audited 154 packages in 526ms
+
+24 packages are looking for funding
+  run `npm fund` for details
+
+3 vulnerabilities (2 moderate, 1 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+npm warn Unknown project config "always-auth" (//us-npm.pkg.dev/oss-exit-gate-prod/a2ui--npm/:always-auth). This will stop working in the next major version of npm.
+
+> @a2ui/lit@0.9.2-alpha.0 build
+> wireit
+
+✅ Ran 0 scripts and skipped 1 in 0.1s.
+[SHELL]
+[SHELL] > @a2ui/lit-samples@0.8.1 serve:shell
+[SHELL] > cd shell && npm run dev
+[SHELL]
+[REST]
+[REST] > @a2ui/lit-samples@0.8.1 serve:agent:restaurant
+[REST] > cd ../../agent/adk/restaurant_finder && uv run .
+[REST]
+[SHELL]
+[SHELL] > @a2ui/shell@0.8.1 dev
+[SHELL] > npm run serve --watch
+[SHELL]
+[SHELL] npm warn Unknown cli config "--watch". This will stop working in the next major version of npm.
+[SHELL]
+[SHELL] > @a2ui/shell@0.8.1 serve
+[SHELL] > wireit
+[SHELL]
+[SHELL] Analyzing
+[SHELL] ✅ Ran 2 scripts and skipped 1 in 0.2s.
+[SHELL] ◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+[SHELL]
+[SHELL]   VITE v7.3.2  ready in 214 ms
+[SHELL]
+[SHELL]   ➜  Local:   http://localhost:5173/
+[SHELL]   ➜  Network: use --host to expose
+[REST] INFO:     Started server process [18876]
+[REST] INFO:     Waiting for application startup.
+[REST] INFO:     Application startup complete.
+[REST] INFO:     Uvicorn running on http://localhost:10002 (Press CTRL+C to quit)
+[REST] INFO:     ::1:58895 - "GET / HTTP/1.1" 405 Method Not Allowed
+[REST] INFO:     ::1:58895 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+[REST] INFO:     ::1:60633 - "OPTIONS /.well-known/agent-card.json HTTP/1.1" 200 OK
+[REST] INFO:     ::1:60633 - "GET /.well-known/agent-card.json HTTP/1.1" 200 OK
+[REST] INFO:     ::1:60633 - "OPTIONS / HTTP/1.1" 200 OK
+[REST] INFO:agent_executor:--- Client requested extensions: {'https://a2ui.org/a2a-extension/a2ui/v0.8'} ---
+[REST] INFO:agent_executor:--- AGENT_EXECUTOR: A2UI extension is active. Using UI agent. ---
+[REST] INFO:agent_executor:--- AGENT_EXECUTOR: Processing 1 message parts ---
+[REST] INFO:agent_executor:  Part 0: TextPart (text: Top 5 Chinese restaurants in New York.)
+[REST] INFO:agent_executor:No a2ui UI event part found. Falling back to text input.
+[REST] INFO:agent_executor:--- AGENT_EXECUTOR: Final query for LLM: 'Top 5 Chinese restaurants in New York.' ---
+[REST] INFO:agent:--- RestaurantAgent.stream: Attempt 1/2 for session 7da77c86-b24d-4265-8d49-5c9a4080b49e ---
+[REST] 09:29:37 - LiteLLM:INFO: utils.py:3879 -
+[REST] LiteLLM completion() model= claude-sonnet-4-6; provider = anthropic
+[REST] INFO:LiteLLM:
+[REST] LiteLLM completion() model= claude-sonnet-4-6; provider = anthropic
+[REST] INFO:tools:--- TOOL CALLED: get_restaurants (count: 5) ---
+[REST] INFO:tools:  - Cuisine: Chinese
+[REST] INFO:tools:  - Location: New York
+[REST] INFO:tools:Updated base URL from tool context: http://localhost:10002
+[REST] INFO:tools:  - Success: Found 8 restaurants, returning 5.
+[REST] 09:29:39 - LiteLLM:INFO: utils.py:3879 -
+[REST] LiteLLM completion() model= claude-sonnet-4-6; provider = anthropic
+[REST] INFO:LiteLLM:
+[REST] LiteLLM completion() model= claude-sonnet-4-6; provider = anthropic
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] Here are the top 5
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] Chinese restaurants in New York City! \U0001f962
+[REST]
+[REST] <a2ui
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] -json>
+[REST] [
+[REST]   {
+[REST]     "beginRendering": {
+[REST]       "surf
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] aceId": "default",
+[REST]       "root": "root-column",
+[REST]       "styles": {
+[REST]         "primary
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] Color": "#D32F2F",
+[REST]         "font": "Roboto"
+[REST]       }
+[REST]     }
+[REST]   },
+[REST]   {
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'beginRendering': {'surfaceId': 'default', 'root': 'root-column', 'styles': {'primaryColor': '#D32F2F', 'font': 'Roboto'}}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]     "surfaceUpdate": {
+[REST]       "surfaceId": "default",
+[REST]       "components": [
+[REST]         {
+[REST]           "id": "root-column",
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]           "component": {
+[REST]             "Column": {
+[REST]               "children": {
+[REST]                 "explicitList
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": [
+[REST]                   "title-heading",
+[REST]                   "item-list"
+[REST]                 ]
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['loading_title-heading', 'loading_item-list']}}}}, {'id': 'loading_title-heading', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_item-list', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "title-heading",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "usage
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] Hint": "h1",
+[REST]               "text": {
+[REST]                 "path": "/title
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] "
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "item-list",
+[REST]           "component": {
+[REST]             "List": {
+[REST]               "direction": "vertical",
+[REST]               "children": {
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'loading_item-list']}}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_item-list', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]                 "template": {
+[REST]                   "componentId": "item-card-template",
+[REST]                   "dataBinding
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": "/items"
+[REST]                 }
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "item-card-template",
+[REST]           "component":
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'loading_item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_item-card-template', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  {
+[REST]             "Card": {
+[REST]               "child": "card-layout"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id":
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'item-card-template', 'component': {'Card': {'child': 'loading_card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_card-layout', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  "card-layout",
+[REST]           "component": {
+[REST]             "Row": {
+[REST]               "children": {
+[REST]                 "explicitList": [
+[REST]                   "template-
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'card-layout', 'component': {'Row': {'children': {'explicitList': ['loading_template-']}}}}, {'id': 'item-card-template', 'component': {'Card': {'child': 'card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_template-', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] image",
+[REST]                   "card-details"
+[REST]                 ]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-image",
+[REST]           "weight
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'card-layout', 'component': {'Row': {'children': {'explicitList': ['loading_template-image', 'loading_card-details']}}}}, {'id': 'item-card-template', 'component': {'Card': {'child': 'card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_template-image', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_card-details', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": 1,
+[REST]           "component": {
+[REST]             "Image": {
+[REST]               "url": {
+[REST]                 "path": "/imageUrl"
+[REST]               },
+[REST]               "fit": "cover",
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'card-layout', 'component': {'Row': {'children': {'explicitList': ['template-image', 'loading_card-details']}}}}, {'id': 'item-card-template', 'component': {'Card': {'child': 'card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'template-image', 'weight': 1, 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover'}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_card-details', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]               "usageHint": "smallFeature"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "card-details",
+[REST]           "weight": 2,
+[REST]           "
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'card-layout', 'component': {'Row': {'children': {'explicitList': ['template-image', 'loading_card-details']}}}}, {'id': 'item-card-template', 'component': {'Card': {'child': 'card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'template-image', 'weight': 1, 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'smallFeature'}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_card-details', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] component": {
+[REST]             "Column": {
+[REST]               "children": {
+[REST]                 "explicitList": [
+[REST]                   "template-name",
+[REST]                   "template-rating",
+[REST]                   "template-
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'card-details', 'weight': 2, 'component': {'Column': {'children': {'explicitList': ['loading_template-name', 'loading_template-rating', 'loading_template-']}}}}, {'id': 'card-layout', 'component': {'Row': {'children': {'explicitList': ['template-image', 'card-details']}}}}, {'id': 'item-card-template', 'component': {'Card': {'child': 'card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'template-image', 'weight': 1, 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'smallFeature'}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_template-name', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-rating', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] detail",
+[REST]                   "template-address",
+[REST]                   "template-link",
+[REST]                   "template-book-button"
+[REST]                 ]
+[REST]               }
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'card-details', 'weight': 2, 'component': {'Column': {'children': {'explicitList': ['loading_template-name', 'loading_template-rating', 'loading_template-detail', 'loading_template-address', 'loading_template-link', 'loading_template-book-button']}}}}, {'id': 'card-layout', 'component': {'Row': {'children': {'explicitList': ['template-image', 'card-details']}}}}, {'id': 'item-card-template', 'component': {'Card': {'child': 'card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'template-image', 'weight': 1, 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'smallFeature'}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_template-name', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-rating', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-detail', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-address', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-link', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-book-button', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-name",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "usageHint": "h3",
+[REST]               "text": {
+[REST]
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] "path": "/name"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-rating",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "path":
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'card-details', 'weight': 2, 'component': {'Column': {'children': {'explicitList': ['template-name', 'loading_template-rating', 'loading_template-detail', 'loading_template-address', 'loading_template-link', 'loading_template-book-button']}}}}, {'id': 'card-layout', 'component': {'Row': {'children': {'explicitList': ['template-image', 'card-details']}}}}, {'id': 'item-card-template', 'component': {'Card': {'child': 'card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'template-image', 'weight': 1, 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'smallFeature'}}}, {'id': 'template-name', 'component': {'Text': {'usageHint': 'h3', 'text': {'path': '/name'}}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_template-rating', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-detail', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-address', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-link', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-book-button', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  "/rating"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-detail",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "path": "/detail"
+[REST]
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'card-details', 'weight': 2, 'component': {'Column': {'children': {'explicitList': ['template-name', 'template-rating', 'template-detail', 'loading_template-address', 'loading_template-link', 'loading_template-book-button']}}}}, {'id': 'card-layout', 'component': {'Row': {'children': {'explicitList': ['template-image', 'card-details']}}}}, {'id': 'item-card-template', 'component': {'Card': {'child': 'card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'template-detail', 'component': {'Text': {'text': {'path': '/detail'}}}}, {'id': 'template-image', 'weight': 1, 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'smallFeature'}}}, {'id': 'template-name', 'component': {'Text': {'usageHint': 'h3', 'text': {'path': '/name'}}}}, {'id': 'template-rating', 'component': {'Text': {'text': {'path': '/rating'}}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_template-address', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-link', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-book-button', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-address",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "usageHint": "caption",
+[REST]               "text": {
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]                 "path": "/address"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-link",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "path":
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'card-details', 'weight': 2, 'component': {'Column': {'children': {'explicitList': ['template-name', 'template-rating', 'template-detail', 'template-address', 'loading_template-link', 'loading_template-book-button']}}}}, {'id': 'card-layout', 'component': {'Row': {'children': {'explicitList': ['template-image', 'card-details']}}}}, {'id': 'item-card-template', 'component': {'Card': {'child': 'card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'template-address', 'component': {'Text': {'usageHint': 'caption', 'text': {'path': '/address'}}}}, {'id': 'template-detail', 'component': {'Text': {'text': {'path': '/detail'}}}}, {'id': 'template-image', 'weight': 1, 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'smallFeature'}}}, {'id': 'template-name', 'component': {'Text': {'usageHint': 'h3', 'text': {'path': '/name'}}}}, {'id': 'template-rating', 'component': {'Text': {'text': {'path': '/rating'}}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_template-link', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_template-book-button', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  "/infoLink"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-book-button",
+[REST]           "component": {
+[REST]             "Button": {
+[REST]               "child
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'card-details', 'weight': 2, 'component': {'Column': {'children': {'explicitList': ['template-name', 'template-rating', 'template-detail', 'template-address', 'template-link', 'loading_template-book-button']}}}}, {'id': 'card-layout', 'component': {'Row': {'children': {'explicitList': ['template-image', 'card-details']}}}}, {'id': 'item-card-template', 'component': {'Card': {'child': 'card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'template-address', 'component': {'Text': {'usageHint': 'caption', 'text': {'path': '/address'}}}}, {'id': 'template-detail', 'component': {'Text': {'text': {'path': '/detail'}}}}, {'id': 'template-image', 'weight': 1, 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'smallFeature'}}}, {'id': 'template-link', 'component': {'Text': {'text': {'path': '/infoLink'}}}}, {'id': 'template-name', 'component': {'Text': {'usageHint': 'h3', 'text': {'path': '/name'}}}}, {'id': 'template-rating', 'component': {'Text': {'text': {'path': '/rating'}}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_template-book-button', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": "book-now-text",
+[REST]               "primary": true,
+[REST]               "action": {
+[REST]                 "name": "book_
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] restaurant",
+[REST]                 "context": [
+[REST]                   {
+[REST]                     "key": "restaurantName",
+[REST]                     "value":
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  {
+[REST]                       "path": "/name"
+[REST]                     }
+[REST]                   },
+[REST]                   {
+[REST]                     "key": "imageUrl",
+[REST]                     "value": {
+[REST]                       "path
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": "/imageUrl"
+[REST]                     }
+[REST]                   },
+[REST]                   {
+[REST]                     "key": "address",
+[REST]                     "value": {
+[REST]                       "path": "/address"
+[REST]                     }
+[REST]                   }
+[REST]                 ]
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'card-details', 'weight': 2, 'component': {'Column': {'children': {'explicitList': ['template-name', 'template-rating', 'template-detail', 'template-address', 'template-link', 'template-book-button']}}}}, {'id': 'card-layout', 'component': {'Row': {'children': {'explicitList': ['template-image', 'card-details']}}}}, {'id': 'item-card-template', 'component': {'Card': {'child': 'card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'template-address', 'component': {'Text': {'usageHint': 'caption', 'text': {'path': '/address'}}}}, {'id': 'template-book-button', 'component': {'Button': {'child': 'loading_book-now-text', 'primary': True, 'action': {'name': 'book_restaurant', 'context': [{'key': 'restaurantName', 'value': {'path': '/name'}}, {'key': 'imageUrl', 'value': {'path': '/imageUrl'}}, {'key': 'address', 'value': {'path': '/address'}}]}}}}, {'id': 'template-detail', 'component': {'Text': {'text': {'path': '/detail'}}}}, {'id': 'template-image', 'weight': 1, 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'smallFeature'}}}, {'id': 'template-link', 'component': {'Text': {'text': {'path': '/infoLink'}}}}, {'id': 'template-name', 'component': {'Text': {'usageHint': 'h3', 'text': {'path': '/name'}}}}, {'id': 'template-rating', 'component': {'Text': {'text': {'path': '/rating'}}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}, {'id': 'loading_book-now-text', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "book-now-text",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "liter
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] alString": "Book Now"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         }
+[REST]       ]
+[REST]     }
+[REST]   },
+[REST]   {
+[REST]     "dataModelUpdate
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'book-now-text', 'component': {'Text': {'text': {'literalString': 'Book Now'}}}}, {'id': 'card-details', 'weight': 2, 'component': {'Column': {'children': {'explicitList': ['template-name', 'template-rating', 'template-detail', 'template-address', 'template-link', 'template-book-button']}}}}, {'id': 'card-layout', 'component': {'Row': {'children': {'explicitList': ['template-image', 'card-details']}}}}, {'id': 'item-card-template', 'component': {'Card': {'child': 'card-layout'}}}, {'id': 'item-list', 'component': {'List': {'direction': 'vertical', 'children': {'template': {'componentId': 'item-card-template', 'dataBinding': '/items'}}}}}, {'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'template-address', 'component': {'Text': {'usageHint': 'caption', 'text': {'path': '/address'}}}}, {'id': 'template-book-button', 'component': {'Button': {'child': 'book-now-text', 'primary': True, 'action': {'name': 'book_restaurant', 'context': [{'key': 'restaurantName', 'value': {'path': '/name'}}, {'key': 'imageUrl', 'value': {'path': '/imageUrl'}}, {'key': 'address', 'value': {'path': '/address'}}]}}}}, {'id': 'template-detail', 'component': {'Text': {'text': {'path': '/detail'}}}}, {'id': 'template-image', 'weight': 1, 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'smallFeature'}}}, {'id': 'template-link', 'component': {'Text': {'text': {'path': '/infoLink'}}}}, {'id': 'template-name', 'component': {'Text': {'usageHint': 'h3', 'text': {'path': '/name'}}}}, {'id': 'template-rating', 'component': {'Text': {'text': {'path': '/rating'}}}}, {'id': 'title-heading', 'component': {'Text': {'usageHint': 'h1', 'text': {'path': '/title'}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": {
+[REST]       "surfaceId": "default",
+[REST]       "path": "/",
+[REST]       "contents": [
+[REST]         {
+[REST]           "key": "title
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ",
+[REST]           "valueString": "Top 5 Chinese Restaurants in New York"
+[REST]         },
+[REST]         {
+[REST]           "key": "items",
+[REST]           "valueMap
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": [
+[REST]             {
+[REST]               "key": "item1",
+[REST]               "valueMap": [
+[REST]                 { "key": "name", "valueString": "Xi'an
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an"}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  Famous Foods" },
+[REST]                 { "key": "rating", "valueString": "\u2b50\u2b50\u2b50\u2b50 " },
+[REST]                 { "key": "detail", "valueString": "Spicy and sav
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and sav'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ory hand-pulled noodles." },
+[REST]                 { "key": "infoLink", "valueString": "[More Info](https://www.xianfoods.com/)" },
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]                 { "key": "imageUrl", "valueString": "http://localhost:10002/static/shrimpchowmein.jpeg" },
+[REST]                 { "key": "address", "valueString": "
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': ''}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] 81 St Marks Pl, New York, NY 10003" }
+[REST]               ]
+[REST]             },
+[REST]             {
+[REST]               "key": "item2",
+[REST]               "valueMap": [
+[REST]                 { "key": "name", "valueString": "
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': ''}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] Han Dynasty" },
+[REST]                 { "key": "rating", "valueString": "\u2b50\u2b50\u2b50\u2b50 " },
+[REST]                 { "key": "detail", "valueString": "Authentic Szechuan cuisine." },
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]                 { "key": "infoLink", "valueString": "[More Info](https://www.handynasty.net/)" },
+[REST]                 { "key": "imageUrl", "valueString": "http://localhost:10002/static/
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] mapotofu.jpeg" },
+[REST]                 { "key": "address", "valueString": "90 3rd Ave, New York, NY 10003" }
+[REST]               ]
+[REST]             },
+[REST]             {
+[REST]               "key": "item3",
+[REST]
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/mapotofu.jpeg'}, {'key': 'address', 'valueString': '90 3rd Ave, New York, NY 10003'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] "valueMap": [
+[REST]                 { "key": "name", "valueString": "RedFarm" },
+[REST]                 { "key": "rating", "valueString": "\u2b50\u2b50\u2b50\u2b50 " },
+[REST]                 {
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/mapotofu.jpeg'}, {'key': 'address', 'valueString': '90 3rd Ave, New York, NY 10003'}]}, {'key': 'item3', 'valueMap': [{'key': 'name', 'valueString': 'RedFarm'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  "key": "detail", "valueString": "Modern Chinese with a farm-to-table approach." },
+[REST]                 { "key": "infoLink", "valueString": "[More Info](https://www.redfarmnyc.com/
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/mapotofu.jpeg'}, {'key': 'address', 'valueString': '90 3rd Ave, New York, NY 10003'}]}, {'key': 'item3', 'valueMap': [{'key': 'name', 'valueString': 'RedFarm'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Modern Chinese with a farm-to-table approach.'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] )" },
+[REST]                 { "key": "imageUrl", "valueString": "http://localhost:10002/static/beefbroccoli.jpeg" },
+[REST]                 { "key": "address", "valueString": "529 Hudson St, New York
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/mapotofu.jpeg'}, {'key': 'address', 'valueString': '90 3rd Ave, New York, NY 10003'}]}, {'key': 'item3', 'valueMap': [{'key': 'name', 'valueString': 'RedFarm'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Modern Chinese with a farm-to-table approach.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.redfarmnyc.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/beefbroccoli.jpeg'}, {'key': 'address', 'valueString': '529 Hudson St, New York'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] , NY 10014" }
+[REST]               ]
+[REST]             },
+[REST]             {
+[REST]               "key": "item4",
+[REST]               "valueMap": [
+[REST]                 { "key": "name", "valueString": "Mott 32" },
+[REST]                 {
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/mapotofu.jpeg'}, {'key': 'address', 'valueString': '90 3rd Ave, New York, NY 10003'}]}, {'key': 'item3', 'valueMap': [{'key': 'name', 'valueString': 'RedFarm'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Modern Chinese with a farm-to-table approach.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.redfarmnyc.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/beefbroccoli.jpeg'}, {'key': 'address', 'valueString': '529 Hudson St, New York, NY 10014'}]}, {'key': 'item4', 'valueMap': [{'key': 'name', 'valueString': 'Mott 32'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  "key": "rating", "valueString": "\u2b50\u2b50\u2b50\u2b50\u2b50" },
+[REST]                 { "key": "detail", "valueString": "Upscale Cantonese dining."
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/mapotofu.jpeg'}, {'key': 'address', 'valueString': '90 3rd Ave, New York, NY 10003'}]}, {'key': 'item3', 'valueMap': [{'key': 'name', 'valueString': 'RedFarm'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Modern Chinese with a farm-to-table approach.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.redfarmnyc.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/beefbroccoli.jpeg'}, {'key': 'address', 'valueString': '529 Hudson St, New York, NY 10014'}]}, {'key': 'item4', 'valueMap': [{'key': 'name', 'valueString': 'Mott 32'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50\u2b50'}, {'key': 'detail', 'valueString': 'Upscale Cantonese dining.'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  },
+[REST]                 { "key": "infoLink", "valueString": "[More Info](https://mott32.com/newyork/)" },
+[REST]                 { "key": "imageUrl", "valueString": "http://localhost:10002/
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/mapotofu.jpeg'}, {'key': 'address', 'valueString': '90 3rd Ave, New York, NY 10003'}]}, {'key': 'item3', 'valueMap': [{'key': 'name', 'valueString': 'RedFarm'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Modern Chinese with a farm-to-table approach.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.redfarmnyc.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/beefbroccoli.jpeg'}, {'key': 'address', 'valueString': '529 Hudson St, New York, NY 10014'}]}, {'key': 'item4', 'valueMap': [{'key': 'name', 'valueString': 'Mott 32'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50\u2b50'}, {'key': 'detail', 'valueString': 'Upscale Cantonese dining.'}, {'key': 'infoLink', 'valueString': '[More Info](https://mott32.com/newyork/)'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] static/springrolls.jpeg" },
+[REST]                 { "key": "address", "valueString": "111 W 57th St, New York, NY 10019" }
+[REST]               ]
+[REST]             },
+[REST]             {
+[REST]               "key": "item
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/mapotofu.jpeg'}, {'key': 'address', 'valueString': '90 3rd Ave, New York, NY 10003'}]}, {'key': 'item3', 'valueMap': [{'key': 'name', 'valueString': 'RedFarm'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Modern Chinese with a farm-to-table approach.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.redfarmnyc.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/beefbroccoli.jpeg'}, {'key': 'address', 'valueString': '529 Hudson St, New York, NY 10014'}]}, {'key': 'item4', 'valueMap': [{'key': 'name', 'valueString': 'Mott 32'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50\u2b50'}, {'key': 'detail', 'valueString': 'Upscale Cantonese dining.'}, {'key': 'infoLink', 'valueString': '[More Info](https://mott32.com/newyork/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/springrolls.jpeg'}, {'key': 'address', 'valueString': '111 W 57th St, New York, NY 10019'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] 5",
+[REST]               "valueMap": [
+[REST]                 { "key": "name", "valueString": "Hwa Yuan Szechuan" },
+[REST]                 { "key": "rating", "valueString": "\u2b50\u2b50\u2b50
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/mapotofu.jpeg'}, {'key': 'address', 'valueString': '90 3rd Ave, New York, NY 10003'}]}, {'key': 'item3', 'valueMap': [{'key': 'name', 'valueString': 'RedFarm'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Modern Chinese with a farm-to-table approach.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.redfarmnyc.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/beefbroccoli.jpeg'}, {'key': 'address', 'valueString': '529 Hudson St, New York, NY 10014'}]}, {'key': 'item4', 'valueMap': [{'key': 'name', 'valueString': 'Mott 32'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50\u2b50'}, {'key': 'detail', 'valueString': 'Upscale Cantonese dining.'}, {'key': 'infoLink', 'valueString': '[More Info](https://mott32.com/newyork/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/springrolls.jpeg'}, {'key': 'address', 'valueString': '111 W 57th St, New York, NY 10019'}]}, {'key': 'item5', 'valueMap': [{'key': 'name', 'valueString': 'Hwa Yuan Szechuan'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] \u2b50 " },
+[REST]                 { "key": "detail", "valueString": "Famous for its cold noodles with sesame sauce." },
+[REST]                 { "key": "infoLink", "valueString": "[More Info](https
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/mapotofu.jpeg'}, {'key': 'address', 'valueString': '90 3rd Ave, New York, NY 10003'}]}, {'key': 'item3', 'valueMap': [{'key': 'name', 'valueString': 'RedFarm'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Modern Chinese with a farm-to-table approach.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.redfarmnyc.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/beefbroccoli.jpeg'}, {'key': 'address', 'valueString': '529 Hudson St, New York, NY 10014'}]}, {'key': 'item4', 'valueMap': [{'key': 'name', 'valueString': 'Mott 32'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50\u2b50'}, {'key': 'detail', 'valueString': 'Upscale Cantonese dining.'}, {'key': 'infoLink', 'valueString': '[More Info](https://mott32.com/newyork/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/springrolls.jpeg'}, {'key': 'address', 'valueString': '111 W 57th St, New York, NY 10019'}]}, {'key': 'item5', 'valueMap': [{'key': 'name', 'valueString': 'Hwa Yuan Szechuan'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Famous for its cold noodles with sesame sauce.'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ://hwayuannyc.com/)" },
+[REST]                 { "key": "imageUrl", "valueString": "http://localhost:10002/static/kungpao.jpeg" },
+[REST]                 { "key": "address
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/mapotofu.jpeg'}, {'key': 'address', 'valueString': '90 3rd Ave, New York, NY 10003'}]}, {'key': 'item3', 'valueMap': [{'key': 'name', 'valueString': 'RedFarm'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Modern Chinese with a farm-to-table approach.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.redfarmnyc.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/beefbroccoli.jpeg'}, {'key': 'address', 'valueString': '529 Hudson St, New York, NY 10014'}]}, {'key': 'item4', 'valueMap': [{'key': 'name', 'valueString': 'Mott 32'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50\u2b50'}, {'key': 'detail', 'valueString': 'Upscale Cantonese dining.'}, {'key': 'infoLink', 'valueString': '[More Info](https://mott32.com/newyork/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/springrolls.jpeg'}, {'key': 'address', 'valueString': '111 W 57th St, New York, NY 10019'}]}, {'key': 'item5', 'valueMap': [{'key': 'name', 'valueString': 'Hwa Yuan Szechuan'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Famous for its cold noodles with sesame sauce.'}, {'key': 'infoLink', 'valueString': '[More Info](https://hwayuannyc.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/kungpao.jpeg'}]}]}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ", "valueString": "40 E Broadway, New York, NY 10002" }
+[REST]               ]
+[REST]             }
+[REST]           ]
+[REST]         }
+[REST]       ]
+[REST]     }
+[REST]   }
+[REST] ]
+[REST] </a2ui-json>
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'default', 'path': '/', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMap': [{'key': 'name', 'valueString': "Xi'an Famous Foods"}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Spicy and savory hand-pulled noodles.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.xianfoods.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}]}, {'key': 'item2', 'valueMap': [{'key': 'name', 'valueString': 'Han Dynasty'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Authentic Szechuan cuisine.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.handynasty.net/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/mapotofu.jpeg'}, {'key': 'address', 'valueString': '90 3rd Ave, New York, NY 10003'}]}, {'key': 'item3', 'valueMap': [{'key': 'name', 'valueString': 'RedFarm'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Modern Chinese with a farm-to-table approach.'}, {'key': 'infoLink', 'valueString': '[More Info](https://www.redfarmnyc.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/beefbroccoli.jpeg'}, {'key': 'address', 'valueString': '529 Hudson St, New York, NY 10014'}]}, {'key': 'item4', 'valueMap': [{'key': 'name', 'valueString': 'Mott 32'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50\u2b50'}, {'key': 'detail', 'valueString': 'Upscale Cantonese dining.'}, {'key': 'infoLink', 'valueString': '[More Info](https://mott32.com/newyork/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/springrolls.jpeg'}, {'key': 'address', 'valueString': '111 W 57th St, New York, NY 10019'}]}, {'key': 'item5', 'valueMap': [{'key': 'name', 'valueString': 'Hwa Yuan Szechuan'}, {'key': 'rating', 'valueString': '\u2b50\u2b50\u2b50\u2b50 '}, {'key': 'detail', 'valueString': 'Famous for its cold noodles with sesame sauce.'}, {'key': 'infoLink', 'valueString': '[More Info](https://hwayuannyc.com/)'}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/kungpao.jpeg'}, {'key': 'address', 'valueString': '40 E Broadway, New York, NY 10002'}]}]}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]
+[REST] Here's a quick summary of the top picks:
+[REST]
+[REST] 1. **Xi'an Famous Foods**  
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  Known for their bold, spicy hand-pulled noodles. A NYC sta
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ple!
+[REST] 2. **Han Dynasty**   Authentic Szechuan flavors that pack a punch.
+[REST] 3. **RedFarm**   A creative
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] , farm-to-table take on Chinese cuisine.
+[REST] 4. **Mott 32**   Upscale Cantonese dining with a stunning
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  atmosphere. The highest-rated on the list!
+[REST] 5. **Hwa Yuan Szechuan**  
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  A Chinatown legend, especially famous for their cold ses
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ame noodles.
+[REST]
+[REST] Click **Book Now** on any restaurant to make a reservation! \U0001f35c
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] Here are the top 5 Chinese restaurants in New York City! \U0001f962
+[REST]
+[REST] <a2ui-json>
+[REST] [
+[REST]   {
+[REST]     "beginRendering": {
+[REST]       "surfaceId": "default",
+[REST]       "root": "root-column",
+[REST]       "styles": {
+[REST]         "primaryColor": "#D32F2F",
+[REST]         "font": "Roboto"
+[REST]       }
+[REST]     }
+[REST]   },
+[REST]   {
+[REST]     "surfaceUpdate": {
+[REST]       "surfaceId": "default",
+[REST]       "components": [
+[REST]         {
+[REST]           "id": "root-column",
+[REST]           "component": {
+[REST]             "Column": {
+[REST]               "children": {
+[REST]                 "explicitList": [
+[REST]                   "title-heading",
+[REST]                   "item-list"
+[REST]                 ]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "title-heading",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "usageHint": "h1",
+[REST]               "text": {
+[REST]                 "path": "/title"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "item-list",
+[REST]           "component": {
+[REST]             "List": {
+[REST]               "direction": "vertical",
+[REST]               "children": {
+[REST]                 "template": {
+[REST]                   "componentId": "item-card-template",
+[REST]                   "dataBinding": "/items"
+[REST]                 }
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "item-card-template",
+[REST]           "component": {
+[REST]             "Card": {
+[REST]               "child": "card-layout"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "card-layout",
+[REST]           "component": {
+[REST]             "Row": {
+[REST]               "children": {
+[REST]                 "explicitList": [
+[REST]                   "template-image",
+[REST]                   "card-details"
+[REST]                 ]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-image",
+[REST]           "weight": 1,
+[REST]           "component": {
+[REST]             "Image": {
+[REST]               "url": {
+[REST]                 "path": "/imageUrl"
+[REST]               },
+[REST]               "fit": "cover",
+[REST]               "usageHint": "smallFeature"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "card-details",
+[REST]           "weight": 2,
+[REST]           "component": {
+[REST]             "Column": {
+[REST]               "children": {
+[REST]                 "explicitList": [
+[REST]                   "template-name",
+[REST]                   "template-rating",
+[REST]                   "template-detail",
+[REST]                   "template-address",
+[REST]                   "template-link",
+[REST]                   "template-book-button"
+[REST]                 ]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-name",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "usageHint": "h3",
+[REST]               "text": {
+[REST]                 "path": "/name"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-rating",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "path": "/rating"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-detail",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "path": "/detail"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-address",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "usageHint": "caption",
+[REST]               "text": {
+[REST]                 "path": "/address"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-link",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "path": "/infoLink"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "template-book-button",
+[REST]           "component": {
+[REST]             "Button": {
+[REST]               "child": "book-now-text",
+[REST]               "primary": true,
+[REST]               "action": {
+[REST]                 "name": "book_restaurant",
+[REST]                 "context": [
+[REST]                   {
+[REST]                     "key": "restaurantName",
+[REST]                     "value": {
+[REST]                       "path": "/name"
+[REST]                     }
+[REST]                   },
+[REST]                   {
+[REST]                     "key": "imageUrl",
+[REST]                     "value": {
+[REST]                       "path": "/imageUrl"
+[REST]                     }
+[REST]                   },
+[REST]                   {
+[REST]                     "key": "address",
+[REST]                     "value": {
+[REST]                       "path": "/address"
+[REST]                     }
+[REST]                   }
+[REST]                 ]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "book-now-text",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "literalString": "Book Now"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         }
+[REST]       ]
+[REST]     }
+[REST]   },
+[REST]   {
+[REST]     "dataModelUpdate": {
+[REST]       "surfaceId": "default",
+[REST]       "path": "/",
+[REST]       "contents": [
+[REST]         {
+[REST]           "key": "title",
+[REST]           "valueString": "Top 5 Chinese Restaurants in New York"
+[REST]         },
+[REST]         {
+[REST]           "key": "items",
+[REST]           "valueMap": [
+[REST]             {
+[REST]               "key": "item1",
+[REST]               "valueMap": [
+[REST]                 { "key": "name", "valueString": "Xi'an Famous Foods" },
+[REST]                 { "key": "rating", "valueString": "\u2b50\u2b50\u2b50\u2b50 " },
+[REST]                 { "key": "detail", "valueString": "Spicy and savory hand-pulled noodles." },
+[REST]                 { "key": "infoLink", "valueString": "[More Info](https://www.xianfoods.com/)" },
+[REST]                 { "key": "imageUrl", "valueString": "http://localhost:10002/static/shrimpchowmein.jpeg" },
+[REST]                 { "key": "address", "valueString": "81 St Marks Pl, New York, NY 10003" }
+[REST]               ]
+[REST]             },
+[REST]             {
+[REST]               "key": "item2",
+[REST]               "valueMap": [
+[REST]                 { "key": "name", "valueString": "Han Dynasty" },
+[REST]                 { "key": "rating", "valueString": "\u2b50\u2b50\u2b50\u2b50 " },
+[REST]                 { "key": "detail", "valueString": "Authentic Szechuan cuisine." },
+[REST]                 { "key": "infoLink", "valueString": "[More Info](https://www.handynasty.net/)" },
+[REST]                 { "key": "imageUrl", "valueString": "http://localhost:10002/static/mapotofu.jpeg" },
+[REST]                 { "key": "address", "valueString": "90 3rd Ave, New York, NY 10003" }
+[REST]               ]
+[REST]             },
+[REST]             {
+[REST]               "key": "item3",
+[REST]               "valueMap": [
+[REST]                 { "key": "name", "valueString": "RedFarm" },
+[REST]                 { "key": "rating", "valueString": "\u2b50\u2b50\u2b50\u2b50 " },
+[REST]                 { "key": "detail", "valueString": "Modern Chinese with a farm-to-table approach." },
+[REST]                 { "key": "infoLink", "valueString": "[More Info](https://www.redfarmnyc.com/)" },
+[REST]                 { "key": "imageUrl", "valueString": "http://localhost:10002/static/beefbroccoli.jpeg" },
+[REST]                 { "key": "address", "valueString": "529 Hudson St, New York, NY 10014" }
+[REST]               ]
+[REST]             },
+[REST]             {
+[REST]               "key": "item4",
+[REST]               "valueMap": [
+[REST]                 { "key": "name", "valueString": "Mott 32" },
+[REST]                 { "key": "rating", "valueString": "\u2b50\u2b50\u2b50\u2b50\u2b50" },
+[REST]                 { "key": "detail", "valueString": "Upscale Cantonese dining." },
+[REST]                 { "key": "infoLink", "valueString": "[More Info](https://mott32.com/newyork/)" },
+[REST]                 { "key": "imageUrl", "valueString": "http://localhost:10002/static/springrolls.jpeg" },
+[REST]                 { "key": "address", "valueString": "111 W 57th St, New York, NY 10019" }
+[REST]               ]
+[REST]             },
+[REST]             {
+[REST]               "key": "item5",
+[REST]               "valueMap": [
+[REST]                 { "key": "name", "valueString": "Hwa Yuan Szechuan" },
+[REST]                 { "key": "rating", "valueString": "\u2b50\u2b50\u2b50\u2b50 " },
+[REST]                 { "key": "detail", "valueString": "Famous for its cold noodles with sesame sauce." },
+[REST]                 { "key": "infoLink", "valueString": "[More Info](https://hwayuannyc.com/)" },
+[REST]                 { "key": "imageUrl", "valueString": "http://localhost:10002/static/kungpao.jpeg" },
+[REST]                 { "key": "address", "valueString": "40 E Broadway, New York, NY 10002" }
+[REST]               ]
+[REST]             }
+[REST]           ]
+[REST]         }
+[REST]       ]
+[REST]     }
+[REST]   }
+[REST] ]
+[REST] </a2ui-json>
+[REST]
+[REST] Here's a quick summary of the top picks:
+[REST]
+[REST] 1. **Xi'an Famous Foods**   Known for their bold, spicy hand-pulled noodles. A NYC staple!
+[REST] 2. **Han Dynasty**   Authentic Szechuan flavors that pack a punch.
+[REST] 3. **RedFarm**   A creative, farm-to-table take on Chinese cuisine.
+[REST] 4. **Mott 32**   Upscale Cantonese dining with a stunning atmosphere. The highest-rated on the list!
+[REST] 5. **Hwa Yuan Szechuan**   A Chinatown legend, especially famous for their cold sesame noodles.
+[REST]
+[REST] Click **Book Now** on any restaurant to make a reservation! \U0001f35c
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None, None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:agent:--- RestaurantAgent.stream: Validating UI response (Attempt 1)... ---
+[REST] INFO:agent:--- RestaurantAgent.stream: Validating against A2UI_SCHEMA... ---
+[REST] INFO:agent:--- RestaurantAgent.stream: UI JSON successfully parsed AND validated against schema. Validation OK (Attempt 1). ---
+[REST] INFO:agent:--- RestaurantAgent.stream: Validating against A2UI_SCHEMA... ---
+[REST] INFO:agent:--- RestaurantAgent.stream: UI JSON successfully parsed AND validated against schema. Validation OK (Attempt 1). ---
+[REST] INFO:agent:--- RestaurantAgent.stream: Response is valid. Sending final response (Attempt 1). ---
+[REST] INFO:agent_executor:--- FINAL PARTS TO BE SENT ---
+[REST] INFO:agent_executor:  - Part 0: Type = <class 'a2a.types.TextPart'>
+[REST] INFO:agent_executor:    - Text: Here are the top 5 Chinese restaurants in New York City! \U0001f962...
+[REST] INFO:agent_executor:  - Part 1: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'beginRendering': {'surfaceId': 'default', 'root': 'root-column', 'styles': {'primaryColor': '#D32F2F', 'font': 'Roboto'}}}...
+[REST] INFO:agent_executor:  - Part 2: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'title-heading', 'compo...
+[REST] INFO:agent_executor:  - Part 3: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'dataModelUpdate': {'surfaceId': 'default', 'path': '/', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMa...
+[REST] INFO:agent_executor:  - Part 4: Type = <class 'a2a.types.TextPart'>
+[REST] INFO:agent_executor:    - Text: Here's a quick summary of the top picks:
+[REST]
+[REST] 1. **Xi'an Famous Foods**   Known for their bold, spicy hand-pulled noodles. A NYC staple!
+[REST] 2. **Han Dynasty**   Authentic Szechuan flavors that pack a punch.
+[REST] ...
+[REST] INFO:agent_executor:  - Part 5: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'beginRendering': {'surfaceId': 'default', 'root': 'root-column', 'styles': {'primaryColor': '#D32F2F', 'font': 'Roboto'}}}...
+[REST] INFO:agent_executor:  - Part 6: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'surfaceUpdate': {'surfaceId': 'default', 'components': [{'id': 'root-column', 'component': {'Column': {'children': {'explicitList': ['title-heading', 'item-list']}}}}, {'id': 'title-heading', 'compo...
+[REST] INFO:agent_executor:  - Part 7: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'dataModelUpdate': {'surfaceId': 'default', 'path': '/', 'contents': [{'key': 'title', 'valueString': 'Top 5 Chinese Restaurants in New York'}, {'key': 'items', 'valueMap': [{'key': 'item1', 'valueMa...
+[REST] INFO:agent_executor:  - Part 8: Type = <class 'a2a.types.TextPart'>
+[REST] INFO:agent_executor:    - Text: Here's a quick summary of the top picks:
+[REST]
+[REST] 1. **Xi'an Famous Foods**   Known for their bold, spicy hand-pulled noodles. A NYC staple!
+[REST] 2. **Han Dynasty**   Authentic Szechuan flavors that pack a punch.
+[REST] ...
+[REST] INFO:agent_executor:-----------------------------
+[REST] INFO:     ::1:60633 - "POST / HTTP/1.1" 200 OK
+[REST] INFO:     ::1:64887 - "GET /static/shrimpchowmein.jpeg HTTP/1.1" 200 OK
+[REST] INFO:     ::1:65308 - "GET /static/beefbroccoli.jpeg HTTP/1.1" 200 OK
+[REST] INFO:     ::1:56294 - "GET /static/mapotofu.jpeg HTTP/1.1" 200 OK
+[REST] INFO:     ::1:64887 - "GET /static/springrolls.jpeg HTTP/1.1" 200 OK
+[REST] INFO:     ::1:65308 - "GET /static/kungpao.jpeg HTTP/1.1" 200 OK
+[REST] INFO:agent_executor:--- Client requested extensions: {'https://a2ui.org/a2a-extension/a2ui/v0.8'} ---
+[REST] INFO:agent_executor:--- AGENT_EXECUTOR: A2UI extension is active. Using UI agent. ---
+[REST] INFO:agent_executor:--- AGENT_EXECUTOR: Processing 1 message parts ---
+[REST] INFO:agent_executor:  Part 0: Found a2ui UI ClientEvent payload.
+[REST] INFO:agent_executor:Received a2ui ClientEvent: {'name': 'book_restaurant', 'surfaceId': 'default', 'sourceComponentId': 'template-book-button:item1', 'timestamp': '2026-04-11T07:30:56.379Z', 'context': {'restaurantName': "Xi'an Famous Foods", 'imageUrl': 'http://localhost:10002/static/shrimpchowmein.jpeg', 'address': '81 St Marks Pl, New York, NY 10003'}}
+[REST] INFO:agent_executor:--- AGENT_EXECUTOR: Final query for LLM: 'User submitted an event: None with data: {'restaurantName': "Xi'an Famous Foods", 'imageUrl': 'http://localhost:10002/static/shrimpchowmein.jpeg', 'address': '81 St Marks Pl, New York, NY 10003'}' ---
+[REST] INFO:agent:--- RestaurantAgent.stream: Attempt 1/2 for session 7da77c86-b24d-4265-8d49-5c9a4080b49e ---
+[REST] 09:30:56 - LiteLLM:INFO: utils.py:3879 -
+[REST] LiteLLM completion() model= claude-sonnet-4-6; provider = anthropic
+[REST] INFO:LiteLLM:
+[REST] LiteLLM completion() model= claude-sonnet-4-6; provider = anthropic
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] <a2ui-json>
+[REST] [
+[REST]   {
+[REST]     "beginRendering": {
+[REST]       "surfaceId": "booking-form-
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] xian",
+[REST]       "root": "booking-form-column",
+[REST]       "styles": {
+[REST]         "primaryColor": "#D32
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] F2F",
+[REST]         "font": "Roboto"
+[REST]       }
+[REST]     }
+[REST]   },
+[REST]   {
+[REST]     "surfaceUpdate": {
+[REST]       "surfaceId
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'beginRendering': {'surfaceId': 'booking-form-xian', 'root': 'booking-form-column', 'styles': {'primaryColor': '#D32F2F', 'font': 'Roboto'}}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": "booking-form-xian",
+[REST]       "components": [
+[REST]         {
+[REST]           "id": "booking-form-column",
+[REST]           "component": {
+[REST]             "Column": {
+[REST]               "children": {
+[REST]                 "explicitList
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": [
+[REST]                   "booking-title",
+[REST]                   "restaurant-image",
+[REST]                   "restaurant-address",
+[REST]                   "party-size-
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'booking-form-xian', 'components': [{'id': 'booking-form-column', 'component': {'Column': {'children': {'explicitList': ['loading_booking-title', 'loading_restaurant-image', 'loading_restaurant-address', 'loading_party-size-']}}}}, {'id': 'loading_booking-title', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_restaurant-image', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_restaurant-address', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_party-size-', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] field",
+[REST]                   "datetime-field",
+[REST]                   "dietary-field",
+[REST]                   "submit-button"
+[REST]                 ]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'booking-form-xian', 'components': [{'id': 'booking-form-column', 'component': {'Column': {'children': {'explicitList': ['loading_booking-title', 'loading_restaurant-image', 'loading_restaurant-address', 'loading_party-size-field', 'loading_datetime-field', 'loading_dietary-field', 'loading_submit-button']}}}}, {'id': 'loading_booking-title', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_restaurant-image', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_restaurant-address', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_party-size-field', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_datetime-field', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_dietary-field', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_submit-button', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] id": "booking-title",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "usageHint": "h2",
+[REST]               "text": {
+[REST]                 "path": "/title"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'booking-form-xian', 'components': [{'id': 'booking-form-column', 'component': {'Column': {'children': {'explicitList': ['booking-title', 'loading_restaurant-image', 'loading_restaurant-address', 'loading_party-size-field', 'loading_datetime-field', 'loading_dietary-field', 'loading_submit-button']}}}}, {'id': 'booking-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'loading_restaurant-image', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_restaurant-address', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_party-size-field', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_datetime-field', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_dietary-field', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_submit-button', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]           "id": "restaurant-image",
+[REST]           "component": {
+[REST]             "Image": {
+[REST]               "url": {
+[REST]                 "path": "/imageUrl"
+[REST]               },
+[REST]               "fit": "cover",
+[REST]               "usageHint": "med
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] iumFeature"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "restaurant-address",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "path": "/address"
+[REST]               }
+[REST]             }
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'booking-form-xian', 'components': [{'id': 'booking-form-column', 'component': {'Column': {'children': {'explicitList': ['booking-title', 'restaurant-image', 'restaurant-address', 'loading_party-size-field', 'loading_datetime-field', 'loading_dietary-field', 'loading_submit-button']}}}}, {'id': 'booking-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'restaurant-address', 'component': {'Text': {'text': {'path': '/address'}}}}, {'id': 'restaurant-image', 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'mediumFeature'}}}, {'id': 'loading_party-size-field', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_datetime-field', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_dietary-field', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_submit-button', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "party-size-field",
+[REST]           "component": {
+[REST]             "TextField": {
+[REST]               "label": {
+[REST]                 "literalString": "Party Size"
+[REST]               },
+[REST]               "text
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": {
+[REST]                 "path": "/partySize"
+[REST]               },
+[REST]               "textFieldType": "number"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'booking-form-xian', 'components': [{'id': 'booking-form-column', 'component': {'Column': {'children': {'explicitList': ['booking-title', 'restaurant-image', 'restaurant-address', 'party-size-field', 'loading_datetime-field', 'loading_dietary-field', 'loading_submit-button']}}}}, {'id': 'booking-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'party-size-field', 'component': {'TextField': {'label': {'literalString': 'Party Size'}, 'text': {'path': '/partySize'}, 'textFieldType': 'number'}}}, {'id': 'restaurant-address', 'component': {'Text': {'text': {'path': '/address'}}}}, {'id': 'restaurant-image', 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'mediumFeature'}}}, {'id': 'loading_datetime-field', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_dietary-field', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_submit-button', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": "datetime-field",
+[REST]           "component": {
+[REST]             "DateTimeInput": {
+[REST]               "value": {
+[REST]                 "path": "/reservationTime"
+[REST]               },
+[REST]               "enable
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] Date": true,
+[REST]               "enableTime": true
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "dietary-field",
+[REST]           "component": {
+[REST]             "TextField": {
+[REST]               "label": {
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'booking-form-xian', 'components': [{'id': 'booking-form-column', 'component': {'Column': {'children': {'explicitList': ['booking-title', 'restaurant-image', 'restaurant-address', 'party-size-field', 'datetime-field', 'loading_dietary-field', 'loading_submit-button']}}}}, {'id': 'booking-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'datetime-field', 'component': {'DateTimeInput': {'value': {'path': '/reservationTime'}, 'enableDate': True, 'enableTime': True}}}, {'id': 'party-size-field', 'component': {'TextField': {'label': {'literalString': 'Party Size'}, 'text': {'path': '/partySize'}, 'textFieldType': 'number'}}}, {'id': 'restaurant-address', 'component': {'Text': {'text': {'path': '/address'}}}}, {'id': 'restaurant-image', 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'mediumFeature'}}}, {'id': 'loading_dietary-field', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_submit-button', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]                 "literalString": "Dietary Requirements"
+[REST]               },
+[REST]               "text": {
+[REST]                 "path": "/dietary"
+[REST]               },
+[REST]               "textFieldType": "longText"
+[REST]             }
+[REST]           }
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'booking-form-xian', 'components': [{'id': 'booking-form-column', 'component': {'Column': {'children': {'explicitList': ['booking-title', 'restaurant-image', 'restaurant-address', 'party-size-field', 'datetime-field', 'dietary-field', 'loading_submit-button']}}}}, {'id': 'booking-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'datetime-field', 'component': {'DateTimeInput': {'value': {'path': '/reservationTime'}, 'enableDate': True, 'enableTime': True}}}, {'id': 'dietary-field', 'component': {'TextField': {'label': {'literalString': 'Dietary Requirements'}, 'text': {'path': '/dietary'}, 'textFieldType': 'longText'}}}, {'id': 'party-size-field', 'component': {'TextField': {'label': {'literalString': 'Party Size'}, 'text': {'path': '/partySize'}, 'textFieldType': 'number'}}}, {'id': 'restaurant-address', 'component': {'Text': {'text': {'path': '/address'}}}}, {'id': 'restaurant-image', 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'mediumFeature'}}}, {'id': 'loading_submit-button', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]         },
+[REST]         {
+[REST]           "id": "submit-button",
+[REST]           "component": {
+[REST]             "Button": {
+[REST]               "child": "submit-reservation-text",
+[REST]               "primary": true,
+[REST]               "action": {
+[REST]
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] "name": "submit_booking",
+[REST]                 "context": [
+[REST]                   {
+[REST]                     "key": "restaurantName",
+[REST]                     "value": {
+[REST]                       "path": "/restaurantName"
+[REST]                     }
+[REST]                   },
+[REST]                   {
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]                     "key": "partySize",
+[REST]                     "value": {
+[REST]                       "path": "/partySize"
+[REST]                     }
+[REST]                   },
+[REST]                   {
+[REST]                     "key": "reservationTime",
+[REST]                     "value": {
+[REST]                       "path
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": "/reservationTime"
+[REST]                     }
+[REST]                   },
+[REST]                   {
+[REST]                     "key": "dietary",
+[REST]                     "value": {
+[REST]                       "path": "/dietary"
+[REST]                     }
+[REST]                   },
+[REST]                   {
+[REST]                     "
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] key": "imageUrl",
+[REST]                     "value": {
+[REST]                       "path": "/imageUrl"
+[REST]                     }
+[REST]                   }
+[REST]                 ]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "submit-reservation-text",
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'booking-form-xian', 'components': [{'id': 'booking-form-column', 'component': {'Column': {'children': {'explicitList': ['booking-title', 'restaurant-image', 'restaurant-address', 'party-size-field', 'datetime-field', 'dietary-field', 'submit-button']}}}}, {'id': 'booking-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'datetime-field', 'component': {'DateTimeInput': {'value': {'path': '/reservationTime'}, 'enableDate': True, 'enableTime': True}}}, {'id': 'dietary-field', 'component': {'TextField': {'label': {'literalString': 'Dietary Requirements'}, 'text': {'path': '/dietary'}, 'textFieldType': 'longText'}}}, {'id': 'party-size-field', 'component': {'TextField': {'label': {'literalString': 'Party Size'}, 'text': {'path': '/partySize'}, 'textFieldType': 'number'}}}, {'id': 'restaurant-address', 'component': {'Text': {'text': {'path': '/address'}}}}, {'id': 'restaurant-image', 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'mediumFeature'}}}, {'id': 'submit-button', 'component': {'Button': {'child': 'loading_submit-reservation-text', 'primary': True, 'action': {'name': 'submit_booking', 'context': [{'key': 'restaurantName', 'value': {'path': '/restaurantName'}}, {'key': 'partySize', 'value': {'path': '/partySize'}}, {'key': 'reservationTime', 'value': {'path': '/reservationTime'}}, {'key': 'dietary', 'value': {'path': '/dietary'}}, {'key': 'imageUrl', 'value': {'path': '/imageUrl'}}]}}}}, {'id': 'loading_submit-reservation-text', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "literalString": "Submit Reservation"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         }
+[REST]       ]
+[REST]     }
+[REST]   },
+[REST]   {
+[REST]     "data
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'booking-form-xian', 'components': [{'id': 'booking-form-column', 'component': {'Column': {'children': {'explicitList': ['booking-title', 'restaurant-image', 'restaurant-address', 'party-size-field', 'datetime-field', 'dietary-field', 'submit-button']}}}}, {'id': 'booking-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'datetime-field', 'component': {'DateTimeInput': {'value': {'path': '/reservationTime'}, 'enableDate': True, 'enableTime': True}}}, {'id': 'dietary-field', 'component': {'TextField': {'label': {'literalString': 'Dietary Requirements'}, 'text': {'path': '/dietary'}, 'textFieldType': 'longText'}}}, {'id': 'party-size-field', 'component': {'TextField': {'label': {'literalString': 'Party Size'}, 'text': {'path': '/partySize'}, 'textFieldType': 'number'}}}, {'id': 'restaurant-address', 'component': {'Text': {'text': {'path': '/address'}}}}, {'id': 'restaurant-image', 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'mediumFeature'}}}, {'id': 'submit-button', 'component': {'Button': {'child': 'submit-reservation-text', 'primary': True, 'action': {'name': 'submit_booking', 'context': [{'key': 'restaurantName', 'value': {'path': '/restaurantName'}}, {'key': 'partySize', 'value': {'path': '/partySize'}}, {'key': 'reservationTime', 'value': {'path': '/reservationTime'}}, {'key': 'dietary', 'value': {'path': '/dietary'}}, {'key': 'imageUrl', 'value': {'path': '/imageUrl'}}]}}}}, {'id': 'submit-reservation-text', 'component': {'Text': {'text': {'literalString': 'Submit Reservation'}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ModelUpdate": {
+[REST]       "surfaceId": "booking-form-xian",
+[REST]       "path": "/",
+[REST]       "contents": [
+[REST]         {
+[REST]           "key": "title",
+[REST]           "valueString": "Book
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'booking-form-xian', 'contents': [{'key': 'title', 'valueString': 'Book'}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  a Table at Xi'an Famous Foods"
+[REST]         },
+[REST]         {
+[REST]           "key": "address",
+[REST]           "valueString": "81 St Marks Pl, New York, NY 10003"
+[REST]         },
+[REST]         {
+[REST]
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'booking-form-xian', 'contents': [{'key': 'title', 'valueString': "Book a Table at Xi'an Famous Foods"}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] "key": "restaurantName",
+[REST]           "valueString": "Xi'an Famous Foods"
+[REST]         },
+[REST]         {
+[REST]           "key": "partySize",
+[REST]           "valueString": "2"
+[REST]         },
+[REST]         {
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'booking-form-xian', 'contents': [{'key': 'title', 'valueString': "Book a Table at Xi'an Famous Foods"}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}, {'key': 'restaurantName', 'valueString': "Xi'an Famous Foods"}, {'key': 'partySize', 'valueString': '2'}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]           "key": "reservationTime",
+[REST]           "valueString": ""
+[REST]         },
+[REST]         {
+[REST]           "key": "dietary",
+[REST]           "valueString": ""
+[REST]         },
+[REST]         {
+[REST]           "key": "imageUrl",
+[REST]           "valueString": "http://localhost:10
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'booking-form-xian', 'contents': [{'key': 'title', 'valueString': "Book a Table at Xi'an Famous Foods"}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}, {'key': 'restaurantName', 'valueString': "Xi'an Famous Foods"}, {'key': 'partySize', 'valueString': '2'}, {'key': 'reservationTime', 'valueString': ''}, {'key': 'dietary', 'valueString': ''}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] 002/static/shrimpchowmein.jpeg"
+[REST]         }
+[REST]       ]
+[REST]     }
+[REST]   }
+[REST] ]
+[REST] </a2ui-json>
+[REST]
+[REST] Here's your booking form for **
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'booking-form-xian', 'path': '/', 'contents': [{'key': 'title', 'valueString': "Book a Table at Xi'an Famous Foods"}, {'key': 'address', 'valueString': '81 St Marks Pl, New York, NY 10003'}, {'key': 'restaurantName', 'valueString': "Xi'an Famous Foods"}, {'key': 'partySize', 'valueString': '2'}, {'key': 'reservationTime', 'valueString': ''}, {'key': 'dietary', 'valueString': ''}, {'key': 'imageUrl', 'valueString': 'http://localhost:10002/static/shrimpchowmein.jpeg'}]}}], None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] Xi'an Famous Foods**! \U0001f962 Please fill in the following details to
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  complete your reservation:
+[REST]
+[REST] - **Party Size**   How many guests will be dining?
+[REST] - **Date & Time**   When would you like to visit
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ?
+[REST] - **Dietary Requirements**   Any special dietary needs or allergies?
+[REST]
+[REST] Once you're ready, hit **Submit Reservation** and we'll get
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  you all set! \U0001f35c
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] <a2ui-json>
+[REST] [
+[REST]   {
+[REST]     "beginRendering": {
+[REST]       "surfaceId": "booking-form-xian",
+[REST]       "root": "booking-form-column",
+[REST]       "styles": {
+[REST]         "primaryColor": "#D32F2F",
+[REST]         "font": "Roboto"
+[REST]       }
+[REST]     }
+[REST]   },
+[REST]   {
+[REST]     "surfaceUpdate": {
+[REST]       "surfaceId": "booking-form-xian",
+[REST]       "components": [
+[REST]         {
+[REST]           "id": "booking-form-column",
+[REST]           "component": {
+[REST]             "Column": {
+[REST]               "children": {
+[REST]                 "explicitList": [
+[REST]                   "booking-title",
+[REST]                   "restaurant-image",
+[REST]                   "restaurant-address",
+[REST]                   "party-size-field",
+[REST]                   "datetime-field",
+[REST]                   "dietary-field",
+[REST]                   "submit-button"
+[REST]                 ]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "booking-title",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "usageHint": "h2",
+[REST]               "text": {
+[REST]                 "path": "/title"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "restaurant-image",
+[REST]           "component": {
+[REST]             "Image": {
+[REST]               "url": {
+[REST]                 "path": "/imageUrl"
+[REST]               },
+[REST]               "fit": "cover",
+[REST]               "usageHint": "mediumFeature"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "restaurant-address",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "path": "/address"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "party-size-field",
+[REST]           "component": {
+[REST]             "TextField": {
+[REST]               "label": {
+[REST]                 "literalString": "Party Size"
+[REST]               },
+[REST]               "text": {
+[REST]                 "path": "/partySize"
+[REST]               },
+[REST]               "textFieldType": "number"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "datetime-field",
+[REST]           "component": {
+[REST]             "DateTimeInput": {
+[REST]               "value": {
+[REST]                 "path": "/reservationTime"
+[REST]               },
+[REST]               "enableDate": true,
+[REST]               "enableTime": true
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "dietary-field",
+[REST]           "component": {
+[REST]             "TextField": {
+[REST]               "label": {
+[REST]                 "literalString": "Dietary Requirements"
+[REST]               },
+[REST]               "text": {
+[REST]                 "path": "/dietary"
+[REST]               },
+[REST]               "textFieldType": "longText"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "submit-button",
+[REST]           "component": {
+[REST]             "Button": {
+[REST]               "child": "submit-reservation-text",
+[REST]               "primary": true,
+[REST]               "action": {
+[REST]                 "name": "submit_booking",
+[REST]                 "context": [
+[REST]                   {
+[REST]                     "key": "restaurantName",
+[REST]                     "value": {
+[REST]                       "path": "/restaurantName"
+[REST]                     }
+[REST]                   },
+[REST]                   {
+[REST]                     "key": "partySize",
+[REST]                     "value": {
+[REST]                       "path": "/partySize"
+[REST]                     }
+[REST]                   },
+[REST]                   {
+[REST]                     "key": "reservationTime",
+[REST]                     "value": {
+[REST]                       "path": "/reservationTime"
+[REST]                     }
+[REST]                   },
+[REST]                   {
+[REST]                     "key": "dietary",
+[REST]                     "value": {
+[REST]                       "path": "/dietary"
+[REST]                     }
+[REST]                   },
+[REST]                   {
+[REST]                     "key": "imageUrl",
+[REST]                     "value": {
+[REST]                       "path": "/imageUrl"
+[REST]                     }
+[REST]                   }
+[REST]                 ]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "submit-reservation-text",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "literalString": "Submit Reservation"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         }
+[REST]       ]
+[REST]     }
+[REST]   },
+[REST]   {
+[REST]     "dataModelUpdate": {
+[REST]       "surfaceId": "booking-form-xian",
+[REST]       "path": "/",
+[REST]       "contents": [
+[REST]         {
+[REST]           "key": "title",
+[REST]           "valueString": "Book a Table at Xi'an Famous Foods"
+[REST]         },
+[REST]         {
+[REST]           "key": "address",
+[REST]           "valueString": "81 St Marks Pl, New York, NY 10003"
+[REST]         },
+[REST]         {
+[REST]           "key": "restaurantName",
+[REST]           "valueString": "Xi'an Famous Foods"
+[REST]         },
+[REST]         {
+[REST]           "key": "partySize",
+[REST]           "valueString": "2"
+[REST]         },
+[REST]         {
+[REST]           "key": "reservationTime",
+[REST]           "valueString": ""
+[REST]         },
+[REST]         {
+[REST]           "key": "dietary",
+[REST]           "valueString": ""
+[REST]         },
+[REST]         {
+[REST]           "key": "imageUrl",
+[REST]           "valueString": "http://localhost:10002/static/shrimpchowmein.jpeg"
+[REST]         }
+[REST]       ]
+[REST]     }
+[REST]   }
+[REST] ]
+[REST] </a2ui-json>
+[REST]
+[REST] Here's your booking form for **Xi'an Famous Foods**! \U0001f962 Please fill in the following details to complete your reservation:
+[REST]
+[REST] - **Party Size**   How many guests will be dining?
+[REST] - **Date & Time**   When would you like to visit?
+[REST] - **Dietary Requirements**   Any special dietary needs or allergies?
+[REST]
+[REST] Once you're ready, hit **Submit Reservation** and we'll get you all set! \U0001f35c
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:agent:--- RestaurantAgent.stream: Validating UI response (Attempt 1)... ---
+[REST] INFO:agent:--- RestaurantAgent.stream: Validating against A2UI_SCHEMA... ---
+[REST] INFO:agent:--- RestaurantAgent.stream: UI JSON successfully parsed AND validated against schema. Validation OK (Attempt 1). ---
+[REST] INFO:agent:--- RestaurantAgent.stream: Validating against A2UI_SCHEMA... ---
+[REST] INFO:agent:--- RestaurantAgent.stream: UI JSON successfully parsed AND validated against schema. Validation OK (Attempt 1). ---
+[REST] INFO:agent:--- RestaurantAgent.stream: Response is valid. Sending final response (Attempt 1). ---
+[REST] INFO:agent_executor:--- FINAL PARTS TO BE SENT ---
+[REST] INFO:agent_executor:  - Part 0: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'beginRendering': {'surfaceId': 'booking-form-xian', 'root': 'booking-form-column', 'styles': {'primaryColor': '#D32F2F', 'font': 'Roboto'}}}...
+[REST] INFO:agent_executor:  - Part 1: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'surfaceUpdate': {'surfaceId': 'booking-form-xian', 'components': [{'id': 'booking-form-column', 'component': {'Column': {'children': {'explicitList': ['booking-title', 'restaurant-image', 'restauran...
+[REST] INFO:agent_executor:  - Part 2: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'dataModelUpdate': {'surfaceId': 'booking-form-xian', 'path': '/', 'contents': [{'key': 'title', 'valueString': "Book a Table at Xi'an Famous Foods"}, {'key': 'address', 'valueString': '81 St Marks P...
+[REST] INFO:agent_executor:  - Part 3: Type = <class 'a2a.types.TextPart'>
+[REST] INFO:agent_executor:    - Text: Here's your booking form for **Xi'an Famous Foods**! \U0001f962 Please fill in the following details to complete your reservation:
+[REST]
+[REST] - **Party Size**   How many guests will be dining?
+[REST] - **Date & Time**   When w...
+[REST] INFO:agent_executor:  - Part 4: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'beginRendering': {'surfaceId': 'booking-form-xian', 'root': 'booking-form-column', 'styles': {'primaryColor': '#D32F2F', 'font': 'Roboto'}}}...
+[REST] INFO:agent_executor:  - Part 5: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'surfaceUpdate': {'surfaceId': 'booking-form-xian', 'components': [{'id': 'booking-form-column', 'component': {'Column': {'children': {'explicitList': ['booking-title', 'restaurant-image', 'restauran...
+[REST] INFO:agent_executor:  - Part 6: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'dataModelUpdate': {'surfaceId': 'booking-form-xian', 'path': '/', 'contents': [{'key': 'title', 'valueString': "Book a Table at Xi'an Famous Foods"}, {'key': 'address', 'valueString': '81 St Marks P...
+[REST] INFO:agent_executor:  - Part 7: Type = <class 'a2a.types.TextPart'>
+[REST] INFO:agent_executor:    - Text: Here's your booking form for **Xi'an Famous Foods**! \U0001f962 Please fill in the following details to complete your reservation:
+[REST]
+[REST] - **Party Size**   How many guests will be dining?
+[REST] - **Date & Time**   When w...
+[REST] INFO:agent_executor:-----------------------------
+[REST] INFO:     ::1:57652 - "POST / HTTP/1.1" 200 OK
+[REST] INFO:agent_executor:--- Client requested extensions: {'https://a2ui.org/a2a-extension/a2ui/v0.8'} ---
+[REST] INFO:agent_executor:--- AGENT_EXECUTOR: A2UI extension is active. Using UI agent. ---
+[REST] INFO:agent_executor:--- AGENT_EXECUTOR: Processing 1 message parts ---
+[REST] INFO:agent_executor:  Part 0: Found a2ui UI ClientEvent payload.
+[REST] INFO:agent_executor:Received a2ui ClientEvent: {'name': 'submit_booking', 'surfaceId': 'booking-form-xian', 'sourceComponentId': 'submit-button', 'timestamp': '2026-04-11T07:31:30.473Z', 'context': {'restaurantName': "Xi'an Famous Foods", 'partySize': '2', 'reservationTime': '2026-04-11T09:31', 'dietary': 'meat', 'imageUrl': 'http://localhost:10002/static/shrimpchowmein.jpeg'}}
+[REST] INFO:agent_executor:--- AGENT_EXECUTOR: Final query for LLM: 'User submitted an event: None with data: {'restaurantName': "Xi'an Famous Foods", 'partySize': '2', 'reservationTime': '2026-04-11T09:31', 'dietary': 'meat', 'imageUrl': 'http://localhost:10002/static/shrimpchowmein.jpeg'}' ---
+[REST] INFO:agent:--- RestaurantAgent.stream: Attempt 1/2 for session 7da77c86-b24d-4265-8d49-5c9a4080b49e ---
+[REST] 09:31:30 - LiteLLM:INFO: utils.py:3879 -
+[REST] LiteLLM completion() model= claude-sonnet-4-6; provider = anthropic
+[REST] INFO:LiteLLM:
+[REST] LiteLLM completion() model= claude-sonnet-4-6; provider = anthropic
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] <a2ui-json>
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST] [
+[REST]   {
+[REST]     "beginRendering": {
+[REST]       "surfaceId": "confirmation",
+[REST]       "root": "confirmation-card",
+[REST]       "styles": {
+[REST]         "primaryColor": "#D32
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] F2F",
+[REST]         "font": "Roboto"
+[REST]       }
+[REST]     }
+[REST]   },
+[REST]   {
+[REST]     "surfaceUpdate": {
+[REST]       "surfaceId": "confirmation",
+[REST]       "components": [
+[REST]         {
+[REST]           "id": "confirmation-card",
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'beginRendering': {'surfaceId': 'confirmation', 'root': 'confirmation-card', 'styles': {'primaryColor': '#D32F2F', 'font': 'Roboto'}}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]           "component": {
+[REST]             "Card": {
+[REST]               "child": "confirmation-column"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'confirmation', 'components': [{'id': 'confirmation-card', 'component': {'Card': {'child': 'loading_confirmation-column'}}}, {'id': 'loading_confirmation-column', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": "confirmation-column",
+[REST]           "component": {
+[REST]             "Column": {
+[REST]               "children": {
+[REST]                 "explicitList": [
+[REST]                   "confirm-title",
+[REST]                   "confirm-image",
+[REST]                   "div
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'confirmation', 'components': [{'id': 'confirmation-card', 'component': {'Card': {'child': 'confirmation-column'}}}, {'id': 'confirmation-column', 'component': {'Column': {'children': {'explicitList': ['loading_confirm-title', 'loading_confirm-image', 'loading_div']}}}}, {'id': 'loading_confirm-title', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-image', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_div', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ider1",
+[REST]                   "confirm-details",
+[REST]                   "divider2",
+[REST]                   "confirm-dietary",
+[REST]                   "divider3",
+[REST]                   "confirm-text
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'confirmation', 'components': [{'id': 'confirmation-card', 'component': {'Card': {'child': 'confirmation-column'}}}, {'id': 'confirmation-column', 'component': {'Column': {'children': {'explicitList': ['loading_confirm-title', 'loading_confirm-image', 'loading_divider1', 'loading_confirm-details', 'loading_divider2', 'loading_confirm-dietary', 'loading_divider3', 'loading_confirm-text']}}}}, {'id': 'loading_confirm-title', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-image', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider1', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-details', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider2', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-dietary', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider3', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-text', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] "
+[REST]                 ]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "confirm-title",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "usageHint": "h2",
+[REST]               "text
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": {
+[REST]                 "path": "/title"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "confirm-image",
+[REST]           "component": {
+[REST]             "Image": {
+[REST]               "url": {
+[REST]                 "path": "/imageUrl"
+[REST]
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'confirmation', 'components': [{'id': 'confirm-image', 'component': {'Image': {'url': {'path': '/imageUrl'}}}}, {'id': 'confirm-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'confirmation-card', 'component': {'Card': {'child': 'confirmation-column'}}}, {'id': 'confirmation-column', 'component': {'Column': {'children': {'explicitList': ['confirm-title', 'confirm-image', 'loading_divider1', 'loading_confirm-details', 'loading_divider2', 'loading_confirm-dietary', 'loading_divider3', 'loading_confirm-text']}}}}, {'id': 'loading_divider1', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-details', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider2', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-dietary', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider3', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-text', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] },
+[REST]               "fit": "cover",
+[REST]               "usageHint": "mediumFeature"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "confirm-details",
+[REST]           "component": {
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'confirmation', 'components': [{'id': 'confirm-image', 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'mediumFeature'}}}, {'id': 'confirm-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'confirmation-card', 'component': {'Card': {'child': 'confirmation-column'}}}, {'id': 'confirmation-column', 'component': {'Column': {'children': {'explicitList': ['confirm-title', 'confirm-image', 'loading_divider1', 'loading_confirm-details', 'loading_divider2', 'loading_confirm-dietary', 'loading_divider3', 'loading_confirm-text']}}}}, {'id': 'loading_divider1', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-details', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider2', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-dietary', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider3', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-text', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "path": "/bookingDetails"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "confirm-dietary",
+[REST]           "component":
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'confirmation', 'components': [{'id': 'confirm-details', 'component': {'Text': {'text': {'path': '/bookingDetails'}}}}, {'id': 'confirm-image', 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'mediumFeature'}}}, {'id': 'confirm-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'confirmation-card', 'component': {'Card': {'child': 'confirmation-column'}}}, {'id': 'confirmation-column', 'component': {'Column': {'children': {'explicitList': ['confirm-title', 'confirm-image', 'loading_divider1', 'confirm-details', 'loading_divider2', 'loading_confirm-dietary', 'loading_divider3', 'loading_confirm-text']}}}}, {'id': 'loading_divider1', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider2', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-dietary', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider3', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-text', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "path": "/dietaryRequirements"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "confirm-text",
+[REST]           "component":
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'confirmation', 'components': [{'id': 'confirm-details', 'component': {'Text': {'text': {'path': '/bookingDetails'}}}}, {'id': 'confirm-dietary', 'component': {'Text': {'text': {'path': '/dietaryRequirements'}}}}, {'id': 'confirm-image', 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'mediumFeature'}}}, {'id': 'confirm-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'confirmation-card', 'component': {'Card': {'child': 'confirmation-column'}}}, {'id': 'confirmation-column', 'component': {'Column': {'children': {'explicitList': ['confirm-title', 'confirm-image', 'loading_divider1', 'confirm-details', 'loading_divider2', 'confirm-dietary', 'loading_divider3', 'loading_confirm-text']}}}}, {'id': 'loading_divider1', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider2', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider3', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_confirm-text', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  {
+[REST]             "Text": {
+[REST]               "usageHint": "h5",
+[REST]               "text": {
+[REST]                 "literalString": "We look forward to seeing
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'confirmation', 'components': [{'id': 'confirm-details', 'component': {'Text': {'text': {'path': '/bookingDetails'}}}}, {'id': 'confirm-dietary', 'component': {'Text': {'text': {'path': '/dietaryRequirements'}}}}, {'id': 'confirm-image', 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'mediumFeature'}}}, {'id': 'confirm-text', 'component': {'Text': {'usageHint': 'h5', 'text': {'literalString': 'We look forward to seeing'}}}}, {'id': 'confirm-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'confirmation-card', 'component': {'Card': {'child': 'confirmation-column'}}}, {'id': 'confirmation-column', 'component': {'Column': {'children': {'explicitList': ['confirm-title', 'confirm-image', 'loading_divider1', 'confirm-details', 'loading_divider2', 'confirm-dietary', 'loading_divider3', 'confirm-text']}}}}, {'id': 'loading_divider1', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider2', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider3', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  you!"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "divider1",
+[REST]           "component": {
+[REST]             "Divider": {}
+[REST]           }
+[REST]         },
+[REST]
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'confirmation', 'components': [{'id': 'confirm-details', 'component': {'Text': {'text': {'path': '/bookingDetails'}}}}, {'id': 'confirm-dietary', 'component': {'Text': {'text': {'path': '/dietaryRequirements'}}}}, {'id': 'confirm-image', 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'mediumFeature'}}}, {'id': 'confirm-text', 'component': {'Text': {'usageHint': 'h5', 'text': {'literalString': 'We look forward to seeing you!'}}}}, {'id': 'confirm-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'confirmation-card', 'component': {'Card': {'child': 'confirmation-column'}}}, {'id': 'confirmation-column', 'component': {'Column': {'children': {'explicitList': ['confirm-title', 'confirm-image', 'loading_divider1', 'confirm-details', 'loading_divider2', 'confirm-dietary', 'loading_divider3', 'confirm-text']}}}}, {'id': 'loading_divider1', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider2', 'component': {'Row': {'children': {'explicitList': []}}}}, {'id': 'loading_divider3', 'component': {'Row': {'children': {'explicitList': []}}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] {
+[REST]           "id": "divider2",
+[REST]           "component": {
+[REST]             "Divider": {}
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "divider3",
+[REST]           "component": {
+[REST]             "Divider": {}
+[REST]           }
+[REST]         }
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] []
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]       ]
+[REST]     }
+[REST]   },
+[REST]   {
+[REST]     "dataModelUpdate": {
+[REST]       "surfaceId": "confirmation",
+[REST]       "path": "/",
+[REST]       "contents": [
+[REST]         {
+[REST]           "key": "title",
+[REST]           "
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'surfaceUpdate': {'surfaceId': 'confirmation', 'components': [{'id': 'confirm-details', 'component': {'Text': {'text': {'path': '/bookingDetails'}}}}, {'id': 'confirm-dietary', 'component': {'Text': {'text': {'path': '/dietaryRequirements'}}}}, {'id': 'confirm-image', 'component': {'Image': {'url': {'path': '/imageUrl'}, 'fit': 'cover', 'usageHint': 'mediumFeature'}}}, {'id': 'confirm-text', 'component': {'Text': {'usageHint': 'h5', 'text': {'literalString': 'We look forward to seeing you!'}}}}, {'id': 'confirm-title', 'component': {'Text': {'usageHint': 'h2', 'text': {'path': '/title'}}}}, {'id': 'confirmation-card', 'component': {'Card': {'child': 'confirmation-column'}}}, {'id': 'confirmation-column', 'component': {'Column': {'children': {'explicitList': ['confirm-title', 'confirm-image', 'divider1', 'confirm-details', 'divider2', 'confirm-dietary', 'divider3', 'confirm-text']}}}}, {'id': 'divider1', 'component': {'Divider': {}}}, {'id': 'divider2', 'component': {'Divider': {}}}, {'id': 'divider3', 'component': {'Divider': {}}}]}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] valueString": "Booking Confirmed at Xi'an Famous Foods! \U0001f389"
+[REST]         },
+[REST]         {
+[REST]           "key": "bookingDetails",
+[REST]           "valueString
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'confirmation', 'contents': [{'key': 'title', 'valueString': "Booking Confirmed at Xi'an Famous Foods! \U0001f389"}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] ": "\U0001f465 Party of 2  |  \U0001f4c5 April 11, 2026 at 9:31 AM"
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'confirmation', 'contents': [{'key': 'title', 'valueString': "Booking Confirmed at Xi'an Famous Foods! \U0001f389"}, {'key': 'bookingDetails', 'valueString': '\U0001f465 Party of 2  |  \U0001f4c5 April 11, 2026 at 9:31 AM'}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]         },
+[REST]         {
+[REST]           "key": "dietaryRequirements",
+[REST]           "valueString": "\U0001f356 Dietary Requirements: Meat"
+[REST]         },
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [[{'dataModelUpdate': {'surfaceId': 'confirmation', 'contents': [{'key': 'title', 'valueString': "Booking Confirmed at Xi'an Famous Foods! \U0001f389"}, {'key': 'bookingDetails', 'valueString': '\U0001f465 Party of 2  |  \U0001f4c5 April 11, 2026 at 9:31 AM'}, {'key': 'dietaryRequirements', 'valueString': '\U0001f356 Dietary Requirements: Meat'}], 'path': '/'}}]]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]
+[REST]         {
+[REST]           "key": "imageUrl",
+[REST]           "valueString": "http://localhost:10002/static/shrimpchowmein.jpeg"
+[REST]         }
+[REST]       ]
+[REST]     }
+[REST]   }
+[REST] ]
+[REST] </a2ui-json>
+[REST]
+[REST] Your
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  reservation has been confirmed! \U0001f389 Here's a summary of your booking:
+[REST]
+[REST] - \U0001f3ee **Restaurant:** Xi'an Famous Foods
+[REST] - \U0001f465 **Party Size:**
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  2 guests
+[REST] - \U0001f4c5 **Date & Time:** April 11, 2026 at 9:31 AM
+[REST] - \U0001f356 **Dietary Requirements:** Meat
+[REST]
+[REST] We hope you
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST]  enjoy your meal at Xi'an Famous Foods! If you need to make any changes, feel free to ask.
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] \U0001f962
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Received token:
+[REST] <a2ui-json>
+[REST] [
+[REST]   {
+[REST]     "beginRendering": {
+[REST]       "surfaceId": "confirmation",
+[REST]       "root": "confirmation-card",
+[REST]       "styles": {
+[REST]         "primaryColor": "#D32F2F",
+[REST]         "font": "Roboto"
+[REST]       }
+[REST]     }
+[REST]   },
+[REST]   {
+[REST]     "surfaceUpdate": {
+[REST]       "surfaceId": "confirmation",
+[REST]       "components": [
+[REST]         {
+[REST]           "id": "confirmation-card",
+[REST]           "component": {
+[REST]             "Card": {
+[REST]               "child": "confirmation-column"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "confirmation-column",
+[REST]           "component": {
+[REST]             "Column": {
+[REST]               "children": {
+[REST]                 "explicitList": [
+[REST]                   "confirm-title",
+[REST]                   "confirm-image",
+[REST]                   "divider1",
+[REST]                   "confirm-details",
+[REST]                   "divider2",
+[REST]                   "confirm-dietary",
+[REST]                   "divider3",
+[REST]                   "confirm-text"
+[REST]                 ]
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "confirm-title",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "usageHint": "h2",
+[REST]               "text": {
+[REST]                 "path": "/title"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "confirm-image",
+[REST]           "component": {
+[REST]             "Image": {
+[REST]               "url": {
+[REST]                 "path": "/imageUrl"
+[REST]               },
+[REST]               "fit": "cover",
+[REST]               "usageHint": "mediumFeature"
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "confirm-details",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "path": "/bookingDetails"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "confirm-dietary",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "text": {
+[REST]                 "path": "/dietaryRequirements"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "confirm-text",
+[REST]           "component": {
+[REST]             "Text": {
+[REST]               "usageHint": "h5",
+[REST]               "text": {
+[REST]                 "literalString": "We look forward to seeing you!"
+[REST]               }
+[REST]             }
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "divider1",
+[REST]           "component": {
+[REST]             "Divider": {}
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "divider2",
+[REST]           "component": {
+[REST]             "Divider": {}
+[REST]           }
+[REST]         },
+[REST]         {
+[REST]           "id": "divider3",
+[REST]           "component": {
+[REST]             "Divider": {}
+[REST]           }
+[REST]         }
+[REST]       ]
+[REST]     }
+[REST]   },
+[REST]   {
+[REST]     "dataModelUpdate": {
+[REST]       "surfaceId": "confirmation",
+[REST]       "path": "/",
+[REST]       "contents": [
+[REST]         {
+[REST]           "key": "title",
+[REST]           "valueString": "Booking Confirmed at Xi'an Famous Foods! \U0001f389"
+[REST]         },
+[REST]         {
+[REST]           "key": "bookingDetails",
+[REST]           "valueString": "\U0001f465 Party of 2  |  \U0001f4c5 April 11, 2026 at 9:31 AM"
+[REST]         },
+[REST]         {
+[REST]           "key": "dietaryRequirements",
+[REST]           "valueString": "\U0001f356 Dietary Requirements: Meat"
+[REST]         },
+[REST]         {
+[REST]           "key": "imageUrl",
+[REST]           "valueString": "http://localhost:10002/static/shrimpchowmein.jpeg"
+[REST]         }
+[REST]       ]
+[REST]     }
+[REST]   }
+[REST] ]
+[REST] </a2ui-json>
+[REST]
+[REST] Your reservation has been confirmed! \U0001f389 Here's a summary of your booking:
+[REST]
+[REST] - \U0001f3ee **Restaurant:** Xi'an Famous Foods
+[REST] - \U0001f465 **Party Size:** 2 guests
+[REST] - \U0001f4c5 **Date & Time:** April 11, 2026 at 9:31 AM
+[REST] - \U0001f356 **Dietary Requirements:** Meat
+[REST]
+[REST] We hope you enjoy your meal at Xi'an Famous Foods! If you need to make any changes, feel free to ask. \U0001f962
+[REST] INFO:a2ui.a2a.parts:--- AGENT: Response parts:
+[REST] [None]
+[REST]
+[REST] INFO:a2ui.a2a.parts:-----------------------------
+[REST] INFO:agent:--- RestaurantAgent.stream: Validating UI response (Attempt 1)... ---
+[REST] INFO:agent:--- RestaurantAgent.stream: Validating against A2UI_SCHEMA... ---
+[REST] INFO:agent:--- RestaurantAgent.stream: UI JSON successfully parsed AND validated against schema. Validation OK (Attempt 1). ---
+[REST] INFO:agent:--- RestaurantAgent.stream: Validating against A2UI_SCHEMA... ---
+[REST] INFO:agent:--- RestaurantAgent.stream: UI JSON successfully parsed AND validated against schema. Validation OK (Attempt 1). ---
+[REST] INFO:agent:--- RestaurantAgent.stream: Response is valid. Sending final response (Attempt 1). ---
+[REST] INFO:agent_executor:--- FINAL PARTS TO BE SENT ---
+[REST] INFO:agent_executor:  - Part 0: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'beginRendering': {'surfaceId': 'confirmation', 'root': 'confirmation-card', 'styles': {'primaryColor': '#D32F2F', 'font': 'Roboto'}}}...
+[REST] INFO:agent_executor:  - Part 1: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'surfaceUpdate': {'surfaceId': 'confirmation', 'components': [{'id': 'confirmation-card', 'component': {'Card': {'child': 'confirmation-column'}}}, {'id': 'confirmation-column', 'component': {'Column...
+[REST] INFO:agent_executor:  - Part 2: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'dataModelUpdate': {'surfaceId': 'confirmation', 'path': '/', 'contents': [{'key': 'title', 'valueString': "Booking Confirmed at Xi'an Famous Foods! \U0001f389"}, {'key': 'bookingDetails', 'valueString': '\U0001f465 P...
+[REST] INFO:agent_executor:  - Part 3: Type = <class 'a2a.types.TextPart'>
+[REST] INFO:agent_executor:    - Text: Your reservation has been confirmed! \U0001f389 Here's a summary of your booking:
+[REST]
+[REST] - \U0001f3ee **Restaurant:** Xi'an Famous Foods
+[REST] - \U0001f465 **Party Size:** 2 guests
+[REST] - \U0001f4c5 **Date & Time:** April 11, 2026 at 9:31 AM
+[REST] - \U0001f356 **Dieta...
+[REST] INFO:agent_executor:  - Part 4: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'beginRendering': {'surfaceId': 'confirmation', 'root': 'confirmation-card', 'styles': {'primaryColor': '#D32F2F', 'font': 'Roboto'}}}...
+[REST] INFO:agent_executor:  - Part 5: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'surfaceUpdate': {'surfaceId': 'confirmation', 'components': [{'id': 'confirmation-card', 'component': {'Card': {'child': 'confirmation-column'}}}, {'id': 'confirmation-column', 'component': {'Column...
+[REST] INFO:agent_executor:  - Part 6: Type = <class 'a2a.types.DataPart'>
+[REST] INFO:agent_executor:    - Data: {'dataModelUpdate': {'surfaceId': 'confirmation', 'path': '/', 'contents': [{'key': 'title', 'valueString': "Booking Confirmed at Xi'an Famous Foods! \U0001f389"}, {'key': 'bookingDetails', 'valueString': '\U0001f465 P...
+[REST] INFO:agent_executor:  - Part 7: Type = <class 'a2a.types.TextPart'>
+[REST] INFO:agent_executor:    - Text: Your reservation has been confirmed! \U0001f389 Here's a summary of your booking:
+[REST]
+[REST] - \U0001f3ee **Restaurant:** Xi'an Famous Foods
+[REST] - \U0001f465 **Party Size:** 2 guests
+[REST] - \U0001f4c5 **Date & Time:** April 11, 2026 at 9:31 AM
+[REST] - \U0001f356 **Dieta...
+[REST] INFO:agent_executor:-----------------------------
+[REST] INFO:     ::1:50628 - "POST / HTTP/1.1" 200 OK
