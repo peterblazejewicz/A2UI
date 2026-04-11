@@ -169,13 +169,11 @@ class A2uiValidator:
     from referencing.jsonschema import DRAFT202012
 
     # Even in v0.8, we may have references to common_types.json or other files.
+    # Use urljoin (not os.path.join) so URIs stay forward-slashed on Windows.
+    from urllib.parse import urljoin
+
     base_uri = self._catalog.s2c_schema.get("$id", BASE_SCHEMA_URL)
-    import os
-
-    def get_sibling_uri(uri, filename):
-      return os.path.join(os.path.dirname(uri), filename)
-
-    common_types_uri = get_sibling_uri(base_uri, "common_types.json")
+    common_types_uri = urljoin(base_uri, "common_types.json")
 
     resources = [
         (
@@ -211,15 +209,15 @@ class A2uiValidator:
     # 'catalog.json#/$defs/anyComponent'. Since server_to_client.json has
     # $id: https://a2ui.org/specification/v0_9/server_to_client.json,
     # these resolve to https://a2ui.org/specification/v0_9/catalog.json.
-    # We must register them using these absolute URIs.
+    # We must register them using these absolute URIs. Use urljoin (not
+    # os.path.join) so the separator stays '/' on Windows — otherwise the
+    # registered key becomes '...\catalog.json' and 'referencing' cannot
+    # match it against the forward-slash form produced by $ref resolution.
+    from urllib.parse import urljoin
+
     base_uri = self._catalog.s2c_schema.get("$id", BASE_SCHEMA_URL)
-    import os
-
-    def get_sibling_uri(uri, filename):
-      return os.path.join(os.path.dirname(uri), filename)
-
-    catalog_uri = get_sibling_uri(base_uri, "catalog.json")
-    common_types_uri = get_sibling_uri(base_uri, "common_types.json")
+    catalog_uri = urljoin(base_uri, "catalog.json")
+    common_types_uri = urljoin(base_uri, "common_types.json")
 
     resources = [
         (
