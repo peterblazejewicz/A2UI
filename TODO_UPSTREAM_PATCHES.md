@@ -30,6 +30,14 @@ GitHub/PyPI):**
   upstream change also flipped `restaurant_finder/pyproject.toml` to consume
   `a2ui-agent-sdk` as `editable = true` from local source, which is what
   collapses item 2 entirely.
+- Item 4 — **KNOWN LIMITATION, NOT UPSTREAM-FIXABLE.** Windows users running
+  `npm run demo:restaurant` (or any `demo:*` script) hit a missing
+  `@rollup/rollup-win32-x64-msvc` native binary due to npm bug
+  [`npm/cli#4828`](https://github.com/npm/cli/issues/4828). Documented as a
+  one-time manual step in [`WINDOWS_SETUP.md`](WINDOWS_SETUP.md); we will
+  NOT patch `package.json` for this because the bug is in npm itself, not in
+  the A2UI dependency declarations. See item 4 block below for the full
+  diagnostic and fix command.
 
 ---
 
@@ -262,6 +270,120 @@ The preceding shell parse error no longer occurs.
   (`samples/client/angular/**/package.json`, any other `samples/**`) for the
   same anti-pattern before opening the PR, so the fix covers the whole repo
   in one pass.
+
+---
+
+## 4. Lit samples — npm optional-dependency bug breaks Windows rollup install
+
+**Status:** KNOWN LIMITATION, NOT UPSTREAM-FIXABLE in this repo. Workaround
+documented in [`WINDOWS_SETUP.md`](WINDOWS_SETUP.md) as a one-time manual
+step for every Windows contributor. This fork will NOT patch `package.json`
+or `package-lock.json` to work around it, because the root cause is a bug
+in npm itself, not in the A2UI dependency declarations.
+
+**Package affected:** `@a2ui/lit-samples` workspace, specifically the
+transitive path `@a2ui/custom-components-example` → `vite@7.3.1` →
+`rollup@4.60.0` → `@rollup/rollup-win32-x64-msvc@4.60.0` (platform binary
+listed as `optionalDependency` in rollup's own `package.json`, not ours).
+
+**Symptom:** On Windows, running `npm run demo:restaurant` (or any
+`demo:*` script) progresses successfully through `npm install`,
+`build:renderer`, and the start of the `concurrently`-launched shell
+process, then crashes at `wireit → vite → rollup/dist/native.js` on its
+very first `require`:
+
+```
+[SHELL] D:\develop\a2-ui\samples\client\lit\node_modules\rollup\dist\native.js:115
+[SHELL]   throw new Error(
+[SHELL]
+[SHELL] Error: Cannot find module @rollup/rollup-win32-x64-msvc. npm has a bug
+[SHELL] related to optional dependencies (https://github.com/npm/cli/issues/4828).
+[SHELL] Please try `npm i` again after removing both package-lock.json and
+[SHELL] node_modules directory.
+[SHELL] ❌ [serve] Service exited unexpectedly
+```
+
+The Python agent side (`[REST]`) is unaffected and starts fine — this is
+purely an npm/node side-effect.
+
+**Root cause:** Rollup 4.x distributes its native bindings as one
+platform-specific npm package per OS/arch combination
+(`@rollup/rollup-win32-x64-msvc`, `@rollup/rollup-linux-x64-gnu`,
+`@rollup/rollup-darwin-arm64`, etc.) listed as `optionalDependencies` in
+rollup's own `package.json`. At runtime, `rollup/dist/native.js` does a
+`require('@rollup/rollup-' + platform + '-' + arch + variant)` and throws
+if the matching package is missing.
+
+`samples/client/lit/package-lock.json` was generated on a Linux machine
+by upstream CI. Inspection of the lockfile confirms:
+
+- Line 7641–7644: all platform-specific rollup binaries ARE declared as
+  optional deps of the `rollup` package — including
+  `@rollup/rollup-win32-x64-msvc@4.60.0`.
+- Line 6035 and 6047: installation stanzas exist ONLY for
+  `node_modules/@rollup/rollup-linux-x64-gnu` and
+  `node_modules/@rollup/rollup-linux-x64-musl`. The Windows, macOS, and
+  BSD stanzas are missing entirely.
+
+This is the exact fingerprint of [`npm/cli#4828`](https://github.com/npm/cli/issues/4828):
+npm's lockfile generator, when it encounters an `optionalDependency`
+whose platform does not match the generating machine's platform, records
+the dep under the parent package's `optionalDependencies` block but
+does NOT create a `node_modules/` installation entry for it. When `npm
+install` later runs on a different platform, it honors the lockfile
+strictly and skips the install, leaving `rollup/dist/native.js` unable
+to `require` its own binary.
+
+**Why this is NOT fixable from our `package.json`:**
+
+Candidate fixes we considered and rejected:
+
+1. **Pin `rollup` or `@rollup/rollup-win32-x64-msvc` in our own
+   `devDependencies`.** Would work for the current version but defers
+   the problem to every rollup bump. Also adds a maintenance burden on
+   every upstream sync. Worst: would conflict with vite's own rollup
+   version pin.
+2. **Regenerate `package-lock.json` on Windows and commit it.** Would
+   fix Windows but break Linux CI for the same reason in reverse. The
+   bug is symmetric.
+3. **Switch from npm to pnpm.** pnpm handles platform-specific optional
+   deps correctly. But this is a cross-cutting change affecting every
+   other workspace in the repo and is not justifiable to push upstream
+   just for Windows support in one sample directory.
+4. **Pre-commit hook that warns Windows users to run the manual step.**
+   Adds friction on the wrong side — the hook would fire on every
+   commit, not just first-time clones.
+
+The pragmatic solution, accepted by the wider JS ecosystem for exactly
+this bug, is to document the one-time manual step and rely on Windows
+users to run it once per clone.
+
+**Workaround (from `WINDOWS_SETUP.md`):**
+
+```bash
+cd samples/client/lit
+npm install --no-save @rollup/rollup-win32-x64-msvc@4.60.0
+```
+
+`--no-save` deliberately avoids touching `package.json` or
+`package-lock.json` so this does not propagate into git. The version
+must match the rollup version resolved in
+`samples/client/lit/node_modules/rollup/package.json`; if upstream bumps
+rollup, check the version with
+`node -p "require('./node_modules/rollup/package.json').version"` and
+substitute it into the install command.
+
+**Upstream escape hatches to watch for:**
+
+- npm may eventually fix [`npm/cli#4828`](https://github.com/npm/cli/issues/4828)
+  — then this section can be deleted.
+- Rollup may drop the native-binary dispatch in favor of pure-JS (it has
+  been discussed but is a major architectural shift) — same outcome.
+- Vite may switch away from rollup (also discussed for their Rolldown
+  migration, tracked at `vitejs/vite` Rolldown RFC) — same outcome.
+
+Until one of those lands, every new Windows contributor to the lit
+samples must run the manual step once.
 
 ---
 
