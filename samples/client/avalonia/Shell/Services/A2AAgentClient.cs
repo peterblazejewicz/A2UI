@@ -83,6 +83,20 @@ public sealed class A2AAgentClient : IA2AClient
     {
         string correlationId = Guid.NewGuid().ToString("N");
         string messageId = Guid.NewGuid().ToString();
+
+        using Activity? activity = A2Ui.Avalonia.Shell.Diagnostics.Source.StartActivity(
+            "A2A.SendMessage",
+            ActivityKind.Client
+        );
+        activity?.SetTag("http.method", "POST");
+        activity?.SetTag("http.url", _config.ServerUrl);
+        activity?.SetTag("a2a.correlation_id", correlationId);
+        activity?.SetTag("a2a.message_id", messageId);
+
+        using IDisposable? logScope = _logger.BeginScope(
+            new Dictionary<string, object> { ["CorrelationId"] = correlationId, ["MessageId"] = messageId }
+        );
+
         var request = new A2ASendMessageRequest
         {
             Message = new A2AMessage { MessageId = messageId, Parts = parts },
@@ -107,6 +121,11 @@ public sealed class A2AAgentClient : IA2AClient
             IReadOnlyList<A2UiMessage> messages = ExtractA2UiMessages(taskResponse, correlationId);
 
             stopwatch.Stop();
+
+            activity?.SetTag("http.status_code", (int)response.StatusCode);
+            activity?.SetTag("http.response_content_length", responseBodyBytes.LongLength);
+            activity?.SetTag("a2ui.message_count", messages.Count);
+
             A2AAgentClientLog.SendMessageCompleted(
                 _logger,
                 (int)response.StatusCode,
@@ -121,6 +140,10 @@ public sealed class A2AAgentClient : IA2AClient
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             stopwatch.Stop();
+
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            activity?.AddException(ex);
+
             A2AAgentClientLog.SendMessageFailed(
                 _logger,
                 _config.ServerUrl,

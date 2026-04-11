@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
@@ -41,6 +42,13 @@ public sealed class A2UiRenderer
     public Control Render(Surface surface)
     {
         Dispatcher.UIThread.VerifyAccess();
+
+        using Activity? activity = A2Ui.Avalonia.Diagnostics.RendererSource.StartActivity(
+            "Renderer.Render",
+            ActivityKind.Internal
+        );
+        activity?.SetTag("a2ui.surface_id", surface.SurfaceId);
+        activity?.SetTag("a2ui.catalog_id", surface.CatalogId);
 
         if (!_surfaceCaches.TryGetValue(surface.SurfaceId, out var cache))
         {

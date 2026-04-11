@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using A2Ui.Core.Messages;
 using Microsoft.Extensions.Logging;
@@ -37,12 +38,22 @@ public sealed class SurfaceManager
             ?? "(unknown)";
         SurfaceManagerLog.MessageDispatched(_logger, messageType, surfaceId);
 
+        using Activity? activity = Diagnostics.Source.StartActivity($"Surface.{messageType}", ActivityKind.Internal);
+        activity?.SetTag("a2ui.surface_id", surfaceId);
+        activity?.SetTag("a2ui.message_type", messageType);
+
+        using IDisposable? logScope = _logger.BeginScope(
+            new Dictionary<string, object> { ["SurfaceId"] = surfaceId, ["MessageType"] = messageType }
+        );
+
         try
         {
             message.Validate();
         }
         catch (A2UiMessageValidationException ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            activity?.AddException(ex);
             SurfaceManagerLog.ValidationFailed(_logger, messageType, ex.Message);
             throw;
         }
