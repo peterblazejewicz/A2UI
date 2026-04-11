@@ -2,6 +2,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace A2Ui.Avalonia.Catalog;
 
@@ -12,11 +13,18 @@ namespace A2Ui.Avalonia.Catalog;
 public sealed class CatalogRegistry
 {
     private readonly Dictionary<string, ICatalogEntry> _entries = new();
+    private readonly ILogger<CatalogRegistry> _logger;
+
+    public CatalogRegistry(ILogger<CatalogRegistry>? logger = null)
+    {
+        _logger = logger ?? NullLogger<CatalogRegistry>.Instance;
+    }
 
     /// <summary>Register a catalog entry. Throws if already registered.</summary>
     public CatalogRegistry Register(ICatalogEntry entry)
     {
         _entries.Add(entry.ComponentType, entry);
+        CatalogRegistryLog.CatalogEntryRegistered(_logger, entry.ComponentType, entry.GetType().Name);
         return this;
     }
 
@@ -29,8 +37,15 @@ public sealed class CatalogRegistry
         return Register(new DelegateCatalogEntry(componentType, factory));
     }
 
-    public bool TryGetEntry(string componentType, out ICatalogEntry? entry) =>
-        _entries.TryGetValue(componentType, out entry);
+    public bool TryGetEntry(string componentType, out ICatalogEntry? entry)
+    {
+        if (_entries.TryGetValue(componentType, out entry))
+            return true;
+
+        CatalogRegistryLog.CatalogLookupMiss(_logger, componentType, string.Join(",", _entries.Keys));
+        entry = null;
+        return false;
+    }
 
     public IReadOnlyCollection<string> RegisteredTypes => _entries.Keys;
 
@@ -38,7 +53,7 @@ public sealed class CatalogRegistry
     /// Build the default catalog with all 18 v0.9 basic catalog component types.
     /// </summary>
     public static CatalogRegistry CreateDefault(ILoggerFactory? loggerFactory = null) =>
-        new CatalogRegistry()
+        new CatalogRegistry(loggerFactory?.CreateLogger<CatalogRegistry>())
             // Display
             .Register(new TextCatalogEntry())
             .Register(new ImageCatalogEntry(loggerFactory?.CreateLogger<ImageCatalogEntry>()))
@@ -73,4 +88,21 @@ internal sealed class DelegateCatalogEntry(
         factory(component, dataModel, context);
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
+}
+
+internal static partial class CatalogRegistryLog
+{
+    [LoggerMessage(
+        EventId = 1,
+        Level = LogLevel.Debug,
+        Message = "Catalog entry registered: {ComponentType} → {EntryTypeName}"
+    )]
+    public static partial void CatalogEntryRegistered(ILogger logger, string componentType, string entryTypeName);
+
+    [LoggerMessage(
+        EventId = 2,
+        Level = LogLevel.Warning,
+        Message = "Catalog lookup miss for component type '{ComponentType}'. Known types: [{KnownTypes}]"
+    )]
+    public static partial void CatalogLookupMiss(ILogger logger, string componentType, string knownTypes);
 }

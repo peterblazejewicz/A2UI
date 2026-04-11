@@ -75,8 +75,11 @@ public sealed class A2UiRenderer
 
     private Control RenderComponent(A2UiComponent component, Surface surface, RenderContext context)
     {
+        RendererLog.RenderComponent(_logger, component.Id, component.Component, component.Parent ?? "(none)");
+
         if (!_catalog.TryGetEntry(component.Component, out var entry) || entry is null)
         {
+            RendererLog.UnknownComponentTypeRendered(_logger, component.Id, component.Component);
             return new TextBlock { Text = $"[Unknown component: {component.Component}]", Classes = { "Caption" } };
         }
 
@@ -120,6 +123,8 @@ internal sealed class RenderContext(
 
         if (!catalog.TryGetEntry(c.Component, out var entry) || entry is null)
         {
+            if (logger is not null)
+                RendererLog.UnknownComponentTypeRendered(logger, c.Id, c.Component);
             return new TextBlock { Text = $"[Unknown component: {c.Component}]", Classes = { "Caption" } };
         }
 
@@ -223,6 +228,9 @@ internal sealed class RenderContext(
             var control = entry.Create(templateComp, surface.DataModel, scopedContext);
             controls.Add(control);
         }
+
+        if (logger is not null)
+            RendererLog.TemplateInstantiated(logger, tmpl.ComponentId, templateComp.Component, controls.Count);
 
         return controls;
     }
@@ -531,4 +539,35 @@ internal static partial class RendererLog
 
     [LoggerMessage(EventId = 10, Level = LogLevel.Warning, Message = "Failed to update data model at path '{Path}'")]
     public static partial void FailedToUpdateDataModel(ILogger logger, string path, Exception exception);
+
+    [LoggerMessage(
+        EventId = 11,
+        Level = LogLevel.Debug,
+        Message = "Render component {ComponentId} (type={ComponentType}, parent={ParentComponentId})"
+    )]
+    public static partial void RenderComponent(
+        ILogger logger,
+        string componentId,
+        string componentType,
+        string parentComponentId
+    );
+
+    [LoggerMessage(
+        EventId = 12,
+        Level = LogLevel.Warning,
+        Message = "Unknown component type rendered as fallback: id={ComponentId}, type={ComponentType}"
+    )]
+    public static partial void UnknownComponentTypeRendered(ILogger logger, string componentId, string componentType);
+
+    [LoggerMessage(
+        EventId = 13,
+        Level = LogLevel.Debug,
+        Message = "Template instantiated: {ComponentId} (template={TemplateType}) × {InstanceCount}"
+    )]
+    public static partial void TemplateInstantiated(
+        ILogger logger,
+        string componentId,
+        string templateType,
+        int instanceCount
+    );
 }
