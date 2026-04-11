@@ -18,6 +18,14 @@ public sealed class DataModel
     private JsonObject _root = new();
 
     /// <summary>
+    /// Snapshot of the top-level keys currently present in the data model root.
+    /// Not thread-safe — callers must synchronize with concurrent
+    /// <see cref="Apply"/> / <see cref="SetSnapshot"/> invocations (matches the
+    /// rest of <see cref="DataModel"/>: mutation and enumeration must not race).
+    /// </summary>
+    public IReadOnlyCollection<string> TopLevelKeys => [.. _root.Select(kvp => kvp.Key)];
+
+    /// <summary>
     /// Split a JSON Pointer path into unescaped segments per RFC 6901.
     /// Order matters: ~1 → / before ~0 → ~.
     /// </summary>

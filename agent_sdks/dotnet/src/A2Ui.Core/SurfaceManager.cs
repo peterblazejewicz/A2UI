@@ -28,30 +28,81 @@ public sealed class SurfaceManager
 
     public void Process(A2UiMessage message)
     {
-        message.Validate();
+        string messageType = message.Operation?.ToString() ?? "(empty)";
+        string surfaceId =
+            message.CreateSurface?.SurfaceId
+            ?? message.DeleteSurface?.SurfaceId
+            ?? message.UpdateComponents?.SurfaceId
+            ?? message.UpdateDataModel?.SurfaceId
+            ?? "(unknown)";
+        SurfaceManagerLog.MessageDispatched(_logger, messageType, surfaceId);
 
-        // Collect event args inside the lock, fire outside
+        try
+        {
+            message.Validate();
+        }
+        catch (A2UiMessageValidationException ex)
+        {
+            SurfaceManagerLog.ValidationFailed(_logger, messageType, ex.Message);
+            throw;
+        }
+
+        // Collect event args AND telemetry snapshots inside the lock, fire outside.
+        // The telemetry snapshots (root component, top-level data model keys, theme
+        // extraction) are taken while holding `_lock` to avoid racing against concurrent
+        // Process() / Clear() calls that mutate Surface.Components or DataModel._root.
         SurfaceCreatedEventArgs? createdArgs = null;
         SurfaceDeletedEventArgs? deletedArgs = null;
         ComponentsUpdatedEventArgs? componentsArgs = null;
         DataModelUpdatedEventArgs? dataModelArgs = null;
+        string createdPrimaryColor = "(default)";
+        string createdAgentDisplayName = "(default)";
+        string componentsRootId = "(none)";
+        string componentsRootType = "(none)";
+        int dataModelPathCount = 0;
+        string dataModelTopLevelKeys = string.Empty;
 
         lock (_lock)
         {
             if (message.CreateSurface is { } cs)
+            {
                 createdArgs = HandleCreate(cs);
+                if (createdArgs is not null)
+                {
+                    (createdPrimaryColor, createdAgentDisplayName) = ExtractThemeFields(createdArgs.Surface.Theme);
+                }
+            }
             if (message.DeleteSurface is { } ds)
                 deletedArgs = HandleDelete(ds);
             if (message.UpdateComponents is { } uc)
+            {
                 componentsArgs = HandleUpdateComponents(uc);
+                if (componentsArgs is not null && componentsArgs.Surface.Components.TryGetValue("root", out var root))
+                {
+                    componentsRootId = root.Id;
+                    componentsRootType = root.Component;
+                }
+            }
             if (message.UpdateDataModel is { } ud)
+            {
+                dataModelPathCount =
+                    ud.Path?.TrimStart('/').Split('/', StringSplitOptions.RemoveEmptyEntries).Length ?? 0;
                 dataModelArgs = HandleUpdateDataModel(ud);
+                if (dataModelArgs is not null)
+                    dataModelTopLevelKeys = string.Join(",", dataModelArgs.Surface.DataModel.TopLevelKeys);
+            }
         }
 
         // Fire events outside the lock — safe for subscribers to call GetSurface
         if (createdArgs is not null)
         {
-            SurfaceManagerLog.SurfaceCreated(_logger, createdArgs.Surface.SurfaceId);
+            SurfaceManagerLog.SurfaceCreated(
+                _logger,
+                createdArgs.Surface.SurfaceId,
+                createdArgs.Surface.CatalogId,
+                createdPrimaryColor,
+                createdAgentDisplayName
+            );
             SurfaceCreated?.Invoke(this, createdArgs);
         }
         if (deletedArgs is not null)
@@ -64,15 +115,44 @@ public sealed class SurfaceManager
             SurfaceManagerLog.ComponentsUpdated(
                 _logger,
                 componentsArgs.Surface.SurfaceId,
-                componentsArgs.Updated.Length
+                componentsArgs.Updated.Length,
+                componentsRootId,
+                componentsRootType
             );
             ComponentsUpdated?.Invoke(this, componentsArgs);
         }
         if (dataModelArgs is not null)
         {
-            SurfaceManagerLog.DataModelUpdated(_logger, dataModelArgs.Surface.SurfaceId);
+            SurfaceManagerLog.DataModelUpdated(
+                _logger,
+                dataModelArgs.Surface.SurfaceId,
+                dataModelPathCount,
+                dataModelTopLevelKeys
+            );
             DataModelUpdated?.Invoke(this, dataModelArgs);
         }
+    }
+
+    /// <summary>
+    /// Extracts theme fields from the catalog theme object for telemetry.
+    /// Spec schema (basic_catalog.json #/$defs/theme) defines primaryColor,
+    /// iconUrl, and agentDisplayName. We surface primaryColor and
+    /// agentDisplayName as they're the most human-meaningful for run comparison.
+    /// </summary>
+    private static (string PrimaryColor, string AgentDisplayName) ExtractThemeFields(JsonElement? theme)
+    {
+        if (theme is null || theme.Value.ValueKind != JsonValueKind.Object)
+            return ("(default)", "(default)");
+
+        string color =
+            theme.Value.TryGetProperty("primaryColor", out var c) && c.ValueKind == JsonValueKind.String
+                ? (c.GetString() ?? "(default)")
+                : "(default)";
+        string agent =
+            theme.Value.TryGetProperty("agentDisplayName", out var a) && a.ValueKind == JsonValueKind.String
+                ? (a.GetString() ?? "(default)")
+                : "(default)";
+        return (color, agent);
     }
 
     /// <summary>
@@ -224,8 +304,18 @@ public sealed record DataModelUpdatedEventArgs(Surface Surface);
 
 internal static partial class SurfaceManagerLog
 {
-    [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Surface created: {SurfaceId}")]
-    public static partial void SurfaceCreated(ILogger logger, string surfaceId);
+    [LoggerMessage(
+        EventId = 1,
+        Level = LogLevel.Information,
+        Message = "Surface created: {SurfaceId} (catalog={CatalogId}, primaryColor={PrimaryColor}, agentDisplayName={AgentDisplayName})"
+    )]
+    public static partial void SurfaceCreated(
+        ILogger logger,
+        string surfaceId,
+        string catalogId,
+        string primaryColor,
+        string agentDisplayName
+    );
 
     [LoggerMessage(EventId = 2, Level = LogLevel.Information, Message = "Surface deleted: {SurfaceId}")]
     public static partial void SurfaceDeleted(ILogger logger, string surfaceId);
@@ -233,12 +323,22 @@ internal static partial class SurfaceManagerLog
     [LoggerMessage(
         EventId = 3,
         Level = LogLevel.Debug,
-        Message = "Components updated on {SurfaceId}: {Count} component(s)"
+        Message = "Components updated on {SurfaceId}: {Count} component(s), root={RootComponentId} ({RootComponentType})"
     )]
-    public static partial void ComponentsUpdated(ILogger logger, string surfaceId, int count);
+    public static partial void ComponentsUpdated(
+        ILogger logger,
+        string surfaceId,
+        int count,
+        string rootComponentId,
+        string rootComponentType
+    );
 
-    [LoggerMessage(EventId = 4, Level = LogLevel.Debug, Message = "Data model updated on {SurfaceId}")]
-    public static partial void DataModelUpdated(ILogger logger, string surfaceId);
+    [LoggerMessage(
+        EventId = 4,
+        Level = LogLevel.Debug,
+        Message = "Data model updated on {SurfaceId}: PathCount={PathCount}, TopLevelKeys=[{TopLevelKeys}]"
+    )]
+    public static partial void DataModelUpdated(ILogger logger, string surfaceId, int pathCount, string topLevelKeys);
 
     [LoggerMessage(
         EventId = 5,
@@ -263,4 +363,14 @@ internal static partial class SurfaceManagerLog
 
     [LoggerMessage(EventId = 8, Level = LogLevel.Information, Message = "Cleared {Count} surface(s)")]
     public static partial void SurfacesCleared(ILogger logger, int count);
+
+    [LoggerMessage(EventId = 9, Level = LogLevel.Debug, Message = "Dispatching {MessageType} for surface {SurfaceId}")]
+    public static partial void MessageDispatched(ILogger logger, string messageType, string surfaceId);
+
+    [LoggerMessage(
+        EventId = 10,
+        Level = LogLevel.Warning,
+        Message = "A2UI message validation failed: {ValidationError} (type={MessageType})"
+    )]
+    public static partial void ValidationFailed(ILogger logger, string messageType, string validationError);
 }
