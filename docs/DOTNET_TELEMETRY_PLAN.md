@@ -20,22 +20,40 @@ This plan does NOT touch:
 
 ## Architectural reality check (important)
 
-An early draft of this plan assumed `A2AAgentClient` was an SSE-streaming client with "first-byte latency" and "stream closed" events. **It is not.** The actual implementation in `samples/client/avalonia/Shell/Services/A2AAgentClient.cs` is:
+An early draft of this plan assumed `A2AAgentClient` was an SSE-streaming client with "first-byte latency" and "stream closed" events, and that the `AgentEventBridge` from the Avalonia renderer sat between it and `SurfaceManager`. **Neither is true.** The actual Restaurant Shell hot path is:
 
-- Plain HTTP POST via `HttpClient.PostAsJsonAsync(_config.ServerUrl, request, ...)`
-- Full response read at once via `ReadFromJsonAsync<A2ATaskResponse>(...)`
-- All A2UI messages extracted from `response.Result.Status.Message.Parts` in one pass
-- No streaming, no SSE, no per-chunk events at the client layer
+```
+A2AAgentClient.SendAsync(parts)          // Shell/Services/A2AAgentClient.cs
+  └─ HttpClient.PostAsJsonAsync(serverUrl, A2ASendMessageRequest)
+  └─ ReadFromJsonAsync<A2ATaskResponse>
+  └─ ExtractA2UiMessages(taskResponse)    // synchronous, returns List<A2UiMessage>
+                         │
+                         ▼
+ShellViewModel                            // Shell/ViewModels/ShellViewModel.cs
+  └─ foreach (var message in returned list)
+       └─ SurfaceManager.Process(message) // agent_sdks/dotnet/src/A2Ui.Core/SurfaceManager.cs
+                         │
+                         ▼
+SurfaceManager fires CLR events           // SurfaceCreated / ComponentsUpdated / DataModelUpdated / SurfaceDeleted
+                         │
+                         ▼
+A2UiSurface control → A2UiRenderer.Render // renderers/avalonia/src/A2Ui.Avalonia
+```
 
-The SSE parser at `agent_sdks/dotnet/src/AgUi.Protocol/Transport/SseEventParser.cs` is a separate facility used by `AgentEventBridge.ProcessLoopAsync` for a different scenario (likely direct AG-UI event consumption without A2A wrapping). **Whether `AgentEventBridge` is on the Restaurant Shell's hot path is an open question** (see "Open questions" at the end); the Shell code I read calls `A2AAgentClient` → `SurfaceManager` directly with no visible bridge.
+**`AgentEventBridge.ProcessLoopAsync`, the AG-UI event channel, the 28-event dispatch switch, `ToolCallArgsAccumulator`, and the UI-thread marshaller are ALL bypassed on the Restaurant Shell hot path.** They exist in the codebase for a different deployment model — direct AG-UI streaming from an agent without A2A wrapping, where the client has to assemble partial tool-call arguments over time — but the Restaurant Shell speaks A2A and receives a fully-formed response as a single JSON body. The SSE parser at `agent_sdks/dotnet/src/AgUi.Protocol/Transport/SseEventParser.cs` is also off the hot path for the same reason.
 
-This changes Phase 1 for the Shell's A2A client significantly:
-- No "first byte" timing concept at the HTTP layer
-- No stream-lifecycle events
-- The Activity for `A2A.SendMessage` is just the POST round-trip duration
-- Log sites are request-start / request-complete / request-failed (three sites, not six)
+This significantly simplifies Phase 1:
 
-All references below reflect this correction.
+- No "first byte" timing concept at the HTTP layer — the Activity for `A2A.SendMessage` is just the POST round-trip duration
+- No stream-lifecycle events — three log sites for the client (request-start / request-complete / request-failed), not six
+- `AgentEventBridge` instrumentation is **deferred to Phase 2 or later** — it's still valuable for the AG-UI streaming code path, but it doesn't block Restaurant Shell debugging
+- `ToolCallArgsAccumulator` instrumentation is similarly deferred — the Shell never exercises it
+- Correlation propagation is trivial: `A2AAgentClient` begins a scope, `ShellViewModel`'s tight loop over the returned list runs synchronously on the same thread, every `SurfaceManager.Process` call inherits the ambient Serilog `LogContext` for free. No cross-thread/async scope plumbing needed.
+- The test harness story simplifies too: an `xUnit` test that calls `SendAsync` and asserts on captured log entries via `TestLoggerProvider` covers the entire request lifecycle. `TestActivityListener` becomes nice-to-have rather than must-have.
+
+Phase 1 drops from ~20 to ~12 new log sites and from 8 target files to 6. The removed sites (AgentEventBridge ×5, ToolCallArgsAccumulator ×3) are moved to Phase 2 or later as "optional if/when the AG-UI streaming path becomes relevant to the .NET port".
+
+All Phase 1 tables and counts below reflect this correction.
 
 ---
 
@@ -278,14 +296,14 @@ Each declared as `internal static readonly ActivitySource Source = new("A2Ui.X.Y
 
 ### 2.5 DI wiring fixes required in Phase 1
 
-Three projects currently get `NullLoggerFactory` because the Shell's `ConfigureServices` does not pass a factory when constructing them:
+Two components on the Restaurant Shell hot path currently get `NullLoggerFactory` because the Shell's `ConfigureServices` does not pass a factory when constructing them. A third (`ToolCallArgsAccumulator`) is also not wired today but is off the Shell hot path, so its fix is deferred to Phase 2.
 
-| Component | Current state | Fix |
-|---|---|---|
-| `SurfaceManager` | `services.AddSingleton<SurfaceManager>();` at `Program.cs:61` resolves via reflection and the optional `ILoggerFactory?` param gets `null` → `NullLoggerFactory.Instance` | Change `SurfaceManager` ctor to take `ILogger<SurfaceManager>` directly (non-optional); DI will inject. Tests can pass `NullLogger.Instance`. |
-| `CatalogRegistry` | No ILogger param today; zero log sites | Add optional `ILogger<CatalogRegistry>? logger = null` defaulting to `NullLogger<CatalogRegistry>.Instance`; register in Shell DI explicitly |
-| `ToolCallArgsAccumulator` | No ILogger param today; zero log sites | Same pattern — optional parameter with NullLogger default |
-| `A2AAgentClient` | Already gets `ILogger<A2AAgentClient>` via `AddHttpClient<>` | No wiring change; just add log sites inside methods |
+| Component | Phase | Current state | Fix |
+|---|---|---|---|
+| `SurfaceManager` | 1 | `services.AddSingleton<SurfaceManager>();` at `Program.cs:61` resolves via reflection and the optional `ILoggerFactory?` param gets `null` → `NullLoggerFactory.Instance` | Change `SurfaceManager` ctor to take `ILogger<SurfaceManager>` directly (non-optional); DI will inject. Tests can pass `NullLogger.Instance`. |
+| `CatalogRegistry` | 1 | No ILogger param today; zero log sites | Add optional `ILogger<CatalogRegistry>? logger = null` defaulting to `NullLogger<CatalogRegistry>.Instance`; register in Shell DI explicitly |
+| `A2AAgentClient` | 1 | Already gets `ILogger<A2AAgentClient>` via `AddHttpClient<>` | No wiring change; just add log sites inside methods |
+| `ToolCallArgsAccumulator` | **2+** (deferred — off Shell hot path) | No ILogger param today; zero log sites | Same pattern — optional parameter with NullLogger default. Deferred because the Shell never exercises this code path; only valuable once a .NET AG-UI streaming client is added. |
 
 **Phase 2 addition:** register a `LoggingHttpMessageHandler : DelegatingHandler` via `services.AddHttpClient<IA2AClient, A2AAgentClient>(...).AddHttpMessageHandler<LoggingHttpMessageHandler>()`. This gives dual visibility: the handler logs raw HTTP (URL, status, bytes, duration) and `A2AAgentClient` logs A2A-semantic events (extension negotiation, message count, surface count). Both are valuable.
 
@@ -315,9 +333,9 @@ Use `[LoggerMessage]` source generators for every new log site. Matches existing
 
 ## 3. Phased implementation
 
-### Phase 1: Minimum viable for Restaurant Shell debugging (~20 new log sites, 1 DI fix)
+### Phase 1: Minimum viable for Restaurant Shell debugging (~12 new log sites, 1 DI fix)
 
-**Must-have before Peter can compare a .NET run against `sample-restaurant-find-log.txt`.** Delivers a text log that can sit side-by-side with the Python reference for visual diffing.
+**Must-have before Peter can compare a .NET run against `sample-restaurant-find-log.txt`.** Delivers a text log that can sit side-by-side with the Python reference for visual diffing. Scoped to the Restaurant Shell hot path only — `AgentEventBridge` and `ToolCallArgsAccumulator` are explicitly excluded because open question #1 confirmed they are bypassed by the Shell (`IA2AClient` returns a fully-accumulated `List<A2UiMessage>` synchronously; `ShellViewModel` feeds them directly into `SurfaceManager.Process`).
 
 **File-by-file changes:**
 
@@ -325,14 +343,21 @@ Use `[LoggerMessage]` source generators for every new log site. Matches existing
 |---|---|---|---|
 | 1 | `samples/client/avalonia/Shell/Services/A2AAgentClient.cs` | Migrate 3 existing `Log*` calls to `[LoggerMessage]` declarations. Add `SendMessageStarted`, `SendMessageCompleted`, `SendMessageFailed` with full structured fields (`HttpUrl`, `RequestBytes`, `ResponseBytes`, `HttpStatus`, `MessageCount`, `DurationMs`, `CorrelationId`). Generate a per-request `CorrelationId` GUID at the top of `SendAsync`. Wrap each method with a `try`/`catch`/`Stopwatch` block so `SendMessageFailed` always fires on exception. | medium |
 | 2 | `samples/client/avalonia/Shell/Program.cs` | Change `services.AddSingleton<SurfaceManager>()` to resolve with an explicit `ILogger<SurfaceManager>` from DI (preferred: update `SurfaceManager` ctor to take `ILogger<SurfaceManager>` directly). Explicitly register `CatalogRegistry` via DI so its logger is wired. | small |
-| 3 | `agent_sdks/dotnet/src/A2Ui.Core/SurfaceManager.cs` | Extend existing `ComponentsUpdated` log (EventId 3) with `RootComponentId`, `RootComponentType`. Extend `DataModelUpdated` (EventId 4) with `PathCount`, `TopLevelKeys`. Add new `BeginRendering` log (new EventId 9) with `SurfaceId`, `PrimaryColor`, `FontFamily`. Add `MessageDispatched` (new EventId 10) at top of `Apply()` / dispatch entry with `MessageType`, `MessageIndex`, `SurfaceId`. | small |
-| 4 | `agent_sdks/dotnet/src/A2Ui.Core/Messages/A2UiMessage.cs` | Add `ValidationFailed` log site that fires BEFORE `Validate()` throws. Fields: `MessageType`, `ValidationError`, first 200 chars of `RawMessageJson`. Requires optional `ILogger? logger = null` parameter added to `Validate(...)` method or a pre-throw hook in the caller (SurfaceManager). | tiny |
-| 5 | `renderers/avalonia/src/A2Ui.Avalonia/Catalog/CatalogRegistry.cs` | Add optional `ILogger<CatalogRegistry>? logger = null` ctor param. Add `CatalogEntryRegistered` log (Debug) fired once per `Register` call, fields: `ComponentType`, `EntryTypeName`. Add `CatalogLookupMiss` log (Warning) fired when `TryGetEntry` returns false, fields: `ComponentType`, `KnownTypes` (joined). | small |
-| 6 | `renderers/avalonia/src/A2Ui.Avalonia/A2UiRenderer.cs` | Add 3 new `LoggerMessage` declarations: `RenderComponent` (Debug) at top of `RenderComponent` with `ComponentId`, `ComponentType`, `ParentComponentId`; `UnknownComponentTypeRendered` (Warning) at the fallback path on **line ~78** — this is currently silent and is the highest-leverage single fix in Phase 1; `TemplateInstantiated` (Debug) whenever a `List` template materializes with `ComponentId`, `TemplateType`, `InstanceCount`. | small |
-| 7 | `renderers/avalonia/src/A2Ui.Avalonia/AgentEventBridge.cs` | Add `EventDispatched` (Debug, `EventType`, `EventIndex`); `ProcessLoopStarted` (Information); `ProcessLoopCompleted` (Information, `EventCount`, `DurationMs`); `ProcessLoopFailed` (Error, exception); `A2UiMessageReceived` (Debug, per extracted A2UI message with `MessageType`, `MessageIndex`, `SurfaceId`). **Prioritize lower if verification shows the Shell hot path does not go through `AgentEventBridge`** — see open question. | small |
-| 8 | `agent_sdks/dotnet/src/AgUi.Protocol/ToolCallArgsAccumulator.cs` | Add optional `ILogger? logger = null` param. Add `AccumulateStarted` (Debug, per new toolCallId), `AccumulateProgress` (Trace, per arg append), `AccumulateCompleted` (Debug, final length). Add orphan detection: if a toolCallId is never completed before disposal, log `AccumulateOrphaned` (Warning). | small |
+| 3 | `samples/client/avalonia/Shell/ViewModels/ShellViewModel.cs` | Add optional log site at the top of the dispatch loop: `ProcessingMessages` (Debug) with `CorrelationId`, `MessageCount` just before iterating the returned `List<A2UiMessage>`. Lets the log show the Shell-side boundary between "got response" and "starting to apply messages". | tiny |
+| 4 | `agent_sdks/dotnet/src/A2Ui.Core/SurfaceManager.cs` | Extend existing `ComponentsUpdated` log (EventId 3) with `RootComponentId`, `RootComponentType`. Extend `DataModelUpdated` (EventId 4) with `PathCount`, `TopLevelKeys`. Add new `BeginRendering` log (new EventId 9) with `SurfaceId`, `PrimaryColor`, `FontFamily`. Add `MessageDispatched` (new EventId 10) at top of `Process()` with `MessageType`, `MessageIndex`, `SurfaceId`. | small |
+| 5 | `agent_sdks/dotnet/src/A2Ui.Core/Messages/A2UiMessage.cs` | Add `ValidationFailed` log site that fires BEFORE `Validate()` throws. Fields: `MessageType`, `ValidationError`, first 200 chars of `RawMessageJson`. Requires optional `ILogger? logger = null` parameter added to `Validate(...)` method or a pre-throw hook in the caller (`SurfaceManager.Process`). | tiny |
+| 6 | `renderers/avalonia/src/A2Ui.Avalonia/Catalog/CatalogRegistry.cs` | Add optional `ILogger<CatalogRegistry>? logger = null` ctor param. Add `CatalogEntryRegistered` log (Debug) fired once per `Register` call, fields: `ComponentType`, `EntryTypeName`. Add `CatalogLookupMiss` log (Warning) fired when `TryGetEntry` returns false, fields: `ComponentType`, `KnownTypes` (joined). | small |
+| 7 | `renderers/avalonia/src/A2Ui.Avalonia/A2UiRenderer.cs` | Add 3 new `LoggerMessage` declarations: `RenderComponent` (Debug) at top of `RenderComponent` with `ComponentId`, `ComponentType`, `ParentComponentId`; `UnknownComponentTypeRendered` (Warning) at the fallback path on **line ~78** — this is currently silent and is **the highest-leverage single fix in Phase 1**; `TemplateInstantiated` (Debug) whenever a `List` template materializes with `ComponentId`, `TemplateType`, `InstanceCount`. | small |
 
-**Phase 1 success criterion:** running the .NET Shell against the Python agent and performing the Restaurant Shell scenario produces a `logs/shell-<date>.log` that contains, in visible sequence: outbound `SendMessageStarted` → `SendMessageCompleted` → 3 × `SurfaceCreated` → `BeginRendering` → `ComponentsUpdated` with component counts → `DataModelUpdated` with restaurant item count → `TemplateInstantiated` → user click logged as new outbound `SendMessageStarted`. Zero warnings if the happy path holds.
+**Deferred to Phase 2 or later (NOT part of Phase 1):**
+
+| Deferred file | Reason |
+|---|---|
+| `renderers/avalonia/src/A2Ui.Avalonia/AgentEventBridge.cs` | Not on Restaurant Shell hot path (confirmed by reading `ShellViewModel`: the Shell uses `IA2AClient` synchronous request/response and feeds messages directly into `SurfaceManager.Process`). The bridge's AG-UI event loop, channel, tool-call accumulator, and UI-thread dispatcher are all bypassed. Still valuable instrumentation when/if a .NET AG-UI streaming client is introduced, but does not unblock Restaurant Shell debugging. |
+| `agent_sdks/dotnet/src/AgUi.Protocol/ToolCallArgsAccumulator.cs` | Only used inside `AgentEventBridge.ProcessLoopAsync`, which is off the Shell hot path. Same rationale. |
+| `agent_sdks/dotnet/src/AgUi.Protocol/Transport/SseEventParser.cs` | Same — the Shell never reads SSE frames. Existing single log site (`MalformedEvent`) is sufficient until SSE becomes relevant. |
+
+**Phase 1 success criterion:** running the .NET Shell against the Python agent and performing the Restaurant Shell scenario produces a `logs/shell-<date>.log` that contains, in visible sequence: outbound `SendMessageStarted` → `SendMessageCompleted` → `ShellViewModel.ProcessingMessages{MessageCount}` → 3 × `SurfaceCreated` → `BeginRendering` → `ComponentsUpdated` with component counts → `DataModelUpdated` with restaurant item count → `TemplateInstantiated` → user click logged as new outbound `SendMessageStarted`. Zero warnings if the happy path holds.
 
 ### Phase 2: Correlation, ActivitySource, per-stage latency, test harness
 
@@ -347,7 +372,8 @@ After Phase 1 the .NET log is comparable to the Python log line-by-line. Phase 2
 | 11 | `renderers/avalonia/src/A2Ui.Avalonia/Diagnostics.cs` (new) | Two sources: `A2Ui.Avalonia.Renderer` and `A2Ui.Avalonia.Bridge` | tiny |
 | 12 | `samples/client/avalonia/Shell/Diagnostics.cs` (new) | `A2Ui.Shell.A2AClient` source | tiny |
 | 13 | `samples/client/avalonia/Shell/Services/A2AAgentClient.cs` | `StartActivity("A2A.SendMessage", ActivityKind.Client)` wrapping the POST. Tags: `http.method=POST`, `http.url`, `http.status_code`, `http.response_content_length`, `a2ui.message_count`, `a2a.correlation_id`. `RecordException` on failure. Add root `BeginScope({CorrelationId, MessageId})` at method entry. | small |
-| 14 | `renderers/avalonia/src/A2Ui.Avalonia/AgentEventBridge.cs` | Wrap `ProcessLoopAsync` in an Activity (`EventBridge.ProcessLoop`, Consumer) and per-event `DispatchEvent` (Internal). Add per-event `BeginScope({EventType, EventIndex})`. | small |
+| 14 | `renderers/avalonia/src/A2Ui.Avalonia/AgentEventBridge.cs` | **Moved from Phase 1** because the Restaurant Shell hot path bypasses this file. Includes the Phase 1-style `LoggerMessage` declarations deferred from Phase 1 (`EventDispatched`, `ProcessLoopStarted`, `ProcessLoopCompleted`, `ProcessLoopFailed`, `A2UiMessageReceived`) **plus** Phase 2 Activity wrapping: wrap `ProcessLoopAsync` in an Activity (`EventBridge.ProcessLoop`, Consumer) and per-event `DispatchEvent` (Internal). Add per-event `BeginScope({EventType, EventIndex})`. Only valuable once/if a .NET AG-UI streaming client is added. | medium |
+| 14b | `agent_sdks/dotnet/src/AgUi.Protocol/ToolCallArgsAccumulator.cs` | **Moved from Phase 1** (see rationale above). Add optional `ILogger? logger = null` param. Add `AccumulateStarted` (Debug, per new toolCallId), `AccumulateProgress` (Trace, per arg append), `AccumulateCompleted` (Debug, final length), and `AccumulateOrphaned` (Warning) orphan detection. | small |
 | 15 | `agent_sdks/dotnet/src/A2Ui.Core/SurfaceManager.cs` | Wrap the per-message dispatch in an Activity named `Surface.<MessageType>` (Internal). Add per-message `BeginScope({SurfaceId, MessageType, MessageIndex})`. | small |
 | 16 | `renderers/avalonia/src/A2Ui.Avalonia/A2UiRenderer.cs` | Wrap root `Render` in an Activity (`Renderer.Render`, Internal). Do **not** wrap per-component rendering — cardinality explosion. | tiny |
 | 17 | `samples/client/avalonia/Shell/Services/LoggingHttpMessageHandler.cs` (new) | `DelegatingHandler` logging raw HTTP requests/responses with duration and byte counts. Fires at lower level than `A2AAgentClient` so we see both the raw POST and the semantic wrapper. | small |
@@ -501,13 +527,21 @@ Run against the Phase 1+2 logs:
 
 ## 6. Critical files (execution targets, ordered by leverage)
 
+**Phase 1 targets (Restaurant Shell hot path):**
+
 1. **`samples/client/avalonia/Shell/Services/A2AAgentClient.cs`** — currently a black box with only 3 sparse log calls. Highest single-file leverage for Phase 1. Touch-point for all communication, network, and agent-issue diagnostics.
 2. **`samples/client/avalonia/Shell/Program.cs`** — DI wiring for `SurfaceManager` ILogger propagation, `LoggingHttpMessageHandler` registration (Phase 2), optional JSON sink and OTel wiring (Phase 3).
 3. **`agent_sdks/dotnet/src/A2Ui.Core/SurfaceManager.cs`** — central state machine, 8 existing LoggerMessages but they don't currently fire because Shell passes NullLoggerFactory. Fix DI wiring + extend existing logs with richer structured fields.
 4. **`renderers/avalonia/src/A2Ui.Avalonia/A2UiRenderer.cs`** — line ~78 has a silent `[Unknown component: ...]` fallback that renders a placeholder TextBlock without logging. Fixing this alone eliminates an entire class of invisible failures.
 5. **`renderers/avalonia/src/A2Ui.Avalonia/Catalog/CatalogRegistry.cs`** — zero log sites today; startup-registration confirmation + lookup-miss logging are Phase 1 essentials.
-6. **`renderers/avalonia/src/A2Ui.Avalonia/AgentEventBridge.cs`** — already has 4 LoggerMessages, needs 5 more for event-dispatch observability. Priority depends on whether the Shell's hot path actually goes through it (see open question #1).
+6. **`samples/client/avalonia/Shell/ViewModels/ShellViewModel.cs`** — the synchronous loop that feeds `IA2AClient` results into `SurfaceManager.Process`. One tiny log site at the top of the loop (`ProcessingMessages{CorrelationId, MessageCount}`) gives the Shell-side boundary between "got response" and "starting to apply messages".
 7. **`agent_sdks/dotnet/src/A2Ui.Core/Messages/A2UiMessage.cs`** — `Validate()` throws without logging. Add a pre-throw log site so validation failures leave a trace even when the caller catches the exception.
+
+**Phase 2 / later targets (off the Restaurant Shell hot path, but valuable when AG-UI streaming becomes relevant):**
+
+8. `renderers/avalonia/src/A2Ui.Avalonia/AgentEventBridge.cs` — confirmed bypassed by the Shell. Already has 4 LoggerMessages, needs 5 more for event-dispatch observability, plus Phase 2 Activity wiring. Priority is low until a .NET AG-UI streaming client is introduced.
+9. `agent_sdks/dotnet/src/AgUi.Protocol/ToolCallArgsAccumulator.cs` — only used inside `AgentEventBridge.ProcessLoopAsync`, so same priority as #8.
+10. `agent_sdks/dotnet/src/AgUi.Protocol/Transport/SseEventParser.cs` — existing single log site is sufficient until SSE becomes relevant to the .NET port.
 
 ---
 
@@ -520,13 +554,13 @@ Run against the Phase 1+2 logs:
 | **Test log coupling** — asserting on log messages couples tests to wording. | Always assert on `EventId` integers and structured property values, never on formatted message strings. |
 | **Activity cardinality** — per-component spans would explode (potentially hundreds per render). | Phase 2 plan deliberately spans only at `A2A.SendMessage`, `EventBridge.ProcessLoop`, `EventBridge.DispatchEvent`, `Surface.<Op>`, and root `Renderer.Render`. Not per-component. |
 | **NullLoggerFactory regressions** — adding required `ILogger` params breaks existing call sites. | Use optional params with `NullLogger<T>.Instance` default. Preserves source compatibility. Only the Shell's DI explicitly wires the real factory. |
-| **`AgentEventBridge` may not be on the Shell's hot path** (see open question #1) — instrumenting it could be wasted work if the Restaurant Shell goes `A2AAgentClient` → `ShellViewModel` → `SurfaceManager` directly. | Phase 1 prioritizes `A2AAgentClient` and `SurfaceManager` explicitly; the Bridge work is listed but can be descoped to Phase 2 or later if the hot path excludes it. |
+| **`AgentEventBridge` is confirmed NOT on the Shell's hot path** (open question #1 resolved). Instrumenting it as Phase 1 would have been wasted work. | Phase 1 scope has been trimmed to the 6 files that actually sit on the Restaurant Shell hot path. Bridge instrumentation is deferred to Phase 2 (or later, once a .NET AG-UI streaming client is introduced). |
 
 ---
 
 ## 8. Open questions (resolve before or during execution)
 
-1. **Does the Restaurant Shell's hot path go through `AgentEventBridge`?** `A2AAgentClient` is a request-response POST client that returns a `List<A2UiMessage>` directly. The shape suggests `ShellViewModel` feeds those messages to `SurfaceManager` directly, not through `AgentEventBridge`. Action: first step of Phase 1 execution is to `Read` `ShellViewModel.cs` and confirm. If it bypasses `AgentEventBridge`, drop Bridge instrumentation from Phase 1 priority list (keep for Phase 2 or later).
+1. ~~**Does the Restaurant Shell's hot path go through `AgentEventBridge`?**~~ **RESOLVED (2026-04-11):** No. `IA2AClient.SendAsync` performs the A2A POST, reads the full JSON response, and returns a fully-accumulated `List<A2UiMessage>` synchronously. `ShellViewModel` iterates that list and calls `SurfaceManager.Process(message)` for each one. The AG-UI event loop, bounded channel, 28-event dispatch switch, `ToolCallArgsAccumulator`, and UI-thread dispatcher inside `AgentEventBridge` are all bypassed. Phase 1 log sites for `AgentEventBridge` and `ToolCallArgsAccumulator` have been moved to Phase 2 (or later) as "nice to have once/if a .NET AG-UI streaming client is added". See the "Architectural reality check" and Phase 1 tables above for the corrected scope.
 
 2. **Is the booking-form surface suffix (`-xian` in reference) LLM-randomized, stable per restaurant, or deterministic?** Affects verification check #13. Assumption: LLM-randomized; verification uses regex `^booking-form-.+$` rather than exact match. Confirm by running .NET Shell once with a different first-restaurant selection and observing the generated suffix.
 
@@ -544,15 +578,16 @@ Run against the Phase 1+2 logs:
 
 ## 9. Execution order summary
 
-**Phase 1 (unblocks Restaurant Shell debugging):**
+**Phase 1 (unblocks Restaurant Shell debugging — 6 files + 1 DI fix):**
 1. Fix DI in `Program.cs` so `SurfaceManager` gets a real `ILogger` — single most important change
-2. `A2AAgentClient` structured logging (3 new LoggerMessage decls + migrate 3 existing)
-3. `A2UiRenderer` silent-fallback fix at line ~78
-4. `CatalogRegistry` startup + miss logs
-5. `SurfaceManager` extended structured fields + `BeginRendering` + `MessageDispatched`
-6. `A2UiMessage.Validate` pre-throw log
-7. `AgentEventBridge` event-dispatch logs (priority demoted if hot-path excludes it)
-8. `ToolCallArgsAccumulator` accumulation logs + orphan detection
+2. `A2AAgentClient` structured logging (3 new `LoggerMessage` decls + migrate 3 existing; `CorrelationId` GUID generation + `Stopwatch` wrapping)
+3. `A2UiRenderer` silent-fallback fix at line ~78 (`UnknownComponentTypeRendered`) + `RenderComponent` + `TemplateInstantiated`
+4. `CatalogRegistry` startup-registration confirmation + lookup-miss logs
+5. `SurfaceManager` extended structured fields on existing logs + new `BeginRendering` + `MessageDispatched`
+6. `ShellViewModel.ProcessingMessages` log at the top of the dispatch loop (the Shell-side boundary marker)
+7. `A2UiMessage.Validate` pre-throw log
+
+**Deferred from Phase 1** (per resolved open question #1): `AgentEventBridge` event-dispatch logs and `ToolCallArgsAccumulator` accumulation logs. Both live in Phase 2 or later because the Restaurant Shell hot path bypasses them entirely.
 
 **Phase 2 (correlation, tracing, tests):**
 9. 5 `Diagnostics.cs` files with ActivitySource declarations
