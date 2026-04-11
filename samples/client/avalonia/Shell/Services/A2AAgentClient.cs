@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using A2Ui.Avalonia.Shell.Models;
@@ -40,7 +42,7 @@ public sealed class A2AAgentClient : IA2AClient
     public async Task<string> GetAgentNameAsync(CancellationToken ct = default)
     {
         string cardUrl = $"{_config.ServerUrl}/.well-known/agent-card.json";
-        _logger.LogDebug("Fetching agent card from {Url}", cardUrl);
+        A2AAgentClientLog.FetchingAgentCard(_logger, cardUrl);
 
         A2AAgentCard? card = await _http.GetFromJsonAsync<A2AAgentCard>(cardUrl, s_camelCase, ct).ConfigureAwait(false);
 
@@ -49,7 +51,7 @@ public sealed class A2AAgentClient : IA2AClient
 
     public async Task<IReadOnlyList<A2UiMessage>> SendTextAsync(string text, CancellationToken ct = default)
     {
-        _logger.LogDebug("Sending text query: {Text}", text);
+        A2AAgentClientLog.SendingTextQuery(_logger, Truncate(text, 200));
 
         var parts = new A2APart[]
         {
@@ -61,7 +63,7 @@ public sealed class A2AAgentClient : IA2AClient
 
     public async Task<IReadOnlyList<A2UiMessage>> SendActionAsync(object userAction, CancellationToken ct = default)
     {
-        _logger.LogDebug("Sending action to agent");
+        A2AAgentClientLog.SendingAction(_logger);
 
         JsonElement data = JsonSerializer.SerializeToElement(userAction, s_camelCase);
         var parts = new A2APart[]
@@ -79,37 +81,74 @@ public sealed class A2AAgentClient : IA2AClient
 
     private async Task<IReadOnlyList<A2UiMessage>> SendAsync(A2APart[] parts, CancellationToken ct)
     {
+        string correlationId = Guid.NewGuid().ToString("N");
+        string messageId = Guid.NewGuid().ToString();
         var request = new A2ASendMessageRequest
         {
-            Message = new A2AMessage { MessageId = Guid.NewGuid().ToString(), Parts = parts },
+            Message = new A2AMessage { MessageId = messageId, Parts = parts },
         };
 
-        HttpResponseMessage response = await _http
-            .PostAsJsonAsync(_config.ServerUrl, request, s_camelCase, ct)
-            .ConfigureAwait(false);
+        // Serialize once to get the byte count for telemetry, then POST the same bytes.
+        byte[] requestBytes = JsonSerializer.SerializeToUtf8Bytes(request, s_camelCase);
+        A2AAgentClientLog.SendMessageStarted(_logger, _config.ServerUrl, requestBytes.Length, messageId, correlationId);
 
-        response.EnsureSuccessStatusCode();
+        var stopwatch = Stopwatch.StartNew();
+        try
+        {
+            using var content = new ByteArrayContent(requestBytes);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-        A2ATaskResponse? taskResponse = await response
-            .Content.ReadFromJsonAsync<A2ATaskResponse>(s_camelCase, ct)
-            .ConfigureAwait(false);
+            HttpResponseMessage response = await _http.PostAsync(_config.ServerUrl, content, ct).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
 
-        return ExtractA2UiMessages(taskResponse);
+            byte[] responseBodyBytes = await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
+            A2ATaskResponse? taskResponse = JsonSerializer.Deserialize<A2ATaskResponse>(responseBodyBytes, s_camelCase);
+
+            IReadOnlyList<A2UiMessage> messages = ExtractA2UiMessages(taskResponse, correlationId);
+
+            stopwatch.Stop();
+            A2AAgentClientLog.SendMessageCompleted(
+                _logger,
+                (int)response.StatusCode,
+                responseBodyBytes.LongLength,
+                messages.Count,
+                stopwatch.ElapsedMilliseconds,
+                correlationId
+            );
+
+            return messages;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            stopwatch.Stop();
+            A2AAgentClientLog.SendMessageFailed(
+                _logger,
+                _config.ServerUrl,
+                stopwatch.ElapsedMilliseconds,
+                ex.GetType().Name,
+                correlationId,
+                ex
+            );
+            throw;
+        }
     }
 
-    private List<A2UiMessage> ExtractA2UiMessages(A2ATaskResponse? taskResponse)
+    private List<A2UiMessage> ExtractA2UiMessages(A2ATaskResponse? taskResponse, string correlationId)
     {
         var messages = new List<A2UiMessage>();
 
         A2AResponsePart[]? parts = taskResponse?.Result?.Status?.Message?.Parts;
         if (parts is null)
         {
-            _logger.LogWarning("No parts in agent response");
+            A2AAgentClientLog.ResponseHasNoParts(_logger, correlationId);
             return messages;
         }
 
+        int messageIndex = 0;
         foreach (A2AResponsePart part in parts)
         {
+            int currentIndex = messageIndex++;
+
             if (part.Kind != "data" || part.Data is null)
                 continue;
 
@@ -126,11 +165,11 @@ public sealed class A2AAgentClient : IA2AClient
             }
             catch (JsonException ex)
             {
-                _logger.LogWarning(ex, "Failed to deserialize A2UI message from DataPart");
+                A2AAgentClientLog.DataPartDeserializeFailed(_logger, currentIndex, correlationId, ex);
             }
         }
 
-        _logger.LogDebug("Extracted {Count} A2UI message(s) from response", messages.Count);
+        A2AAgentClientLog.ExtractedMessages(_logger, messages.Count, correlationId);
         return messages;
     }
 
@@ -149,4 +188,85 @@ public sealed class A2AAgentClient : IA2AClient
 
         return null;
     }
+
+    private static string Truncate(string s, int max) => s.Length <= max ? s : s[..max];
+}
+
+internal static partial class A2AAgentClientLog
+{
+    [LoggerMessage(EventId = 1, Level = LogLevel.Debug, Message = "Fetching agent card from {Url}")]
+    public static partial void FetchingAgentCard(ILogger logger, string url);
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Debug, Message = "Sending text query: {TextPreview}")]
+    public static partial void SendingTextQuery(ILogger logger, string textPreview);
+
+    [LoggerMessage(EventId = 3, Level = LogLevel.Debug, Message = "Sending action to agent")]
+    public static partial void SendingAction(ILogger logger);
+
+    [LoggerMessage(
+        EventId = 4,
+        Level = LogLevel.Warning,
+        Message = "No parts in agent response (correlationId={CorrelationId})"
+    )]
+    public static partial void ResponseHasNoParts(ILogger logger, string correlationId);
+
+    [LoggerMessage(
+        EventId = 5,
+        Level = LogLevel.Warning,
+        Message = "Failed to deserialize A2UI message from DataPart (messageIndex={MessageIndex}, correlationId={CorrelationId})"
+    )]
+    public static partial void DataPartDeserializeFailed(
+        ILogger logger,
+        int messageIndex,
+        string correlationId,
+        Exception exception
+    );
+
+    [LoggerMessage(
+        EventId = 6,
+        Level = LogLevel.Debug,
+        Message = "Extracted {MessageCount} A2UI message(s) (correlationId={CorrelationId})"
+    )]
+    public static partial void ExtractedMessages(ILogger logger, int messageCount, string correlationId);
+
+    [LoggerMessage(
+        EventId = 7,
+        Level = LogLevel.Information,
+        Message = "SendMessage started: url={HttpUrl}, requestBytes={RequestBytes}, messageId={MessageId}, correlationId={CorrelationId}"
+    )]
+    public static partial void SendMessageStarted(
+        ILogger logger,
+        string httpUrl,
+        int requestBytes,
+        string messageId,
+        string correlationId
+    );
+
+    [LoggerMessage(
+        EventId = 8,
+        Level = LogLevel.Information,
+        Message = "SendMessage completed: httpStatus={HttpStatus}, responseBytes={ResponseBytes}, messageCount={MessageCount}, durationMs={DurationMs}, correlationId={CorrelationId}"
+    )]
+    public static partial void SendMessageCompleted(
+        ILogger logger,
+        int httpStatus,
+        long responseBytes,
+        int messageCount,
+        long durationMs,
+        string correlationId
+    );
+
+    [LoggerMessage(
+        EventId = 9,
+        Level = LogLevel.Error,
+        Message = "SendMessage failed: url={HttpUrl}, durationMs={DurationMs}, exceptionType={ExceptionType}, correlationId={CorrelationId}"
+    )]
+    public static partial void SendMessageFailed(
+        ILogger logger,
+        string httpUrl,
+        long durationMs,
+        string exceptionType,
+        string correlationId,
+        Exception exception
+    );
 }

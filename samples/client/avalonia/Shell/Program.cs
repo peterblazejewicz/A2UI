@@ -1,3 +1,4 @@
+using A2Ui.Avalonia.Catalog;
 using A2Ui.Avalonia.Shell.Models;
 using A2Ui.Avalonia.Shell.Services;
 using A2Ui.Avalonia.Shell.ViewModels;
@@ -5,6 +6,7 @@ using A2Ui.Avalonia.Shell.Views;
 using A2Ui.Core;
 using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace A2Ui.Avalonia.Shell;
@@ -58,7 +60,11 @@ internal static class Program
             )
         );
 
-        services.AddSingleton<SurfaceManager>();
+        services.AddSingleton<SurfaceManager>(sp => new SurfaceManager(sp.GetRequiredService<ILoggerFactory>()));
+
+        services.AddSingleton<CatalogRegistry>(sp =>
+            CatalogRegistry.CreateDefault(sp.GetRequiredService<ILoggerFactory>())
+        );
 
         // Typed HttpClient for the A2A agent. The A2UI extension version is configured
         // here (not inside A2AAgentClient's constructor) so the wire contract is

@@ -62,6 +62,8 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
             IReadOnlyList<A2UiMessage> messages = await _client.SendTextAsync(query, ct).ConfigureAwait(true);
 
+            ShellViewModelLog.ProcessingMessages(_logger, messages.Count, "query");
+
             foreach (A2UiMessage msg in messages)
                 _manager.Process(msg);
 
@@ -104,6 +106,8 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
             _manager.Clear();
 
             IReadOnlyList<A2UiMessage> messages = await _client.SendActionAsync(envelope, ct).ConfigureAwait(true);
+
+            ShellViewModelLog.ProcessingMessages(_logger, messages.Count, "action");
 
             foreach (A2UiMessage msg in messages)
                 _manager.Process(msg);
@@ -181,4 +185,14 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         _manager.ComponentsUpdated -= OnComponentsUpdated;
         _manager.DataModelUpdated -= OnDataModelUpdated;
     }
+}
+
+internal static partial class ShellViewModelLog
+{
+    [LoggerMessage(
+        EventId = 1,
+        Level = LogLevel.Debug,
+        Message = "Processing {MessageCount} A2UI message(s) from {Trigger}"
+    )]
+    public static partial void ProcessingMessages(ILogger logger, int messageCount, string trigger);
 }
