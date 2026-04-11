@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/A2Ui.Avalonia/A2Ui.Avalonia.csproj" />
+    <ProjectReference Include="../../../../agent_sdks/dotnet/tests/A2Ui.TestHelpers/A2Ui.TestHelpers.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content

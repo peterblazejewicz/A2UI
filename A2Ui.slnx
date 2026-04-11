@@ -6,6 +6,7 @@
   <Folder Name="/sdk/tests/">
     <Project Path="agent_sdks/dotnet/tests/AgUi.Protocol.Tests/AgUi.Protocol.Tests.csproj" />
     <Project Path="agent_sdks/dotnet/tests/A2Ui.Core.Tests/A2Ui.Core.Tests.csproj" />
+    <Project Path="agent_sdks/dotnet/tests/A2Ui.TestHelpers/A2Ui.TestHelpers.csproj" />
   </Folder>
   <Folder Name="/renderer/">
     <Project Path="renderers/avalonia/src/A2Ui.Avalonia/A2Ui.Avalonia.csproj" />

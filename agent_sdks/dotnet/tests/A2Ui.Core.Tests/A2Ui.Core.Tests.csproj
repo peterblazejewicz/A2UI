@@ -22,5 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="../../src/A2Ui.Core/A2Ui.Core.csproj" />
     <ProjectReference Include="../../src/AgUi.Protocol/AgUi.Protocol.csproj" />
+    <ProjectReference Include="../A2Ui.TestHelpers/A2Ui.TestHelpers.csproj" />
   </ItemGroup>
 </Project>
