@@ -107,6 +107,10 @@ The best way to understand A2UI is to run the samples.
 * Node.js (for web clients)
 * Python (for agent samples)
 * A valid [Gemini API Key](https://aistudio.google.com/) is required for the samples.
+* **Windows users:** see [`WINDOWS_SETUP.md`](WINDOWS_SETUP.md) for one-time
+  preparatory steps required before running the lit samples (npm optional-
+  dependency bug affecting the rollup native binary). Linux and macOS users
+  are unaffected.
 
 ### Running the Restaurant Finder demo
 
