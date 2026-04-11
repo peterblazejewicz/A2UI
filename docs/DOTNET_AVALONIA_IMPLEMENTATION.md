@@ -1,10 +1,12 @@
 # .NET/Avalonia A2UI Implementation — Status & Architecture
 
-**Protocol version:** v0.9  
-**Branch:** `feature/dotnet-avalonia-renderer`  
-**Runtime:** .NET 10 (`global.json` pins SDK 10.0.100)  
-**Last updated:** 2026-04-07  
-**Status:** Feature-complete for intended v0.9 baseline scope
+**Protocol version:** v0.9
+**Active branch:** `feature/restaurant-demo-shell`
+**Runtime:** .NET 10 (`global.json` pins SDK 10.0.100)
+**Last updated:** 2026-04-11
+**Status:** v0.9 catalog feature-complete; Restaurant Shell scaffold shipped;
+Phase 1 + Phase 2 telemetry (structured logging, ActivitySource tracing,
+scenario tests) shipped. Pending: manual end-to-end verification run.
 
 ---
 
@@ -22,19 +24,23 @@ events through A2UI message processing to Avalonia desktop controls.
 
 ## 2. Solution Structure
 
-**Solution file:** `A2Ui.slnx` (7 projects, 38 hand-authored source files)
+**Solution file:** `A2Ui.slnx` (8 projects)
 
 | Project | Path | Purpose |
 |---------|------|---------|
 | `AgUi.Protocol` | `agent_sdks/dotnet/src/AgUi.Protocol/` | AG-UI 28-event type model, SSE parser, tool-call accumulator |
 | `A2Ui.Core` | `agent_sdks/dotnet/src/A2Ui.Core/` | A2UI message model, envelope validation, surface state, data model, protocol DTOs |
 | `A2Ui.Avalonia` | `renderers/avalonia/src/A2Ui.Avalonia/` | Avalonia renderer: 18 catalog entries, function registry, bridge |
-| `AgUi.Protocol.Tests` | `agent_sdks/dotnet/tests/AgUi.Protocol.Tests/` | Event serialization, SSE parser tests |
-| `A2Ui.Core.Tests` | `agent_sdks/dotnet/tests/A2Ui.Core.Tests/` | Message, validation, data model, surface manager tests |
-| `A2Ui.Avalonia.Tests` | `renderers/avalonia/tests/A2Ui.Avalonia.Tests/` | Headless renderer, catalog entry, integration, bridge tests |
+| `AgUi.Protocol.Tests` | `agent_sdks/dotnet/tests/AgUi.Protocol.Tests/` | Event serialization, SSE parser tests (58) |
+| `A2Ui.Core.Tests` | `agent_sdks/dotnet/tests/A2Ui.Core.Tests/` | Message, validation, data model, surface manager, telemetry scenario tests (108) |
+| `A2Ui.TestHelpers` | `agent_sdks/dotnet/tests/A2Ui.TestHelpers/` | `TestLoggerProvider` + `TestActivityListener` — shared telemetry capture library consumed by all 3 test projects |
+| `A2Ui.Avalonia.Tests` | `renderers/avalonia/tests/A2Ui.Avalonia.Tests/` | Headless renderer, catalog entry, integration, bridge, telemetry scenario tests (321) |
 | `A2Ui.Avalonia.Gallery` | `samples/client/avalonia/gallery_v0_9/` | Offline spec-example replay harness |
+| `A2Ui.Avalonia.Shell` | `samples/client/avalonia/Shell/` | Restaurant demo A2A client — MVVM desktop app speaking A2A/HTTP to the Python `restaurant_finder` agent |
 
 **Shared build settings** (`Directory.Build.props`): `Nullable: enable`, `TreatWarningsAsErrors: true`, `LangVersion: latest`, Roslynator + NetAnalyzers enabled.
+
+**Total tests:** 487 passing (105 Core baseline + 3 telemetry scenarios, 58 Protocol, 320 Avalonia baseline + 1 telemetry scenario).
 
 ---
 
@@ -385,6 +391,38 @@ sequenceDiagram
 
   Renderer->>Renderer: Add N children to List panel
 ```
+
+---
+
+## 5.6 Observability (Phase 1 + Phase 2 telemetry)
+
+Structured logging, `ActivitySource` tracing, and Serilog `BeginScope`
+correlation were added in Phase 1 (Waves 1-3) and Phase 2 (Slices A-D) on
+`feature/restaurant-demo-shell`. The shipped contract is documented in
+[`docs/DOTNET_TELEMETRY_REFERENCE.md`](DOTNET_TELEMETRY_REFERENCE.md). At a
+glance:
+
+| Layer | `LoggerMessage` category | `ActivitySource` | Span(s) |
+|---|---|---|---|
+| Shell HTTP | `A2AAgentClientLog` (9 sites) + `LoggingHttpMessageHandlerLog` (3 sites) | `A2Ui.Shell.A2AClient` | `A2A.SendMessage` (Client) |
+| Shell UI | `ShellViewModelLog` (1 site) + `RequestSummaryLoggerLog` (1 site) | — | — |
+| SDK core | `SurfaceManagerLog` (10 sites) | `A2Ui.Core` | `Surface.CreateSurface` / `.UpdateComponents` / `.UpdateDataModel` / `.DeleteSurface` (Internal) |
+| Renderer | `RendererLog` (13 sites) + `CatalogRegistryLog` (2 sites) | `A2Ui.Avalonia.Renderer` | `Renderer.Render` (Internal) |
+| AG-UI bridge | `BridgeLog` (9 sites) | `A2Ui.Avalonia.Bridge` | `EventBridge.ProcessLoop` (Consumer), `EventBridge.DispatchEvent` (Internal) |
+| AG-UI protocol | `ToolCallArgsAccumulatorLog` (4 sites) | `A2Ui.AgUi.Protocol` | `ToolCallArgs.Complete` (Internal) |
+
+Serilog `BeginScope` in `A2AAgentClient.SendAsync` pushes `CorrelationId` +
+`MessageId` into `LogContext`, and `SurfaceManager.Process` nests
+`SurfaceId` + `MessageType` on top. Via `Enrich.FromLogContext()` in
+`Program.cs`, every downstream log line on the Shell hot path inherits the
+full correlation set.
+
+Test harness: `A2Ui.TestHelpers` hosts `TestLoggerProvider` (captures
+`(EventId, LogLevel, Properties, Exception)` into a `ConcurrentQueue`) and
+`TestActivityListener` (captures started/stopped `Activity` instances with
+source-name filtering). Four representative scenario tests (happy path,
+validation failure, no-root surface, unknown component type) assert on
+captured entries in `A2Ui.Core.Tests` and `A2Ui.Avalonia.Tests`.
 
 ---
 
