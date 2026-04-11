@@ -7,6 +7,13 @@ namespace AgUi.Protocol;
 /// Accumulates TOOL_CALL_ARGS delta strings per toolCallId.
 /// Call <see cref="Complete"/> after TOOL_CALL_END to get final JSON.
 /// </summary>
+/// <remarks>
+/// Not thread-safe. The internal buffer dictionary is unguarded and must be
+/// mutated from a single writer. In-repo, the sole owner is
+/// <c>AgentEventBridge.ProcessLoopAsync</c>, which drains the event channel on
+/// one background task. Do not share an instance across threads without
+/// external synchronization.
+/// </remarks>
 public sealed class ToolCallArgsAccumulator
 {
     private readonly Dictionary<string, StringBuilder> _buffers = new();
