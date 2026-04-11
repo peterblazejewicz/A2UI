@@ -33,11 +33,17 @@ GitHub/PyPI):**
 - Item 4 — **KNOWN LIMITATION, NOT UPSTREAM-FIXABLE.** Windows users running
   `npm run demo:restaurant` (or any `demo:*` script) hit a missing
   `@rollup/rollup-win32-x64-msvc` native binary due to npm bug
-  [`npm/cli#4828`](https://github.com/npm/cli/issues/4828). Documented as a
-  one-time manual step in [`WINDOWS_SETUP.md`](WINDOWS_SETUP.md); we will
-  NOT patch `package.json` for this because the bug is in npm itself, not in
-  the A2UI dependency declarations. See item 4 block below for the full
-  diagnostic and fix command.
+  [`npm/cli#4828`](https://github.com/npm/cli/issues/4828). Workaround
+  documented in [`WINDOWS_SETUP.md`](WINDOWS_SETUP.md): delete
+  `samples/client/lit/node_modules/` and
+  `samples/client/lit/package-lock.json`, then `npm install`. The
+  regenerated lockfile **stays local** — we do not push it upstream
+  because this fork treats the lit workspace as read-only reference
+  material for the .NET/C# port, not as a workspace we maintain. See
+  item 4 block below for the full diagnostic, the rejected fix
+  alternatives (including the previously-documented `--no-save`
+  approach that turned out not to survive subsequent `npm install`
+  runs), and the verified working command sequence.
 
 ---
 
@@ -334,56 +340,104 @@ install` later runs on a different platform, it honors the lockfile
 strictly and skips the install, leaving `rollup/dist/native.js` unable
 to `require` its own binary.
 
-**Why this is NOT fixable from our `package.json`:**
+**Why this is NOT fixable in this fork's `package.json` or lockfile
+(and why we do not care):**
 
-Candidate fixes we considered and rejected:
+The deeper reason is scope, not philosophy: **this fork treats
+`samples/client/lit/` as reference material for the .NET/C# port, not
+as a workspace we maintain.** We read those samples to understand how
+a real A2UI client is shaped so we can port their structure to
+Avalonia and the .NET SDK; we do not ship fixes back to them, nor do
+we track their dep graph over time. That workspace is effectively
+read-only for this fork's purposes.
+
+That framing changes how we evaluate candidate fixes. Every option
+below was considered and rejected:
 
 1. **Pin `rollup` or `@rollup/rollup-win32-x64-msvc` in our own
    `devDependencies`.** Would work for the current version but defers
    the problem to every rollup bump. Also adds a maintenance burden on
    every upstream sync. Worst: would conflict with vite's own rollup
-   version pin.
-2. **Regenerate `package-lock.json` on Windows and commit it.** Would
-   fix Windows but break Linux CI for the same reason in reverse. The
-   bug is symmetric.
+   version pin. And since we do not maintain the lit workspace,
+   committing to maintain a dep override here is exactly backwards.
+2. **Commit a Windows-regenerated `package-lock.json` back to the fork
+   branch.** Would fix Windows globally but break Linux CI for the
+   same reason in reverse — the bug is symmetric. And even if we only
+   committed it to the feature branch, any upstream sync would conflict
+   on that file indefinitely.
 3. **Switch from npm to pnpm.** pnpm handles platform-specific optional
    deps correctly. But this is a cross-cutting change affecting every
    other workspace in the repo and is not justifiable to push upstream
-   just for Windows support in one sample directory.
-4. **Pre-commit hook that warns Windows users to run the manual step.**
+   just for Windows support in one sample directory we do not maintain.
+4. **Platform-scoped `ensure:native-rollup` npm script prepended to
+   each `demo:*` script.** We considered an inline `node -e "if
+   (process.platform==='win32') require('child_process').execSync(...)"`
+   that would self-heal the binary after every `npm install`. It would
+   work, but it means shipping platform-detection logic in the same
+   `package.json` that items 1 and 3 are trying to keep minimal and
+   upstreamable. Adds surface area to a file we only want to touch for
+   the shell portability fix.
+5. **Pre-commit hook that warns Windows users to run a manual step.**
    Adds friction on the wrong side — the hook would fire on every
    commit, not just first-time clones.
+6. **`--no-save` ad-hoc install of the missing binary.** This was our
+   first documented approach and it **does not work** for this
+   workflow. The `demo:*` scripts all begin with `npm install`, which
+   reconciles `node_modules/` against `package-lock.json` and prunes
+   anything "extraneous". A `--no-save` binary has no lockfile entry,
+   so it is pruned on the very next demo invocation before Vite ever
+   gets to import it. Verified empirically: the crash came back with
+   `removed 1 package, and audited 715 packages` at the top of the
+   subsequent `demo:restaurant` run. Keeping this as a cautionary tale
+   in the workaround section — do not trust a `--no-save` workaround
+   for anything downstream of an `npm install`.
 
-The pragmatic solution, accepted by the wider JS ecosystem for exactly
-this bug, is to document the one-time manual step and rely on Windows
-users to run it once per clone.
+**Workaround (from `WINDOWS_SETUP.md`) — delete and reinstall:**
 
-**Workaround (from `WINDOWS_SETUP.md`):**
+Exactly what the rollup error message tells you to do:
 
 ```bash
 cd samples/client/lit
-npm install --no-save @rollup/rollup-win32-x64-msvc@4.60.0
+rm -rf node_modules package-lock.json
+npm install
 ```
 
-`--no-save` deliberately avoids touching `package.json` or
-`package-lock.json` so this does not propagate into git. The version
-must match the rollup version resolved in
-`samples/client/lit/node_modules/rollup/package.json`; if upstream bumps
-rollup, check the version with
-`node -p "require('./node_modules/rollup/package.json').version"` and
-substitute it into the install command.
+(cmd.exe: `rmdir /s /q node_modules && del package-lock.json && npm install`.)
+
+This regenerates `package-lock.json` on your Windows machine with
+installation stanzas for `@rollup/rollup-win32-x64-msvc` and the rest
+of the Windows-specific optional dep graph. The new lockfile is
+**self-consistent** with your Windows `node_modules/`, so subsequent
+`npm install` runs (including the ones `demo:*` scripts invoke) no
+longer prune the Windows binary as extraneous. Verified working
+locally with the expected `[SHELL] VITE v7.3.2 ready in 214 ms`
+output and `Uvicorn running on http://localhost:10002` on the agent
+side.
+
+**The regenerated `samples/client/lit/package-lock.json` stays on your
+local machine.** Do not commit it, do not push it, do not include it in
+upstream PRs. This is acceptable precisely because the fork does not
+maintain the lit workspace — the divergence is intentional,
+client-side, and has zero cost to us. If `git status` shows the file
+as modified after the workaround, that is the expected state for a
+Windows working copy; leave it modified or revert with
+`git checkout -- samples/client/lit/package-lock.json` and re-run the
+workaround next time you need the demo.
 
 **Upstream escape hatches to watch for:**
 
 - npm may eventually fix [`npm/cli#4828`](https://github.com/npm/cli/issues/4828)
-  — then this section can be deleted.
+  — then this section can be deleted and Windows users can clone and
+  run without any preparation.
 - Rollup may drop the native-binary dispatch in favor of pure-JS (it has
   been discussed but is a major architectural shift) — same outcome.
 - Vite may switch away from rollup (also discussed for their Rolldown
   migration, tracked at `vitejs/vite` Rolldown RFC) — same outcome.
 
-Until one of those lands, every new Windows contributor to the lit
-samples must run the manual step once.
+Until one of those lands, every new Windows contributor who wants to
+run the lit demos must do the delete+reinstall once per clone (and
+again any time they pull upstream changes that re-introduce the
+upstream-sourced lockfile over their local regeneration).
 
 ---
 
