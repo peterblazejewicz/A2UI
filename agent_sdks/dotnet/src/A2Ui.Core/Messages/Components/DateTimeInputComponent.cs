@@ -5,6 +5,7 @@ namespace A2Ui.Core.Messages;
 /// <summary>Date/time input component.</summary>
 public sealed record DateTimeInputComponent : A2UiComponent
 {
+    /// <inheritdoc />
     [JsonIgnore]
     public override string Component { get; init; } = "DateTimeInput";
 

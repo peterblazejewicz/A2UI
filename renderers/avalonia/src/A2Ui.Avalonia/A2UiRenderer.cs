@@ -25,6 +25,12 @@ public sealed class A2UiRenderer
     private readonly Dictionary<string, Dictionary<string, Control>> _surfaceCaches = new();
     private readonly Dictionary<string, CancellationTokenSource> _surfaceCts = new();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="A2UiRenderer"/> class.
+    /// </summary>
+    /// <param name="catalog">Registry mapping component types to Avalonia control factories.</param>
+    /// <param name="functionRegistry">Optional function registry for DynamicValue evaluation.</param>
+    /// <param name="loggerFactory">Optional logger factory for diagnostics.</param>
     public A2UiRenderer(
         CatalogRegistry catalog,
         IFunctionRegistry? functionRegistry = null,
@@ -88,7 +94,10 @@ public sealed class A2UiRenderer
         return container;
     }
 
+    /// <summary>Raised when a user interacts with a rendered component (e.g., button click).</summary>
     public event EventHandler<UserActionEventArgs>? UserActionFired;
+
+    /// <summary>Raised when the data model is mutated via two-way binding (e.g., text input).</summary>
     public event EventHandler<DataModelChangedEventArgs>? DataModelChanged;
 
     private Control RenderComponent(A2UiComponent component, Surface surface, RenderContext context)
@@ -565,6 +574,11 @@ internal sealed class RenderContext(
     }
 }
 
+/// <summary>Event arguments for a user action triggered on a rendered A2UI component.</summary>
+/// <param name="SurfaceId">Identifier of the surface containing the source component.</param>
+/// <param name="EventName">Action event name from the component definition.</param>
+/// <param name="Payload">Resolved action context data, or <see langword="null"/>.</param>
+/// <param name="ComponentId">Optional component ID that triggered the action.</param>
 public sealed record UserActionEventArgs(
     string SurfaceId,
     string EventName,
@@ -572,6 +586,8 @@ public sealed record UserActionEventArgs(
     string? ComponentId = null
 );
 
+/// <summary>Event arguments when the data model is mutated via two-way binding.</summary>
+/// <param name="SurfaceId">Identifier of the surface whose data model changed.</param>
 public sealed record DataModelChangedEventArgs(string SurfaceId);
 
 internal static partial class RendererLog

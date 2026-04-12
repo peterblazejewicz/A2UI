@@ -5,6 +5,7 @@ namespace A2Ui.Core.Messages;
 /// <summary>Image display component.</summary>
 public sealed record ImageComponent : A2UiComponent
 {
+    /// <inheritdoc />
     [JsonIgnore]
     public override string Component { get; init; } = "Image";
 

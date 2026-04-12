@@ -6,6 +6,7 @@
     <RootNamespace>A2Ui.Core</RootNamespace>
     <Description>A2UI (Agent-to-UI) message model and catalog for .NET</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -443,11 +443,17 @@ internal sealed class Scanner(string input)
 /// </summary>
 public sealed class A2UiExpressionException : Exception
 {
+    /// <summary>Initializes a new instance of the <see cref="A2UiExpressionException"/> class.</summary>
     public A2UiExpressionException() { }
 
+    /// <summary>Initializes a new instance with a message.</summary>
+    /// <param name="message">The error message.</param>
     public A2UiExpressionException(string message)
         : base(message) { }
 
+    /// <summary>Initializes a new instance with a message and inner exception.</summary>
+    /// <param name="message">The error message.</param>
+    /// <param name="innerException">The inner exception.</param>
     public A2UiExpressionException(string message, Exception innerException)
         : base(message, innerException) { }
 }

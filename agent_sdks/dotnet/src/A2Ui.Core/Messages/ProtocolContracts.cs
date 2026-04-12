@@ -10,6 +10,7 @@ namespace A2Ui.Core.Messages;
 /// </summary>
 public sealed record ServerCapabilities
 {
+    /// <summary>Version 0.9 capabilities.</summary>
     [JsonPropertyName("v0.9")]
     public required ServerCapabilitiesV09 V09 { get; init; }
 }
@@ -17,9 +18,11 @@ public sealed record ServerCapabilities
 /// <summary>Version-specific server capabilities.</summary>
 public sealed record ServerCapabilitiesV09
 {
+    /// <summary>Catalog identifiers that the server supports.</summary>
     [JsonPropertyName("supportedCatalogIds")]
     public string[]? SupportedCatalogIds { get; init; }
 
+    /// <summary>Whether the server accepts inline catalog definitions from the client.</summary>
     [JsonPropertyName("acceptsInlineCatalogs")]
     public bool AcceptsInlineCatalogs { get; init; }
 }
@@ -31,6 +34,7 @@ public sealed record ServerCapabilitiesV09
 /// </summary>
 public sealed record ClientCapabilities
 {
+    /// <summary>Version 0.9 capabilities.</summary>
     [JsonPropertyName("v0.9")]
     public required ClientCapabilitiesV09 V09 { get; init; }
 }
@@ -38,6 +42,7 @@ public sealed record ClientCapabilities
 /// <summary>Version-specific client capabilities.</summary>
 public sealed record ClientCapabilitiesV09
 {
+    /// <summary>Catalog identifiers that the client supports rendering.</summary>
     [JsonPropertyName("supportedCatalogIds")]
     public required string[] SupportedCatalogIds { get; init; }
 
@@ -57,6 +62,7 @@ public sealed record ClientCapabilitiesV09
 /// </summary>
 public sealed record ClientDataModel
 {
+    /// <summary>Protocol version string (always "v0.9").</summary>
     [JsonPropertyName("version")]
     public string Version { get; init; } = "v0.9";
 

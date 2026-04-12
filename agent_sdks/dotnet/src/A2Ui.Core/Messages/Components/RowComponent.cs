@@ -5,6 +5,7 @@ namespace A2Ui.Core.Messages;
 /// <summary>Horizontal layout container.</summary>
 public sealed record RowComponent : A2UiComponent
 {
+    /// <inheritdoc />
     [JsonIgnore]
     public override string Component { get; init; } = "Row";
 

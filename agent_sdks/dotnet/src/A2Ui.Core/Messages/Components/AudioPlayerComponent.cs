@@ -5,6 +5,7 @@ namespace A2Ui.Core.Messages;
 /// <summary>Audio player placeholder component.</summary>
 public sealed record AudioPlayerComponent : A2UiComponent
 {
+    /// <inheritdoc />
     [JsonIgnore]
     public override string Component { get; init; } = "AudioPlayer";
 

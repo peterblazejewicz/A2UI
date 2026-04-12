@@ -34,6 +34,12 @@ public sealed class AgentEventBridge : IDisposable
     private readonly int _capacity;
     private CancellationTokenSource? _cts;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AgentEventBridge"/> class.
+    /// </summary>
+    /// <param name="surfaceManager">Surface manager to dispatch A2UI messages to.</param>
+    /// <param name="loggerFactory">Optional logger factory for diagnostics.</param>
+    /// <param name="capacity">Bounded channel capacity for event buffering.</param>
     public AgentEventBridge(SurfaceManager surfaceManager, ILoggerFactory? loggerFactory = null, int capacity = 1024)
     {
         this._surfaceManager = surfaceManager;
@@ -55,14 +61,24 @@ public sealed class AgentEventBridge : IDisposable
         _ = Task.Run(() => this.ProcessLoopAsync(this._cts.Token));
     }
 
+    /// <summary>Stops the background processing loop by cancelling its token.</summary>
     public void Stop() => this._cts?.Cancel();
 
+    /// <summary>Stops the bridge by cancelling the processing loop.</summary>
     public void Dispose() => this.Stop();
 
     // Events surfaced to the app layer
+
+    /// <summary>Raised when the agent emits a text message content delta.</summary>
     public event EventHandler<string>? AgentTextDelta;
+
+    /// <summary>Raised when the agent run starts.</summary>
     public event EventHandler? RunStarted;
+
+    /// <summary>Raised when the agent run finishes successfully.</summary>
     public event EventHandler? RunFinished;
+
+    /// <summary>Raised when the agent run encounters an error.</summary>
     public event EventHandler<string>? RunError;
 
     /// <summary>

@@ -6,6 +6,7 @@
     <AssemblyName>A2Ui.Avalonia.Gallery</AssemblyName>
     <RootNamespace>A2Ui.Avalonia.Gallery</RootNamespace>
     <UseAvalonia>true</UseAvalonia>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

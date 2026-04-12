@@ -20,10 +20,18 @@ public sealed record ChildList
     /// <summary>Template for dynamic children from a data model array.</summary>
     public ChildTemplate? Template { get; init; }
 
+    /// <summary>Returns <see langword="true"/> when this instance uses a template for dynamic children.</summary>
     public bool IsTemplate => Template is not null;
 
+    /// <summary>Creates a <see cref="ChildList"/> from a static array of component IDs.</summary>
+    /// <param name="ids">Component identifiers of the children.</param>
+    /// <returns>A new <see cref="ChildList"/> with static IDs.</returns>
     public static ChildList FromIds(params string[] ids) => new() { Ids = ids };
 
+    /// <summary>Creates a <see cref="ChildList"/> from a template for data-driven children.</summary>
+    /// <param name="componentId">Component ID of the template to repeat.</param>
+    /// <param name="path">JSON Pointer path to the data model array.</param>
+    /// <returns>A new <see cref="ChildList"/> with a template definition.</returns>
     public static ChildList FromTemplate(string componentId, string path) =>
         new()
         {
@@ -36,9 +44,11 @@ public sealed record ChildList
 /// </summary>
 public sealed record ChildTemplate
 {
+    /// <summary>Component ID of the template to instantiate for each array element.</summary>
     [JsonPropertyName("componentId")]
     public required string ComponentId { get; init; }
 
+    /// <summary>JSON Pointer path to the data model array driving repetition.</summary>
     [JsonPropertyName("path")]
     public required string Path { get; init; }
 }

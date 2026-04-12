@@ -26,8 +26,10 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
 {
     private const string UpdatingTag = "__updating";
 
+    /// <inheritdoc />
     public string ComponentType => "TextField";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (TextFieldComponent)component;
@@ -68,6 +70,7 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
         return CheckHelper.ApplyChecks(tb, component, context);
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (TextFieldComponent)component;
@@ -111,8 +114,10 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
     private const string DateTimeTag = "__dateTime";
     private const string TimeOnlyTag = "__timeOnly";
 
+    /// <inheritdoc />
     public string ComponentType => "DateTimeInput";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (DateTimeInputComponent)component;
@@ -148,6 +153,7 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
         );
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (DateTimeInputComponent)component;
@@ -304,8 +310,10 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
 /// </summary>
 public sealed class ChoicePickerCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "ChoicePicker";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (ChoicePickerComponent)component;
@@ -321,6 +329,7 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
         return CheckHelper.ApplyChecks(control, component, context);
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (ChoicePickerComponent)component;
@@ -581,8 +590,10 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
 {
     private const string UpdatingTag = "__updating";
 
+    /// <inheritdoc />
     public string ComponentType => "CheckBox";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (CheckBoxComponent)component;
@@ -603,6 +614,7 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
         return CheckHelper.ApplyChecks(cb, component, context);
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (CheckBoxComponent)component;
@@ -632,8 +644,10 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
 /// <summary>A2UI "Slider" → Slider control.</summary>
 public sealed class SliderCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Slider";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (SliderComponent)component;
@@ -670,6 +684,7 @@ public sealed class SliderCatalogEntry : ICatalogEntry
         return CheckHelper.ApplyChecks(slider, component, context);
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (SliderComponent)component;

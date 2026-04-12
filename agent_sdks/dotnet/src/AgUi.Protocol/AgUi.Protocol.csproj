@@ -7,6 +7,7 @@
     <PackageId>AgUi.Protocol</PackageId>
     <Description>AG-UI event types and transport for .NET</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

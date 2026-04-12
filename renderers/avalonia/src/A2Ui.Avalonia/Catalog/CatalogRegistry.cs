@@ -15,6 +15,10 @@ public sealed class CatalogRegistry
     private readonly Dictionary<string, ICatalogEntry> _entries = new();
     private readonly ILogger<CatalogRegistry> _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CatalogRegistry"/> class.
+    /// </summary>
+    /// <param name="logger">Optional logger for registration and lookup diagnostics.</param>
     public CatalogRegistry(ILogger<CatalogRegistry>? logger = null)
     {
         this._logger = logger ?? NullLogger<CatalogRegistry>.Instance;
@@ -37,6 +41,10 @@ public sealed class CatalogRegistry
         return this.Register(new DelegateCatalogEntry(componentType, factory));
     }
 
+    /// <summary>Looks up a catalog entry by component type string.</summary>
+    /// <param name="componentType">The A2UI component type to look up.</param>
+    /// <param name="entry">The entry if found, or <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if the component type is registered.</returns>
     public bool TryGetEntry(string componentType, out ICatalogEntry? entry)
     {
         if (this._entries.TryGetValue(componentType, out entry))
@@ -49,6 +57,7 @@ public sealed class CatalogRegistry
         return false;
     }
 
+    /// <summary>Gets the set of registered component type strings.</summary>
     public IReadOnlyCollection<string> RegisteredTypes => this._entries.Keys;
 
     /// <summary>

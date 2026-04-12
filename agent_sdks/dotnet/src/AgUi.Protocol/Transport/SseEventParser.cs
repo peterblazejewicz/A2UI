@@ -17,6 +17,14 @@ public static class SseEventParser
         AllowTrailingCommas = true,
     };
 
+    /// <summary>
+    /// Parses an SSE stream, yielding deserialized <see cref="BaseEvent"/> instances.
+    /// Malformed events are logged and skipped (resilient parser).
+    /// </summary>
+    /// <param name="sseStream">The SSE byte stream to read from.</param>
+    /// <param name="logger">Optional logger for malformed-event warnings.</param>
+    /// <param name="cancellationToken">Cancellation token to stop parsing.</param>
+    /// <returns>An async sequence of parsed AG-UI events.</returns>
     public static async IAsyncEnumerable<BaseEvent> ParseAsync(
         Stream sseStream,
         ILogger? logger = null,

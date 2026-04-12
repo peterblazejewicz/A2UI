@@ -9,8 +9,10 @@ namespace A2Ui.Avalonia.Catalog;
 /// <summary>A2UI "Icon" → TextBlock with Unicode icon mapping.</summary>
 public sealed class IconCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Icon";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (IconComponent)component;
@@ -23,6 +25,7 @@ public sealed class IconCatalogEntry : ICatalogEntry
         };
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (IconComponent)component;
@@ -74,8 +77,10 @@ public sealed class IconCatalogEntry : ICatalogEntry
 /// <summary>A2UI "Divider" → Separator.</summary>
 public sealed class DividerCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Divider";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (DividerComponent)component;
@@ -84,6 +89,7 @@ public sealed class DividerCatalogEntry : ICatalogEntry
         return separator;
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (DividerComponent)component;
@@ -120,14 +126,17 @@ public sealed class DividerCatalogEntry : ICatalogEntry
 /// <summary>A2UI "Video" → placeholder (Avalonia has no native video control).</summary>
 public sealed class VideoCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Video";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (VideoComponent)component;
         return new TextBlock { Text = $"[Video: {context.Resolve(typed.Url) ?? "no url"}]", Classes = { "Caption" } };
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (VideoComponent)component;
@@ -144,8 +153,10 @@ public sealed class VideoCatalogEntry : ICatalogEntry
 /// <summary>A2UI "AudioPlayer" → placeholder (Avalonia has no native audio control).</summary>
 public sealed class AudioPlayerCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "AudioPlayer";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (AudioPlayerComponent)component;
@@ -156,6 +167,7 @@ public sealed class AudioPlayerCatalogEntry : ICatalogEntry
         };
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (AudioPlayerComponent)component;

@@ -11,8 +11,10 @@ namespace A2Ui.Avalonia.Catalog;
 /// </summary>
 public sealed class TextCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Text";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (TextComponent)component;
@@ -26,6 +28,7 @@ public sealed class TextCatalogEntry : ICatalogEntry
         return tb;
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (TextComponent)component;

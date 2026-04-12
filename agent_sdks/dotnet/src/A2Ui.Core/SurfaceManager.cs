@@ -17,16 +17,32 @@ public sealed class SurfaceManager
     private readonly object _lock = new();
     private readonly ILogger<SurfaceManager> _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SurfaceManager"/> class.
+    /// </summary>
+    /// <param name="loggerFactory">Optional logger factory for structured logging.</param>
     public SurfaceManager(ILoggerFactory? loggerFactory = null)
     {
         _logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<SurfaceManager>();
     }
 
+    /// <summary>Raised when a new surface is created.</summary>
     public event EventHandler<SurfaceCreatedEventArgs>? SurfaceCreated;
+
+    /// <summary>Raised when a surface is deleted.</summary>
     public event EventHandler<SurfaceDeletedEventArgs>? SurfaceDeleted;
+
+    /// <summary>Raised when components are updated on a surface.</summary>
     public event EventHandler<ComponentsUpdatedEventArgs>? ComponentsUpdated;
+
+    /// <summary>Raised when the data model is updated on a surface.</summary>
     public event EventHandler<DataModelUpdatedEventArgs>? DataModelUpdated;
 
+    /// <summary>
+    /// Processes a single A2UI message, updating internal state and raising events.
+    /// </summary>
+    /// <param name="message">The validated A2UI message to process.</param>
+    /// <exception cref="A2UiMessageValidationException">Thrown when the message is invalid.</exception>
     public void Process(A2UiMessage message)
     {
         string messageType = message.Operation?.ToString() ?? "(empty)";
@@ -189,6 +205,9 @@ public sealed class SurfaceManager
             SurfaceManagerLog.SurfacesCleared(_logger, cleared.Count);
     }
 
+    /// <summary>Gets the surface with the specified identifier, or <see langword="null"/> if not found.</summary>
+    /// <param name="surfaceId">The surface identifier to look up.</param>
+    /// <returns>The surface, or <see langword="null"/>.</returns>
     public Surface? GetSurface(string surfaceId)
     {
         lock (_lock)
@@ -250,18 +269,35 @@ public sealed class SurfaceManager
     }
 }
 
+/// <summary>
+/// Represents a live A2UI surface with its component tree and data model.
+/// </summary>
+/// <param name="surfaceId">Unique identifier for this surface.</param>
+/// <param name="catalogId">Catalog identifier defining the allowed component set.</param>
 public sealed class Surface(string surfaceId, string catalogId)
 {
+    /// <summary>Unique identifier for this surface.</summary>
     public string SurfaceId { get; } = surfaceId;
+
+    /// <summary>Catalog identifier defining the allowed component set.</summary>
     public string CatalogId { get; } = catalogId;
+
+    /// <summary>Per-surface data model store for two-way binding.</summary>
     public DataModel DataModel { get; } = new();
+
+    /// <summary>Optional theme configuration from the createSurface message.</summary>
     public JsonElement? Theme { get; internal set; }
+
+    /// <summary>Whether the client should send data model state back to the server.</summary>
     public bool SendDataModel { get; internal set; }
 
     private readonly Dictionary<string, A2UiComponent> _components = new();
 
+    /// <summary>Read-only view of the component tree keyed by component ID.</summary>
     public IReadOnlyDictionary<string, A2UiComponent> Components => _components;
 
+    /// <summary>Adds or replaces components in the surface's component tree.</summary>
+    /// <param name="components">Components to upsert.</param>
     public void UpdateComponents(A2UiComponent[] components)
     {
         foreach (var c in components)
@@ -308,12 +344,21 @@ public sealed class Surface(string surfaceId, string catalogId)
     }
 }
 
+/// <summary>Event arguments for the <see cref="SurfaceManager.SurfaceCreated"/> event.</summary>
+/// <param name="Surface">The newly created surface.</param>
 public sealed record SurfaceCreatedEventArgs(Surface Surface);
 
+/// <summary>Event arguments for the <see cref="SurfaceManager.SurfaceDeleted"/> event.</summary>
+/// <param name="Surface">The deleted surface.</param>
 public sealed record SurfaceDeletedEventArgs(Surface Surface);
 
+/// <summary>Event arguments for the <see cref="SurfaceManager.ComponentsUpdated"/> event.</summary>
+/// <param name="Surface">The surface whose components were updated.</param>
+/// <param name="Updated">The components that were added or replaced.</param>
 public sealed record ComponentsUpdatedEventArgs(Surface Surface, A2UiComponent[] Updated);
 
+/// <summary>Event arguments for the <see cref="SurfaceManager.DataModelUpdated"/> event.</summary>
+/// <param name="Surface">The surface whose data model was updated.</param>
 public sealed record DataModelUpdatedEventArgs(Surface Surface);
 
 internal static partial class SurfaceManagerLog

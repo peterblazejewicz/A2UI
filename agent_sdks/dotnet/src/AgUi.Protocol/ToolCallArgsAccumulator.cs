@@ -22,11 +22,17 @@ public sealed class ToolCallArgsAccumulator
     private readonly Dictionary<string, StringBuilder> _buffers = new();
     private readonly ILogger _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ToolCallArgsAccumulator"/> class.
+    /// </summary>
+    /// <param name="logger">Optional logger for accumulation diagnostics.</param>
     public ToolCallArgsAccumulator(ILogger<ToolCallArgsAccumulator>? logger = null)
     {
         _logger = logger ?? NullLogger<ToolCallArgsAccumulator>.Instance;
     }
 
+    /// <summary>Appends a TOOL_CALL_ARGS delta to the buffer for its tool call.</summary>
+    /// <param name="args">The tool call args event containing the delta fragment.</param>
     public void OnArgs(ToolCallArgsEvent args)
     {
         if (!_buffers.TryGetValue(args.ToolCallId, out var sb))
@@ -57,8 +63,12 @@ public sealed class ToolCallArgsAccumulator
         return string.Empty;
     }
 
+    /// <summary>Returns whether there are buffered argument fragments for the given tool call.</summary>
+    /// <param name="toolCallId">The tool call identifier to check.</param>
+    /// <returns><see langword="true"/> if fragments are pending for the tool call.</returns>
     public bool HasPending(string toolCallId) => _buffers.ContainsKey(toolCallId);
 
+    /// <summary>Clears all pending buffers, logging any orphaned (never-completed) entries.</summary>
     public void Clear()
     {
         foreach (var kvp in _buffers)

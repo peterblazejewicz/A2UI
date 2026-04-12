@@ -9,8 +9,10 @@ namespace A2Ui.Avalonia.Catalog;
 /// <summary>A2UI "Column" → vertical layout panel.</summary>
 public sealed class ColumnCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Column";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (ColumnComponent)component;
@@ -19,14 +21,17 @@ public sealed class ColumnCatalogEntry : ICatalogEntry
         return LayoutHelper.BuildLayout(Orientation.Vertical, children, typed.Justify, typed.Align, weights);
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false; // Panel type (StackPanel vs Grid) is selected at creation based on justify/weights — cannot be mutated in-place
 }
 
 /// <summary>A2UI "Row" → horizontal layout panel.</summary>
 public sealed class RowCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Row";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (RowComponent)component;
@@ -35,14 +40,17 @@ public sealed class RowCatalogEntry : ICatalogEntry
         return LayoutHelper.BuildLayout(Orientation.Horizontal, children, typed.Justify, typed.Align, weights);
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false; // Panel type (StackPanel vs Grid) is selected at creation based on justify/weights — cannot be mutated in-place
 }
 
 /// <summary>A2UI "Card" → Border with rounded corners and padding.</summary>
 public sealed class CardCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Card";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var border = new Border
@@ -72,6 +80,7 @@ public sealed class CardCatalogEntry : ICatalogEntry
         return border;
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         if (existing is not Border border)

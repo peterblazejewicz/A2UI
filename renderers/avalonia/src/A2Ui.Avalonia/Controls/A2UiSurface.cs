@@ -16,6 +16,7 @@ namespace A2Ui.Avalonia.Controls;
 /// </summary>
 public sealed class A2UiSurface : ContentControl
 {
+    /// <summary>Identifies the <see cref="Surface"/> styled property.</summary>
     public static readonly StyledProperty<Surface?> SurfaceProperty = AvaloniaProperty.Register<A2UiSurface, Surface?>(
         nameof(Surface)
     );
@@ -24,9 +25,16 @@ public sealed class A2UiSurface : ContentControl
     private bool _isRendering;
     private bool _renderPending;
 
+    /// <summary>Initializes a new instance with default catalog and function registries.</summary>
     public A2UiSurface()
         : this(CatalogRegistry.CreateDefault(), FunctionRegistry.CreateDefault()) { }
 
+    /// <summary>
+    /// Initializes a new instance with the specified catalog and function registries.
+    /// </summary>
+    /// <param name="catalog">Registry mapping component types to Avalonia control factories.</param>
+    /// <param name="functionRegistry">Optional function registry for DynamicValue evaluation.</param>
+    /// <param name="loggerFactory">Optional logger factory for diagnostics.</param>
     public A2UiSurface(
         CatalogRegistry catalog,
         IFunctionRegistry? functionRegistry = null,
@@ -47,13 +55,17 @@ public sealed class A2UiSurface : ContentControl
         );
     }
 
+    /// <summary>Gets or sets the A2UI surface to render.</summary>
     public Surface? Surface
     {
         get => this.GetValue(SurfaceProperty);
         set => this.SetValue(SurfaceProperty, value);
     }
 
+    /// <summary>Raised when a user interacts with a rendered component (e.g., button click).</summary>
     public event EventHandler<UserActionEventArgs>? UserActionFired;
+
+    /// <summary>Raised when the data model is mutated via two-way binding.</summary>
     public event EventHandler<DataModelChangedEventArgs>? DataModelChanged;
 
     /// <summary>
@@ -148,6 +160,7 @@ public sealed class A2UiSurface : ContentControl
         }
     }
 
+    /// <inheritdoc />
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);

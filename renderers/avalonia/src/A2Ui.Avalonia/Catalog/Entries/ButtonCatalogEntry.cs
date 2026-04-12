@@ -4,10 +4,13 @@ using Avalonia.Controls;
 
 namespace A2Ui.Avalonia.Catalog;
 
+/// <summary>A2UI "Button" → Avalonia Button with variant styling and action handling.</summary>
 public sealed class ButtonCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Button";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (ButtonComponent)component;
@@ -50,6 +53,7 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
         return btn;
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (ButtonComponent)component;

@@ -11,8 +11,10 @@ namespace A2Ui.Avalonia.Catalog;
 /// <summary>A2UI "List" → ScrollViewer + StackPanel (scrollable list).</summary>
 public sealed class ListCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "List";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (ListComponent)component;
@@ -27,6 +29,7 @@ public sealed class ListCatalogEntry : ICatalogEntry
         return new ScrollViewer { Content = panel };
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (ListComponent)component;
@@ -54,8 +57,10 @@ public sealed class ListCatalogEntry : ICatalogEntry
 /// <summary>A2UI "Tabs" → TabControl.</summary>
 public sealed class TabsCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Tabs";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (TabsComponent)component;
@@ -72,6 +77,7 @@ public sealed class TabsCatalogEntry : ICatalogEntry
         return tc;
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (TabsComponent)component;
@@ -106,8 +112,10 @@ public sealed class TabsCatalogEntry : ICatalogEntry
 /// </summary>
 public sealed class ModalCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Modal";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (ModalComponent)component;
@@ -190,5 +198,6 @@ public sealed class ModalCatalogEntry : ICatalogEntry
         return container;
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false; // Popup.PlacementTarget goes stale if trigger is recreated; lifecycle handlers are not idempotent
 }

@@ -5,6 +5,7 @@ namespace A2Ui.Core.Messages;
 /// <summary>Data table component (extension).</summary>
 public sealed record TableComponent : A2UiComponent
 {
+    /// <inheritdoc />
     [JsonIgnore]
     public override string Component { get; init; } = "Table";
 

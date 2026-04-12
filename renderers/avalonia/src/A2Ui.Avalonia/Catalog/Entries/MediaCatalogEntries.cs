@@ -15,13 +15,19 @@ public sealed class ImageCatalogEntry : ICatalogEntry
 {
     private readonly ILogger<ImageCatalogEntry> _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ImageCatalogEntry"/> class.
+    /// </summary>
+    /// <param name="logger">Optional logger for image download diagnostics.</param>
     public ImageCatalogEntry(ILogger<ImageCatalogEntry>? logger = null)
     {
         this._logger = logger ?? NullLogger<ImageCatalogEntry>.Instance;
     }
 
+    /// <inheritdoc />
     public string ComponentType => "Image";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (ImageComponent)component;
@@ -43,6 +49,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
         return img;
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (ImageComponent)component;
@@ -123,8 +130,10 @@ public sealed class ImageCatalogEntry : ICatalogEntry
 /// <summary>A2UI "Table" → Avalonia DataGrid (extension, not in v0.9 spec).</summary>
 public sealed class TableCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Table";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (TableComponent)component;
@@ -139,6 +148,7 @@ public sealed class TableCatalogEntry : ICatalogEntry
         return grid;
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var typed = (TableComponent)component;
@@ -167,8 +177,10 @@ public sealed class TableCatalogEntry : ICatalogEntry
 /// <summary>A2UI "Surface" → root container (extension, not in v0.9 spec).</summary>
 public sealed class SurfaceCatalogEntry : ICatalogEntry
 {
+    /// <inheritdoc />
     public string ComponentType => "Surface";
 
+    /// <inheritdoc />
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var panel = new StackPanel { Spacing = 12 };
@@ -180,6 +192,7 @@ public sealed class SurfaceCatalogEntry : ICatalogEntry
         return panel;
     }
 
+    /// <inheritdoc />
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         if (existing is not StackPanel panel)

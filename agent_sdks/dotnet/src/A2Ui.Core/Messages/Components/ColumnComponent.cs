@@ -5,6 +5,7 @@ namespace A2Ui.Core.Messages;
 /// <summary>Vertical layout container.</summary>
 public sealed record ColumnComponent : A2UiComponent
 {
+    /// <inheritdoc />
     [JsonIgnore]
     public override string Component { get; init; } = "Column";
 

@@ -9,12 +9,15 @@ namespace A2Ui.Core.Messages;
 /// </summary>
 public sealed record ClientToServerMessage
 {
+    /// <summary>Protocol version string (always "v0.9").</summary>
     [JsonPropertyName("version")]
     public string Version { get; init; } = "v0.9";
 
+    /// <summary>User action payload, mutually exclusive with <see cref="Error"/>.</summary>
     [JsonPropertyName("action")]
     public ClientAction? Action { get; init; }
 
+    /// <summary>Client error payload, mutually exclusive with <see cref="Action"/>.</summary>
     [JsonPropertyName("error")]
     public ClientError? Error { get; init; }
 
@@ -50,18 +53,23 @@ public sealed record ClientToServerMessage
 /// </summary>
 public sealed record ClientAction
 {
+    /// <summary>Action event name matching the component's action definition.</summary>
     [JsonPropertyName("name")]
     public required string Name { get; init; }
 
+    /// <summary>Identifier of the surface containing the source component.</summary>
     [JsonPropertyName("surfaceId")]
     public required string SurfaceId { get; init; }
 
+    /// <summary>Component ID that triggered this action.</summary>
     [JsonPropertyName("sourceComponentId")]
     public required string SourceComponentId { get; init; }
 
+    /// <summary>ISO 8601 timestamp of when the action was triggered.</summary>
     [JsonPropertyName("timestamp")]
     public required string Timestamp { get; init; }
 
+    /// <summary>Action context data as a JSON element.</summary>
     [JsonPropertyName("context")]
     public required JsonElement Context { get; init; }
 }
@@ -71,12 +79,15 @@ public sealed record ClientAction
 /// </summary>
 public sealed record ClientError
 {
+    /// <summary>Machine-readable error code (e.g., "VALIDATION_FAILED").</summary>
     [JsonPropertyName("code")]
     public required string Code { get; init; }
 
+    /// <summary>Identifier of the surface where the error occurred.</summary>
     [JsonPropertyName("surfaceId")]
     public required string SurfaceId { get; init; }
 
+    /// <summary>Human-readable error description.</summary>
     [JsonPropertyName("message")]
     public required string Message { get; init; }
 

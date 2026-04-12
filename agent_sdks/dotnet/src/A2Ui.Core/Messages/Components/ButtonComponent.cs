@@ -5,6 +5,7 @@ namespace A2Ui.Core.Messages;
 /// <summary>Clickable button component.</summary>
 public sealed record ButtonComponent : A2UiComponent
 {
+    /// <inheritdoc />
     [JsonIgnore]
     public override string Component { get; init; } = "Button";
 

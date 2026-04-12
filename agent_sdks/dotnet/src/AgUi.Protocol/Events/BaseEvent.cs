@@ -38,9 +38,11 @@ namespace AgUi.Protocol.Events;
 [JsonDerivedType(typeof(CustomEvent), "CUSTOM")]
 public abstract record BaseEvent
 {
+    /// <summary>Optional Unix epoch timestamp in milliseconds when the event was emitted.</summary>
     [JsonPropertyName("timestamp")]
     public long? TimestampMs { get; init; }
 
+    /// <summary>Optional raw event passthrough from the underlying transport.</summary>
     [JsonPropertyName("rawEvent")]
     public JsonElement? RawEvent { get; init; }
 }
