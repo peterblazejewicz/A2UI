@@ -3,7 +3,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -24,7 +24,7 @@ public sealed class DateTimeInputCatalogEntryTests
         };
 
         var control = entry.Create(component, dm, ctx);
-        control.Should().BeOfType<CalendarDatePicker>();
+        Assert.IsType<CalendarDatePicker>(control);
     }
 
     [AvaloniaFact]
@@ -43,7 +43,7 @@ public sealed class DateTimeInputCatalogEntryTests
         };
 
         var control = entry.Create(component, dm, ctx);
-        control.Should().BeOfType<CalendarDatePicker>();
+        Assert.IsType<CalendarDatePicker>(control);
     }
 
     [AvaloniaFact]
@@ -62,11 +62,11 @@ public sealed class DateTimeInputCatalogEntryTests
         };
 
         var control = entry.Create(component, dm, ctx);
-        control.Should().BeOfType<StackPanel>();
+        Assert.IsType<StackPanel>(control);
 
         var panel = (StackPanel)control;
-        panel.Children.OfType<CalendarDatePicker>().Should().ContainSingle();
-        panel.Children.OfType<TimePicker>().Should().ContainSingle();
+        Assert.Single(panel.Children.OfType<CalendarDatePicker>());
+        Assert.Single(panel.Children.OfType<TimePicker>());
     }
 
     [AvaloniaFact]
@@ -85,7 +85,7 @@ public sealed class DateTimeInputCatalogEntryTests
         };
 
         var control = entry.Create(component, dm, ctx);
-        control.Should().BeOfType<TimePicker>();
+        Assert.IsType<TimePicker>(control);
     }
 
     [AvaloniaFact]
@@ -109,9 +109,9 @@ public sealed class DateTimeInputCatalogEntryTests
         var datePicker = panel.Children.OfType<CalendarDatePicker>().Single();
         var timePicker = panel.Children.OfType<TimePicker>().Single();
 
-        datePicker.SelectedDate.Should().NotBeNull();
-        datePicker.SelectedDate!.Value.Date.Should().Be(new DateTime(2026, 4, 10));
-        timePicker.SelectedTime.Should().Be(new TimeSpan(19, 30, 0));
+        Assert.NotNull(datePicker.SelectedDate);
+        Assert.Equal(new DateTime(2026, 4, 10), datePicker.SelectedDate!.Value.Date);
+        Assert.Equal(new TimeSpan(19, 30, 0), timePicker.SelectedTime);
     }
 
     [AvaloniaFact]
@@ -138,9 +138,9 @@ public sealed class DateTimeInputCatalogEntryTests
         };
 
         bool updated = entry.Update(control, comp2, dm, ctx);
-        updated.Should().BeTrue();
+        Assert.True(updated);
 
         var picker = (CalendarDatePicker)control;
-        picker.SelectedDate!.Value.Date.Should().Be(new DateTime(2026, 12, 25));
+        Assert.Equal(new DateTime(2026, 12, 25), picker.SelectedDate!.Value.Date);
     }
 }

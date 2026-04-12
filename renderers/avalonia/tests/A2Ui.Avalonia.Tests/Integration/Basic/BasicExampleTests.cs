@@ -1,6 +1,5 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
 using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Basic;
@@ -22,26 +21,26 @@ public sealed class BasicExampleTests
         RenderResult result = GalleryTestHelper.ReplayExample("basic/01_flight-status.json");
 
         // Root is a Card → Border
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
         var border = (Border)result.RootControl;
-        border.CornerRadius.Should().Be(new global::Avalonia.CornerRadius(8));
+        Assert.Equal(new global::Avalonia.CornerRadius(8), border.CornerRadius);
 
         // Data-bound text values
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "OS 87");
-        texts.Should().Contain(tb => tb.Text == "Vienna");
-        texts.Should().Contain(tb => tb.Text == "New York");
-        texts.Should().Contain(tb => tb.Text == "On Time");
+        Assert.Contains(texts, tb => tb.Text == "OS 87");
+        Assert.Contains(texts, tb => tb.Text == "Vienna");
+        Assert.Contains(texts, tb => tb.Text == "New York");
+        Assert.Contains(texts, tb => tb.Text == "On Time");
 
         // Literal text
-        texts.Should().Contain(tb => tb.Text == "Departs");
-        texts.Should().Contain(tb => tb.Text == "Arrives");
+        Assert.Contains(texts, tb => tb.Text == "Departs");
+        Assert.Contains(texts, tb => tb.Text == "Arrives");
 
         // Separator for Divider
-        GalleryTestHelper.FindAll<Separator>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Separator>(result.RootControl));
 
         // No interactive actions
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -53,25 +52,25 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/02_email-compose.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "FROM");
-        texts.Should().Contain(tb => tb.Text == "alex@acme.com");
-        texts.Should().Contain(tb => tb.Text == "jordan@acme.com");
-        texts.Should().Contain(tb => tb.Text == "Q4 Revenue Forecast");
-        texts.Should().Contain(tb => tb.Text == "Hi Jordan,");
-        texts.Should().Contain(tb => tb.Text == "Alex");
+        Assert.Contains(texts, tb => tb.Text == "FROM");
+        Assert.Contains(texts, tb => tb.Text == "alex@acme.com");
+        Assert.Contains(texts, tb => tb.Text == "jordan@acme.com");
+        Assert.Contains(texts, tb => tb.Text == "Q4 Revenue Forecast");
+        Assert.Contains(texts, tb => tb.Text == "Hi Jordan,");
+        Assert.Contains(texts, tb => tb.Text == "Alex");
 
         // Buttons
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().HaveCountGreaterThanOrEqualTo(2);
+        Assert.True(buttons.Count >= 2);
 
         // Click send button
         Button? sendBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Send email");
-        sendBtn.Should().NotBeNull();
-        GalleryTestHelper.ClickButton(sendBtn!);
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "send");
+        Assert.NotNull(sendBtn);
+        GalleryTestHelper.ClickButton(sendBtn);
+        Assert.Single(result.ActionLog, a => a.EventName == "send");
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -84,16 +83,16 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/03_calendar-day.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
         // Literal text from buttons
-        texts.Should().Contain(tb => tb.Text == "Add to calendar");
-        texts.Should().Contain(tb => tb.Text == "Discard");
+        Assert.Contains(texts, tb => tb.Text == "Add to calendar");
+        Assert.Contains(texts, tb => tb.Text == "Discard");
 
         // Buttons with actions
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().HaveCountGreaterThanOrEqualTo(2);
+        Assert.True(buttons.Count >= 2);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -106,13 +105,13 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/04_weather-current.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Austin, TX");
-        texts.Should().Contain(tb => tb.Text == "Clear skies with light breeze");
+        Assert.Contains(texts, tb => tb.Text == "Austin, TX");
+        Assert.Contains(texts, tb => tb.Text == "Clear skies with light breeze");
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -124,21 +123,21 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/05_product-card.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Wireless Headphones Pro");
-        texts.Should().Contain(tb => tb.Text == "\u2605\u2605\u2605\u2605\u2605");
+        Assert.Contains(texts, tb => tb.Text == "Wireless Headphones Pro");
+        Assert.Contains(texts, tb => tb.Text == "\u2605\u2605\u2605\u2605\u2605");
 
         // Image present
-        GalleryTestHelper.FindAll<Image>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Image>(result.RootControl));
 
         // Add to Cart button
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         Button? cartBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Add to Cart");
-        cartBtn.Should().NotBeNull();
-        GalleryTestHelper.ClickButton(cartBtn!);
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "addToCart");
+        Assert.NotNull(cartBtn);
+        GalleryTestHelper.ClickButton(cartBtn);
+        Assert.Single(result.ActionLog, a => a.EventName == "addToCart");
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -150,29 +149,29 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/06_music-player.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Blinding Lights");
-        texts.Should().Contain(tb => tb.Text == "The Weeknd");
-        texts.Should().Contain(tb => tb.Text == "1:48");
-        texts.Should().Contain(tb => tb.Text == "4:22");
+        Assert.Contains(texts, tb => tb.Text == "Blinding Lights");
+        Assert.Contains(texts, tb => tb.Text == "The Weeknd");
+        Assert.Contains(texts, tb => tb.Text == "1:48");
+        Assert.Contains(texts, tb => tb.Text == "4:22");
 
         // Image for album art
-        GalleryTestHelper.FindAll<Image>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Image>(result.RootControl));
 
         // Slider for progress
         Slider? slider = GalleryTestHelper.FindFirst<Slider>(result.RootControl);
-        slider.Should().NotBeNull();
-        slider!.Maximum.Should().Be(1);
+        Assert.NotNull(slider);
+        Assert.Equal(1, slider.Maximum);
 
         // Three buttons: prev, play/pause, next
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().HaveCountGreaterThanOrEqualTo(3);
+        Assert.True(buttons.Count >= 3);
 
         // Click play button
         GalleryTestHelper.ClickButton(buttons[1]);
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "playPause");
+        Assert.Single(result.ActionLog, a => a.EventName == "playPause");
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -184,20 +183,20 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/07_task-card.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Review pull request");
+        Assert.Contains(texts, tb => tb.Text == "Review pull request");
 
         // CheckBox
         CheckBox? cb = GalleryTestHelper.FindFirst<CheckBox>(result.RootControl);
-        cb.Should().NotBeNull();
+        Assert.NotNull(cb);
 
         // DateTimeInput → CalendarDatePicker
         CalendarDatePicker? picker = GalleryTestHelper.FindFirst<CalendarDatePicker>(result.RootControl);
-        picker.Should().NotBeNull();
+        Assert.NotNull(picker);
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -209,24 +208,24 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/08_user-profile.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Sarah Chen");
-        texts.Should().Contain(tb => tb.Text == "@sarahchen");
+        Assert.Contains(texts, tb => tb.Text == "Sarah Chen");
+        Assert.Contains(texts, tb => tb.Text == "@sarahchen");
 
         // Literal text
-        texts.Should().Contain(tb => tb.Text == "Followers");
-        texts.Should().Contain(tb => tb.Text == "Following");
+        Assert.Contains(texts, tb => tb.Text == "Followers");
+        Assert.Contains(texts, tb => tb.Text == "Following");
 
         // Image
-        GalleryTestHelper.FindAll<Image>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Image>(result.RootControl));
 
         // Follow button
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().NotBeEmpty();
+        Assert.NotEmpty(buttons);
         GalleryTestHelper.ClickButton(buttons[0]);
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "follow");
+        Assert.Single(result.ActionLog, a => a.EventName == "follow");
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -238,29 +237,29 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/09_login-form.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Welcome back");
-        texts.Should().Contain(tb => tb.Text == "Sign in to your account");
-        texts.Should().Contain(tb => tb.Text == "Don't have an account?");
+        Assert.Contains(texts, tb => tb.Text == "Welcome back");
+        Assert.Contains(texts, tb => tb.Text == "Sign in to your account");
+        Assert.Contains(texts, tb => tb.Text == "Don't have an account?");
 
         // TextFields for email and password
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
-        textBoxes.Should().HaveCountGreaterThanOrEqualTo(2);
+        Assert.True(textBoxes.Count >= 2);
 
         // Divider
-        GalleryTestHelper.FindAll<Separator>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Separator>(result.RootControl));
 
         // Buttons: Sign in and Sign up
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().HaveCountGreaterThanOrEqualTo(2);
+        Assert.True(buttons.Count >= 2);
 
         // Click signup link button
         Button? signupBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Sign up");
-        signupBtn.Should().NotBeNull();
-        GalleryTestHelper.ClickButton(signupBtn!);
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "signup");
+        Assert.NotNull(signupBtn);
+        GalleryTestHelper.ClickButton(signupBtn);
+        Assert.Single(result.ActionLog, a => a.EventName == "signup");
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -272,22 +271,22 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/10_notification-permission.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Enable notification");
-        texts.Should().Contain(tb => tb.Text == "Get alerts for order status changes");
+        Assert.Contains(texts, tb => tb.Text == "Enable notification");
+        Assert.Contains(texts, tb => tb.Text == "Get alerts for order status changes");
         // Icon check → ✔
-        texts.Should().Contain(tb => tb.Text == "\u2714");
+        Assert.Contains(texts, tb => tb.Text == "\u2714");
 
         // Buttons: Yes and No
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().HaveCountGreaterThanOrEqualTo(2);
+        Assert.True(buttons.Count >= 2);
 
         Button? yesBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Yes");
-        yesBtn.Should().NotBeNull();
-        GalleryTestHelper.ClickButton(yesBtn!);
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "accept");
+        Assert.NotNull(yesBtn);
+        GalleryTestHelper.ClickButton(yesBtn);
+        Assert.Single(result.ActionLog, a => a.EventName == "accept");
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -299,25 +298,25 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/11_purchase-complete.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Purchase Complete");
-        texts.Should().Contain(tb => tb.Text == "Wireless Headphones Pro");
-        texts.Should().Contain(tb => tb.Text == "Sold by:");
-        texts.Should().Contain(tb => tb.Text == "TechStore Official");
+        Assert.Contains(texts, tb => tb.Text == "Purchase Complete");
+        Assert.Contains(texts, tb => tb.Text == "Wireless Headphones Pro");
+        Assert.Contains(texts, tb => tb.Text == "Sold by:");
+        Assert.Contains(texts, tb => tb.Text == "TechStore Official");
 
         // Image
-        GalleryTestHelper.FindAll<Image>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Image>(result.RootControl));
 
         // Button: View Order Details
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         Button? viewBtn = buttons.FirstOrDefault(b =>
             GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "View Order Details"
         );
-        viewBtn.Should().NotBeNull();
-        GalleryTestHelper.ClickButton(viewBtn!);
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "view_details");
+        Assert.NotNull(viewBtn);
+        GalleryTestHelper.ClickButton(viewBtn);
+        Assert.Single(result.ActionLog, a => a.EventName == "view_details");
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -330,15 +329,15 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/12_chat-message.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "project-updates");
+        Assert.Contains(texts, tb => tb.Text == "project-updates");
 
         // Divider
-        GalleryTestHelper.FindAll<Separator>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Separator>(result.RootControl));
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -351,17 +350,17 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/13_coffee-order.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Sunrise Coffee");
-        texts.Should().Contain(tb => tb.Text == "Subtotal");
-        texts.Should().Contain(tb => tb.Text == "Tax");
-        texts.Should().Contain(tb => tb.Text == "Total");
+        Assert.Contains(texts, tb => tb.Text == "Sunrise Coffee");
+        Assert.Contains(texts, tb => tb.Text == "Subtotal");
+        Assert.Contains(texts, tb => tb.Text == "Tax");
+        Assert.Contains(texts, tb => tb.Text == "Total");
 
         // Buttons: Purchase and Add to cart
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().HaveCountGreaterThanOrEqualTo(2);
+        Assert.True(buttons.Count >= 2);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -373,22 +372,22 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/14_sports-player.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Marcus Johnson");
-        texts.Should().Contain(tb => tb.Text == "#23");
-        texts.Should().Contain(tb => tb.Text == "LA Lakers");
-        texts.Should().Contain(tb => tb.Text == "28.4");
-        texts.Should().Contain(tb => tb.Text == "PPG");
+        Assert.Contains(texts, tb => tb.Text == "Marcus Johnson");
+        Assert.Contains(texts, tb => tb.Text == "#23");
+        Assert.Contains(texts, tb => tb.Text == "LA Lakers");
+        Assert.Contains(texts, tb => tb.Text == "28.4");
+        Assert.Contains(texts, tb => tb.Text == "PPG");
 
         // Image
-        GalleryTestHelper.FindAll<Image>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Image>(result.RootControl));
 
         // Divider
-        GalleryTestHelper.FindAll<Separator>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Separator>(result.RootControl));
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -400,24 +399,24 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/15_account-balance.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Primary Checking");
-        texts.Should().Contain(tb => tb.Text == "Updated just now");
-        texts.Should().Contain(tb => tb.Text == "Transfer");
-        texts.Should().Contain(tb => tb.Text == "Pay Bill");
+        Assert.Contains(texts, tb => tb.Text == "Primary Checking");
+        Assert.Contains(texts, tb => tb.Text == "Updated just now");
+        Assert.Contains(texts, tb => tb.Text == "Transfer");
+        Assert.Contains(texts, tb => tb.Text == "Pay Bill");
 
         // Buttons
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().HaveCountGreaterThanOrEqualTo(2);
+        Assert.True(buttons.Count >= 2);
 
         Button? transferBtn = buttons.FirstOrDefault(b =>
             GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Transfer"
         );
-        transferBtn.Should().NotBeNull();
-        GalleryTestHelper.ClickButton(transferBtn!);
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "transfer");
+        Assert.NotNull(transferBtn);
+        GalleryTestHelper.ClickButton(transferBtn);
+        Assert.Single(result.ActionLog, a => a.EventName == "transfer");
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -429,20 +428,20 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/16_workout-summary.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Workout Complete");
+        Assert.Contains(texts, tb => tb.Text == "Workout Complete");
         // "Morning Run" is in data model as /workoutType but no component binds to it
-        texts.Should().Contain(tb => tb.Text == "32:15");
-        texts.Should().Contain(tb => tb.Text == "Duration");
-        texts.Should().Contain(tb => tb.Text == "Calories");
-        texts.Should().Contain(tb => tb.Text == "Distance");
+        Assert.Contains(texts, tb => tb.Text == "32:15");
+        Assert.Contains(texts, tb => tb.Text == "Duration");
+        Assert.Contains(texts, tb => tb.Text == "Calories");
+        Assert.Contains(texts, tb => tb.Text == "Distance");
 
         // Divider
-        GalleryTestHelper.FindAll<Separator>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Separator>(result.RootControl));
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -454,21 +453,21 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/17_event-detail.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Product Launch Meeting");
-        texts.Should().Contain(tb => tb.Text == "Accept");
-        texts.Should().Contain(tb => tb.Text == "Decline");
+        Assert.Contains(texts, tb => tb.Text == "Product Launch Meeting");
+        Assert.Contains(texts, tb => tb.Text == "Accept");
+        Assert.Contains(texts, tb => tb.Text == "Decline");
 
         // Buttons
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().HaveCountGreaterThanOrEqualTo(2);
+        Assert.True(buttons.Count >= 2);
 
         Button? acceptBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Accept");
-        acceptBtn.Should().NotBeNull();
-        GalleryTestHelper.ClickButton(acceptBtn!);
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "accept");
+        Assert.NotNull(acceptBtn);
+        GalleryTestHelper.ClickButton(acceptBtn);
+        Assert.Single(result.ActionLog, a => a.EventName == "accept");
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -481,15 +480,15 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/18_track-list.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Focus Flow");
+        Assert.Contains(texts, tb => tb.Text == "Focus Flow");
 
         // Divider
-        GalleryTestHelper.FindAll<Separator>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Separator>(result.RootControl));
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -501,21 +500,21 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/19_software-purchase.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Design Suite Pro");
-        texts.Should().Contain(tb => tb.Text == "Purchase License");
-        texts.Should().Contain(tb => tb.Text == "Number of seats");
-        texts.Should().Contain(tb => tb.Text == "10 seats");
+        Assert.Contains(texts, tb => tb.Text == "Design Suite Pro");
+        Assert.Contains(texts, tb => tb.Text == "Purchase License");
+        Assert.Contains(texts, tb => tb.Text == "Number of seats");
+        Assert.Contains(texts, tb => tb.Text == "10 seats");
 
         // ChoicePicker → ComboBox
         ComboBox? combo = GalleryTestHelper.FindFirst<ComboBox>(result.RootControl);
-        combo.Should().NotBeNull();
+        Assert.NotNull(combo);
 
         // Buttons: Confirm and Cancel
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().HaveCountGreaterThanOrEqualTo(2);
+        Assert.True(buttons.Count >= 2);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -527,17 +526,17 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/20_restaurant-card.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "The Italian Kitchen");
-        texts.Should().Contain(tb => tb.Text == "$$$");
-        texts.Should().Contain(tb => tb.Text == "Italian \u2022 Pasta \u2022 Wine Bar");
+        Assert.Contains(texts, tb => tb.Text == "The Italian Kitchen");
+        Assert.Contains(texts, tb => tb.Text == "$$$");
+        Assert.Contains(texts, tb => tb.Text == "Italian \u2022 Pasta \u2022 Wine Bar");
 
         // Image
-        GalleryTestHelper.FindAll<Image>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Image>(result.RootControl));
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -550,14 +549,14 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/21_shipping-status.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Package Status");
-        texts.Should().Contain(tb => tb.Text == "Tracking: 1Z999AA10123456784");
-        texts.Should().Contain(tb => tb.Text == "Estimated delivery: Today by 8 PM");
+        Assert.Contains(texts, tb => tb.Text == "Package Status");
+        Assert.Contains(texts, tb => tb.Text == "Tracking: 1Z999AA10123456784");
+        Assert.Contains(texts, tb => tb.Text == "Estimated delivery: Today by 8 PM");
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -569,20 +568,19 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/22_credit-card.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "VISA");
-        texts
-            .Should()
-            .Contain(tb =>
-                tb.Text == "\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 4242"
-            );
-        texts.Should().Contain(tb => tb.Text == "SARAH JOHNSON");
-        texts.Should().Contain(tb => tb.Text == "CARD HOLDER");
-        texts.Should().Contain(tb => tb.Text == "EXPIRES");
+        Assert.Contains(texts, tb => tb.Text == "VISA");
+        Assert.Contains(
+            texts,
+            tb => tb.Text == "\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 4242"
+        );
+        Assert.Contains(texts, tb => tb.Text == "SARAH JOHNSON");
+        Assert.Contains(texts, tb => tb.Text == "CARD HOLDER");
+        Assert.Contains(texts, tb => tb.Text == "EXPIRES");
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -594,17 +592,17 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/23_step-counter.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Today's Steps");
-        texts.Should().Contain(tb => tb.Text == "Distance");
-        texts.Should().Contain(tb => tb.Text == "Calories");
+        Assert.Contains(texts, tb => tb.Text == "Today's Steps");
+        Assert.Contains(texts, tb => tb.Text == "Distance");
+        Assert.Contains(texts, tb => tb.Text == "Calories");
 
         // Divider
-        GalleryTestHelper.FindAll<Separator>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Separator>(result.RootControl));
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -618,21 +616,21 @@ public sealed class BasicExampleTests
         RenderResult result = GalleryTestHelper.ReplayExample("basic/24_recipe-card.json");
 
         // Root is a Card → Border
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         // Card wraps a TabControl directly — GetChildren doesn't traverse TabItem content,
         // so we verify structure at the TabControl level
         TabControl? tabs = GalleryTestHelper.FindFirst<TabControl>(result.RootControl);
-        tabs.Should().NotBeNull();
-        tabs!.Items.Should().HaveCount(3);
+        Assert.NotNull(tabs);
+        Assert.Equal(3, tabs.Items.Count);
 
         // Verify tab headers
         var tabItems = tabs.Items.Cast<TabItem>().ToList();
-        tabItems[0].Header.Should().Be("Overview");
-        tabItems[1].Header.Should().Be("Ingredients");
-        tabItems[2].Header.Should().Be("Instructions");
+        Assert.Equal("Overview", tabItems[0].Header);
+        Assert.Equal("Ingredients", tabItems[1].Header);
+        Assert.Equal("Instructions", tabItems[2].Header);
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -644,27 +642,27 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/25_contact-card.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "David Park");
-        texts.Should().Contain(tb => tb.Text == "Engineering Manager");
-        texts.Should().Contain(tb => tb.Text == "+1 (555) 234-5678");
-        texts.Should().Contain(tb => tb.Text == "Call");
-        texts.Should().Contain(tb => tb.Text == "Message");
+        Assert.Contains(texts, tb => tb.Text == "David Park");
+        Assert.Contains(texts, tb => tb.Text == "Engineering Manager");
+        Assert.Contains(texts, tb => tb.Text == "+1 (555) 234-5678");
+        Assert.Contains(texts, tb => tb.Text == "Call");
+        Assert.Contains(texts, tb => tb.Text == "Message");
 
         // Image
-        GalleryTestHelper.FindAll<Image>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Image>(result.RootControl));
 
         // Divider
-        GalleryTestHelper.FindAll<Separator>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Separator>(result.RootControl));
 
         // Click Call button
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         Button? callBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Call");
-        callBtn.Should().NotBeNull();
-        GalleryTestHelper.ClickButton(callBtn!);
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "call");
+        Assert.NotNull(callBtn);
+        GalleryTestHelper.ClickButton(callBtn);
+        Assert.Single(result.ActionLog, a => a.EventName == "call");
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -676,20 +674,20 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/26_podcast-episode.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Tech Talk Daily");
-        texts.Should().Contain(tb => tb.Text == "The Future of AI in Product Design");
-        texts.Should().Contain(tb => tb.Text == "45 min");
+        Assert.Contains(texts, tb => tb.Text == "Tech Talk Daily");
+        Assert.Contains(texts, tb => tb.Text == "The Future of AI in Product Design");
+        Assert.Contains(texts, tb => tb.Text == "45 min");
 
         // Image
-        GalleryTestHelper.FindAll<Image>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Image>(result.RootControl));
 
         // AudioPlayer renders as TextBlock placeholder
-        texts.Should().Contain(tb => tb.Text != null && tb.Text.Contains("[AudioPlayer:"));
+        Assert.Contains(texts, tb => tb.Text?.Contains("[AudioPlayer:") == true);
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -701,12 +699,12 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/27_stats-card.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Monthly Revenue");
+        Assert.Contains(texts, tb => tb.Text == "Monthly Revenue");
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -718,17 +716,17 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/28_countdown-timer.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Product Launch");
-        texts.Should().Contain(tb => tb.Text == "14");
-        texts.Should().Contain(tb => tb.Text == "08");
-        texts.Should().Contain(tb => tb.Text == "Days");
-        texts.Should().Contain(tb => tb.Text == "Hours");
-        texts.Should().Contain(tb => tb.Text == "Minutes");
+        Assert.Contains(texts, tb => tb.Text == "Product Launch");
+        Assert.Contains(texts, tb => tb.Text == "14");
+        Assert.Contains(texts, tb => tb.Text == "08");
+        Assert.Contains(texts, tb => tb.Text == "Days");
+        Assert.Contains(texts, tb => tb.Text == "Hours");
+        Assert.Contains(texts, tb => tb.Text == "Minutes");
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -740,28 +738,28 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/29_movie-card.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Interstellar");
-        texts.Should().Contain(tb => tb.Text == "(2014)");
-        texts.Should().Contain(tb => tb.Text == "Sci-Fi \u2022 Adventure \u2022 Drama");
-        texts.Should().Contain(tb => tb.Text == "Watch Trailer");
+        Assert.Contains(texts, tb => tb.Text == "Interstellar");
+        Assert.Contains(texts, tb => tb.Text == "(2014)");
+        Assert.Contains(texts, tb => tb.Text == "Sci-Fi \u2022 Adventure \u2022 Drama");
+        Assert.Contains(texts, tb => tb.Text == "Watch Trailer");
 
         // Image (poster)
-        GalleryTestHelper.FindAll<Image>(result.RootControl).Should().NotBeEmpty();
+        Assert.NotEmpty(GalleryTestHelper.FindAll<Image>(result.RootControl));
 
         // Video renders as TextBlock placeholder
-        texts.Should().Contain(tb => tb.Text != null && tb.Text.Contains("[Video:"));
+        Assert.Contains(texts, tb => tb.Text?.Contains("[Video:") == true);
 
         // Button: Watch Trailer → open_trailer
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         Button? trailerBtn = buttons.FirstOrDefault(b =>
             GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Watch Trailer"
         );
-        trailerBtn.Should().NotBeNull();
-        GalleryTestHelper.ClickButton(trailerBtn!);
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "open_trailer");
+        Assert.NotNull(trailerBtn);
+        GalleryTestHelper.ClickButton(trailerBtn);
+        Assert.Single(result.ActionLog, a => a.EventName == "open_trailer");
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -774,24 +772,24 @@ public sealed class BasicExampleTests
         RenderResult result = GalleryTestHelper.ReplayExample("basic/30_live-invitation-builder.json");
 
         // Root is Column → StackPanel (not Card)
-        result.RootControl.Should().BeOfType<StackPanel>();
+        Assert.IsType<StackPanel>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "# Invitation Builder");
-        texts.Should().Contain(tb => tb.Text == "Live Preview");
-        texts.Should().Contain(tb => tb.Text == "Celebrating");
+        Assert.Contains(texts, tb => tb.Text == "# Invitation Builder");
+        Assert.Contains(texts, tb => tb.Text == "Live Preview");
+        Assert.Contains(texts, tb => tb.Text == "Celebrating");
 
         // TextField
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
-        textBoxes.Should().NotBeEmpty();
+        Assert.NotEmpty(textBoxes);
 
         // DateTimeInput → CalendarDatePicker
         CalendarDatePicker? picker = GalleryTestHelper.FindFirst<CalendarDatePicker>(result.RootControl);
-        picker.Should().NotBeNull();
+        Assert.NotNull(picker);
 
         // ChoicePicker → ComboBox
         ComboBox? combo = GalleryTestHelper.FindFirst<ComboBox>(result.RootControl);
-        combo.Should().NotBeNull();
+        Assert.NotNull(combo);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -805,16 +803,16 @@ public sealed class BasicExampleTests
         RenderResult result = GalleryTestHelper.ReplayExample("basic/31_incremental-dashboard.json");
 
         // Root is Column → StackPanel (not Card)
-        result.RootControl.Should().BeOfType<StackPanel>();
+        Assert.IsType<StackPanel>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "System Dashboard");
+        Assert.Contains(texts, tb => tb.Text == "System Dashboard");
 
         // List → ScrollViewer
         ScrollViewer? scrollViewer = GalleryTestHelper.FindFirst<ScrollViewer>(result.RootControl);
-        scrollViewer.Should().NotBeNull();
+        Assert.NotNull(scrollViewer);
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -826,27 +824,27 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/32_advanced-form-validator.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Submit Registration");
+        Assert.Contains(texts, tb => tb.Text == "Submit Registration");
 
         // TextFields
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
-        textBoxes.Should().NotBeEmpty();
+        Assert.NotEmpty(textBoxes);
 
         // CheckBox
         CheckBox? cb = GalleryTestHelper.FindFirst<CheckBox>(result.RootControl);
-        cb.Should().NotBeNull();
+        Assert.NotNull(cb);
 
         // Button: Submit Registration — disabled initially due to check validation
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().NotBeEmpty();
+        Assert.NotEmpty(buttons);
         Button? submitBtn = buttons.FirstOrDefault(b =>
             GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Submit Registration"
         );
-        submitBtn.Should().NotBeNull();
-        submitBtn!.IsEnabled.Should().BeFalse("checks fail with empty form data");
+        Assert.NotNull(submitBtn);
+        Assert.False(submitBtn.IsEnabled);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -859,18 +857,18 @@ public sealed class BasicExampleTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("basic/33_financial-data-grid.json");
 
-        result.RootControl.Should().BeOfType<Border>();
+        Assert.IsType<Border>(result.RootControl);
 
         List<TextBlock> texts = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        texts.Should().Contain(tb => tb.Text == "Asset");
-        texts.Should().Contain(tb => tb.Text == "Price");
-        texts.Should().Contain(tb => tb.Text == "24h Change");
-        texts.Should().Contain(tb => tb.Text == "Market Cap");
+        Assert.Contains(texts, tb => tb.Text == "Asset");
+        Assert.Contains(texts, tb => tb.Text == "Price");
+        Assert.Contains(texts, tb => tb.Text == "24h Change");
+        Assert.Contains(texts, tb => tb.Text == "Market Cap");
 
         // List → ScrollViewer
         ScrollViewer? scrollViewer = GalleryTestHelper.FindFirst<ScrollViewer>(result.RootControl);
-        scrollViewer.Should().NotBeNull();
+        Assert.NotNull(scrollViewer);
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 }

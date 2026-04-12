@@ -3,8 +3,8 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -26,14 +26,14 @@ public sealed class TextFieldCatalogEntryTests
         };
 
         var control = entry.Create(component, dm, ctx);
-        control.Should().BeOfType<TextBox>();
+        Assert.IsType<TextBox>(control);
         var tb = (TextBox)control;
 
-        // Simulate typing — TextChanged fires automatically
+        // Simulate typing -- TextChanged fires automatically
         tb.Text = "peter";
 
         // Data model should now have the value at /username
-        dm.Resolve(DynamicValue.FromPath("/username")).Should().Be("peter");
+        Assert.Equal("peter", dm.Resolve(DynamicValue.FromPath("/username")));
     }
 
     [AvaloniaFact]
@@ -55,8 +55,8 @@ public sealed class TextFieldCatalogEntryTests
         var tb = (TextBox)control;
         tb.Text = "changed";
 
-        // No path binding → data model should be empty
-        dm.ToJson().Should().Be("{}");
+        // No path binding -> data model should be empty
+        Assert.Equal("{}", dm.ToJson());
     }
 
     [AvaloniaFact]
@@ -76,7 +76,7 @@ public sealed class TextFieldCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
         var tb = (TextBox)control;
-        tb.PasswordChar.Should().NotBe('\0');
+        Assert.NotEqual('\0', tb.PasswordChar);
     }
 
     [AvaloniaFact]
@@ -98,8 +98,8 @@ public sealed class TextFieldCatalogEntryTests
         var tb = (TextBox)control;
         tb.Text = "test@example.com";
 
-        ctx.FiredActions.Should().ContainSingle(a => a.ComponentId == "tf3");
-        ctx.FiredActions[0].Payload.Should().Be("test@example.com");
+        Assert.Single(ctx.FiredActions, a => a.ComponentId == "tf3");
+        Assert.Equal("test@example.com", ctx.FiredActions[0].Payload);
     }
 
     [AvaloniaFact]
@@ -127,8 +127,8 @@ public sealed class TextFieldCatalogEntryTests
 
         bool updated = entry.Update(control, comp2, dm, ctx);
 
-        updated.Should().BeTrue();
-        tb.Text.Should().Be("after");
+        Assert.True(updated);
+        Assert.Equal("after", tb.Text);
     }
 
     [AvaloniaFact]
@@ -157,7 +157,7 @@ public sealed class TextFieldCatalogEntryTests
         };
         entry.Update(control, comp2, dm, ctx);
 
-        ctx.FiredActions.Should().BeEmpty("Update() should suppress handler via UpdatingTag");
+        Assert.Empty(ctx.FiredActions);
     }
 }
 

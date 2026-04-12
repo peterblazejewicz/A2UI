@@ -1,8 +1,8 @@
-﻿using A2Ui.Core;
+using A2Ui.Core;
 using AgUi.Protocol.Events;
 using Avalonia.Headless.XUnit;
 using Avalonia.Threading;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests;
 
@@ -33,10 +33,10 @@ public sealed class AgentEventBridgeTests
         var args = new UserActionEventArgs("surface-1", "click", "payload", "btn-1");
         bridge.OnUserAction(this, args);
 
-        received.Should().NotBeNull();
-        received!.SurfaceId.Should().Be("surface-1");
-        received.EventName.Should().Be("click");
-        received.ComponentId.Should().Be("btn-1");
+        Assert.NotNull(received);
+        Assert.Equal("surface-1", received.SurfaceId);
+        Assert.Equal("click", received.EventName);
+        Assert.Equal("btn-1", received.ComponentId);
     }
 
     [AvaloniaFact]
@@ -50,8 +50,7 @@ public sealed class AgentEventBridgeTests
         var args = new UserActionEventArgs("surface-1", "click", null);
 
         // Should not throw despite subscriber throwing
-        var act = () => bridge.OnUserAction(this, args);
-        act.Should().NotThrow();
+        bridge.OnUserAction(this, args);
     }
 
     [AvaloniaFact]
@@ -76,7 +75,7 @@ public sealed class AgentEventBridgeTests
         await DrainAndPumpAsync().ConfigureAwait(true);
         bridge.Stop();
 
-        surfaceCreated.Should().BeFalse();
+        Assert.False(surfaceCreated);
     }
 
     [AvaloniaFact]
@@ -98,8 +97,8 @@ public sealed class AgentEventBridgeTests
         await DrainAndPumpAsync().ConfigureAwait(true);
         bridge.Stop();
 
-        started.Should().BeTrue();
-        finished.Should().BeTrue();
+        Assert.True(started);
+        Assert.True(finished);
     }
 
     [AvaloniaFact]
@@ -118,7 +117,7 @@ public sealed class AgentEventBridgeTests
         await DrainAndPumpAsync().ConfigureAwait(true);
         bridge.Stop();
 
-        errorMessage.Should().Be("something went wrong");
+        Assert.Equal("something went wrong", errorMessage);
     }
 
     [AvaloniaFact]
@@ -139,7 +138,7 @@ public sealed class AgentEventBridgeTests
         await DrainAndPumpAsync().ConfigureAwait(true);
         bridge.Stop();
 
-        delta.Should().Be("Hello, world!");
+        Assert.Equal("Hello, world!", delta);
     }
 
     // ── End-to-end tool call → surface processing tests ──
@@ -173,9 +172,10 @@ public sealed class AgentEventBridgeTests
         await DrainAndPumpAsync().ConfigureAwait(true);
         bridge.Stop();
 
-        surfaceCreated.Should().BeTrue("the bridge should process valid render_ui tool calls");
-        sm.GetSurface("e2e-test").Should().NotBeNull();
-        sm.GetSurface("e2e-test")!.CatalogId.Should().Be("basic");
+        // the bridge should process valid render_ui tool calls
+        Assert.True(surfaceCreated);
+        Assert.NotNull(sm.GetSurface("e2e-test"));
+        Assert.Equal("basic", sm.GetSurface("e2e-test")!.CatalogId);
     }
 
     [AvaloniaFact]
@@ -219,10 +219,10 @@ public sealed class AgentEventBridgeTests
         bridge.Stop();
 
         var surface = sm.GetSurface("e2e-uc");
-        surface.Should().NotBeNull();
-        surface!.Components.Should().HaveCount(2);
-        surface.Components.Should().ContainKey("root");
-        surface.Components.Should().ContainKey("t1");
+        Assert.NotNull(surface);
+        Assert.Equal(2, surface.Components.Count);
+        Assert.Contains("root", surface.Components);
+        Assert.Contains("t1", surface.Components);
     }
 
     [AvaloniaFact]
@@ -262,7 +262,7 @@ public sealed class AgentEventBridgeTests
         await DrainAndPumpAsync().ConfigureAwait(true);
         bridge.Stop();
 
-        // The invalid payload should have been skipped; the valid one should succeed
-        sm.GetSurface("recovered").Should().NotBeNull("bridge should recover from invalid payloads");
+        // bridge should recover from invalid payloads
+        Assert.NotNull(sm.GetSurface("recovered"));
     }
 }

@@ -1,8 +1,8 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Basic;
 
@@ -27,27 +27,10 @@ public sealed class CheckValidationTests
         // Password: "required" fails first → shows "Password is required" (not the length error)
         List<TextBlock> allText = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
 
-        allText
-            .Should()
-            .Contain(tb => tb.Text == "Email is required", "email-field first check 'required' fails on empty value");
-        allText
-            .Should()
-            .NotContain(
-                tb => tb.Text == "Please enter a valid email address",
-                "second check should not show when first already fails"
-            );
-        allText
-            .Should()
-            .Contain(
-                tb => tb.Text == "Password is required",
-                "password-field first check 'required' fails on empty value"
-            );
-        allText
-            .Should()
-            .NotContain(
-                tb => tb.Text == "Password must be at least 8 characters long",
-                "second check should not show when first already fails"
-            );
+        Assert.Contains(allText, tb => tb.Text == "Email is required");
+        Assert.DoesNotContain(allText, tb => tb.Text == "Please enter a valid email address");
+        Assert.Contains(allText, tb => tb.Text == "Password is required");
+        Assert.DoesNotContain(allText, tb => tb.Text == "Password must be at least 8 characters long");
     }
 
     [AvaloniaFact]
@@ -57,12 +40,12 @@ public sealed class CheckValidationTests
 
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         Button? loginBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Sign in");
-        loginBtn.Should().NotBeNull();
-        loginBtn!.IsEnabled.Should().BeFalse("login button checks fail with empty email/password");
+        Assert.NotNull(loginBtn);
+        Assert.False(loginBtn.IsEnabled);
 
         // Tooltip should show the failure message
         string? tip = ToolTip.GetTip(loginBtn) as string;
-        tip.Should().Be("Please fix errors before signing in");
+        Assert.Equal("Please fix errors before signing in", tip);
     }
 
     [AvaloniaFact]
@@ -73,8 +56,8 @@ public sealed class CheckValidationTests
 
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
         Button? signupBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Sign up");
-        signupBtn.Should().NotBeNull();
-        signupBtn!.IsEnabled.Should().BeTrue();
+        Assert.NotNull(signupBtn);
+        Assert.True(signupBtn.IsEnabled);
     }
 
     [AvaloniaFact]
@@ -91,16 +74,16 @@ public sealed class CheckValidationTests
 
         // Validation errors should be gone.
         List<TextBlock> allText = GalleryTestHelper.FindAll<TextBlock>(reRendered);
-        allText.Should().NotContain(tb => tb.Text == "Email is required");
-        allText.Should().NotContain(tb => tb.Text == "Please enter a valid email address");
-        allText.Should().NotContain(tb => tb.Text == "Password is required");
-        allText.Should().NotContain(tb => tb.Text == "Password must be at least 8 characters long");
+        Assert.DoesNotContain(allText, tb => tb.Text == "Email is required");
+        Assert.DoesNotContain(allText, tb => tb.Text == "Please enter a valid email address");
+        Assert.DoesNotContain(allText, tb => tb.Text == "Password is required");
+        Assert.DoesNotContain(allText, tb => tb.Text == "Password must be at least 8 characters long");
 
         // Login button should now be enabled.
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(reRendered);
         Button? loginBtn = buttons.FirstOrDefault(b => GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Sign in");
-        loginBtn.Should().NotBeNull();
-        loginBtn!.IsEnabled.Should().BeTrue("all checks pass with valid data");
+        Assert.NotNull(loginBtn);
+        Assert.True(loginBtn.IsEnabled);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -116,8 +99,8 @@ public sealed class CheckValidationTests
         Button? submitBtn = buttons.FirstOrDefault(b =>
             GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Submit Registration"
         );
-        submitBtn.Should().NotBeNull();
-        submitBtn!.IsEnabled.Should().BeFalse("checks require agree + contact info + zip");
+        Assert.NotNull(submitBtn);
+        Assert.False(submitBtn.IsEnabled);
     }
 
     [AvaloniaFact]
@@ -128,11 +111,11 @@ public sealed class CheckValidationTests
         List<TextBlock> allText = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
 
         // Email check fails on empty value
-        allText.Should().Contain(tb => tb.Text == "Invalid email format");
+        Assert.Contains(allText, tb => tb.Text == "Invalid email format");
         // Phone regex check fails on empty value
-        allText.Should().Contain(tb => tb.Text == "Invalid phone format");
+        Assert.Contains(allText, tb => tb.Text == "Invalid phone format");
         // Zip regex check fails on empty value
-        allText.Should().Contain(tb => tb.Text == "Must be exactly 5 digits");
+        Assert.Contains(allText, tb => tb.Text == "Must be exactly 5 digits");
     }
 
     [AvaloniaFact]
@@ -151,8 +134,8 @@ public sealed class CheckValidationTests
         Button? submitBtn = buttons.FirstOrDefault(b =>
             GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Submit Registration"
         );
-        submitBtn.Should().NotBeNull();
-        submitBtn!.IsEnabled.Should().BeTrue("agree + email + zip all valid");
+        Assert.NotNull(submitBtn);
+        Assert.True(submitBtn.IsEnabled);
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -166,8 +149,8 @@ public sealed class CheckValidationTests
 
         List<TextBlock> allText = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
         TextBlock? errorBlock = allText.FirstOrDefault(tb => tb.Text == "Email is required");
-        errorBlock.Should().NotBeNull();
-        errorBlock!.Classes.Should().Contain("ValidationError");
+        Assert.NotNull(errorBlock);
+        Assert.Contains("ValidationError", errorBlock.Classes);
     }
 
     /// <summary>

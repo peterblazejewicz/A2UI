@@ -3,7 +3,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -27,8 +27,8 @@ public sealed class TextCatalogEntryTests
         var control = entry.Create(component, dm, ctx);
 
         // Assert
-        control.Should().BeOfType<TextBlock>();
-        ((TextBlock)control).Text.Should().Be("Hello World");
+        Assert.IsType<TextBlock>(control);
+        Assert.Equal("Hello World", ((TextBlock)control).Text);
     }
 
     [AvaloniaFact]
@@ -50,7 +50,7 @@ public sealed class TextCatalogEntryTests
         var control = entry.Create(component, dm, ctx);
 
         // Assert
-        control.Classes.Should().Contain("Heading1");
+        Assert.Contains("Heading1", control.Classes);
     }
 
     [AvaloniaFact]
@@ -79,7 +79,7 @@ public sealed class TextCatalogEntryTests
         bool updated = entry.Update(control, comp2, dm, ctx);
 
         // Assert
-        updated.Should().BeTrue();
-        ((TextBlock)control).Text.Should().Be("After");
+        Assert.True(updated);
+        Assert.Equal("After", ((TextBlock)control).Text);
     }
 }

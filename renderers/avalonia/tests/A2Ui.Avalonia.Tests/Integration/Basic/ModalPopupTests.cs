@@ -1,7 +1,7 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Basic;
 
@@ -27,7 +27,7 @@ public sealed class ModalPopupTests
             GalleryTestHelper.FindFirst<TextBlock>(b)?.Text == "Watch Trailer"
         );
 
-        trailerBtn.Should().NotBeNull("trigger button 'Watch Trailer' must be visible");
+        Assert.NotNull(trailerBtn);
     }
 
     [AvaloniaFact]
@@ -37,7 +37,7 @@ public sealed class ModalPopupTests
 
         // The ModalCatalogEntry adds a Popup to the Panel container
         Popup? popup = FindPopup(result.RootControl);
-        popup.Should().NotBeNull("Modal must create an Avalonia Popup control");
+        Assert.NotNull(popup);
     }
 
     [AvaloniaFact]
@@ -46,8 +46,8 @@ public sealed class ModalPopupTests
         RenderResult result = GalleryTestHelper.ReplayExample("basic/29_movie-card.json");
 
         Popup? popup = FindPopup(result.RootControl);
-        popup.Should().NotBeNull();
-        popup!.IsOpen.Should().BeFalse("popup must start in closed state");
+        Assert.NotNull(popup);
+        Assert.False(popup.IsOpen);
     }
 
     [AvaloniaFact]
@@ -56,8 +56,8 @@ public sealed class ModalPopupTests
         RenderResult result = GalleryTestHelper.ReplayExample("basic/29_movie-card.json");
 
         Popup? popup = FindPopup(result.RootControl);
-        popup.Should().NotBeNull();
-        popup!.IsLightDismissEnabled.Should().BeTrue("clicking outside should close the popup");
+        Assert.NotNull(popup);
+        Assert.True(popup.IsLightDismissEnabled);
     }
 
     [AvaloniaFact]
@@ -66,17 +66,15 @@ public sealed class ModalPopupTests
         RenderResult result = GalleryTestHelper.ReplayExample("basic/29_movie-card.json");
 
         Popup? popup = FindPopup(result.RootControl);
-        popup.Should().NotBeNull();
+        Assert.NotNull(popup);
 
         // Popup.Child is a Border containing a StackPanel; first child is the close Button
-        popup!.Child.Should().BeOfType<Border>("popup content is wrapped in a Border");
-        var border = (Border)popup.Child!;
-        border.Child.Should().BeOfType<StackPanel>();
-        var stack = (StackPanel)border.Child!;
+        var border = Assert.IsType<Border>(popup.Child);
+        var stack = Assert.IsType<StackPanel>(border.Child);
 
         Button? closeBtn = stack.Children.OfType<Button>().FirstOrDefault();
-        closeBtn.Should().NotBeNull("close button must be present inside the popup");
-        closeBtn!.Content.Should().Be("×", "close button must show the × character");
+        Assert.NotNull(closeBtn);
+        Assert.Equal("\u00d7", closeBtn.Content);
     }
 
     [AvaloniaFact]
@@ -85,13 +83,13 @@ public sealed class ModalPopupTests
         RenderResult result = GalleryTestHelper.ReplayExample("basic/29_movie-card.json");
 
         Popup? popup = FindPopup(result.RootControl);
-        popup.Should().NotBeNull();
+        Assert.NotNull(popup);
 
-        var border = (Border)popup!.Child!;
+        var border = (Border)popup.Child!;
         var stack = (StackPanel)border.Child!;
         Button? closeBtn = stack.Children.OfType<Button>().FirstOrDefault();
-        closeBtn.Should().NotBeNull();
-        closeBtn!.Classes.Should().Contain("ModalClose", "close button must carry the ModalClose style class");
+        Assert.NotNull(closeBtn);
+        Assert.Contains("ModalClose", closeBtn.Classes);
     }
 
     [AvaloniaFact]
@@ -100,10 +98,8 @@ public sealed class ModalPopupTests
         RenderResult result = GalleryTestHelper.ReplayExample("basic/29_movie-card.json");
 
         Popup? popup = FindPopup(result.RootControl);
-        popup.Should().NotBeNull();
-        popup!
-            .Placement.Should()
-            .Be(PlacementMode.Center, "modal popup must be centered relative to its placement target");
+        Assert.NotNull(popup);
+        Assert.Equal(PlacementMode.Center, popup.Placement);
     }
 
     // ──────────────────────────────────────────────────────────────────

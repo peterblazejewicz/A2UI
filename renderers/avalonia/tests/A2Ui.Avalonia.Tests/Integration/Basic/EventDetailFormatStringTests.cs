@@ -1,6 +1,6 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Basic;
 
@@ -37,12 +37,8 @@ public sealed class EventDetailFormatStringTests
             tb.Text?.Contains("\u2022") == true && tb.Text.Contains("Dec 19")
         );
 
-        timeText
-            .Should()
-            .NotBeNull("the time-text component should render a formatted date string with bullet separator");
-        timeText!
-            .Text.Should()
-            .Contain("Fri, Dec 19", "formatDate with 'E, MMM d' should produce abbreviated day and month");
-        timeText.Text.Should().Contain("PM", "formatDate with 'h:mm a' should produce AM/PM time format");
+        Assert.NotNull(timeText);
+        Assert.Contains("Fri, Dec 19", timeText.Text);
+        Assert.Contains("PM", timeText.Text);
     }
 }

@@ -1,5 +1,4 @@
-﻿using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Avalonia.Headless.XUnit;
 using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration;
@@ -41,7 +40,7 @@ public sealed class AllExamplesSmokeTests
     {
         var result = GalleryTestHelper.ReplayExample(specPath);
 
-        result.RootControl.Should().NotBeNull();
-        result.Surface.Components.Should().NotBeEmpty();
+        Assert.NotNull(result.RootControl);
+        Assert.NotEmpty(result.Surface.Components);
     }
 }

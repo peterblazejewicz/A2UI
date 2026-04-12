@@ -1,6 +1,6 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Minimal;
 
@@ -16,7 +16,7 @@ public sealed class CapitalizedTextTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/6_capitalized_text.json");
 
-        result.RootControl.Should().BeOfType<StackPanel>();
+        Assert.IsType<StackPanel>(result.RootControl);
     }
 
     [AvaloniaFact]
@@ -25,7 +25,7 @@ public sealed class CapitalizedTextTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/6_capitalized_text.json");
 
         TextBox? textBox = GalleryTestHelper.FindFirst<TextBox>(result.RootControl);
-        textBox.Should().NotBeNull();
+        Assert.NotNull(textBox);
     }
 
     [AvaloniaFact]
@@ -34,7 +34,7 @@ public sealed class CapitalizedTextTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/6_capitalized_text.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        textBlocks.Should().Contain(tb => tb.Text == "Capitalized output:" && tb.Classes.Contains("Caption"));
+        Assert.Contains(textBlocks, tb => tb.Text == "Capitalized output:" && tb.Classes.Contains("Caption"));
     }
 
     [AvaloniaFact]
@@ -43,7 +43,7 @@ public sealed class CapitalizedTextTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/6_capitalized_text.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        textBlocks.Should().Contain(tb => tb.Classes.Contains("Heading2"));
+        Assert.Contains(textBlocks, tb => tb.Classes.Contains("Heading2"));
     }
 
     [AvaloniaFact]
@@ -55,8 +55,8 @@ public sealed class CapitalizedTextTests
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
         TextBlock? h2 = textBlocks.FirstOrDefault(tb => tb.Classes.Contains("Heading2"));
-        h2.Should().NotBeNull();
-        h2!.Text.Should().BeOneOf("", null, string.Empty);
+        Assert.NotNull(h2);
+        Assert.True(string.IsNullOrEmpty(h2.Text), $"Expected empty or null text but got \"{h2.Text}\"");
     }
 
     [AvaloniaFact]
@@ -65,17 +65,17 @@ public sealed class CapitalizedTextTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/6_capitalized_text.json");
 
         TextBox? textBox = GalleryTestHelper.FindFirst<TextBox>(result.RootControl);
-        textBox.Should().NotBeNull();
+        Assert.NotNull(textBox);
 
-        GalleryTestHelper.SetText(textBox!, "hello");
+        GalleryTestHelper.SetText(textBox, "hello");
 
         // Re-render to pick up updated data model through the capitalize function
         Control reRendered = result.ReRender();
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(reRendered);
         TextBlock? h2 = textBlocks.FirstOrDefault(tb => tb.Classes.Contains("Heading2"));
-        h2.Should().NotBeNull();
-        h2!.Text.Should().Be("Hello");
+        Assert.NotNull(h2);
+        Assert.Equal("Hello", h2.Text);
     }
 
     [AvaloniaFact]
@@ -84,10 +84,13 @@ public sealed class CapitalizedTextTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/6_capitalized_text.json");
 
         TextBox? textBox = GalleryTestHelper.FindFirst<TextBox>(result.RootControl);
-        textBox.Should().NotBeNull();
+        Assert.NotNull(textBox);
 
-        GalleryTestHelper.SetText(textBox!, "hello");
+        GalleryTestHelper.SetText(textBox, "hello");
 
-        result.Surface.DataModel.Resolve(new Core.Messages.DynamicValue { Path = "/inputValue" }).Should().Be("hello");
+        Assert.Equal(
+            "hello",
+            result.Surface.DataModel.Resolve(new Core.Messages.DynamicValue { Path = "/inputValue" })
+        );
     }
 }

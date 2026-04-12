@@ -1,7 +1,7 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Layout;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Minimal;
 
@@ -16,7 +16,7 @@ public sealed class RowLayoutTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/2_row_layout.json");
 
-        result.RootControl.Should().BeOfType<Grid>();
+        Assert.IsType<Grid>(result.RootControl);
     }
 
     [AvaloniaFact]
@@ -25,10 +25,10 @@ public sealed class RowLayoutTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/2_row_layout.json");
 
         var grid = (Grid)result.RootControl;
-        grid.ColumnDefinitions.Should().HaveCount(3);
-        grid.ColumnDefinitions[0].Width.IsAuto.Should().BeTrue();
-        grid.ColumnDefinitions[1].Width.IsStar.Should().BeTrue();
-        grid.ColumnDefinitions[2].Width.IsAuto.Should().BeTrue();
+        Assert.Equal(3, grid.ColumnDefinitions.Count);
+        Assert.True(grid.ColumnDefinitions[0].Width.IsAuto);
+        Assert.True(grid.ColumnDefinitions[1].Width.IsStar);
+        Assert.True(grid.ColumnDefinitions[2].Width.IsAuto);
     }
 
     [AvaloniaFact]
@@ -37,9 +37,9 @@ public sealed class RowLayoutTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/2_row_layout.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        textBlocks.Should().HaveCount(2);
-        textBlocks[0].Text.Should().Be("Left Content");
-        textBlocks[1].Text.Should().Be("Right Content");
+        Assert.Equal(2, textBlocks.Count);
+        Assert.Equal("Left Content", textBlocks[0].Text);
+        Assert.Equal("Right Content", textBlocks[1].Text);
     }
 
     [AvaloniaFact]
@@ -48,7 +48,7 @@ public sealed class RowLayoutTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/2_row_layout.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        textBlocks.Should().AllSatisfy(tb => tb.VerticalAlignment.Should().Be(VerticalAlignment.Center));
+        Assert.All(textBlocks, tb => Assert.Equal(VerticalAlignment.Center, tb.VerticalAlignment));
     }
 
     [AvaloniaFact]
@@ -57,7 +57,7 @@ public sealed class RowLayoutTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/2_row_layout.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        textBlocks[0].Classes.Should().Contain("Body");
-        textBlocks[1].Classes.Should().Contain("Caption");
+        Assert.Contains("Body", textBlocks[0].Classes);
+        Assert.Contains("Caption", textBlocks[1].Classes);
     }
 }

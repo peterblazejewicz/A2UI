@@ -1,6 +1,6 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Minimal;
 
@@ -15,9 +15,8 @@ public sealed class SimpleTextTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/1_simple_text.json");
 
-        result.RootControl.Should().BeOfType<TextBlock>();
-        var tb = (TextBlock)result.RootControl;
-        tb.Text.Should().Be("Hello, Minimal Catalog!");
+        var tb = Assert.IsType<TextBlock>(result.RootControl);
+        Assert.Equal("Hello, Minimal Catalog!", tb.Text);
     }
 
     [AvaloniaFact]
@@ -26,7 +25,7 @@ public sealed class SimpleTextTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/1_simple_text.json");
 
         var tb = (TextBlock)result.RootControl;
-        tb.Classes.Should().Contain("Heading1");
+        Assert.Contains("Heading1", tb.Classes);
     }
 
     [AvaloniaFact]
@@ -34,7 +33,7 @@ public sealed class SimpleTextTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/1_simple_text.json");
 
-        result.Surface.DataModel.ToJson().Should().Be("{}");
+        Assert.Equal("{}", result.Surface.DataModel.ToJson());
     }
 
     [AvaloniaFact]
@@ -42,6 +41,6 @@ public sealed class SimpleTextTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/1_simple_text.json");
 
-        result.ActionLog.Should().BeEmpty();
+        Assert.Empty(result.ActionLog);
     }
 }

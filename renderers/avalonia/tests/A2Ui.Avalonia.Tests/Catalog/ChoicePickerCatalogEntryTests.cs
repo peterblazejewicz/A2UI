@@ -5,7 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Headless.XUnit;
 using Avalonia.Layout;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -35,9 +35,9 @@ public sealed class ChoicePickerCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<ComboBox>();
+        Assert.IsType<ComboBox>(control);
         var combo = (ComboBox)control;
-        combo.Items.Should().HaveCount(2);
+        Assert.Equal(2, combo.Items.Count);
     }
 
     [AvaloniaFact]
@@ -60,9 +60,9 @@ public sealed class ChoicePickerCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<ComboBox>();
+        Assert.IsType<ComboBox>(control);
         var combo = (ComboBox)control;
-        combo.SelectedIndex.Should().Be(1, "because 'blue' is the second option (index 1)");
+        Assert.Equal(1, combo.SelectedIndex);
     }
 
     [AvaloniaFact]
@@ -84,7 +84,7 @@ public sealed class ChoicePickerCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<AutoCompleteBox>();
+        Assert.IsType<AutoCompleteBox>(control);
     }
 
     [AvaloniaFact]
@@ -106,14 +106,14 @@ public sealed class ChoicePickerCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<ListBox>();
+        Assert.IsType<ListBox>(control);
         var listBox = (ListBox)control;
-        listBox.Items.Should().HaveCount(2);
+        Assert.Equal(2, listBox.Items.Count);
 
         // Each item should be a ListBoxItem with a CheckBox as Content
         var firstItem = listBox.Items[0] as ListBoxItem;
-        firstItem.Should().NotBeNull();
-        firstItem!.Content.Should().BeOfType<CheckBox>();
+        Assert.NotNull(firstItem);
+        Assert.IsType<CheckBox>(firstItem.Content);
     }
 
     [AvaloniaFact]
@@ -137,10 +137,10 @@ public sealed class ChoicePickerCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<WrapPanel>();
+        Assert.IsType<WrapPanel>(control);
         var panel = (WrapPanel)control;
-        panel.Children.Should().HaveCount(3);
-        panel.Children.Should().AllBeOfType<ToggleButton>();
-        panel.Orientation.Should().Be(Orientation.Horizontal);
+        Assert.Equal(3, panel.Children.Count);
+        Assert.All(panel.Children, child => Assert.IsType<ToggleButton>(child));
+        Assert.Equal(Orientation.Horizontal, panel.Orientation);
     }
 }

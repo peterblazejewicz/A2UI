@@ -3,8 +3,8 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -25,14 +25,14 @@ public sealed class ButtonCatalogEntryTests
         };
 
         var control = entry.Create(component, dm, ctx);
-        control.Should().BeOfType<Button>();
+        Assert.IsType<Button>(control);
         var btn = (Button)control;
 
         // Simulate click via RaiseEvent
         btn.RaiseEvent(new global::Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
 
-        ctx.FiredEvents.Should().ContainSingle();
-        ctx.FiredEvents[0].EventName.Should().Be("go_clicked");
+        Assert.Single(ctx.FiredEvents);
+        Assert.Equal("go_clicked", ctx.FiredEvents[0].EventName);
     }
 
     [AvaloniaFact]
@@ -77,10 +77,10 @@ public sealed class ButtonCatalogEntryTests
         // Click → context should resolve from current data model state
         btn.RaiseEvent(new global::Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
 
-        ctx.FiredEvents.Should().ContainSingle();
-        var payload = ctx.FiredEvents[0].Payload.Should().BeAssignableTo<Dictionary<string, string?>>().Subject;
-        payload["user"].Should().Be("peter");
-        payload["greeting"].Should().Be("hello");
+        Assert.Single(ctx.FiredEvents);
+        var payload = Assert.IsAssignableFrom<Dictionary<string, string?>>(ctx.FiredEvents[0].Payload);
+        Assert.Equal("peter", payload["user"]);
+        Assert.Equal("hello", payload["greeting"]);
     }
 
     [AvaloniaFact]
@@ -105,8 +105,8 @@ public sealed class ButtonCatalogEntryTests
         var btn = (Button)control;
         btn.RaiseEvent(new global::Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
 
-        ctx.FiredEvents.Should().ContainSingle();
-        ctx.FiredEvents[0].Payload.Should().BeNull();
+        Assert.Single(ctx.FiredEvents);
+        Assert.Null(ctx.FiredEvents[0].Payload);
     }
 
     [AvaloniaFact]
@@ -125,12 +125,12 @@ public sealed class ButtonCatalogEntryTests
         };
 
         var control = entry.Create(component, dm, ctx);
-        control.Should().BeOfType<Button>();
+        Assert.IsType<Button>(control);
         var btn = (Button)control;
 
         // Click should not throw or fire events
         btn.RaiseEvent(new global::Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
-        ctx.FiredEvents.Should().BeEmpty();
+        Assert.Empty(ctx.FiredEvents);
     }
 
     [AvaloniaFact]
@@ -149,7 +149,7 @@ public sealed class ButtonCatalogEntryTests
         };
 
         var control = entry.Create(component, dm, ctx);
-        control.Classes.Should().Contain("accent");
+        Assert.Contains("accent", control.Classes);
     }
 
     [AvaloniaFact]
@@ -168,7 +168,7 @@ public sealed class ButtonCatalogEntryTests
         };
 
         var control = entry.Create(component, dm, ctx);
-        control.Classes.Should().Contain("borderless");
+        Assert.Contains("borderless", control.Classes);
     }
 }
 

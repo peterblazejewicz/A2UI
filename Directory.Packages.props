@@ -27,13 +27,10 @@
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
   </ItemGroup>
-  <ItemGroup Label="Test packages — Avalonia + shared">
-    <PackageVersion Include="Avalonia.Headless.XUnit" Version="12.0.0" />
-    <PackageVersion Include="FluentAssertions" Version="7.0.0" />
-  </ItemGroup>
-  <ItemGroup Label="Test packages — xUnit v3 + MTP (SDK tests)">
+  <ItemGroup Label="Test packages — xUnit v3 + MTP">
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
     <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2" />
+    <PackageVersion Include="Avalonia.Headless.XUnit" Version="12.0.0" />
   </ItemGroup>
   <ItemGroup Label="Test packages — shared">
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />

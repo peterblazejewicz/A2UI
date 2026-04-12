@@ -1,6 +1,6 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Minimal;
 
@@ -15,9 +15,8 @@ public sealed class InteractiveButtonTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/3_interactive_button.json");
 
-        result.RootControl.Should().BeOfType<StackPanel>();
-        var panel = (StackPanel)result.RootControl;
-        panel.Orientation.Should().Be(global::Avalonia.Layout.Orientation.Vertical);
+        var panel = Assert.IsType<StackPanel>(result.RootControl);
+        Assert.Equal(global::Avalonia.Layout.Orientation.Vertical, panel.Orientation);
     }
 
     [AvaloniaFact]
@@ -26,7 +25,7 @@ public sealed class InteractiveButtonTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/3_interactive_button.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        textBlocks.Should().Contain(tb => tb.Text == "Click the button below");
+        Assert.Contains(textBlocks, tb => tb.Text == "Click the button below");
     }
 
     [AvaloniaFact]
@@ -35,8 +34,8 @@ public sealed class InteractiveButtonTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/3_interactive_button.json");
 
         Button? button = GalleryTestHelper.FindFirst<Button>(result.RootControl);
-        button.Should().NotBeNull();
-        button!.Classes.Should().Contain("accent");
+        Assert.NotNull(button);
+        Assert.Contains("accent", button.Classes);
     }
 
     [AvaloniaFact]
@@ -45,10 +44,9 @@ public sealed class InteractiveButtonTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/3_interactive_button.json");
 
         Button? button = GalleryTestHelper.FindFirst<Button>(result.RootControl);
-        button.Should().NotBeNull();
-        button!.Content.Should().BeOfType<TextBlock>();
-        var label = (TextBlock)button.Content!;
-        label.Text.Should().Be("Click Me");
+        Assert.NotNull(button);
+        var label = Assert.IsType<TextBlock>(button.Content);
+        Assert.Equal("Click Me", label.Text);
     }
 
     [AvaloniaFact]
@@ -57,11 +55,11 @@ public sealed class InteractiveButtonTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/3_interactive_button.json");
 
         Button? button = GalleryTestHelper.FindFirst<Button>(result.RootControl);
-        button.Should().NotBeNull();
+        Assert.NotNull(button);
 
-        GalleryTestHelper.ClickButton(button!);
+        GalleryTestHelper.ClickButton(button);
 
-        result.ActionLog.Should().ContainSingle(a => a.EventName == "button_clicked");
+        Assert.Single(result.ActionLog, a => a.EventName == "button_clicked");
     }
 
     [AvaloniaFact]
@@ -70,11 +68,11 @@ public sealed class InteractiveButtonTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/3_interactive_button.json");
 
         Button? button = GalleryTestHelper.FindFirst<Button>(result.RootControl);
-        button.Should().NotBeNull();
+        Assert.NotNull(button);
 
-        GalleryTestHelper.ClickButton(button!);
+        GalleryTestHelper.ClickButton(button);
 
         UserActionEventArgs action = result.ActionLog.Single(a => a.EventName == "button_clicked");
-        action.Payload.Should().BeNull();
+        Assert.Null(action.Payload);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using A2Ui.Avalonia.Catalog;
-using FluentAssertions;
 using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
@@ -11,7 +10,7 @@ public sealed class CatalogRegistryTests
     {
         var registry = CatalogRegistry.CreateDefault();
 
-        registry.RegisteredTypes.Should().HaveCount(18);
+        Assert.Equal(18, registry.RegisteredTypes.Count);
     }
 
     [Theory]
@@ -37,8 +36,8 @@ public sealed class CatalogRegistryTests
     {
         var registry = CatalogRegistry.CreateDefault();
 
-        registry.TryGetEntry(componentType, out var entry).Should().BeTrue();
-        entry!.ComponentType.Should().Be(componentType);
+        Assert.True(registry.TryGetEntry(componentType, out var entry));
+        Assert.Equal(componentType, entry!.ComponentType);
     }
 
     [Fact]
@@ -46,7 +45,7 @@ public sealed class CatalogRegistryTests
     {
         var registry = CatalogRegistry.CreateDefault();
 
-        registry.TryGetEntry("NonExistent", out _).Should().BeFalse();
+        Assert.False(registry.TryGetEntry("NonExistent", out _));
     }
 
     [Fact]
@@ -55,8 +54,6 @@ public sealed class CatalogRegistryTests
         var registry = new CatalogRegistry();
         registry.Register(new TextCatalogEntry());
 
-        var act = () => registry.Register(new TextCatalogEntry());
-
-        act.Should().Throw<ArgumentException>();
+        Assert.Throws<ArgumentException>(() => registry.Register(new TextCatalogEntry()));
     }
 }

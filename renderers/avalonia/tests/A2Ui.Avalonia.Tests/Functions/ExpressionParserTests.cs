@@ -1,5 +1,4 @@
-﻿using A2Ui.Avalonia.Functions;
-using FluentAssertions;
+using A2Ui.Avalonia.Functions;
 using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Functions;
@@ -14,8 +13,8 @@ public sealed class ExpressionParserTests
     public void Parse_LiteralString_ReturnsSingleLiteral()
     {
         IReadOnlyList<ExpressionToken> result = this._parser.Parse("hello world");
-        result.Should().HaveCount(1);
-        result[0].Should().Be(new LiteralToken("hello world"));
+        Assert.Single(result);
+        Assert.Equal(new LiteralToken("hello world"), result[0]);
     }
 
     // ── Parse: simple interpolation ──────────────────────────────────
@@ -24,18 +23,18 @@ public sealed class ExpressionParserTests
     public void Parse_SimpleInterpolation_ReturnsLiteralAndPath()
     {
         IReadOnlyList<ExpressionToken> result = this._parser.Parse("hello ${foo}");
-        result.Should().HaveCount(2);
-        result[0].Should().Be(new LiteralToken("hello "));
-        result[1].Should().Be(new PathToken("foo"));
+        Assert.Equal(2, result.Count);
+        Assert.Equal(new LiteralToken("hello "), result[0]);
+        Assert.Equal(new PathToken("foo"), result[1]);
     }
 
     [Fact]
     public void Parse_NumberInterpolation_ReturnsLiteralAndPath()
     {
         IReadOnlyList<ExpressionToken> result = this._parser.Parse("number is ${num}");
-        result.Should().HaveCount(2);
-        result[0].Should().Be(new LiteralToken("number is "));
-        result[1].Should().Be(new PathToken("num"));
+        Assert.Equal(2, result.Count);
+        Assert.Equal(new LiteralToken("number is "), result[0]);
+        Assert.Equal(new PathToken("num"), result[1]);
     }
 
     // ── Parse: nested interpolation ──────────────────────────────────
@@ -44,17 +43,17 @@ public sealed class ExpressionParserTests
     public void Parse_NestedInterpolation_ResolvesInnerPath()
     {
         IReadOnlyList<ExpressionToken> result = this._parser.Parse("val is ${${nested}}");
-        result.Should().HaveCount(2);
-        result[0].Should().Be(new LiteralToken("val is "));
-        result[1].Should().Be(new PathToken("nested"));
+        Assert.Equal(2, result.Count);
+        Assert.Equal(new LiteralToken("val is "), result[0]);
+        Assert.Equal(new PathToken("nested"), result[1]);
     }
 
     [Fact]
     public void Parse_DeepNestedStringLiteral_Resolves()
     {
         IReadOnlyList<ExpressionToken> result = this._parser.Parse("${${\"hello\"}}");
-        result.Should().HaveCount(1);
-        result[0].Should().Be(new LiteralToken("hello"));
+        Assert.Single(result);
+        Assert.Equal(new LiteralToken("hello"), result[0]);
     }
 
     // ── Parse: escaped interpolation ─────────────────────────────────
@@ -63,10 +62,10 @@ public sealed class ExpressionParserTests
     public void Parse_EscapedInterpolation_EmitsLiteralDollarBrace()
     {
         IReadOnlyList<ExpressionToken> result = this._parser.Parse("escaped \\${foo}");
-        result.Should().HaveCount(3);
-        result[0].Should().Be(new LiteralToken("escaped "));
-        result[1].Should().Be(new LiteralToken("${"));
-        result[2].Should().Be(new LiteralToken("foo}"));
+        Assert.Equal(3, result.Count);
+        Assert.Equal(new LiteralToken("escaped "), result[0]);
+        Assert.Equal(new LiteralToken("${"), result[1]);
+        Assert.Equal(new LiteralToken("foo}"), result[2]);
     }
 
     // ── Parse: function calls ────────────────────────────────────────
@@ -75,26 +74,26 @@ public sealed class ExpressionParserTests
     public void Parse_FunctionCall_ReturnsFunctionCallToken()
     {
         IReadOnlyList<ExpressionToken> result = this._parser.Parse("sum is ${add(a: 10, b: 20)}");
-        result.Should().HaveCount(2);
-        result[0].Should().Be(new LiteralToken("sum is "));
+        Assert.Equal(2, result.Count);
+        Assert.Equal(new LiteralToken("sum is "), result[0]);
 
-        var fc = result[1].Should().BeOfType<FunctionCallToken>().Subject;
-        fc.Name.Should().Be("add");
-        fc.Args.Should().HaveCount(2);
-        fc.Args["a"].Should().Be(new NumberToken(10));
-        fc.Args["b"].Should().Be(new NumberToken(20));
+        var fc = Assert.IsType<FunctionCallToken>(result[1]);
+        Assert.Equal("add", fc.Name);
+        Assert.Equal(2, fc.Args.Count);
+        Assert.Equal(new NumberToken(10), fc.Args["a"]);
+        Assert.Equal(new NumberToken(20), fc.Args["b"]);
     }
 
     [Fact]
     public void Parse_FunctionCallWithStringLiterals_ParsesCorrectly()
     {
         IReadOnlyList<ExpressionToken> result = this._parser.Parse("case is ${upper(text: \"hello\")}");
-        result.Should().HaveCount(2);
-        result[0].Should().Be(new LiteralToken("case is "));
+        Assert.Equal(2, result.Count);
+        Assert.Equal(new LiteralToken("case is "), result[0]);
 
-        var fc = result[1].Should().BeOfType<FunctionCallToken>().Subject;
-        fc.Name.Should().Be("upper");
-        fc.Args["text"].Should().Be(new LiteralToken("hello"));
+        var fc = Assert.IsType<FunctionCallToken>(result[1]);
+        Assert.Equal("upper", fc.Name);
+        Assert.Equal(new LiteralToken("hello"), fc.Args["text"]);
     }
 
     // ── Parse: keywords ──────────────────────────────────────────────
@@ -106,11 +105,11 @@ public sealed class ExpressionParserTests
         //   BoolToken(true), LiteralToken(" "), BoolToken(false), LiteralToken(" ")
         // null → empty LiteralToken which is filtered out by the empty-filter step
         IReadOnlyList<ExpressionToken> result = this._parser.Parse("${true} ${false} ${null}");
-        result.Should().HaveCount(4);
-        result[0].Should().Be(new BoolToken(true));
-        result[1].Should().Be(new LiteralToken(" "));
-        result[2].Should().Be(new BoolToken(false));
-        result[3].Should().Be(new LiteralToken(" "));
+        Assert.Equal(4, result.Count);
+        Assert.Equal(new BoolToken(true), result[0]);
+        Assert.Equal(new LiteralToken(" "), result[1]);
+        Assert.Equal(new BoolToken(false), result[2]);
+        Assert.Equal(new LiteralToken(" "), result[3]);
     }
 
     // ── Parse: max depth ─────────────────────────────────────────────
@@ -119,7 +118,8 @@ public sealed class ExpressionParserTests
     public void Parse_MaxDepthExceeded_ThrowsA2UiExpressionException()
     {
         Action act = () => this._parser.Parse("depth", 11);
-        act.Should().Throw<A2UiExpressionException>().WithMessage("*Max recursion depth*");
+        var ex = Assert.Throws<A2UiExpressionException>(act);
+        Assert.Contains("Max recursion depth", ex.Message);
     }
 
     // ── Parse: unclosed interpolation ────────────────────────────────
@@ -128,7 +128,8 @@ public sealed class ExpressionParserTests
     public void Parse_UnclosedInterpolation_ThrowsA2UiExpressionException()
     {
         Action act = () => this._parser.Parse("hello ${world");
-        act.Should().Throw<A2UiExpressionException>().WithMessage("*Unclosed interpolation*");
+        var ex = Assert.Throws<A2UiExpressionException>(act);
+        Assert.Contains("Unclosed interpolation", ex.Message);
     }
 
     // ── Parse: invalid function syntax ───────────────────────────────
@@ -137,7 +138,8 @@ public sealed class ExpressionParserTests
     public void Parse_MissingClosingParenthesis_Throws()
     {
         Action act = () => this._parser.Parse("${add(a: 1, b: 2}");
-        act.Should().Throw<A2UiExpressionException>().WithMessage("*Expected ')'*");
+        var ex = Assert.Throws<A2UiExpressionException>(act);
+        Assert.Contains("Expected ')'", ex.Message);
     }
 
     // ── Parse: unexpected characters at end ──────────────────────────
@@ -146,7 +148,8 @@ public sealed class ExpressionParserTests
     public void Parse_UnexpectedCharactersAtEnd_Throws()
     {
         Action act = () => this._parser.Parse("${true false}");
-        act.Should().Throw<A2UiExpressionException>().WithMessage("*Unexpected characters*");
+        var ex = Assert.Throws<A2UiExpressionException>(act);
+        Assert.Contains("Unexpected characters", ex.Message);
     }
 
     // ── ParseExpression: empty identifiers ───────────────────────────
@@ -155,26 +158,26 @@ public sealed class ExpressionParserTests
     public void Parse_EmptyParentheses_ReturnsFunctionCallWithNoArgs()
     {
         IReadOnlyList<ExpressionToken> result = this._parser.Parse("${()}");
-        result.Should().HaveCount(1);
-        var fc = result[0].Should().BeOfType<FunctionCallToken>().Subject;
-        fc.Name.Should().Be("");
-        fc.Args.Should().BeEmpty();
+        Assert.Single(result);
+        var fc = Assert.IsType<FunctionCallToken>(result[0]);
+        Assert.Equal("", fc.Name);
+        Assert.Empty(fc.Args);
     }
 
     [Fact]
     public void ParseExpression_EmptyString_ReturnsEmptyLiteral()
     {
         ExpressionToken result = this._parser.ParseExpression("");
-        result.Should().Be(new LiteralToken(""));
+        Assert.Equal(new LiteralToken(""), result);
     }
 
     [Fact]
     public void ParseExpression_EmptyParentheses_ReturnsFunctionCall()
     {
         ExpressionToken result = this._parser.ParseExpression("()");
-        var fc = result.Should().BeOfType<FunctionCallToken>().Subject;
-        fc.Name.Should().Be("");
-        fc.Args.Should().BeEmpty();
+        var fc = Assert.IsType<FunctionCallToken>(result);
+        Assert.Equal("", fc.Name);
+        Assert.Empty(fc.Args);
     }
 
     // ── ParseExpression: string literal escape sequences ─────────────
@@ -183,7 +186,7 @@ public sealed class ExpressionParserTests
     public void ParseExpression_StringLiteralEscapeSequences_ParsesCorrectly()
     {
         ExpressionToken result = this._parser.ParseExpression("'line1\\nline2\\t\\r\\'\\\\x'");
-        result.Should().Be(new LiteralToken("line1\nline2\t\r'\\x"));
+        Assert.Equal(new LiteralToken("line1\nline2\t\r'\\x"), result);
     }
 
     // ── ParseExpression: paths with special characters ───────────────
@@ -192,7 +195,7 @@ public sealed class ExpressionParserTests
     public void ParseExpression_PathWithSpecialChars_ReturnsPathToken()
     {
         ExpressionToken result = this._parser.ParseExpression("my-path.with_underscores");
-        result.Should().Be(new PathToken("my-path.with_underscores"));
+        Assert.Equal(new PathToken("my-path.with_underscores"), result);
     }
 
     // ── ParseExpression: missing colon in function args ──────────────
@@ -201,7 +204,8 @@ public sealed class ExpressionParserTests
     public void ParseExpression_MissingColonInFunctionArgs_Throws()
     {
         Action act = () => this._parser.ParseExpression("add(a 10, b: 20)");
-        act.Should().Throw<A2UiExpressionException>().WithMessage("*Expected ':'*");
+        var ex = Assert.Throws<A2UiExpressionException>(act);
+        Assert.Contains("Expected ':'", ex.Message);
     }
 
     // ── Parse: empty string ──────────────────────────────────────────
@@ -212,8 +216,8 @@ public sealed class ExpressionParserTests
         // Parse("") has no "${" so it returns [LiteralToken("")] via the early-return path.
         // The empty-literal filter runs only inside the while-loop branch, not on this path.
         IReadOnlyList<ExpressionToken> result = this._parser.Parse("");
-        result.Should().HaveCount(1);
-        result[0].Should().Be(new LiteralToken(""));
+        Assert.Single(result);
+        Assert.Equal(new LiteralToken(""), result[0]);
     }
 
     // ── Parse: unterminated string literal ───────────────────────────
@@ -226,10 +230,8 @@ public sealed class ExpressionParserTests
         // TODO(issue #4): a dedicated "Unterminated string literal" message would give a better
         // diagnostic. For now the test verifies that parsing does not silently succeed.
         Action act = () => this._parser.Parse("${'hello");
-        act.Should()
-            .Throw<A2UiExpressionException>(
-                "an unterminated string literal inside an interpolation block must not silently succeed"
-            );
+        // an unterminated string literal inside an interpolation block must not silently succeed
+        Assert.Throws<A2UiExpressionException>(act);
     }
 
     // ── Parse: malformed number ──────────────────────────────────────
@@ -239,9 +241,10 @@ public sealed class ExpressionParserTests
     {
         // TODO(issue #3): ParseNumberLiteral calls double.Parse which throws FormatException,
         // not A2UiExpressionException. Once issue #3 is fixed in production code,
-        // change the assertion to .Throw<A2UiExpressionException>().
+        // change the assertion to Assert.Throws<A2UiExpressionException>().
         Action act = () => this._parser.Parse("${1.2.3}");
-        act.Should().Throw<Exception>("issue #3 not yet fixed: malformed number bubbles up a raw FormatException");
+        // issue #3 not yet fixed: malformed number bubbles up a raw FormatException
+        Assert.ThrowsAny<Exception>(act);
     }
 
     // ── ResolveFormatString: empty template ──────────────────────────
@@ -252,7 +255,8 @@ public sealed class ExpressionParserTests
         // The FunctionRegistry formatString function returns "" for a null/empty value arg.
         var registry = FunctionRegistry.CreateDefault();
         string? result = registry.Evaluate("formatString", new Dictionary<string, string?> { ["value"] = "" });
-        result.Should().Be("", "formatString with empty value should return an empty string");
+        // formatString with empty value should return an empty string
+        Assert.Equal("", result);
     }
 
     // ── Parse: formatString-style compound expression ────────────────
@@ -264,21 +268,21 @@ public sealed class ExpressionParserTests
             "${formatDate(value: ${/start}, format: 'E, MMM d')} - ${formatDate(value: ${/end}, format: 'h:mm a')}";
         IReadOnlyList<ExpressionToken> result = this._parser.Parse(Template);
 
-        result.Should().HaveCount(3);
+        Assert.Equal(3, result.Count);
 
         // First function call: formatDate(value: /start, format: 'E, MMM d')
-        var fc1 = result[0].Should().BeOfType<FunctionCallToken>().Subject;
-        fc1.Name.Should().Be("formatDate");
-        fc1.Args["value"].Should().Be(new PathToken("/start"));
-        fc1.Args["format"].Should().Be(new LiteralToken("E, MMM d"));
+        var fc1 = Assert.IsType<FunctionCallToken>(result[0]);
+        Assert.Equal("formatDate", fc1.Name);
+        Assert.Equal(new PathToken("/start"), fc1.Args["value"]);
+        Assert.Equal(new LiteralToken("E, MMM d"), fc1.Args["format"]);
 
         // Literal separator
-        result[1].Should().Be(new LiteralToken(" - "));
+        Assert.Equal(new LiteralToken(" - "), result[1]);
 
         // Second function call: formatDate(value: /end, format: 'h:mm a')
-        var fc2 = result[2].Should().BeOfType<FunctionCallToken>().Subject;
-        fc2.Name.Should().Be("formatDate");
-        fc2.Args["value"].Should().Be(new PathToken("/end"));
-        fc2.Args["format"].Should().Be(new LiteralToken("h:mm a"));
+        var fc2 = Assert.IsType<FunctionCallToken>(result[2]);
+        Assert.Equal("formatDate", fc2.Name);
+        Assert.Equal(new PathToken("/end"), fc2.Args["value"]);
+        Assert.Equal(new LiteralToken("h:mm a"), fc2.Args["format"]);
     }
 }

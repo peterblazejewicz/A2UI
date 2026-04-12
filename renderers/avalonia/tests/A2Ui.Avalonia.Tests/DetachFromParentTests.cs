@@ -1,6 +1,6 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests;
 
@@ -13,12 +13,12 @@ public sealed class DetachFromParentTests
         var child = new TextBlock { Text = "Hello" };
         panel.Children.Add(child);
 
-        child.Parent.Should().Be(panel);
+        Assert.Equal(panel, child.Parent);
 
         RenderContext.DetachFromParent(child);
 
-        child.Parent.Should().BeNull();
-        panel.Children.Should().BeEmpty();
+        Assert.Null(child.Parent);
+        Assert.Empty(panel.Children);
     }
 
     [AvaloniaFact]
@@ -29,12 +29,12 @@ public sealed class DetachFromParentTests
         cc.Content = child;
 
         // ContentControl sets child as logical child
-        child.Parent.Should().Be(cc);
+        Assert.Equal(cc, child.Parent);
 
         RenderContext.DetachFromParent(child);
 
-        child.Parent.Should().BeNull();
-        cc.Content.Should().BeNull();
+        Assert.Null(child.Parent);
+        Assert.Null(cc.Content);
     }
 
     [AvaloniaFact]
@@ -44,24 +44,24 @@ public sealed class DetachFromParentTests
         var child = new TextBlock { Text = "Bordered" };
         border.Child = child;
 
-        child.Parent.Should().Be(border);
+        Assert.Equal(border, child.Parent);
 
         RenderContext.DetachFromParent(child);
 
-        child.Parent.Should().BeNull();
-        border.Child.Should().BeNull();
+        Assert.Null(child.Parent);
+        Assert.Null(border.Child);
     }
 
     [AvaloniaFact]
     public void DetachFromParent_NoParent_DoesNothing()
     {
         var orphan = new TextBlock { Text = "Orphan" };
-        orphan.Parent.Should().BeNull();
+        Assert.Null(orphan.Parent);
 
         // Should not throw
         RenderContext.DetachFromParent(orphan);
 
-        orphan.Parent.Should().BeNull();
+        Assert.Null(orphan.Parent);
     }
 
     [AvaloniaFact]
@@ -74,13 +74,13 @@ public sealed class DetachFromParentTests
         var child = new TextBlock { Text = "Shared" };
 
         oldPanel.Children.Add(child);
-        child.Parent.Should().Be(oldPanel);
+        Assert.Equal(oldPanel, child.Parent);
 
         // Detach from old parent
         RenderContext.DetachFromParent(child);
 
         // Now adding to new parent should not throw
         newPanel.Children.Add(child);
-        child.Parent.Should().Be(newPanel);
+        Assert.Equal(newPanel, child.Parent);
     }
 }

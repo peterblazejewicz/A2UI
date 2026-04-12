@@ -4,7 +4,7 @@ using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Layout;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -32,8 +32,8 @@ public sealed class NewCatalogEntryTests
 
         var control = entry.Create(c, dm, ctx);
 
-        control.Should().BeOfType<TextBlock>();
-        ((TextBlock)control).Text.Should().Be("\u27A4");
+        Assert.IsType<TextBlock>(control);
+        Assert.Equal("\u27A4", ((TextBlock)control).Text);
     }
 
     [AvaloniaFact]
@@ -50,7 +50,7 @@ public sealed class NewCatalogEntryTests
 
         var control = entry.Create(c, dm, ctx);
 
-        ((TextBlock)control).Text.Should().Be("\u25A0");
+        Assert.Equal("\u25A0", ((TextBlock)control).Text);
     }
 
     // ── Divider ───────────────────────────────────────────────────────────
@@ -64,7 +64,7 @@ public sealed class NewCatalogEntryTests
 
         var control = entry.Create(c, dm, ctx);
 
-        control.Should().BeOfType<Separator>();
+        Assert.IsType<Separator>(control);
     }
 
     [AvaloniaFact]
@@ -81,11 +81,11 @@ public sealed class NewCatalogEntryTests
 
         var control = entry.Create(c, dm, ctx);
 
-        control.Should().BeOfType<Separator>();
+        Assert.IsType<Separator>(control);
         var sep = (Separator)control;
-        sep.Width.Should().Be(1);
-        sep.VerticalAlignment.Should().Be(VerticalAlignment.Stretch);
-        sep.HorizontalAlignment.Should().Be(HorizontalAlignment.Center);
+        Assert.Equal(1, sep.Width);
+        Assert.Equal(VerticalAlignment.Stretch, sep.VerticalAlignment);
+        Assert.Equal(HorizontalAlignment.Center, sep.HorizontalAlignment);
     }
 
     // ── Video ─────────────────────────────────────────────────────────────
@@ -104,9 +104,9 @@ public sealed class NewCatalogEntryTests
 
         var control = entry.Create(c, dm, ctx);
 
-        control.Should().BeOfType<TextBlock>();
-        ((TextBlock)control).Text.Should().Contain("Video");
-        ((TextBlock)control).Text.Should().Contain("video.mp4");
+        Assert.IsType<TextBlock>(control);
+        Assert.Contains("Video", ((TextBlock)control).Text);
+        Assert.Contains("video.mp4", ((TextBlock)control).Text);
     }
 
     // ── AudioPlayer ───────────────────────────────────────────────────────
@@ -125,8 +125,8 @@ public sealed class NewCatalogEntryTests
 
         var control = entry.Create(c, dm, ctx);
 
-        control.Should().BeOfType<TextBlock>();
-        ((TextBlock)control).Text.Should().Contain("AudioPlayer");
+        Assert.IsType<TextBlock>(control);
+        Assert.Contains("AudioPlayer", ((TextBlock)control).Text);
     }
 
     // ── List ──────────────────────────────────────────────────────────────
@@ -140,7 +140,7 @@ public sealed class NewCatalogEntryTests
 
         var control = entry.Create(c, dm, ctx);
 
-        control.Should().BeOfType<ScrollViewer>();
+        Assert.IsType<ScrollViewer>(control);
     }
 
     // ── Tabs ──────────────────────────────────────────────────────────────
@@ -163,8 +163,8 @@ public sealed class NewCatalogEntryTests
 
         var control = entry.Create(c, dm, ctx);
 
-        control.Should().BeOfType<TabControl>();
-        ((TabControl)control).Items.Should().HaveCount(2);
+        Assert.IsType<TabControl>(control);
+        Assert.Equal(2, ((TabControl)control).Items.Count);
     }
 
     // ── Modal ─────────────────────────────────────────────────────────────
@@ -185,7 +185,7 @@ public sealed class NewCatalogEntryTests
         var control = entry.Create(c, dm, ctx);
 
         // Modal now returns a Panel containing the trigger + a Popup overlay
-        control.Should().BeOfType<Panel>();
+        Assert.IsType<Panel>(control);
     }
 
     // ── ChoicePicker ──────────────────────────────────────────────────────
@@ -208,8 +208,8 @@ public sealed class NewCatalogEntryTests
 
         var control = entry.Create(c, dm, ctx);
 
-        control.Should().BeOfType<ComboBox>();
-        ((ComboBox)control).Items.Should().HaveCount(2);
+        Assert.IsType<ComboBox>(control);
+        Assert.Equal(2, ((ComboBox)control).Items.Count);
     }
 
     // ── CheckBox (renamed from Checkbox) ──────────────────────────────────
@@ -229,10 +229,10 @@ public sealed class NewCatalogEntryTests
 
         var control = entry.Create(c, dm, ctx);
 
-        control.Should().BeOfType<CheckBox>();
+        Assert.IsType<CheckBox>(control);
         var cb = (CheckBox)control;
-        cb.Content.Should().Be("Accept terms");
-        cb.IsChecked.Should().BeTrue();
+        Assert.Equal("Accept terms", cb.Content);
+        Assert.True(cb.IsChecked);
     }
 
     // ── Slider with min/max ───────────────────────────────────────────────
@@ -253,9 +253,9 @@ public sealed class NewCatalogEntryTests
 
         var control = entry.Create(c, dm, ctx);
 
-        control.Should().BeOfType<Slider>();
+        Assert.IsType<Slider>(control);
         var slider = (Slider)control;
-        slider.Minimum.Should().Be(10);
-        slider.Maximum.Should().Be(200);
+        Assert.Equal(10, slider.Minimum);
+        Assert.Equal(200, slider.Maximum);
     }
 }

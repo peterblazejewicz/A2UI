@@ -3,7 +3,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -32,11 +32,11 @@ public sealed class InputWriteBackTests
 
         var control = entry.Create(component, dm, ctx);
         TextBox? tb = CheckHelper.FindInner<TextBox>(control);
-        tb.Should().NotBeNull();
+        Assert.NotNull(tb);
 
-        tb!.Text = "Alice";
+        tb.Text = "Alice";
 
-        ctx.DataModelUpdates.Should().Contain(("/name", "Alice"));
+        Assert.Contains(("/name", "Alice"), ctx.DataModelUpdates);
     }
 
     [AvaloniaFact]
@@ -54,13 +54,13 @@ public sealed class InputWriteBackTests
 
         var control = entry.Create(component, dm, ctx);
         TextBox? tb = CheckHelper.FindInner<TextBox>(control);
-        tb.Should().NotBeNull();
+        Assert.NotNull(tb);
 
-        tb!.Text = "alice@example.com";
+        tb.Text = "alice@example.com";
 
-        ctx.FiredActions.Should().ContainSingle(a => a.ComponentId == "tf2");
-        ctx.FiredActions[0].EventName.Should().Be("valueChanged");
-        ctx.FiredActions[0].Payload.Should().Be("alice@example.com");
+        Assert.Single(ctx.FiredActions, a => a.ComponentId == "tf2");
+        Assert.Equal("valueChanged", ctx.FiredActions[0].EventName);
+        Assert.Equal("alice@example.com", ctx.FiredActions[0].Payload);
     }
 
     // ── Slider write-back ─────────────────────────────────────────────────
@@ -81,11 +81,11 @@ public sealed class InputWriteBackTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<Slider>();
+        Assert.IsType<Slider>(control);
         var slider = (Slider)control;
-        slider.Value.Should().Be(75);
-        slider.Minimum.Should().Be(0);
-        slider.Maximum.Should().Be(100);
+        Assert.Equal(75, slider.Value);
+        Assert.Equal(0, slider.Minimum);
+        Assert.Equal(100, slider.Maximum);
     }
 
     // ── DateTimeInput write-back ──────────────────────────────────────────
@@ -106,11 +106,11 @@ public sealed class InputWriteBackTests
         var control = entry.Create(component, dm, ctx);
 
         var picker = CheckHelper.FindInner<CalendarDatePicker>(control);
-        picker.Should().NotBeNull();
-        picker!.SelectedDate.Should().NotBeNull();
-        picker.SelectedDate!.Value.Year.Should().Be(2024);
-        picker.SelectedDate.Value.Month.Should().Be(6);
-        picker.SelectedDate.Value.Day.Should().Be(15);
+        Assert.NotNull(picker);
+        Assert.NotNull(picker.SelectedDate);
+        Assert.Equal(2024, picker.SelectedDate!.Value.Year);
+        Assert.Equal(6, picker.SelectedDate.Value.Month);
+        Assert.Equal(15, picker.SelectedDate.Value.Day);
     }
 
     [AvaloniaFact]
@@ -129,9 +129,9 @@ public sealed class InputWriteBackTests
         var control = entry.Create(component, dm, ctx);
 
         var picker = CheckHelper.FindInner<CalendarDatePicker>(control);
-        picker.Should().NotBeNull();
-        picker!.PlaceholderText.Should().Be("Start date");
+        Assert.NotNull(picker);
+        Assert.Equal("Start date", picker.PlaceholderText);
         // No initial date value in data model, so SelectedDate should be null
-        picker.SelectedDate.Should().BeNull();
+        Assert.Null(picker.SelectedDate);
     }
 }

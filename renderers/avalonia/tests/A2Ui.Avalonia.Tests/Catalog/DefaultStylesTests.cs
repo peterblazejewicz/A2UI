@@ -3,7 +3,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -25,8 +25,8 @@ public sealed class DefaultStylesTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<TextBlock>();
-        control.Classes.Should().Contain("Heading1");
+        Assert.IsType<TextBlock>(control);
+        Assert.Contains("Heading1", control.Classes);
     }
 
     [AvaloniaFact]
@@ -45,8 +45,8 @@ public sealed class DefaultStylesTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<TextBlock>();
-        control.Classes.Should().Contain("Caption");
+        Assert.IsType<TextBlock>(control);
+        Assert.Contains("Caption", control.Classes);
     }
 
     [AvaloniaFact]
@@ -64,8 +64,8 @@ public sealed class DefaultStylesTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<TextBlock>();
-        control.Classes.Should().Contain("Body");
+        Assert.IsType<TextBlock>(control);
+        Assert.Contains("Body", control.Classes);
     }
 
     [AvaloniaFact]
@@ -73,6 +73,6 @@ public sealed class DefaultStylesTests
     {
         var surface = new Controls.A2UiSurface();
 
-        surface.Styles.Should().NotBeEmpty("A2UiSurface should load A2UiDefaultStyles.axaml");
+        Assert.NotEmpty(surface.Styles);
     }
 }

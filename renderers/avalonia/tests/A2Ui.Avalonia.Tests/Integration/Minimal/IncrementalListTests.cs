@@ -1,8 +1,8 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Minimal;
 
@@ -18,13 +18,13 @@ public sealed class IncrementalListTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
 
-        result.Surface.Components.Keys.Should().Contain("root");
-        result.Surface.Components.Keys.Should().Contain("restaurant_card");
-        result.Surface.Components.Keys.Should().Contain("rc_title");
-        result.Surface.Components.Keys.Should().Contain("rc_subtitle");
-        result.Surface.Components.Keys.Should().Contain("rc_address");
-        result.Surface.Components.Keys.Should().Contain("rc_button");
-        result.Surface.Components.Keys.Should().Contain("rc_button_label");
+        Assert.Contains("root", result.Surface.Components.Keys);
+        Assert.Contains("restaurant_card", result.Surface.Components.Keys);
+        Assert.Contains("rc_title", result.Surface.Components.Keys);
+        Assert.Contains("rc_subtitle", result.Surface.Components.Keys);
+        Assert.Contains("rc_address", result.Surface.Components.Keys);
+        Assert.Contains("rc_button", result.Surface.Components.Keys);
+        Assert.Contains("rc_button_label", result.Surface.Components.Keys);
     }
 
     [AvaloniaFact]
@@ -33,7 +33,7 @@ public sealed class IncrementalListTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
 
         int length = result.Surface.DataModel.GetArrayLength("/restaurants");
-        length.Should().Be(4);
+        Assert.Equal(4, length);
     }
 
     [AvaloniaFact]
@@ -43,9 +43,7 @@ public sealed class IncrementalListTests
 
         // Root is a Column (StackPanel) with template children expanded
         List<Control> rootChildren = GalleryTestHelper.GetChildren(result.RootControl).ToList();
-        rootChildren
-            .Should()
-            .HaveCount(4, "the /restaurants array has 4 items so template expansion should produce 4 cards");
+        Assert.Equal(4, rootChildren.Count);
     }
 
     [AvaloniaFact]
@@ -56,10 +54,10 @@ public sealed class IncrementalListTests
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
         List<string> allTexts = textBlocks.Select(tb => tb.Text).Where(t => t is not null).Cast<string>().ToList();
 
-        allTexts.Should().Contain("The Golden Fork");
-        allTexts.Should().Contain("Ocean's Bounty");
-        allTexts.Should().Contain("Pizzeria Roma");
-        allTexts.Should().Contain("Spice Route");
+        Assert.Contains("The Golden Fork", allTexts);
+        Assert.Contains("Ocean's Bounty", allTexts);
+        Assert.Contains("Pizzeria Roma", allTexts);
+        Assert.Contains("Spice Route", allTexts);
     }
 
     [AvaloniaFact]
@@ -70,10 +68,10 @@ public sealed class IncrementalListTests
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
         List<string> allTexts = textBlocks.Select(tb => tb.Text).Where(t => t is not null).Cast<string>().ToList();
 
-        allTexts.Should().Contain("123 Gastronomy Lane");
-        allTexts.Should().Contain("456 Shoreline Dr");
-        allTexts.Should().Contain("789 Napoli Way");
-        allTexts.Should().Contain("101 Silk Road St");
+        Assert.Contains("123 Gastronomy Lane", allTexts);
+        Assert.Contains("456 Shoreline Dr", allTexts);
+        Assert.Contains("789 Napoli Way", allTexts);
+        Assert.Contains("101 Silk Road St", allTexts);
     }
 
     [AvaloniaFact]
@@ -82,7 +80,7 @@ public sealed class IncrementalListTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/7_incremental.json");
 
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().HaveCount(4, "each of the 4 restaurant cards should have a 'Book now' button");
+        Assert.Equal(4, buttons.Count);
     }
 
     [AvaloniaFact]
@@ -92,18 +90,17 @@ public sealed class IncrementalListTests
 
         // Click the first "Book now" button
         List<Button> buttons = GalleryTestHelper.FindAll<Button>(result.RootControl);
-        buttons.Should().HaveCountGreaterThan(0);
+        Assert.NotEmpty(buttons);
 
         GalleryTestHelper.ClickButton(buttons[0]);
 
-        result.ActionLog.Should().HaveCount(1);
-        result.ActionLog[0].EventName.Should().Be("book_now");
+        Assert.Single(result.ActionLog);
+        Assert.Equal("book_now", result.ActionLog[0].EventName);
 
         // The action context should have resolved the scoped "title" path
         // for the first restaurant (The Golden Fork)
-        var context = result.ActionLog[0].Payload as Dictionary<string, string?>;
-        context.Should().NotBeNull();
-        context!["restaurantName"].Should().Be("The Golden Fork");
+        var context = Assert.IsType<Dictionary<string, string?>>(result.ActionLog[0].Payload);
+        Assert.Equal("The Golden Fork", context["restaurantName"]);
     }
 
     [AvaloniaFact]
@@ -127,9 +124,7 @@ public sealed class IncrementalListTests
 
         Control reRendered = result.ReRender();
         List<Control> rootChildren = GalleryTestHelper.GetChildren(reRendered).ToList();
-        rootChildren
-            .Should()
-            .HaveCount(0, "an empty /restaurants array should produce zero template-expanded children");
+        Assert.Empty(rootChildren);
     }
 
     [AvaloniaFact]
@@ -139,14 +134,14 @@ public sealed class IncrementalListTests
 
         // Get the second card (index 1)
         List<Control> rootChildren = GalleryTestHelper.GetChildren(result.RootControl).ToList();
-        rootChildren.Should().HaveCountGreaterThan(1);
+        Assert.True(rootChildren.Count > 1);
 
         Control secondCard = rootChildren[1];
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(secondCard);
         List<string> texts = textBlocks.Select(tb => tb.Text).Where(t => t is not null).Cast<string>().ToList();
 
-        texts.Should().Contain("Ocean's Bounty");
-        texts.Should().Contain("Fresh Daily Seafood");
-        texts.Should().Contain("456 Shoreline Dr");
+        Assert.Contains("Ocean's Bounty", texts);
+        Assert.Contains("Fresh Daily Seafood", texts);
+        Assert.Contains("456 Shoreline Dr", texts);
     }
 }

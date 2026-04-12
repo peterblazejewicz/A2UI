@@ -3,7 +3,7 @@ using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -45,7 +45,7 @@ public sealed class CheckHelperTests
 
         Control result = CheckHelper.ApplyChecks(control, component, ctx);
 
-        result.Should().BeSameAs(control, "no checks means no wrapping");
+        Assert.Same(control, result);
     }
 
     [AvaloniaFact]
@@ -58,10 +58,10 @@ public sealed class CheckHelperTests
         Control result = CheckHelper.ApplyChecks(control, component, ctx);
 
         // Always wraps in StackPanel when checks exist (for in-place UpdateChecks)
-        result.Should().BeOfType<StackPanel>();
+        Assert.IsType<StackPanel>(result);
         var panel = (StackPanel)result;
-        panel.Children.Should().HaveCount(1, "all checks pass so no error TextBlocks");
-        panel.Children[0].Should().BeSameAs(control);
+        Assert.Single(panel.Children);
+        Assert.Same(control, panel.Children[0]);
     }
 
     [AvaloniaFact]
@@ -79,13 +79,13 @@ public sealed class CheckHelperTests
         Control result = CheckHelper.ApplyChecks(control, component, ctx);
 
         // Result must be a StackPanel wrapping the original control + first failing error only
-        var panel = result.Should().BeOfType<StackPanel>().Subject;
-        panel.Children.Should().HaveCount(2, "original control + first failing error TextBlock only");
-        panel.Children[0].Should().BeSameAs(control);
+        var panel = Assert.IsType<StackPanel>(result);
+        Assert.Equal(2, panel.Children.Count);
+        Assert.Same(control, panel.Children[0]);
 
-        var tb1 = panel.Children[1].Should().BeOfType<TextBlock>().Subject;
-        tb1.Text.Should().Be("ErrorOne", "only the first failing check message is shown");
-        tb1.Classes.Should().Contain("ValidationError");
+        var tb1 = Assert.IsType<TextBlock>(panel.Children[1]);
+        Assert.Equal("ErrorOne", tb1.Text);
+        Assert.Contains("ValidationError", tb1.Classes);
     }
 
     // ── AllChecksPassing ──────────────────────────────────────────────────
@@ -98,7 +98,7 @@ public sealed class CheckHelperTests
 
         bool result = CheckHelper.AllChecksPassing(component, ctx);
 
-        result.Should().BeTrue("an empty checks array means nothing can fail");
+        Assert.True(result);
     }
 
     [AvaloniaFact]
@@ -109,7 +109,7 @@ public sealed class CheckHelperTests
 
         bool result = CheckHelper.AllChecksPassing(component, ctx);
 
-        result.Should().BeFalse("one failing check must make the result false");
+        Assert.False(result);
     }
 
     // ── FirstFailingMessage ───────────────────────────────────────────────
@@ -122,7 +122,7 @@ public sealed class CheckHelperTests
 
         string? result = CheckHelper.FirstFailingMessage(component, ctx);
 
-        result.Should().BeNull("all checks pass so there is no failing message");
+        Assert.Null(result);
     }
 
     [AvaloniaFact]
@@ -133,6 +133,6 @@ public sealed class CheckHelperTests
 
         string? result = CheckHelper.FirstFailingMessage(component, ctx);
 
-        result.Should().Be("FirstError", "should return the message of the first failing check only");
+        Assert.Equal("FirstError", result);
     }
 }

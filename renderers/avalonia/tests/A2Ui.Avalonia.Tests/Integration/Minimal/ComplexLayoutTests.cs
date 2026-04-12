@@ -1,6 +1,6 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Minimal;
 
@@ -15,7 +15,7 @@ public sealed class ComplexLayoutTests
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/5_complex_layout.json");
 
-        result.RootControl.Should().BeOfType<Grid>();
+        Assert.IsType<Grid>(result.RootControl);
     }
 
     [AvaloniaFact]
@@ -24,7 +24,7 @@ public sealed class ComplexLayoutTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/5_complex_layout.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        textBlocks.Should().Contain(tb => tb.Text == "User Profile Form" && tb.Classes.Contains("Heading1"));
+        Assert.Contains(textBlocks, tb => tb.Text == "User Profile Form" && tb.Classes.Contains("Heading1"));
     }
 
     [AvaloniaFact]
@@ -33,9 +33,9 @@ public sealed class ComplexLayoutTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/5_complex_layout.json");
 
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
-        textBoxes.Should().HaveCount(2);
-        textBoxes[0].PlaceholderText.Should().Be("First Name");
-        textBoxes[1].PlaceholderText.Should().Be("Last Name");
+        Assert.Equal(2, textBoxes.Count);
+        Assert.Equal("First Name", textBoxes[0].PlaceholderText);
+        Assert.Equal("Last Name", textBoxes[1].PlaceholderText);
     }
 
     [AvaloniaFact]
@@ -44,7 +44,7 @@ public sealed class ComplexLayoutTests
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/5_complex_layout.json");
 
         List<TextBlock> textBlocks = GalleryTestHelper.FindAll<TextBlock>(result.RootControl);
-        textBlocks.Should().Contain(tb => tb.Text == "Please fill out all fields." && tb.Classes.Contains("Caption"));
+        Assert.Contains(textBlocks, tb => tb.Text == "Please fill out all fields." && tb.Classes.Contains("Caption"));
     }
 
     [AvaloniaFact]
@@ -57,8 +57,8 @@ public sealed class ComplexLayoutTests
         List<Grid> grids = GalleryTestHelper.FindAll<Grid>(result.RootControl);
         Grid? innerRow = grids.FirstOrDefault(g => g.ColumnDefinitions.Count == 2);
 
-        innerRow.Should().NotBeNull("form_row with weight:1 children must produce a Grid");
-        innerRow!.ColumnDefinitions.All(cd => cd.Width.IsStar).Should().BeTrue();
+        Assert.NotNull(innerRow);
+        Assert.True(innerRow.ColumnDefinitions.All(cd => cd.Width.IsStar));
     }
 
     [AvaloniaFact]
@@ -74,10 +74,10 @@ public sealed class ComplexLayoutTests
             g.ColumnDefinitions.Count == 2 && g.ColumnDefinitions.All(cd => cd.Width.IsStar)
         );
 
-        weightedGrid.Should().NotBeNull("Row with weight:1 children should use a star-sized Grid");
-        weightedGrid!.ColumnDefinitions.Should().HaveCount(2);
-        weightedGrid.ColumnDefinitions[0].Width.Value.Should().Be(1, "first_name has weight 1");
-        weightedGrid.ColumnDefinitions[1].Width.Value.Should().Be(1, "last_name has weight 1");
-        weightedGrid.Children.Should().HaveCount(2);
+        Assert.NotNull(weightedGrid);
+        Assert.Equal(2, weightedGrid.ColumnDefinitions.Count);
+        Assert.Equal(1, weightedGrid.ColumnDefinitions[0].Width.Value);
+        Assert.Equal(1, weightedGrid.ColumnDefinitions[1].Width.Value);
+        Assert.Equal(2, weightedGrid.Children.Count);
     }
 }

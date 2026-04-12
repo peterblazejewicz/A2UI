@@ -1,11 +1,11 @@
-﻿using A2Ui.Avalonia.Catalog;
+using A2Ui.Avalonia.Catalog;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using A2Ui.TestHelpers;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests;
 
@@ -56,27 +56,29 @@ public sealed class TelemetryScenarioTests
         Control rendered = renderer.Render(surface);
 
         // Assert — fallback control
-        rendered.Should().BeOfType<TextBlock>();
-        ((TextBlock)rendered).Text.Should().Be("[Unknown component: NotARealComponent]");
+        Assert.IsType<TextBlock>(rendered);
+        Assert.Equal("[Unknown component: NotARealComponent]", ((TextBlock)rendered).Text);
 
         // Assert — CatalogRegistry lookup-miss entry (EventId 2)
         var catalogMiss = provider
             .Entries.Where(e => e.CategoryName == CatalogRegistryCategory && e.EventId.Id == 2)
             .ToList();
-        catalogMiss.Should().NotBeEmpty("CatalogRegistry should log a lookup miss for unknown types");
+        // CatalogRegistry should log a lookup miss for unknown types
+        Assert.NotEmpty(catalogMiss);
         var miss = catalogMiss[0];
-        miss.Level.Should().Be(LogLevel.Warning);
-        miss.Properties["ComponentType"].Should().Be("NotARealComponent");
+        Assert.Equal(LogLevel.Warning, miss.Level);
+        Assert.Equal("NotARealComponent", miss.Properties["ComponentType"]);
 
         // Assert — renderer fallback entry (EventId 12)
         var rendererFallback = provider
             .Entries.Where(e => e.CategoryName == RendererCategory && e.EventId.Id == 12)
             .ToList();
-        rendererFallback.Should().NotBeEmpty("A2UiRenderer should log UnknownComponentTypeRendered");
+        // A2UiRenderer should log UnknownComponentTypeRendered
+        Assert.NotEmpty(rendererFallback);
         var fallback = rendererFallback[0];
-        fallback.Level.Should().Be(LogLevel.Warning);
-        fallback.Properties["ComponentId"].Should().Be("root");
-        fallback.Properties["ComponentType"].Should().Be("NotARealComponent");
+        Assert.Equal(LogLevel.Warning, fallback.Level);
+        Assert.Equal("root", fallback.Properties["ComponentId"]);
+        Assert.Equal("NotARealComponent", fallback.Properties["ComponentType"]);
 
         // Assert — Renderer.Render span carries the surface id tag (filter by
         // surface id to avoid cross-test leakage from parallel test classes,
@@ -86,6 +88,6 @@ public sealed class TelemetryScenarioTests
                 a.Source.Name == RendererActivitySource && Equals(a.GetTagItem("a2ui.surface_id"), "s-unknown")
             )
             .Single(a => a.OperationName == "Renderer.Render");
-        span.GetTagItem("a2ui.catalog_id").Should().Be("c");
+        Assert.Equal("c", span.GetTagItem("a2ui.catalog_id"));
     }
 }

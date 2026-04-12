@@ -4,8 +4,8 @@ using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Layout;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -34,10 +34,10 @@ public sealed class LayoutCatalogEntryTests
         var control = entry.Create(component, dm, ctx);
 
         // Default layout is StackPanel for non-spaceBetween
-        control.Should().BeAssignableTo<StackPanel>();
+        Assert.IsAssignableFrom<StackPanel>(control);
         var panel = (StackPanel)control;
-        panel.Orientation.Should().Be(Orientation.Horizontal);
-        panel.Children.Should().HaveCount(2);
+        Assert.Equal(Orientation.Horizontal, panel.Orientation);
+        Assert.Equal(2, panel.Children.Count);
     }
 
     [AvaloniaFact]
@@ -63,12 +63,12 @@ public sealed class LayoutCatalogEntryTests
         var control = entry.Create(component, dm, ctx);
 
         // spaceBetween uses a Grid with star spacers
-        control.Should().BeOfType<Grid>();
+        Assert.IsType<Grid>(control);
         var grid = (Grid)control;
-        grid.Children.Should().HaveCount(2);
-        // 2 children → 2 auto columns + 1 star spacer = 3 column definitions
-        grid.ColumnDefinitions.Should().HaveCount(3);
-        grid.ColumnDefinitions[1].Width.IsStar.Should().BeTrue();
+        Assert.Equal(2, grid.Children.Count);
+        // 2 children -> 2 auto columns + 1 star spacer = 3 column definitions
+        Assert.Equal(3, grid.ColumnDefinitions.Count);
+        Assert.True(grid.ColumnDefinitions[1].Width.IsStar);
     }
 
     [AvaloniaFact]
@@ -88,9 +88,9 @@ public sealed class LayoutCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeAssignableTo<StackPanel>();
+        Assert.IsAssignableFrom<StackPanel>(control);
         var panel = (StackPanel)control;
-        panel.HorizontalAlignment.Should().Be(HorizontalAlignment.Center);
+        Assert.Equal(HorizontalAlignment.Center, panel.HorizontalAlignment);
     }
 
     // ── Column ────────────────────────────────────────────────
@@ -116,11 +116,11 @@ public sealed class LayoutCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeAssignableTo<StackPanel>();
+        Assert.IsAssignableFrom<StackPanel>(control);
         var panel = (StackPanel)control;
-        panel.Orientation.Should().Be(Orientation.Vertical);
-        panel.Children.Should().HaveCount(2);
-        panel.VerticalAlignment.Should().Be(VerticalAlignment.Top);
+        Assert.Equal(Orientation.Vertical, panel.Orientation);
+        Assert.Equal(2, panel.Children.Count);
+        Assert.Equal(VerticalAlignment.Top, panel.VerticalAlignment);
     }
 
     [AvaloniaFact]
@@ -144,12 +144,12 @@ public sealed class LayoutCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<Grid>();
+        Assert.IsType<Grid>(control);
         var grid = (Grid)control;
-        grid.Children.Should().HaveCount(2);
-        // Vertical spaceBetween → row definitions
-        grid.RowDefinitions.Should().HaveCount(3);
-        grid.RowDefinitions[1].Height.IsStar.Should().BeTrue();
+        Assert.Equal(2, grid.Children.Count);
+        // Vertical spaceBetween -> row definitions
+        Assert.Equal(3, grid.RowDefinitions.Count);
+        Assert.True(grid.RowDefinitions[1].Height.IsStar);
     }
 
     // ── Cross-axis alignment ──────────────────────────────────
@@ -174,8 +174,8 @@ public sealed class LayoutCatalogEntryTests
         entry.Create(component, dm, ctx);
 
         // Cross-axis for horizontal row is vertical
-        child1.VerticalAlignment.Should().Be(VerticalAlignment.Center);
-        child2.VerticalAlignment.Should().Be(VerticalAlignment.Center);
+        Assert.Equal(VerticalAlignment.Center, child1.VerticalAlignment);
+        Assert.Equal(VerticalAlignment.Center, child2.VerticalAlignment);
     }
 
     [AvaloniaFact]
@@ -198,8 +198,8 @@ public sealed class LayoutCatalogEntryTests
         entry.Create(component, dm, ctx);
 
         // Cross-axis for vertical column is horizontal
-        child1.HorizontalAlignment.Should().Be(HorizontalAlignment.Center);
-        child2.HorizontalAlignment.Should().Be(HorizontalAlignment.Center);
+        Assert.Equal(HorizontalAlignment.Center, child1.HorizontalAlignment);
+        Assert.Equal(HorizontalAlignment.Center, child2.HorizontalAlignment);
     }
 
     [AvaloniaFact]
@@ -219,10 +219,10 @@ public sealed class LayoutCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<Grid>();
+        Assert.IsType<Grid>(control);
         var grid = (Grid)control;
-        grid.Children.Should().BeEmpty();
-        grid.ColumnDefinitions.Should().BeEmpty();
+        Assert.Empty(grid.Children);
+        Assert.Empty(grid.ColumnDefinitions);
     }
 
     // ── Weight (star-sized proportional layout) ───────────────
@@ -248,14 +248,14 @@ public sealed class LayoutCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<Grid>("equal-weight children should produce a star-sized Grid");
+        Assert.IsType<Grid>(control);
         var grid = (Grid)control;
-        grid.ColumnDefinitions.Should().HaveCount(2);
-        grid.ColumnDefinitions[0].Width.IsStar.Should().BeTrue();
-        grid.ColumnDefinitions[0].Width.Value.Should().Be(1);
-        grid.ColumnDefinitions[1].Width.IsStar.Should().BeTrue();
-        grid.ColumnDefinitions[1].Width.Value.Should().Be(1);
-        grid.Children.Should().HaveCount(2);
+        Assert.Equal(2, grid.ColumnDefinitions.Count);
+        Assert.True(grid.ColumnDefinitions[0].Width.IsStar);
+        Assert.Equal(1, grid.ColumnDefinitions[0].Width.Value);
+        Assert.True(grid.ColumnDefinitions[1].Width.IsStar);
+        Assert.Equal(1, grid.ColumnDefinitions[1].Width.Value);
+        Assert.Equal(2, grid.Children.Count);
     }
 
     [AvaloniaFact]
@@ -279,11 +279,11 @@ public sealed class LayoutCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<Grid>();
+        Assert.IsType<Grid>(control);
         var grid = (Grid)control;
-        grid.ColumnDefinitions.Should().HaveCount(2);
-        grid.ColumnDefinitions[0].Width.Value.Should().Be(2, "c1 has weight 2");
-        grid.ColumnDefinitions[1].Width.Value.Should().Be(1, "c2 has weight 1");
+        Assert.Equal(2, grid.ColumnDefinitions.Count);
+        Assert.Equal(2, grid.ColumnDefinitions[0].Width.Value);
+        Assert.Equal(1, grid.ColumnDefinitions[1].Width.Value);
     }
 
     [AvaloniaFact]
@@ -307,11 +307,11 @@ public sealed class LayoutCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<Grid>();
+        Assert.IsType<Grid>(control);
         var grid = (Grid)control;
-        grid.ColumnDefinitions.Should().HaveCount(2);
-        grid.ColumnDefinitions[0].Width.IsAuto.Should().BeTrue("weight 0 gets Auto sizing");
-        grid.ColumnDefinitions[1].Width.IsStar.Should().BeTrue("weight 1 gets Star sizing");
+        Assert.Equal(2, grid.ColumnDefinitions.Count);
+        Assert.True(grid.ColumnDefinitions[0].Width.IsAuto);
+        Assert.True(grid.ColumnDefinitions[1].Width.IsStar);
     }
 
     [AvaloniaFact]
@@ -335,13 +335,13 @@ public sealed class LayoutCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeOfType<Grid>("weight children in Column should produce a star-sized Grid");
+        Assert.IsType<Grid>(control);
         var grid = (Grid)control;
-        grid.RowDefinitions.Should().HaveCount(2);
-        grid.RowDefinitions[0].Height.IsStar.Should().BeTrue();
-        grid.RowDefinitions[0].Height.Value.Should().Be(1);
-        grid.RowDefinitions[1].Height.IsStar.Should().BeTrue();
-        grid.RowDefinitions[1].Height.Value.Should().Be(3);
+        Assert.Equal(2, grid.RowDefinitions.Count);
+        Assert.True(grid.RowDefinitions[0].Height.IsStar);
+        Assert.Equal(1, grid.RowDefinitions[0].Height.Value);
+        Assert.True(grid.RowDefinitions[1].Height.IsStar);
+        Assert.Equal(3, grid.RowDefinitions[1].Height.Value);
     }
 
     [AvaloniaFact]
@@ -365,7 +365,7 @@ public sealed class LayoutCatalogEntryTests
 
         var control = entry.Create(component, dm, ctx);
 
-        control.Should().BeAssignableTo<StackPanel>("no weights means StackPanel is used");
+        Assert.IsAssignableFrom<StackPanel>(control);
     }
 }
 

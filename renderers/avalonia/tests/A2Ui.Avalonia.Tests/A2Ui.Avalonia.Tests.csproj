@@ -22,7 +22,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Avalonia.Headless.XUnit" />
-    <PackageReference Include="FluentAssertions" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/A2Ui.Avalonia/A2Ui.Avalonia.csproj" />
