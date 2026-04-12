@@ -9,9 +9,10 @@
 - **PreToolUse**: Blocks Write/Edit to `specification/` directory (read-only upstream reference)
 - **PostToolUse**: Auto-formats `.cs` files with CSharpier after every Write/Edit
 
-### Skills (`.claude/skills/`)
+### Skills (`.claude/skills/` — thin wrappers delegating to `.github/skills/`)
 
-- **dotnet-build**: Build the solution and run tests with summary reporting
+- **build-and-test**: Build the solution and run tests with summary reporting
+- **project-structure**: Explains the A2UI .NET/Avalonia project layout
 - **review-spec**: Cross-reference A2UI spec with Lit shell and Python agent implementations
 
 ### Formatting note
