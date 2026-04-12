@@ -1,4 +1,4 @@
-using A2Ui.Core;
+﻿using A2Ui.Core;
 using AgUi.Protocol.Events;
 using Avalonia.Headless.XUnit;
 using Avalonia.Threading;
@@ -55,7 +55,7 @@ public sealed class AgentEventBridgeTests
     }
 
     [AvaloniaFact]
-    public async Task ProcessLoop_NonA2UiToolCall_Ignored()
+    public async Task ProcessLoop_NonA2UiToolCall_IgnoredAsync()
     {
         var sm = new SurfaceManager();
         using var bridge = new AgentEventBridge(sm);
@@ -80,7 +80,7 @@ public sealed class AgentEventBridgeTests
     }
 
     [AvaloniaFact]
-    public async Task ProcessLoop_RunStartedAndFinished_FiresEvents()
+    public async Task ProcessLoop_RunStartedAndFinished_FiresEventsAsync()
     {
         var sm = new SurfaceManager();
         using var bridge = new AgentEventBridge(sm);
@@ -103,7 +103,7 @@ public sealed class AgentEventBridgeTests
     }
 
     [AvaloniaFact]
-    public async Task ProcessLoop_RunError_FiresErrorEvent()
+    public async Task ProcessLoop_RunError_FiresErrorEventAsync()
     {
         var sm = new SurfaceManager();
         using var bridge = new AgentEventBridge(sm);
@@ -122,7 +122,7 @@ public sealed class AgentEventBridgeTests
     }
 
     [AvaloniaFact]
-    public async Task ProcessLoop_TextMessageContent_FiresAgentTextDelta()
+    public async Task ProcessLoop_TextMessageContent_FiresAgentTextDeltaAsync()
     {
         var sm = new SurfaceManager();
         using var bridge = new AgentEventBridge(sm);
@@ -145,7 +145,7 @@ public sealed class AgentEventBridgeTests
     // ── End-to-end tool call → surface processing tests ──
 
     [AvaloniaFact]
-    public async Task ProcessLoop_ValidRenderUiToolCall_CreatesSurface()
+    public async Task ProcessLoop_ValidRenderUiToolCall_CreatesSurfaceAsync()
     {
         var sm = new SurfaceManager();
         using var bridge = new AgentEventBridge(sm);
@@ -179,7 +179,7 @@ public sealed class AgentEventBridgeTests
     }
 
     [AvaloniaFact]
-    public async Task ProcessLoop_ValidRenderUiToolCall_ProcessesUpdateComponents()
+    public async Task ProcessLoop_ValidRenderUiToolCall_ProcessesUpdateComponentsAsync()
     {
         var sm = new SurfaceManager();
         using var bridge = new AgentEventBridge(sm);
@@ -204,14 +204,14 @@ public sealed class AgentEventBridgeTests
         await DrainAndPumpAsync().ConfigureAwait(true);
 
         // Second tool call: updateComponents (multi-line JSONL)
-        string updateJsonl =
+        const string UpdateJsonl =
             """{"version":"v0.9","updateComponents":{"surfaceId":"e2e-uc","components":[{"id":"root","component":"Column"},{"id":"t1","component":"Text"}]}}""";
 
         await bridge
             .WriteEventAsync(new ToolCallStartEvent { ToolCallId = "tc-update", ToolCallName = "render_ui" })
             .ConfigureAwait(true);
         await bridge
-            .WriteEventAsync(new ToolCallArgsEvent { ToolCallId = "tc-update", Delta = updateJsonl })
+            .WriteEventAsync(new ToolCallArgsEvent { ToolCallId = "tc-update", Delta = UpdateJsonl })
             .ConfigureAwait(true);
         await bridge.WriteEventAsync(new ToolCallEndEvent { ToolCallId = "tc-update" }).ConfigureAwait(true);
 
@@ -226,7 +226,7 @@ public sealed class AgentEventBridgeTests
     }
 
     [AvaloniaFact]
-    public async Task ProcessLoop_InvalidToolCallPayload_SkipsAndContinues()
+    public async Task ProcessLoop_InvalidToolCallPayload_SkipsAndContinuesAsync()
     {
         var sm = new SurfaceManager();
         using var bridge = new AgentEventBridge(sm);

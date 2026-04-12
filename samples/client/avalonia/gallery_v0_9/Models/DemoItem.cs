@@ -1,4 +1,4 @@
-using A2Ui.Core.Messages;
+﻿using A2Ui.Core.Messages;
 
 namespace A2Ui.Avalonia.Gallery.Models;
 

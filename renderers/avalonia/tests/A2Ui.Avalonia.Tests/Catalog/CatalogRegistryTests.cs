@@ -1,6 +1,4 @@
-using System;
-using A2Ui.Avalonia.Catalog;
-using Avalonia.Headless.XUnit;
+﻿using A2Ui.Avalonia.Catalog;
 using FluentAssertions;
 using Xunit;
 

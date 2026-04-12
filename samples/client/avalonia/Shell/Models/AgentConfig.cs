@@ -1,4 +1,4 @@
-namespace A2Ui.Avalonia.Shell.Models;
+﻿namespace A2Ui.Avalonia.Shell.Models;
 
 /// <summary>
 /// Configuration for connecting to an A2A agent.

@@ -1,4 +1,4 @@
-using A2Ui.Avalonia.Catalog;
+﻿using A2Ui.Avalonia.Catalog;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
@@ -71,7 +71,7 @@ public sealed class DefaultStylesTests
     [AvaloniaFact]
     public void A2UiSurface_Constructor_LoadsDefaultStyles()
     {
-        var surface = new A2Ui.Avalonia.Controls.A2UiSurface();
+        var surface = new Controls.A2UiSurface();
 
         surface.Styles.Should().NotBeEmpty("A2UiSurface should load A2UiDefaultStyles.axaml");
     }

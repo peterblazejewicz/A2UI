@@ -1,7 +1,6 @@
-using A2Ui.Core;
+﻿using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
-using Avalonia.Layout;
 using Avalonia.Media;
 
 namespace A2Ui.Avalonia.Catalog;
@@ -14,20 +13,27 @@ public sealed class TextCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Text";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        var tb = new TextBlock { Text = ctx.Resolve(c.Text) ?? string.Empty, TextWrapping = TextWrapping.Wrap };
+        var tb = new TextBlock
+        {
+            Text = context.Resolve(component.Text) ?? string.Empty,
+            TextWrapping = TextWrapping.Wrap,
+        };
 
-        ApplyVariant(tb, c.Variant);
+        ApplyVariant(tb, component.Variant);
         return tb;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         if (existing is not TextBlock tb)
+        {
             return false;
-        tb.Text = ctx.Resolve(c.Text) ?? string.Empty;
-        ApplyVariant(tb, c.Variant);
+        }
+
+        tb.Text = context.Resolve(component.Text) ?? string.Empty;
+        ApplyVariant(tb, component.Variant);
         return true;
     }
 

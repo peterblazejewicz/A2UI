@@ -1,7 +1,6 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using FluentAssertions;
-using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Basic;
 
@@ -35,7 +34,7 @@ public sealed class EventDetailFormatStringTests
         // formatDate with 'h:mm a' on 2025-12-19T15:30:00Z → "3:30 PM"
         // Combined: "Fri, Dec 19 • 2:00 PM - 3:30 PM"
         TextBlock? timeText = texts.FirstOrDefault(tb =>
-            tb.Text is not null && tb.Text.Contains("\u2022") && tb.Text.Contains("Dec 19")
+            tb.Text?.Contains("\u2022") == true && tb.Text.Contains("Dec 19")
         );
 
         timeText

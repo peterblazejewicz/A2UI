@@ -1,10 +1,9 @@
-using A2Ui.Avalonia.Catalog;
+﻿using A2Ui.Avalonia.Catalog;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using FluentAssertions;
-using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;
 
@@ -19,16 +18,16 @@ public sealed class CheckHelperTests
     /// A render context that resolves <see cref="DynamicValue"/> string literals directly,
     /// letting tests control pass/fail by using "true" or any other string.
     /// </summary>
-    private static MockRenderContext MakeCtx() => new MockRenderContext(new DataModel());
+    private static MockRenderContext MakeCtx() => new(new DataModel());
 
     private static CheckRule PassingCheck(string message = "ok") =>
-        new CheckRule { Condition = DynamicValue.FromString("true"), Message = message };
+        new() { Condition = DynamicValue.FromString("true"), Message = message };
 
     private static CheckRule FailingCheck(string message = "Fail message") =>
-        new CheckRule { Condition = DynamicValue.FromString("false"), Message = message };
+        new() { Condition = DynamicValue.FromString("false"), Message = message };
 
     private static A2UiComponent MakeComponent(CheckRule[]? checks) =>
-        new A2UiComponent
+        new()
         {
             Id = "c1",
             Component = "TextField",

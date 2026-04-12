@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 using System.Threading.Channels;
 using A2Ui.Core;
@@ -34,28 +34,28 @@ public sealed class AgentEventBridge : IDisposable
 
     public AgentEventBridge(SurfaceManager surfaceManager, ILoggerFactory? loggerFactory = null, int capacity = 1024)
     {
-        _surfaceManager = surfaceManager;
-        _logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<AgentEventBridge>();
-        _capacity = capacity;
-        _channel = Channel.CreateBounded<BaseEvent>(
+        this._surfaceManager = surfaceManager;
+        this._logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<AgentEventBridge>();
+        this._capacity = capacity;
+        this._channel = Channel.CreateBounded<BaseEvent>(
             new BoundedChannelOptions(capacity) { FullMode = BoundedChannelFullMode.Wait }
         );
     }
 
     /// <summary>Write an event from the agent (call from agent thread).</summary>
     public ValueTask WriteEventAsync(BaseEvent evt, CancellationToken ct = default) =>
-        _channel.Writer.WriteAsync(evt, ct);
+        this._channel.Writer.WriteAsync(evt, ct);
 
     /// <summary>Start processing events on a background task.</summary>
     public void Start()
     {
-        _cts = new CancellationTokenSource();
-        _ = Task.Run(() => ProcessLoopAsync(_cts.Token));
+        this._cts = new CancellationTokenSource();
+        _ = Task.Run(() => this.ProcessLoopAsync(this._cts.Token));
     }
 
-    public void Stop() => _cts?.Cancel();
+    public void Stop() => this._cts?.Cancel();
 
-    public void Dispose() => Stop();
+    public void Dispose() => this.Stop();
 
     // Events surfaced to the app layer
     public event EventHandler<string>? AgentTextDelta;
@@ -75,7 +75,7 @@ public sealed class AgentEventBridge : IDisposable
     public event EventHandler<UserActionEventArgs>? UserActionReceived;
 
     /// <summary>
-    /// Event handler to connect to <see cref="A2Ui.Avalonia.Controls.A2UiSurface.UserActionFired"/>.
+    /// Event handler to connect to <see cref="Controls.A2UiSurface.UserActionFired"/>.
     /// Forwards the action to <see cref="UserActionReceived"/> subscribers.
     /// </summary>
     public void OnUserAction(object? sender, UserActionEventArgs e)
@@ -86,13 +86,13 @@ public sealed class AgentEventBridge : IDisposable
         }
         catch (Exception ex)
         {
-            BridgeLog.UserActionSubscriberThrew(_logger, ex);
+            BridgeLog.UserActionSubscriberThrew(this._logger, ex);
         }
     }
 
     private async Task ProcessLoopAsync(CancellationToken ct)
     {
-        BridgeLog.ProcessLoopStarted(_logger, _capacity);
+        BridgeLog.ProcessLoopStarted(this._logger, this._capacity);
         var stopwatch = Stopwatch.StartNew();
         int eventCount = 0;
 
@@ -100,11 +100,11 @@ public sealed class AgentEventBridge : IDisposable
 
         try
         {
-            await foreach (var evt in _channel.Reader.ReadAllAsync(ct).ConfigureAwait(false))
+            await foreach (var evt in this._channel.Reader.ReadAllAsync(ct).ConfigureAwait(false))
             {
                 eventCount++;
                 string eventType = evt.GetType().Name;
-                BridgeLog.EventDispatched(_logger, eventType, eventCount);
+                BridgeLog.EventDispatched(this._logger, eventType, eventCount);
 
                 using var dispatchActivity = Diagnostics.BridgeSource.StartActivity(
                     "EventBridge.DispatchEvent",
@@ -116,56 +116,59 @@ public sealed class AgentEventBridge : IDisposable
                 switch (evt)
                 {
                     case RunStartedEvent:
-                        PostSafe(() => RunStarted?.Invoke(this, EventArgs.Empty));
+                        this.PostSafe(() => RunStarted?.Invoke(this, EventArgs.Empty));
                         break;
 
                     case RunFinishedEvent:
-                        PostSafe(() => RunFinished?.Invoke(this, EventArgs.Empty));
+                        this.PostSafe(() => RunFinished?.Invoke(this, EventArgs.Empty));
                         break;
 
                     case RunErrorEvent err:
-                        PostSafe(() => RunError?.Invoke(this, err.Message));
+                        this.PostSafe(() => RunError?.Invoke(this, err.Message));
                         break;
 
                     case TextMessageContentEvent tc:
-                        PostSafe(() => AgentTextDelta?.Invoke(this, tc.Delta));
+                        this.PostSafe(() => AgentTextDelta?.Invoke(this, tc.Delta));
                         break;
 
                     case ToolCallStartEvent start:
-                        _toolNames[start.ToolCallId] = start.ToolCallName;
+                        this._toolNames[start.ToolCallId] = start.ToolCallName;
                         break;
 
                     case ToolCallArgsEvent args:
-                        _accumulator.OnArgs(args);
+                        this._accumulator.OnArgs(args);
                         break;
 
                     case ToolCallEndEvent end:
-                        string json = _accumulator.Complete(end.ToolCallId);
+                        string json = this._accumulator.Complete(end.ToolCallId);
                         bool isA2Ui =
-                            _toolNames.TryGetValue(end.ToolCallId, out var toolName)
+                            this._toolNames.TryGetValue(end.ToolCallId, out var toolName)
                             && s_a2uiToolNames.Contains(toolName);
-                        _toolNames.Remove(end.ToolCallId);
+                        this._toolNames.Remove(end.ToolCallId);
                         if (isA2Ui && !string.IsNullOrWhiteSpace(json))
-                            ProcessA2UiPayload(json, end.ToolCallId);
+                        {
+                            this.ProcessA2UiPayload(json, end.ToolCallId);
+                        }
+
                         break;
                 }
             }
 
             stopwatch.Stop();
-            BridgeLog.ProcessLoopCompleted(_logger, eventCount, stopwatch.ElapsedMilliseconds);
+            BridgeLog.ProcessLoopCompleted(this._logger, eventCount, stopwatch.ElapsedMilliseconds);
         }
         catch (OperationCanceledException)
         {
             // Normal shutdown via Stop()/Dispose() — log at Information as completed.
             stopwatch.Stop();
-            BridgeLog.ProcessLoopCompleted(_logger, eventCount, stopwatch.ElapsedMilliseconds);
+            BridgeLog.ProcessLoopCompleted(this._logger, eventCount, stopwatch.ElapsedMilliseconds);
         }
         catch (Exception ex)
         {
             stopwatch.Stop();
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             activity?.AddException(ex);
-            BridgeLog.ProcessLoopFailed(_logger, eventCount, stopwatch.ElapsedMilliseconds, ex);
+            BridgeLog.ProcessLoopFailed(this._logger, eventCount, stopwatch.ElapsedMilliseconds, ex);
             throw;
         }
     }
@@ -184,7 +187,7 @@ public sealed class AgentEventBridge : IDisposable
             }
             catch (Exception ex)
             {
-                BridgeLog.UiThreadActionFailed(_logger, ex);
+                BridgeLog.UiThreadActionFailed(this._logger, ex);
             }
         });
     }
@@ -204,20 +207,20 @@ public sealed class AgentEventBridge : IDisposable
                     // SurfaceManager.Process() also validates defensively,
                     // but catching here prevents posting invalid work to UI thread
                     msg.Validate();
-                    PostSafe(() => _surfaceManager.Process(msg));
+                    this.PostSafe(() => this._surfaceManager.Process(msg));
                     messageCount++;
                 }
             }
             catch (JsonException ex)
             {
-                BridgeLog.MalformedA2UiLine(_logger, line[..Math.Min(line.Length, 200)], ex);
+                BridgeLog.MalformedA2UiLine(this._logger, line[..Math.Min(line.Length, 200)], ex);
             }
             catch (A2UiMessageValidationException ex)
             {
-                BridgeLog.InvalidA2UiMessage(_logger, line[..Math.Min(line.Length, 200)], ex);
+                BridgeLog.InvalidA2UiMessage(this._logger, line[..Math.Min(line.Length, 200)], ex);
             }
         }
-        BridgeLog.A2UiMessageReceived(_logger, toolCallId, messageCount);
+        BridgeLog.A2UiMessageReceived(this._logger, toolCallId, messageCount);
     }
 }
 

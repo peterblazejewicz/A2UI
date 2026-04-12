@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+﻿// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,10 +47,14 @@ internal sealed class ExpressionParser
     public IReadOnlyList<ExpressionToken> Parse(string input, int depth = 0)
     {
         if (depth > MaxDepth)
+        {
             throw new A2UiExpressionException("Max recursion depth reached in parse");
+        }
 
         if (string.IsNullOrEmpty(input) || !input.Contains("${", StringComparison.Ordinal))
+        {
             return [new LiteralToken(input ?? "")];
+        }
 
         var parts = new List<ExpressionToken>();
         var scanner = new Scanner(input);
@@ -61,7 +65,7 @@ internal sealed class ExpressionParser
             {
                 scanner.Advance(2);
                 string content = ExtractInterpolationContent(scanner);
-                ExpressionToken parsed = ParseExpression(content, depth + 1);
+                ExpressionToken parsed = this.ParseExpression(content, depth + 1);
                 parts.Add(parsed);
             }
             else if (scanner.Peek() == '\\' && scanner.Peek(1) == '$' && scanner.Peek(2) == '{')
@@ -76,14 +80,22 @@ internal sealed class ExpressionParser
                 while (!scanner.IsAtEnd)
                 {
                     if (scanner.Matches("${"))
+                    {
                         break;
+                    }
+
                     if (scanner.Peek() == '\\' && scanner.Peek(1) == '$' && scanner.Peek(2) == '{')
+                    {
                         break;
+                    }
+
                     scanner.Advance();
                 }
                 string literal = input[start..scanner.Position];
                 if (literal.Length > 0)
+                {
                     parts.Add(new LiteralToken(literal));
+                }
             }
         }
 
@@ -98,10 +110,12 @@ internal sealed class ExpressionParser
     {
         expr = expr.Trim();
         if (expr.Length == 0)
+        {
             return new LiteralToken("");
+        }
 
         var scanner = new Scanner(expr);
-        ExpressionToken result = ParseExpressionInternal(scanner, depth);
+        ExpressionToken result = this.ParseExpressionInternal(scanner, depth);
 
         if (!scanner.IsAtEnd)
         {
@@ -117,42 +131,60 @@ internal sealed class ExpressionParser
     {
         scanner.SkipWhitespace();
         if (scanner.IsAtEnd)
+        {
             return new LiteralToken("");
+        }
 
         // 0. Nested interpolation
         if (scanner.Matches("${"))
         {
             scanner.Advance(2);
             string content = ExtractInterpolationContent(scanner);
-            return ParseExpression(content, depth + 1);
+            return this.ParseExpression(content, depth + 1);
         }
 
         // 1. String literals
         char ch = scanner.Peek();
         if (ch is '\'' or '"')
+        {
             return ParseStringLiteral(scanner);
+        }
 
         // 2. Number literals
         if (IsDigit(ch))
+        {
             return ParseNumberLiteral(scanner);
+        }
 
         // 3. Keywords
         if (scanner.MatchesKeyword("true"))
+        {
             return new BoolToken(true);
+        }
+
         if (scanner.MatchesKeyword("false"))
+        {
             return new BoolToken(false);
+        }
+
         if (scanner.MatchesKeyword("null"))
+        {
             return new LiteralToken("");
+        }
 
         // 4. Identifier or path → possibly a function call
         string token = ScanPathOrIdentifier(scanner);
         scanner.SkipWhitespace();
 
         if (!scanner.IsAtEnd && scanner.Peek() == '(')
-            return ParseFunctionCall(token, scanner, depth);
+        {
+            return this.ParseFunctionCall(token, scanner, depth);
+        }
 
         if (token.Length == 0)
+        {
             return new LiteralToken("");
+        }
 
         return new PathToken(token);
     }
@@ -164,9 +196,13 @@ internal sealed class ExpressionParser
         {
             char c = scanner.Peek();
             if (IsAlNum(c) || c is '/' or '.' or '_' or '-')
+            {
                 scanner.Advance();
+            }
             else
+            {
                 break;
+            }
         }
         return scanner.Input[start..scanner.Position];
     }
@@ -175,7 +211,10 @@ internal sealed class ExpressionParser
     {
         int start = scanner.Position;
         while (!scanner.IsAtEnd && (IsAlNum(scanner.Peek()) || scanner.Peek() == '_'))
+        {
             scanner.Advance();
+        }
+
         return scanner.Input[start..scanner.Position];
     }
 
@@ -199,7 +238,7 @@ internal sealed class ExpressionParser
             }
 
             scanner.SkipWhitespace();
-            args[argName] = ParseExpressionInternal(scanner, depth);
+            args[argName] = this.ParseExpressionInternal(scanner, depth);
             scanner.SkipWhitespace();
 
             if (!scanner.IsAtEnd && scanner.Peek() == ',')
@@ -229,7 +268,10 @@ internal sealed class ExpressionParser
             if (c == '\\')
             {
                 if (scanner.IsAtEnd)
+                {
                     break; // trailing backslash at end-of-input
+                }
+
                 char next = scanner.Advance();
                 sb.Append(
                     next switch
@@ -253,7 +295,9 @@ internal sealed class ExpressionParser
         }
 
         if (!closed)
+        {
             throw new A2UiExpressionException($"Unterminated string literal: missing closing '{quote}'");
+        }
 
         return new LiteralToken(sb.ToString());
     }
@@ -262,11 +306,16 @@ internal sealed class ExpressionParser
     {
         int start = scanner.Position;
         while (!scanner.IsAtEnd && (IsDigit(scanner.Peek()) || scanner.Peek() == '.'))
+        {
             scanner.Advance();
+        }
 
         string text = scanner.Input[start..scanner.Position];
         if (!double.TryParse(text, System.Globalization.CultureInfo.InvariantCulture, out double value))
+        {
             throw new A2UiExpressionException($"Invalid number literal: '{text}'");
+        }
+
         return new NumberToken(value);
     }
 
@@ -294,15 +343,21 @@ internal sealed class ExpressionParser
                 {
                     char sc = scanner.Advance();
                     if (sc == '\\')
+                    {
                         scanner.Advance();
+                    }
                     else if (sc == quoteChar)
+                    {
                         break;
+                    }
                 }
             }
         }
 
         if (braceBalance > 0)
+        {
             throw new A2UiExpressionException("Unclosed interpolation: missing '}'");
+        }
 
         // Exclude the closing brace from the content
         return scanner.Input[start..(scanner.Position - 1)];
@@ -321,42 +376,44 @@ internal sealed class Scanner(string input)
     public string Input { get; } = input;
     public int Position { get; private set; }
 
-    public bool IsAtEnd => Position >= Input.Length;
+    public bool IsAtEnd => this.Position >= this.Input.Length;
 
     public char Peek(int offset = 0)
     {
-        int idx = Position + offset;
-        return idx < Input.Length ? Input[idx] : '\0';
+        int idx = this.Position + offset;
+        return idx < this.Input.Length ? this.Input[idx] : '\0';
     }
 
     public char Advance(int count = 1)
     {
-        char c = Position < Input.Length ? Input[Position] : '\0';
-        Position = Math.Min(Position + count, Input.Length);
+        char c = this.Position < this.Input.Length ? this.Input[this.Position] : '\0';
+        this.Position = Math.Min(this.Position + count, this.Input.Length);
         return c;
     }
 
     public bool Match(char expected)
     {
-        if (Peek() == expected)
+        if (this.Peek() == expected)
         {
-            Advance();
+            this.Advance();
             return true;
         }
         return false;
     }
 
-    public bool Matches(string expected) => Input.AsSpan(Position).StartsWith(expected);
+    public bool Matches(string expected) => this.Input.AsSpan(this.Position).StartsWith(expected);
 
     public bool MatchesKeyword(string keyword)
     {
-        if (!Input.AsSpan(Position).StartsWith(keyword))
-            return false;
-
-        int afterEnd = Position + keyword.Length;
-        if (afterEnd < Input.Length)
+        if (!this.Input.AsSpan(this.Position).StartsWith(keyword))
         {
-            char next = Input[afterEnd];
+            return false;
+        }
+
+        int afterEnd = this.Position + keyword.Length;
+        if (afterEnd < this.Input.Length)
+        {
+            char next = this.Input[afterEnd];
             if (
                 (next >= 'a' && next <= 'z')
                 || (next >= 'A' && next <= 'Z')
@@ -368,14 +425,16 @@ internal sealed class Scanner(string input)
             }
         }
 
-        Position += keyword.Length;
+        this.Position += keyword.Length;
         return true;
     }
 
     public void SkipWhitespace()
     {
-        while (!IsAtEnd && char.IsWhiteSpace(Peek()))
-            Advance();
+        while (!this.IsAtEnd && char.IsWhiteSpace(this.Peek()))
+        {
+            this.Advance();
+        }
     }
 }
 

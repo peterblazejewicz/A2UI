@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 #pragma warning disable CA1812 // DTOs instantiated by System.Text.Json deserialization

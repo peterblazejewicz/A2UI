@@ -1,4 +1,4 @@
-namespace A2Ui.Avalonia.Functions;
+﻿namespace A2Ui.Avalonia.Functions;
 
 /// <summary>
 /// Evaluates named functions from A2UI catalog definitions.

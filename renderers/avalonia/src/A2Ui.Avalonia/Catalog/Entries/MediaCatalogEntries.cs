@@ -1,4 +1,4 @@
-using A2Ui.Core;
+﻿using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Data;
@@ -17,14 +17,14 @@ public sealed class ImageCatalogEntry : ICatalogEntry
 
     public ImageCatalogEntry(ILogger<ImageCatalogEntry>? logger = null)
     {
-        _logger = logger ?? NullLogger<ImageCatalogEntry>.Instance;
+        this._logger = logger ?? NullLogger<ImageCatalogEntry>.Instance;
     }
 
     public string ComponentType => "Image";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        var stretch = c.Fit switch
+        var stretch = component.Fit switch
         {
             "cover" => Stretch.UniformToFill,
             "fill" => Stretch.Fill,
@@ -33,31 +33,37 @@ public sealed class ImageCatalogEntry : ICatalogEntry
             _ => Stretch.Uniform, // "contain" or default
         };
         var img = new Image { Stretch = stretch };
-        string? url = ctx.Resolve(c.Url) ?? ctx.Resolve(c.Value);
+        string? url = context.Resolve(component.Url) ?? context.Resolve(component.Value);
         if (url is not null)
         {
             img.Tag = url;
-            _ = LoadImageAsync(img, url, CancellationToken.None);
+            _ = this.LoadImageAsync(img, url, CancellationToken.None);
         }
         return img;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         if (existing is not Image img)
+        {
             return false;
+        }
 
-        string? url = ctx.Resolve(c.Url) ?? ctx.Resolve(c.Value);
+        string? url = context.Resolve(component.Url) ?? context.Resolve(component.Value);
         if (url is null)
+        {
             return true; // no URL yet — keep existing control as-is
+        }
 
         // If the image already has a source and the URL tag matches, skip reload.
         if (img.Source is not null && img.Tag as string == url)
+        {
             return true;
+        }
 
         // URL changed or source not yet loaded — reload.
         img.Tag = url;
-        _ = LoadImageAsync(img, url, CancellationToken.None);
+        _ = this.LoadImageAsync(img, url, CancellationToken.None);
         return true;
     }
 
@@ -75,7 +81,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
 
             if (data.Length > MaxImageBytes)
             {
-                MediaLog.ImageExceedsSizeLimit(_logger, url, MaxImageBytes / (1024 * 1024), data.Length);
+                MediaLog.ImageExceedsSizeLimit(this._logger, url, MaxImageBytes / (1024 * 1024), data.Length);
                 return;
             }
 
@@ -107,7 +113,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
         }
         catch (Exception ex)
         {
-            MediaLog.FailedToLoadImage(_logger, url, ex);
+            MediaLog.FailedToLoadImage(this._logger, url, ex);
         }
     }
 }
@@ -117,10 +123,10 @@ public sealed class TableCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Table";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var grid = new DataGrid { CanUserReorderColumns = true, IsReadOnly = true };
-        if (c.Columns is { } cols)
+        if (component.Columns is { } cols)
         {
             foreach (var col in cols)
             {
@@ -130,7 +136,7 @@ public sealed class TableCatalogEntry : ICatalogEntry
         return grid;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
 }
 
 /// <summary>A2UI "Surface" → root container (extension, not in v0.9 spec).</summary>
@@ -138,15 +144,18 @@ public sealed class SurfaceCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Surface";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var panel = new StackPanel { Spacing = 12 };
-        foreach (var child in ctx.RenderChildren(c.Id))
+        foreach (var child in context.RenderChildren(component.Id))
+        {
             panel.Children.Add(child);
+        }
+
         return panel;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
 }
 
 internal static partial class MediaLog

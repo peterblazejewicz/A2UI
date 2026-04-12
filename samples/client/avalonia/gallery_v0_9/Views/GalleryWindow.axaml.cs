@@ -1,5 +1,4 @@
-using A2Ui.Avalonia;
-using A2Ui.Avalonia.Controls;
+﻿using A2Ui.Avalonia.Controls;
 using A2Ui.Avalonia.Gallery.ViewModels;
 using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,8 +19,8 @@ public partial class GalleryWindow : Window
 
     public GalleryWindow(ILogger<GalleryWindow> logger)
     {
-        _logger = logger;
-        InitializeComponent();
+        this._logger = logger;
+        this.InitializeComponent();
     }
 
     protected override void OnDataContextChanged(EventArgs e)
@@ -29,16 +28,16 @@ public partial class GalleryWindow : Window
         base.OnDataContextChanged(e);
 
         // Unsubscribe from previous ViewModel if DataContext changes
-        UnwireViewModel();
+        this.UnwireViewModel();
 
-        if (DataContext is GalleryViewModel vm)
+        if (this.DataContext is GalleryViewModel vm)
         {
-            _vm = vm;
-            _surfaceHost = this.FindControl<A2UiSurface>("SurfaceHost");
+            this._vm = vm;
+            this._surfaceHost = this.FindControl<A2UiSurface>("SurfaceHost");
 
-            if (_surfaceHost is null)
+            if (this._surfaceHost is null)
             {
-                _logger.LogWarning("SurfaceHost control not found in visual tree");
+                this._logger.LogWarning("SurfaceHost control not found in visual tree");
                 return;
             }
 
@@ -46,11 +45,13 @@ public partial class GalleryWindow : Window
             // renderer, function registry, and image loading all log via Serilog.
             var loggerFactory = App.Services.GetService<ILoggerFactory>();
             if (loggerFactory is not null)
-                _surfaceHost.SetLoggerFactory(loggerFactory);
+            {
+                this._surfaceHost.SetLoggerFactory(loggerFactory);
+            }
 
-            vm.SurfaceRefreshRequested += OnSurfaceRefreshRequested;
-            _surfaceHost.UserActionFired += OnUserActionFired;
-            _surfaceHost.DataModelChanged += OnDataModelChanged;
+            vm.SurfaceRefreshRequested += this.OnSurfaceRefreshRequested;
+            this._surfaceHost.UserActionFired += this.OnUserActionFired;
+            this._surfaceHost.DataModelChanged += this.OnDataModelChanged;
         }
     }
 
@@ -58,7 +59,7 @@ public partial class GalleryWindow : Window
     {
         base.OnOpened(e);
 
-        if (DataContext is GalleryViewModel vm)
+        if (this.DataContext is GalleryViewModel vm)
         {
             try
             {
@@ -70,41 +71,43 @@ public partial class GalleryWindow : Window
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to initialize gallery");
-                Title = $"A2UI Gallery — Error: {ex.Message}";
+                this._logger.LogError(ex, "Failed to initialize gallery");
+                this.Title = $"A2UI Gallery — Error: {ex.Message}";
             }
         }
     }
 
     protected override void OnClosed(EventArgs e)
     {
-        UnwireViewModel();
-        (_vm as IDisposable)?.Dispose();
-        _vm = null;
+        this.UnwireViewModel();
+        (this._vm as IDisposable)?.Dispose();
+        this._vm = null;
         base.OnClosed(e);
     }
 
-    private void OnSurfaceRefreshRequested(object? sender, EventArgs e) => _surfaceHost?.Refresh();
+    private void OnSurfaceRefreshRequested(object? sender, EventArgs e) => this._surfaceHost?.Refresh();
 
-    private void OnUserActionFired(object? sender, UserActionEventArgs args) => _vm?.LogAction(args);
+    private void OnUserActionFired(object? sender, UserActionEventArgs args) => this._vm?.LogAction(args);
 
     private void OnDataModelChanged(object? sender, DataModelChangedEventArgs e)
     {
-        _vm?.RefreshDataModelJson();
+        this._vm?.RefreshDataModelJson();
         // Re-render the surface so that check validations, data-bound text,
         // and button enabled state update after two-way binding changes.
-        _surfaceHost?.Refresh();
+        this._surfaceHost?.Refresh();
     }
 
     private void UnwireViewModel()
     {
-        if (_vm is not null)
-            _vm.SurfaceRefreshRequested -= OnSurfaceRefreshRequested;
-
-        if (_surfaceHost is not null)
+        if (this._vm is not null)
         {
-            _surfaceHost.UserActionFired -= OnUserActionFired;
-            _surfaceHost.DataModelChanged -= OnDataModelChanged;
+            this._vm.SurfaceRefreshRequested -= this.OnSurfaceRefreshRequested;
+        }
+
+        if (this._surfaceHost is not null)
+        {
+            this._surfaceHost.UserActionFired -= this.OnUserActionFired;
+            this._surfaceHost.DataModelChanged -= this.OnDataModelChanged;
         }
     }
 }

@@ -1,4 +1,4 @@
-using Avalonia.Headless.XUnit;
+﻿using Avalonia.Headless.XUnit;
 using FluentAssertions;
 using Xunit;
 
@@ -10,18 +10,28 @@ public sealed class AllExamplesSmokeTests
     {
         var dir = Path.Combine(AppContext.BaseDirectory, "Specs", "minimal");
         if (!Directory.Exists(dir))
+        {
             yield break;
-        foreach (var f in Directory.GetFiles(dir, "*.json").OrderBy(f => f))
+        }
+
+        foreach (var f in Directory.GetFiles(dir, "*.json").Order())
+        {
             yield return [Path.Combine("minimal", Path.GetFileName(f))];
+        }
     }
 
     public static IEnumerable<object[]> BasicExamples()
     {
         var dir = Path.Combine(AppContext.BaseDirectory, "Specs", "basic");
         if (!Directory.Exists(dir))
+        {
             yield break;
-        foreach (var f in Directory.GetFiles(dir, "*.json").OrderBy(f => f))
+        }
+
+        foreach (var f in Directory.GetFiles(dir, "*.json").Order())
+        {
             yield return [Path.Combine("basic", Path.GetFileName(f))];
+        }
     }
 
     [AvaloniaTheory]

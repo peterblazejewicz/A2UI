@@ -1,4 +1,4 @@
-using A2Ui.Core;
+﻿using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Microsoft.Extensions.Logging;

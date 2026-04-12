@@ -1,4 +1,4 @@
-using A2Ui.Avalonia.Catalog;
+﻿using A2Ui.Avalonia.Catalog;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
@@ -173,7 +173,7 @@ internal sealed class DataModelCapturingRenderContext(DataModel dm) : IRenderCon
     public IEnumerable<Control> RenderChildren(string parentId) => [];
 
     public void FireUserAction(string eventName, object? payload = null, string? componentId = null) =>
-        FiredActions.Add((eventName, payload, componentId));
+        this.FiredActions.Add((eventName, payload, componentId));
 
     public string? Resolve(DynamicValue? value) => dm.Resolve(value);
 

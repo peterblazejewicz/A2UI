@@ -1,4 +1,4 @@
-namespace A2Ui.Avalonia.Catalog;
+﻿namespace A2Ui.Avalonia.Catalog;
 
 /// <summary>
 /// Shared helper for input catalog entries that need two-way data model binding.
@@ -18,7 +18,9 @@ internal static class InputHelper
     )
     {
         if (bindingPath is not null)
+        {
             ctx.UpdateDataModel(bindingPath, value);
+        }
 
         ctx.FireUserAction(InputEvents.ValueChanged, value, componentId);
     }

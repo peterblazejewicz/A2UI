@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 
@@ -37,21 +37,23 @@ public sealed class RequestSummaryLogger : IDisposable
 
     public RequestSummaryLogger(ILogger<RequestSummaryLogger> logger)
     {
-        _logger = logger;
-        _listener = new ActivityListener
+        this._logger = logger;
+        this._listener = new ActivityListener
         {
             ShouldListenTo = source => source.Name == A2AClientSourceName,
             Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
             SampleUsingParentId = (ref ActivityCreationOptions<string> _) => ActivitySamplingResult.AllData,
-            ActivityStopped = OnActivityStopped,
+            ActivityStopped = this.OnActivityStopped,
         };
-        ActivitySource.AddActivityListener(_listener);
+        ActivitySource.AddActivityListener(this._listener);
     }
 
     private void OnActivityStopped(Activity activity)
     {
         if (activity.OperationName != SendMessageActivityName)
+        {
             return;
+        }
 
         string correlationId = GetTag(activity, "a2a.correlation_id") ?? "(none)";
         string httpUrl = GetTag(activity, "http.url") ?? "(none)";
@@ -61,7 +63,7 @@ public sealed class RequestSummaryLogger : IDisposable
         string status = activity.Status == ActivityStatusCode.Error ? "failed" : "ok";
 
         RequestSummaryLoggerLog.RequestSummary(
-            _logger,
+            this._logger,
             status,
             httpUrl,
             httpStatus,
@@ -76,14 +78,16 @@ public sealed class RequestSummaryLogger : IDisposable
         foreach (var tag in activity.TagObjects)
         {
             if (tag.Key == tagName)
+            {
                 return tag.Value?.ToString();
+            }
         }
         return null;
     }
 
     private static int? TryParseInt(string? s) => int.TryParse(s, CultureInfo.InvariantCulture, out int v) ? v : null;
 
-    public void Dispose() => _listener.Dispose();
+    public void Dispose() => this._listener.Dispose();
 }
 
 internal static partial class RequestSummaryLoggerLog

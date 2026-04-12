@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using A2Ui.Avalonia.Gallery.Models;
 using A2Ui.Core.Messages;
@@ -23,7 +23,7 @@ public sealed class GalleryDataLoader
 
     public GalleryDataLoader(ILogger<GalleryDataLoader> logger)
     {
-        _logger = logger;
+        this._logger = logger;
     }
 
     public async Task<IReadOnlyList<DemoItem>> LoadAsync(CancellationToken ct = default)
@@ -31,14 +31,17 @@ public sealed class GalleryDataLoader
         var items = new List<DemoItem>();
         string specsDir = Path.Combine(AppContext.BaseDirectory, "Specs");
 
-        await LoadFromDirectoryAsync(Path.Combine(specsDir, "minimal"), isBasic: false, items, ct)
+        await this.LoadFromDirectoryAsync(Path.Combine(specsDir, "minimal"), isBasic: false, items, ct)
             .ConfigureAwait(false);
-        await LoadFromDirectoryAsync(Path.Combine(specsDir, "basic"), isBasic: true, items, ct).ConfigureAwait(false);
+        await this.LoadFromDirectoryAsync(Path.Combine(specsDir, "basic"), isBasic: true, items, ct)
+            .ConfigureAwait(false);
 
         // Assign continuous display indices so the sidebar shows 1..N
         // instead of the per-directory numbering from filenames.
         for (int i = 0; i < items.Count; i++)
+        {
             items[i] = items[i] with { Title = $"{i + 1}. {items[i].Title}" };
+        }
 
         return items;
     }
@@ -52,7 +55,7 @@ public sealed class GalleryDataLoader
     {
         if (!Directory.Exists(directory))
         {
-            _logger.LogWarning("Specs directory not found: {Directory}", directory);
+            this._logger.LogWarning("Specs directory not found: {Directory}", directory);
             return;
         }
 
@@ -66,15 +69,17 @@ public sealed class GalleryDataLoader
             {
                 DemoItem? item = await LoadFileAsync(filePath, isBasic, ct).ConfigureAwait(false);
                 if (item is not null)
+                {
                     items.Add(item);
+                }
             }
             catch (JsonException ex)
             {
-                _logger.LogWarning(ex, "Skipping malformed JSON: {FilePath}", filePath);
+                this._logger.LogWarning(ex, "Skipping malformed JSON: {FilePath}", filePath);
             }
             catch (IOException ex)
             {
-                _logger.LogWarning(ex, "Cannot read file: {FilePath}", filePath);
+                this._logger.LogWarning(ex, "Cannot read file: {FilePath}", filePath);
             }
         }
     }
@@ -97,18 +102,29 @@ public sealed class GalleryDataLoader
         else
         {
             if (root.TryGetProperty("name", out JsonElement nameEl))
+            {
                 name = nameEl.GetString();
+            }
+
             if (root.TryGetProperty("description", out JsonElement descEl))
+            {
                 description = descEl.GetString();
+            }
 
             if (root.TryGetProperty("messages", out JsonElement messagesEl))
+            {
                 messages = JsonSerializer.Deserialize<A2UiMessage[]>(messagesEl.GetRawText(), s_jsonOptions) ?? [];
+            }
             else
+            {
                 return null;
+            }
         }
 
         if (messages.Length == 0)
+        {
             return null;
+        }
 
         string filename = Path.GetFileName(filePath);
         string surfaceId = Path.GetFileNameWithoutExtension(filePath);
@@ -133,7 +149,9 @@ public sealed class GalleryDataLoader
             // Use the surfaceId from the createSurface message
             A2UiMessage? createMessage = messages.FirstOrDefault(m => m.CreateSurface is not null);
             if (createMessage?.CreateSurface is not null)
+            {
                 surfaceId = createMessage.CreateSurface.SurfaceId;
+            }
         }
 
         // Always derive title from filename (includes number prefix like Lit gallery)
@@ -157,7 +175,9 @@ public sealed class GalleryDataLoader
         // Skip the leading numeric token (e.g., "1", "01", "33") so that the
         // caller can assign continuous display indices without duplication.
         if (words.Length > 1 && words[0].All(char.IsDigit))
+        {
             words = words[1..];
+        }
 
         return string.Join(
             ' ',

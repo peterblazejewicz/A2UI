@@ -1,4 +1,4 @@
-using A2Ui.Core;
+﻿using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia;
 using Avalonia.Controls;
@@ -11,14 +11,14 @@ public sealed class ColumnCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Column";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        var children = ctx.RenderChildren(c.Id).ToList();
-        double[]? weights = LayoutHelper.CollectWeights(c, ctx);
-        return LayoutHelper.BuildLayout(Orientation.Vertical, children, c, weights);
+        var children = context.RenderChildren(component.Id).ToList();
+        double[]? weights = LayoutHelper.CollectWeights(component, context);
+        return LayoutHelper.BuildLayout(Orientation.Vertical, children, component, weights);
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
 }
 
 /// <summary>A2UI "Row" → horizontal layout panel.</summary>
@@ -26,14 +26,14 @@ public sealed class RowCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Row";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        var children = ctx.RenderChildren(c.Id).ToList();
-        double[]? weights = LayoutHelper.CollectWeights(c, ctx);
-        return LayoutHelper.BuildLayout(Orientation.Horizontal, children, c, weights);
+        var children = context.RenderChildren(component.Id).ToList();
+        double[]? weights = LayoutHelper.CollectWeights(component, context);
+        return LayoutHelper.BuildLayout(Orientation.Horizontal, children, component, weights);
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
 }
 
 /// <summary>A2UI "Card" → Border with rounded corners and padding.</summary>
@@ -41,7 +41,7 @@ public sealed class CardCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Card";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var border = new Border
         {
@@ -51,23 +51,26 @@ public sealed class CardCatalogEntry : ICatalogEntry
         };
 
         // Card uses single child per v0.9 spec
-        if (c.Child is not null)
+        if (component.Child is not null)
         {
-            border.Child = ctx.RenderChild(c.Child);
+            border.Child = context.RenderChild(component.Child);
         }
         else
         {
             // Fallback: render children for backward compat
             var panel = new StackPanel { Spacing = 8 };
-            foreach (var child in ctx.RenderChildren(c.Id))
+            foreach (var child in context.RenderChildren(component.Id))
+            {
                 panel.Children.Add(child);
+            }
+
             border.Child = panel;
         }
 
         return border;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
 }
 
 internal static class LayoutHelper
@@ -79,7 +82,9 @@ internal static class LayoutHelper
     public static double[]? CollectWeights(A2UiComponent c, IRenderContext ctx)
     {
         if (c.Children?.Ids is not { } ids || ids.Length == 0)
+        {
             return null;
+        }
 
         double[] weights = ids.Select(id => ctx.GetComponentWeight(id) ?? 0).ToArray();
         return Array.Exists(weights, w => w > 0) ? weights : null;
@@ -98,15 +103,21 @@ internal static class LayoutHelper
         double[]? weights = null
     )
     {
-        if (weights is not null && weights.Any(w => w > 0))
+        if (weights?.Any(w => w > 0) == true)
+        {
             return BuildWeightedGrid(orientation, children, c, weights);
+        }
 
         if (c.Justify is "spaceBetween")
+        {
             return BuildSpaceBetweenGrid(orientation, children, c);
+        }
 
         var panel = new StackPanel { Orientation = orientation, Spacing = 8 };
         foreach (var child in children)
+        {
             panel.Children.Add(child);
+        }
 
         // justify maps to main-axis self-alignment (packs the group start/center/end)
         if (orientation == Orientation.Vertical)
@@ -140,7 +151,9 @@ internal static class LayoutHelper
         var grid = new Grid();
 
         if (children.Count == 0)
+        {
             return grid;
+        }
 
         bool isHorizontal = orientation == Orientation.Horizontal;
 
@@ -150,15 +163,24 @@ internal static class LayoutHelper
             var length = weight > 0 ? new GridLength(weight, GridUnitType.Star) : GridLength.Auto;
 
             if (isHorizontal)
+            {
                 grid.ColumnDefinitions.Add(new ColumnDefinition(length));
+            }
             else
+            {
                 grid.RowDefinitions.Add(new RowDefinition(length));
+            }
 
             var child = children[i];
             if (isHorizontal)
+            {
                 Grid.SetColumn(child, i);
+            }
             else
+            {
                 Grid.SetRow(child, i);
+            }
+
             grid.Children.Add(child);
         }
 
@@ -178,7 +200,9 @@ internal static class LayoutHelper
         var grid = new Grid();
 
         if (children.Count == 0)
+        {
             return grid;
+        }
 
         bool isHorizontal = orientation == Orientation.Horizontal;
 
@@ -186,24 +210,37 @@ internal static class LayoutHelper
         {
             // Auto column/row for the child
             if (isHorizontal)
+            {
                 grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
+            }
             else
+            {
                 grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+            }
 
             var child = children[i];
             if (isHorizontal)
+            {
                 Grid.SetColumn(child, i * 2);
+            }
             else
+            {
                 Grid.SetRow(child, i * 2);
+            }
+
             grid.Children.Add(child);
 
             // Star spacer between children (not after last)
             if (i < children.Count - 1)
             {
                 if (isHorizontal)
+                {
                     grid.ColumnDefinitions.Add(new ColumnDefinition(new GridLength(1, GridUnitType.Star)));
+                }
                 else
+                {
                     grid.RowDefinitions.Add(new RowDefinition(new GridLength(1, GridUnitType.Star)));
+                }
             }
         }
 
@@ -220,14 +257,20 @@ internal static class LayoutHelper
     private static void ApplyCrossAxisAlignment(List<Control> children, Orientation orientation, string? align)
     {
         if (align is null)
+        {
             return;
+        }
 
         foreach (var child in children)
         {
             if (orientation == Orientation.Horizontal)
+            {
                 child.VerticalAlignment = MapCrossAxisV(align);
+            }
             else
+            {
                 child.HorizontalAlignment = MapCrossAxisH(align);
+            }
         }
     }
 

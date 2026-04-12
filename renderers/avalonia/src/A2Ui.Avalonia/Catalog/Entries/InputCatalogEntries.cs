@@ -1,4 +1,4 @@
-using A2Ui.Core;
+﻿using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia;
 using Avalonia.Controls;
@@ -21,52 +21,67 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
 
     public string ComponentType => "TextField";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        var tb = new TextBox { Text = ctx.Resolve(c.Value) ?? string.Empty, Watermark = ctx.Resolve(c.Label) };
+        var tb = new TextBox
+        {
+            Text = context.Resolve(component.Value) ?? string.Empty,
+            Watermark = context.Resolve(component.Label),
+        };
 
-        if (c.Variant is "obscured")
+        if (component.Variant is "obscured")
+        {
             tb.PasswordChar = '\u2022'; // bullet character
+        }
 
         // Two-way binding: write value back to data model on every text change.
         // Use PropertyChanged (not the TextChanged routed event) so it fires
         // for both user input and programmatic Text assignments.
         // The UpdatingTag guard suppresses events during programmatic updates
         // in Update(), preventing feedback loops and phantom agent events.
-        string? bindingPath = c.Value?.Path;
-        string componentId = c.Id;
+        string? bindingPath = component.Value?.Path;
+        string componentId = component.Id;
 
         tb.PropertyChanged += (sender, args) =>
         {
             if (args.Property != TextBox.TextProperty)
+            {
                 return;
-            if (sender is TextBox box && box.Tag is UpdatingTag)
-                return;
+            }
 
-            InputHelper.NotifyValueChanged(ctx, bindingPath, tb.Text, componentId);
+            if (sender is TextBox box && box.Tag is UpdatingTag)
+            {
+                return;
+            }
+
+            InputHelper.NotifyValueChanged(context, bindingPath, tb.Text, componentId);
         };
 
-        return CheckHelper.ApplyChecks(tb, c, ctx);
+        return CheckHelper.ApplyChecks(tb, component, context);
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         // Find the TextBox — either directly cached or inside a check wrapper StackPanel
         TextBox? tb = CheckHelper.FindInner<TextBox>(existing);
         if (tb is null)
+        {
             return false;
+        }
 
         if (!tb.IsFocused)
         {
             tb.Tag = UpdatingTag;
-            tb.Text = ctx.Resolve(c.Value) ?? string.Empty;
+            tb.Text = context.Resolve(component.Value) ?? string.Empty;
             tb.Tag = null;
         }
-        tb.Watermark = ctx.Resolve(c.Label);
+        tb.Watermark = context.Resolve(component.Label);
 
         // Re-evaluate checks in place (preserves focus)
-        if (existing is StackPanel wrapper && c.Checks is { Length: > 0 })
-            CheckHelper.UpdateChecks(wrapper, c, ctx);
+        if (existing is StackPanel wrapper && component.Checks is { Length: > 0 })
+        {
+            CheckHelper.UpdateChecks(wrapper, component, context);
+        }
 
         return true;
     }
@@ -89,27 +104,43 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
 
     public string ComponentType => "DateTimeInput";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        bool enableDate = c.EnableDate ?? true;
-        bool enableTime = c.EnableTime ?? false;
-        string? bindingPath = c.Value?.Path;
-        string componentId = c.Id;
-        var raw = ctx.Resolve(c.Value);
+        bool enableDate = component.EnableDate ?? true;
+        bool enableTime = component.EnableTime ?? false;
+        string? bindingPath = component.Value?.Path;
+        string componentId = component.Id;
+        var raw = context.Resolve(component.Value);
 
         if (enableDate && enableTime)
-            return CheckHelper.ApplyChecks(CreateDateTimePicker(raw, bindingPath, componentId, ctx, c), c, ctx);
+        {
+            return CheckHelper.ApplyChecks(
+                CreateDateTimePicker(raw, bindingPath, componentId, context, component),
+                component,
+                context
+            );
+        }
 
         if (!enableDate && enableTime)
-            return CheckHelper.ApplyChecks(CreateTimePicker(raw, bindingPath, componentId, ctx), c, ctx);
+        {
+            return CheckHelper.ApplyChecks(
+                CreateTimePicker(raw, bindingPath, componentId, context),
+                component,
+                context
+            );
+        }
 
         // Default: date only
-        return CheckHelper.ApplyChecks(CreateDatePicker(raw, bindingPath, componentId, ctx, c), c, ctx);
+        return CheckHelper.ApplyChecks(
+            CreateDatePicker(raw, bindingPath, componentId, context, component),
+            component,
+            context
+        );
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        var raw = ctx.Resolve(c.Value);
+        var raw = context.Resolve(component.Value);
 
         // Date + time composite panel
         if (CheckHelper.FindInner<StackPanel>(existing) is { Tag: DateTimeTag } panel)
@@ -117,7 +148,9 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
             var datePicker = panel.Children.OfType<CalendarDatePicker>().FirstOrDefault();
             var timePicker = panel.Children.OfType<TimePicker>().FirstOrDefault();
             if (datePicker is null || timePicker is null)
+            {
                 return false;
+            }
 
             if (!datePicker.IsFocused && raw is not null && DateTime.TryParse(raw, out var dt))
             {
@@ -125,7 +158,7 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
                 timePicker.SelectedTime = dt.TimeOfDay;
             }
 
-            datePicker.Watermark = ctx.Resolve(c.Label) ?? "Select date";
+            datePicker.Watermark = context.Resolve(component.Label) ?? "Select date";
             return true;
         }
 
@@ -133,14 +166,19 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
         if (CheckHelper.FindInner<TimePicker>(existing) is { } tp)
         {
             if (raw is not null && TimeSpan.TryParse(raw, out var ts))
+            {
                 tp.SelectedTime = ts;
+            }
+
             return true;
         }
 
         // Date only (original)
         CalendarDatePicker? picker = CheckHelper.FindInner<CalendarDatePicker>(existing);
         if (picker is null)
+        {
             return false;
+        }
 
         if (!picker.IsFocused)
         {
@@ -148,10 +186,12 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
                 raw is not null && DateOnly.TryParse(raw, out var date) ? date.ToDateTime(TimeOnly.MinValue) : null;
         }
 
-        picker.Watermark = ctx.Resolve(c.Label) ?? "Select date";
+        picker.Watermark = context.Resolve(component.Label) ?? "Select date";
 
-        if (existing is StackPanel wrapper && c.Checks is { Length: > 0 })
-            CheckHelper.UpdateChecks(wrapper, c, ctx);
+        if (existing is StackPanel wrapper && component.Checks is { Length: > 0 })
+        {
+            CheckHelper.UpdateChecks(wrapper, component, context);
+        }
 
         return true;
     }
@@ -167,7 +207,9 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
         var picker = new CalendarDatePicker { Watermark = ctx.Resolve(c.Label) ?? "Select date" };
 
         if (raw is not null && DateOnly.TryParse(raw, out var date))
+        {
             picker.SelectedDate = date.ToDateTime(TimeOnly.MinValue);
+        }
 
         picker.SelectedDateChanged += (_, _) =>
         {
@@ -214,15 +256,13 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
         datePicker.SelectedDateChanged += (_, _) => NotifyCombined();
         timePicker.SelectedTimeChanged += (_, _) => NotifyCombined();
 
-        var panel = new StackPanel
+        return new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = 8,
             Tag = DateTimeTag,
             Children = { datePicker, timePicker },
         };
-
-        return panel;
     }
 
     private static TimePicker CreateTimePicker(string? raw, string? bindingPath, string componentId, IRenderContext ctx)
@@ -230,7 +270,9 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
         var timePicker = new TimePicker { ClockIdentifier = "24HourClock", Tag = TimeOnlyTag };
 
         if (raw is not null && TimeSpan.TryParse(raw, out var ts))
+        {
             timePicker.SelectedTime = ts;
+        }
 
         timePicker.SelectedTimeChanged += (_, _) =>
         {
@@ -253,32 +295,34 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "ChoicePicker";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        string? bindingPath = c.Value?.Path;
-        string componentId = c.Id;
-        bool isMultiple = c.Variant is "multipleSelection";
-        var currentValues = ResolveCurrentValues(c.Value, ctx);
+        string? bindingPath = component.Value?.Path;
+        string componentId = component.Id;
+        bool isMultiple = component.Variant is "multipleSelection";
+        var currentValues = ResolveCurrentValues(component.Value, context);
 
         Control control = isMultiple
-            ? CreateMultipleSelection(c, ctx, bindingPath, componentId, currentValues)
-            : CreateMutuallyExclusive(c, ctx, bindingPath, componentId, currentValues);
+            ? CreateMultipleSelection(component, context, bindingPath, componentId, currentValues)
+            : CreateMutuallyExclusive(component, context, bindingPath, componentId, currentValues);
 
-        return CheckHelper.ApplyChecks(control, c, ctx);
+        return CheckHelper.ApplyChecks(control, component, context);
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         // Only support in-place update for the simple ComboBox case (mutuallyExclusive, non-filterable).
         // Multi-select and filterable variants require full re-create.
         ComboBox? combo = CheckHelper.FindInner<ComboBox>(existing);
         if (combo is null)
+        {
             return false;
+        }
 
-        combo.PlaceholderText = ctx.Resolve(c.Label);
+        combo.PlaceholderText = context.Resolve(component.Label);
 
         // Update selected index to match current data model value
-        var currentValues = ResolveCurrentValues(c.Value, ctx);
+        var currentValues = ResolveCurrentValues(component.Value, context);
         int selectedIndex = -1;
         for (int i = 0; i < combo.Items.Count; i++)
         {
@@ -290,8 +334,10 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
         }
         combo.SelectedIndex = selectedIndex;
 
-        if (existing is StackPanel wrapper && c.Checks is { Length: > 0 })
-            CheckHelper.UpdateChecks(wrapper, c, ctx);
+        if (existing is StackPanel wrapper && component.Checks is { Length: > 0 })
+        {
+            CheckHelper.UpdateChecks(wrapper, component, context);
+        }
 
         return true;
     }
@@ -313,14 +359,18 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
             };
 
             if (c.Options is { } opts)
+            {
                 autoComplete.ItemsSource = opts.Select(o => o.Label).ToArray();
+            }
 
             // Set initial selected text
             if (currentValues.Count > 0 && c.Options is { } options)
             {
                 var match = options.FirstOrDefault(o => currentValues.Contains(o.Value));
                 if (match is not null)
+                {
                     autoComplete.Text = match.Label;
+                }
             }
 
             autoComplete.SelectionChanged += (_, _) =>
@@ -329,7 +379,9 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
                 string? selectedLabel = autoComplete.SelectedItem as string;
                 string? selectedValue = c.Options?.FirstOrDefault(o => o.Label == selectedLabel)?.Value;
                 if (selectedValue is not null)
+                {
                     InputHelper.NotifyValueChanged(ctx, bindingPath, selectedValue, componentId);
+                }
             };
 
             return autoComplete;
@@ -344,10 +396,14 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
             {
                 combo.Items.Add(new ComboBoxItem { Content = comboOpts[i].Label, Tag = comboOpts[i].Value });
                 if (currentValues.Contains(comboOpts[i].Value))
+                {
                     selectedIndex = i;
+                }
             }
             if (selectedIndex >= 0)
+            {
                 combo.SelectedIndex = selectedIndex;
+            }
         }
 
         combo.SelectionChanged += (_, _) =>
@@ -431,7 +487,9 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
             foreach (var lbi in listBox.Items.OfType<ListBoxItem>())
             {
                 if (lbi.Content is CheckBox innerCb)
+                {
                     innerCb.IsChecked = listBox.SelectedItems!.Contains(lbi);
+                }
             }
 
             var selected = listBox
@@ -447,7 +505,9 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
         foreach (var item in listBox.Items.OfType<ListBoxItem>())
         {
             if (item.Content is CheckBox cb && cb.IsChecked == true)
+            {
                 listBox.SelectedItems!.Add(item);
+            }
         }
 
         return listBox;
@@ -460,7 +520,9 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
     private static HashSet<string> ResolveCurrentValues(DynamicValue? value, IRenderContext ctx)
     {
         if (value is null)
+        {
             return [];
+        }
 
         // If it's an array literal, extract string values
         if (value.ArrayLiteral is { } arr)
@@ -469,7 +531,9 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
             foreach (var el in arr.EnumerateArray())
             {
                 if (el.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
                     set.Add(el.GetString()!);
+                }
             }
             return set;
         }
@@ -477,7 +541,9 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
         // If bound to a path, resolve and try to parse as JSON array
         string? resolved = ctx.Resolve(value);
         if (resolved is null)
+        {
             return [];
+        }
 
         // Could be a JSON array string like ["a","b"] or a single value
         if (resolved.StartsWith('['))
@@ -504,38 +570,45 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
 
     public string ComponentType => "CheckBox";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        bool isChecked = ctx.Resolve(c.Value) is "true";
-        var cb = new CheckBox { Content = ctx.Resolve(c.Label), IsChecked = isChecked };
+        bool isChecked = context.Resolve(component.Value) is "true";
+        var cb = new CheckBox { Content = context.Resolve(component.Label), IsChecked = isChecked };
 
         cb.IsCheckedChanged += (sender, _) =>
         {
             // Skip events fired by programmatic updates in Update()
             if (sender is CheckBox box && box.Tag is UpdatingTag)
+            {
                 return;
-            ctx.FireUserAction(InputEvents.ValueChanged, cb.IsChecked == true ? "true" : "false");
+            }
+
+            context.FireUserAction(InputEvents.ValueChanged, cb.IsChecked == true ? "true" : "false");
         };
 
-        return CheckHelper.ApplyChecks(cb, c, ctx);
+        return CheckHelper.ApplyChecks(cb, component, context);
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         CheckBox? cb = CheckHelper.FindInner<CheckBox>(existing);
         if (cb is null)
+        {
             return false;
+        }
 
         if (!cb.IsFocused)
         {
             cb.Tag = UpdatingTag;
-            cb.IsChecked = ctx.Resolve(c.Value) is "true";
+            cb.IsChecked = context.Resolve(component.Value) is "true";
             cb.Tag = null;
         }
-        cb.Content = ctx.Resolve(c.Label);
+        cb.Content = context.Resolve(component.Label);
 
-        if (existing is StackPanel wrapper && c.Checks is { Length: > 0 })
-            CheckHelper.UpdateChecks(wrapper, c, ctx);
+        if (existing is StackPanel wrapper && component.Checks is { Length: > 0 })
+        {
+            CheckHelper.UpdateChecks(wrapper, component, context);
+        }
 
         return true;
     }
@@ -546,13 +619,15 @@ public sealed class SliderCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Slider";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        double.TryParse(ctx.Resolve(c.Value), out double val);
-        double.TryParse(ctx.Resolve(c.Min), out double min);
+        double.TryParse(context.Resolve(component.Value), out double val);
+        double.TryParse(context.Resolve(component.Min), out double min);
         double max = 100;
-        if (ctx.Resolve(c.Max) is { } maxStr)
+        if (context.Resolve(component.Max) is { } maxStr)
+        {
             double.TryParse(maxStr, out max);
+        }
 
         var slider = new Slider
         {
@@ -562,29 +637,40 @@ public sealed class SliderCatalogEntry : ICatalogEntry
         };
 
         // Fire on thumb drag complete, not on every pixel move
-        string? sliderBindingPath = c.Value?.Path;
-        string sliderComponentId = c.Id;
+        string? sliderBindingPath = component.Value?.Path;
+        string sliderComponentId = component.Id;
         slider.AddHandler(
             Thumb.DragCompletedEvent,
             (_, _) =>
-                InputHelper.NotifyValueChanged(ctx, sliderBindingPath, slider.Value.ToString("G"), sliderComponentId),
+                InputHelper.NotifyValueChanged(
+                    context,
+                    sliderBindingPath,
+                    slider.Value.ToString("G"),
+                    sliderComponentId
+                ),
             RoutingStrategies.Bubble
         );
 
-        return CheckHelper.ApplyChecks(slider, c, ctx);
+        return CheckHelper.ApplyChecks(slider, component, context);
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         Slider? s = CheckHelper.FindInner<Slider>(existing);
         if (s is null)
+        {
             return false;
+        }
 
-        if (!s.IsFocused && double.TryParse(ctx.Resolve(c.Value), out double val))
+        if (!s.IsFocused && double.TryParse(context.Resolve(component.Value), out double val))
+        {
             s.Value = val;
+        }
 
-        if (existing is StackPanel wrapper && c.Checks is { Length: > 0 })
-            CheckHelper.UpdateChecks(wrapper, c, ctx);
+        if (existing is StackPanel wrapper && component.Checks is { Length: > 0 })
+        {
+            CheckHelper.UpdateChecks(wrapper, component, context);
+        }
 
         return true;
     }

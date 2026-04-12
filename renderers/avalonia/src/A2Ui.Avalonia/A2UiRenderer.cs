@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
@@ -30,9 +30,9 @@ public sealed class A2UiRenderer
         ILoggerFactory? loggerFactory = null
     )
     {
-        _catalog = catalog;
-        _functionRegistry = functionRegistry;
-        _logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<A2UiRenderer>();
+        this._catalog = catalog;
+        this._functionRegistry = functionRegistry;
+        this._logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<A2UiRenderer>();
     }
 
     /// <summary>
@@ -43,38 +43,40 @@ public sealed class A2UiRenderer
     {
         Dispatcher.UIThread.VerifyAccess();
 
-        using Activity? activity = A2Ui.Avalonia.Diagnostics.RendererSource.StartActivity(
-            "Renderer.Render",
-            ActivityKind.Internal
-        );
+        using Activity? activity = Diagnostics.RendererSource.StartActivity("Renderer.Render", ActivityKind.Internal);
         activity?.SetTag("a2ui.surface_id", surface.SurfaceId);
         activity?.SetTag("a2ui.catalog_id", surface.CatalogId);
 
-        if (!_surfaceCaches.TryGetValue(surface.SurfaceId, out var cache))
+        if (!this._surfaceCaches.TryGetValue(surface.SurfaceId, out var cache))
         {
             cache = new Dictionary<string, Control>();
-            _surfaceCaches[surface.SurfaceId] = cache;
+            this._surfaceCaches[surface.SurfaceId] = cache;
         }
 
         var context = new RenderContext(
             surface,
-            _catalog,
+            this._catalog,
             cache,
-            _functionRegistry,
+            this._functionRegistry,
             (surfaceId, eventName, payload, componentId) =>
                 UserActionFired?.Invoke(this, new(surfaceId, eventName, payload, componentId)),
             (surfaceId) => DataModelChanged?.Invoke(this, new(surfaceId)),
-            logger: _logger
+            logger: this._logger
         );
 
         var roots = surface.GetRootComponents().ToList();
 
         if (roots.Count == 1)
-            return RenderComponent(roots[0], surface, context);
+        {
+            return this.RenderComponent(roots[0], surface, context);
+        }
 
         var container = new StackPanel { Spacing = 8 };
         foreach (var root in roots)
-            container.Children.Add(RenderComponent(root, surface, context));
+        {
+            container.Children.Add(this.RenderComponent(root, surface, context));
+        }
+
         return container;
     }
 
@@ -83,29 +85,35 @@ public sealed class A2UiRenderer
 
     private Control RenderComponent(A2UiComponent component, Surface surface, RenderContext context)
     {
-        RendererLog.RenderComponent(_logger, component.Id, component.Component, component.Parent ?? "(none)");
+        RendererLog.RenderComponent(this._logger, component.Id, component.Component, component.Parent ?? "(none)");
 
-        if (!_catalog.TryGetEntry(component.Component, out var entry) || entry is null)
+        if (!this._catalog.TryGetEntry(component.Component, out var entry) || entry is null)
         {
-            RendererLog.UnknownComponentTypeRendered(_logger, component.Id, component.Component);
+            RendererLog.UnknownComponentTypeRendered(this._logger, component.Id, component.Component);
             return new TextBlock { Text = $"[Unknown component: {component.Component}]", Classes = { "Caption" } };
         }
 
-        var cache = _surfaceCaches.GetValueOrDefault(surface.SurfaceId);
-        if (cache is not null && cache.TryGetValue(component.Id, out var existing))
+        var cache = this._surfaceCaches.GetValueOrDefault(surface.SurfaceId);
+        if (
+            cache is not null
+            && cache.TryGetValue(component.Id, out var existing)
+            && entry.Update(existing, component, surface.DataModel, context)
+        )
         {
-            if (entry.Update(existing, component, surface.DataModel, context))
-                return existing;
+            return existing;
         }
 
         var control = entry.Create(component, surface.DataModel, context);
         if (cache is not null)
+        {
             cache[component.Id] = control;
+        }
+
         return control;
     }
 
     /// <summary>Clear control cache for a specific surface.</summary>
-    public void ClearSurface(string surfaceId) => _surfaceCaches.Remove(surfaceId);
+    public void ClearSurface(string surfaceId) => this._surfaceCaches.Remove(surfaceId);
 }
 
 internal sealed class RenderContext(
@@ -127,12 +135,17 @@ internal sealed class RenderContext(
     public Control? RenderChild(string? childId)
     {
         if (childId is null || !surface.Components.TryGetValue(childId, out var c))
+        {
             return null;
+        }
 
         if (!catalog.TryGetEntry(c.Component, out var entry) || entry is null)
         {
             if (logger is not null)
+            {
                 RendererLog.UnknownComponentTypeRendered(logger, c.Id, c.Component);
+            }
+
             return new TextBlock { Text = $"[Unknown component: {c.Component}]", Classes = { "Caption" } };
         }
 
@@ -169,7 +182,10 @@ internal sealed class RenderContext(
                 break;
             default:
                 if (logger is not null)
+                {
                     RendererLog.CannotDetachFromUnknownParent(logger, control.Parent.GetType().Name);
+                }
+
                 break;
         }
     }
@@ -178,21 +194,25 @@ internal sealed class RenderContext(
     /// Render children: prefers v0.9 forward-ref children property,
     /// falls back to legacy parent-based reverse lookup.
     /// </summary>
-    public IEnumerable<Control> RenderChildren(string componentId)
+    public IEnumerable<Control> RenderChildren(string parentId)
     {
-        if (surface.Components.TryGetValue(componentId, out var comp) && comp.Children is not null)
+        if (surface.Components.TryGetValue(parentId, out var comp) && comp.Children is not null)
         {
             if (comp.Children.Ids is { } ids)
-                return ids.Select(id => RenderChild(id)).OfType<Control>();
+            {
+                return ids.Select(id => this.RenderChild(id)).OfType<Control>();
+            }
 
             if (comp.Children.Template is { } tmpl)
-                return ExpandTemplate(tmpl);
+            {
+                return this.ExpandTemplate(tmpl);
+            }
         }
 
         // Legacy fallback: parent-based lookup
         return surface
-            .Components.Values.Where(c => c.Parent == componentId)
-            .Select(c => RenderChild(c.Id))
+            .Components.Values.Where(c => c.Parent == parentId)
+            .Select(c => this.RenderChild(c.Id))
             .OfType<Control>();
     }
 
@@ -201,18 +221,24 @@ internal sealed class RenderContext(
     /// at the template path and rendering the template component tree once
     /// per array item, with relative path resolution scoped to each item.
     /// </summary>
-    private IEnumerable<Control> ExpandTemplate(ChildTemplate tmpl)
+    private List<Control> ExpandTemplate(ChildTemplate tmpl)
     {
         string arrayPath = tmpl.Path.TrimStart('/');
         int count = surface.DataModel.GetArrayLength(tmpl.Path);
         if (count <= 0)
+        {
             return [];
+        }
 
         if (!surface.Components.TryGetValue(tmpl.ComponentId, out var templateComp))
+        {
             return [];
+        }
 
         if (!catalog.TryGetEntry(templateComp.Component, out var entry) || entry is null)
+        {
             return [];
+        }
 
         var controls = new List<Control>(count);
         for (int i = 0; i < count; i++)
@@ -238,7 +264,9 @@ internal sealed class RenderContext(
         }
 
         if (logger is not null)
+        {
             RendererLog.TemplateInstantiated(logger, tmpl.ComponentId, templateComp.Component, controls.Count);
+        }
 
         return controls;
     }
@@ -246,32 +274,43 @@ internal sealed class RenderContext(
     public void FireUserAction(string eventName, object? payload = null, string? componentId = null) =>
         fireAction(surface.SurfaceId, eventName, payload, componentId);
 
-    public string? Resolve(DynamicValue? value) => ResolveCore(value, depth: 0);
+    public string? Resolve(DynamicValue? value) => this.ResolveCore(value, depth: 0);
 
     private string? ResolveCore(DynamicValue? value, int depth)
     {
         if (value is null)
+        {
             return null;
+        }
 
         if (depth > MaxResolveDepth)
         {
             if (logger is not null)
+            {
                 RendererLog.ResolveExceededMaxDepth(logger, MaxResolveDepth);
+            }
+
             return null;
         }
 
         if (value.FunctionCall is { } fc)
-            return ResolveFunction(fc, depth);
+        {
+            return this.ResolveFunction(fc, depth);
+        }
 
         // ArrayLiteral: resolve each element individually and return as JSON string array.
         // This handles cases like and/or where "values" is an array of DynamicValues
         // (paths, function calls, etc.) that each need recursive resolution.
         if (value.ArrayLiteral is { } arrayEl)
-            return ResolveArrayLiteral(arrayEl, depth);
+        {
+            return this.ResolveArrayLiteral(arrayEl, depth);
+        }
 
         // Scope relative paths when inside a template expansion
         if (basePath is not null && value.Path is { } path && !path.StartsWith('/'))
-            return ResolveScopedPath(path);
+        {
+            return this.ResolveScopedPath(path);
+        }
 
         return surface.DataModel.Resolve(value);
     }
@@ -284,7 +323,9 @@ internal sealed class RenderContext(
     private string? ResolveArrayLiteral(JsonElement arrayEl, int depth)
     {
         if (arrayEl.ValueKind != JsonValueKind.Array)
+        {
             return null;
+        }
 
         var results = new List<string>();
         foreach (JsonElement item in arrayEl.EnumerateArray())
@@ -292,13 +333,16 @@ internal sealed class RenderContext(
             try
             {
                 var itemDv = JsonSerializer.Deserialize<DynamicValue>(item.GetRawText(), s_jsonOptions);
-                string? resolved = ResolveCore(itemDv, depth + 1);
+                string? resolved = this.ResolveCore(itemDv, depth + 1);
                 results.Add(resolved ?? "");
             }
             catch (JsonException ex)
             {
                 if (logger is not null)
+                {
                     RendererLog.FailedToDeserializeArrayElement(logger, ex);
+                }
+
                 results.Add("");
             }
         }
@@ -311,13 +355,18 @@ internal sealed class RenderContext(
         if (functionRegistry is null)
         {
             if (logger is not null)
+            {
                 RendererLog.NoFunctionRegistryForCall(logger, fc.Call);
+            }
+
             return null;
         }
 
         // Special case: formatString needs template parsing with resolver access
         if (fc.Call == "formatString")
-            return ResolveFormatString(fc, depth);
+        {
+            return this.ResolveFormatString(fc, depth);
+        }
 
         var resolvedArgs = new Dictionary<string, string?>();
         if (fc.Args is not null)
@@ -327,12 +376,15 @@ internal sealed class RenderContext(
                 try
                 {
                     var argValue = JsonSerializer.Deserialize<DynamicValue>(jsonEl.GetRawText(), s_jsonOptions);
-                    resolvedArgs[key] = ResolveCore(argValue, depth + 1);
+                    resolvedArgs[key] = this.ResolveCore(argValue, depth + 1);
                 }
                 catch (JsonException ex)
                 {
                     if (logger is not null)
+                    {
                         RendererLog.FailedToDeserializeFunctionArg(logger, key, fc.Call, ex);
+                    }
+
                     resolvedArgs[key] = null;
                 }
             }
@@ -359,12 +411,16 @@ internal sealed class RenderContext(
             catch (JsonException ex)
             {
                 if (logger is not null)
+                {
                     RendererLog.FailedToDeserializeFormatStringArg(logger, ex);
+                }
             }
         }
 
         if (string.IsNullOrEmpty(template))
+        {
             return "";
+        }
 
         try
         {
@@ -373,16 +429,21 @@ internal sealed class RenderContext(
             var sb = new StringBuilder();
             foreach (ExpressionToken token in tokens)
             {
-                string? resolved = ResolveExpressionToken(token, depth + 1);
+                string? resolved = this.ResolveExpressionToken(token, depth + 1);
                 if (resolved is not null)
+                {
                     sb.Append(resolved);
+                }
             }
             return sb.ToString();
         }
         catch (A2UiExpressionException ex)
         {
             if (logger is not null)
+            {
                 RendererLog.FailedToParseFormatStringTemplate(logger, ex);
+            }
+
             return template;
         }
     }
@@ -395,17 +456,20 @@ internal sealed class RenderContext(
         if (depth > MaxResolveDepth)
         {
             if (logger is not null)
+            {
                 RendererLog.ExpressionTokenExceededMaxDepth(logger, MaxResolveDepth);
+            }
+
             return null;
         }
 
         return token switch
         {
             LiteralToken lit => lit.Value,
-            PathToken path => ResolveExpressionPath(path.Path, depth),
+            PathToken path => this.ResolveExpressionPath(path.Path, depth),
             BoolToken b => b.Value ? "true" : "false",
             NumberToken n => n.Value.ToString(CultureInfo.InvariantCulture),
-            FunctionCallToken fc => ResolveExpressionFunctionCall(fc, depth),
+            FunctionCallToken fc => this.ResolveExpressionFunctionCall(fc, depth),
             _ => null,
         };
     }
@@ -417,9 +481,11 @@ internal sealed class RenderContext(
     {
         // Scope relative paths when inside a template expansion
         if (basePath is not null && !path.StartsWith('/'))
-            return ResolveScopedPath(path);
+        {
+            return this.ResolveScopedPath(path);
+        }
 
-        return ResolveCore(DynamicValue.FromPath(path), depth);
+        return this.ResolveCore(DynamicValue.FromPath(path), depth);
     }
 
     /// <summary>
@@ -431,14 +497,17 @@ internal sealed class RenderContext(
         if (functionRegistry is null)
         {
             if (logger is not null)
+            {
                 RendererLog.NoFunctionRegistryForExpression(logger, fc.Name);
+            }
+
             return null;
         }
 
         var resolvedArgs = new Dictionary<string, string?>();
         foreach (var (key, argToken) in fc.Args)
         {
-            resolvedArgs[key] = ResolveExpressionToken(argToken, depth + 1);
+            resolvedArgs[key] = this.ResolveExpressionToken(argToken, depth + 1);
         }
 
         return functionRegistry.Evaluate(fc.Name, resolvedArgs);
@@ -469,7 +538,9 @@ internal sealed class RenderContext(
         catch (Exception ex) when (ex is JsonException or InvalidOperationException or ArgumentException)
         {
             if (logger is not null)
+            {
                 RendererLog.FailedToUpdateDataModel(logger, path, ex);
+            }
         }
     }
 }

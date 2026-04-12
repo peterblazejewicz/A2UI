@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -36,7 +36,10 @@ internal static class BuiltInFunctions
     {
         string? value = GetArg(args, "value");
         if (string.IsNullOrEmpty(value))
+        {
             return "";
+        }
+
         return char.ToUpper(value[0], CultureInfo.InvariantCulture) + value[1..];
     }
 
@@ -44,7 +47,9 @@ internal static class BuiltInFunctions
     {
         string? value = GetArg(args, "value");
         if (!TryParseDouble(value, out double num))
+        {
             return "";
+        }
 
         int decimals = TryParseInt(GetArg(args, "decimals"), 0);
         // grouping defaults to true
@@ -58,7 +63,9 @@ internal static class BuiltInFunctions
 
         var nfi = (NumberFormatInfo)s_enUsNumberFormat.Clone();
         if (!grouping)
+        {
             nfi.NumberGroupSeparator = "";
+        }
 
         return num.ToString($"N{decimals}", nfi);
     }
@@ -67,7 +74,9 @@ internal static class BuiltInFunctions
     {
         string? value = GetArg(args, "value");
         if (!TryParseDouble(value, out double num))
+        {
             return "";
+        }
 
         string currency = GetArg(args, "currency") ?? "USD";
         int decimals = TryParseInt(GetArg(args, "decimals"), 2);
@@ -87,7 +96,9 @@ internal static class BuiltInFunctions
         nfi.CurrencySymbol = symbol;
         nfi.CurrencyDecimalDigits = decimals;
         if (!grouping)
+        {
             nfi.CurrencyGroupSeparator = "";
+        }
 
         return num.ToString("C", nfi);
     }
@@ -96,7 +107,9 @@ internal static class BuiltInFunctions
     {
         string? value = GetArg(args, "value");
         if (string.IsNullOrEmpty(value))
+        {
             return "";
+        }
 
         if (
             !DateTime.TryParse(
@@ -106,14 +119,20 @@ internal static class BuiltInFunctions
                 out DateTime dt
             )
         )
+        {
             return "";
+        }
 
         string? format = GetArg(args, "format");
         if (string.IsNullOrEmpty(format))
+        {
             return dt.ToString(CultureInfo.InvariantCulture);
+        }
 
         if (format == "ISO")
+        {
             return dt.ToString("O", CultureInfo.InvariantCulture);
+        }
 
         // Map Unicode TR35 tokens to .NET format tokens
         string dotNetFormat = MapTr35ToNet(format);
@@ -130,14 +149,24 @@ internal static class BuiltInFunctions
     {
         string? value = GetArg(args, "value");
         if (!TryParseInt(value, out int n))
+        {
             return GetArg(args, "other") ?? "";
+        }
 
         if (n == 0 && args.TryGetValue("zero", out string? zero) && zero is not null)
+        {
             return zero;
+        }
+
         if (n == 1 && args.TryGetValue("one", out string? one) && one is not null)
+        {
             return one;
+        }
+
         if (n == 2 && args.TryGetValue("two", out string? two) && two is not null)
+        {
             return two;
+        }
 
         return GetArg(args, "other") ?? "";
     }
@@ -153,10 +182,15 @@ internal static class BuiltInFunctions
     public static string? Divide(IReadOnlyDictionary<string, string?> args)
     {
         if (!TryParseDouble(GetArg(args, "a"), out double a) || !TryParseDouble(GetArg(args, "b"), out double b))
+        {
             return null;
+        }
         // ReSharper disable once CompareOfFloatsByEqualityOperator
         if (b == 0.0)
+        {
             return "\u221e"; // ∞
+        }
+
         return (a / b).ToString(CultureInfo.InvariantCulture);
     }
 
@@ -171,14 +205,20 @@ internal static class BuiltInFunctions
     public static string? GreaterThan(IReadOnlyDictionary<string, string?> args)
     {
         if (!TryParseDouble(GetArg(args, "a"), out double a) || !TryParseDouble(GetArg(args, "b"), out double b))
+        {
             return "false";
+        }
+
         return BoolResult(a > b);
     }
 
     public static string? LessThan(IReadOnlyDictionary<string, string?> args)
     {
         if (!TryParseDouble(GetArg(args, "a"), out double a) || !TryParseDouble(GetArg(args, "b"), out double b))
+        {
             return "false";
+        }
+
         return BoolResult(a > b is false && a != b);
     }
 
@@ -188,7 +228,10 @@ internal static class BuiltInFunctions
     {
         string? values = GetArg(args, "values");
         if (values is null)
+        {
             return "false";
+        }
+
         var items = ParseJsonStringArray(values);
         return BoolResult(items.All(IsTruthy));
     }
@@ -197,7 +240,10 @@ internal static class BuiltInFunctions
     {
         string? values = GetArg(args, "values");
         if (values is null)
+        {
             return "false";
+        }
+
         var items = ParseJsonStringArray(values);
         return BoolResult(items.Any(IsTruthy));
     }
@@ -212,7 +258,10 @@ internal static class BuiltInFunctions
         string? str = GetArg(args, "string");
         string? sub = GetArg(args, "substring");
         if (str is null || sub is null)
+        {
             return "false";
+        }
+
         return BoolResult(str.Contains(sub, StringComparison.Ordinal));
     }
 
@@ -221,7 +270,10 @@ internal static class BuiltInFunctions
         string? str = GetArg(args, "string");
         string? prefix = GetArg(args, "prefix");
         if (str is null || prefix is null)
+        {
             return "false";
+        }
+
         return BoolResult(str.StartsWith(prefix, StringComparison.Ordinal));
     }
 
@@ -230,7 +282,10 @@ internal static class BuiltInFunctions
         string? str = GetArg(args, "string");
         string? suffix = GetArg(args, "suffix");
         if (str is null || suffix is null)
+        {
             return "false";
+        }
+
         return BoolResult(str.EndsWith(suffix, StringComparison.Ordinal));
     }
 
@@ -243,7 +298,10 @@ internal static class BuiltInFunctions
     {
         string? value = GetArg(args, "value");
         if (string.IsNullOrEmpty(value))
+        {
             return "false";
+        }
+
         return BoolResult(
             Regex.IsMatch(
                 value,
@@ -259,7 +317,9 @@ internal static class BuiltInFunctions
         string? value = GetArg(args, "value");
         string? pattern = GetArg(args, "pattern");
         if (value is null || pattern is null)
+        {
             return "false";
+        }
 
         // Let RegexParseException propagate to FunctionRegistry.Evaluate,
         // which catches ArgumentException (parent of RegexParseException)
@@ -280,7 +340,9 @@ internal static class BuiltInFunctions
     {
         string? value = GetArg(args, "value");
         if (!TryParseDouble(value, out double num))
+        {
             return "false";
+        }
 
         double min = TryParseDouble(GetArg(args, "min"), out double mn) ? mn : double.MinValue;
         double max = TryParseDouble(GetArg(args, "max"), out double mx) ? mx : double.MaxValue;
@@ -310,7 +372,10 @@ internal static class BuiltInFunctions
     private static string? BinaryMath(IReadOnlyDictionary<string, string?> args, Func<double, double, double> op)
     {
         if (!TryParseDouble(GetArg(args, "a"), out double a) || !TryParseDouble(GetArg(args, "b"), out double b))
+        {
             return null;
+        }
+
         return op(a, b).ToString(CultureInfo.InvariantCulture);
     }
 
@@ -322,7 +387,9 @@ internal static class BuiltInFunctions
         {
             using var doc = JsonDocument.Parse(json);
             if (doc.RootElement.ValueKind != JsonValueKind.Array)
+            {
                 return [];
+            }
 
             var result = new List<string?>();
             foreach (JsonElement el in doc.RootElement.EnumerateArray())

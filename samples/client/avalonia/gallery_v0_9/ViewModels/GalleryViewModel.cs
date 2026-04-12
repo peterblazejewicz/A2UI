@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Text.Json;
 using A2Ui.Avalonia.Gallery.Models;
 using A2Ui.Avalonia.Gallery.Services;
@@ -20,14 +20,14 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
 
     public GalleryViewModel(SurfaceManager manager, GalleryDataLoader dataLoader, ILogger<GalleryViewModel> logger)
     {
-        _manager = manager;
-        _dataLoader = dataLoader;
-        _logger = logger;
+        this._manager = manager;
+        this._dataLoader = dataLoader;
+        this._logger = logger;
 
-        _manager.SurfaceCreated += OnSurfaceCreated;
-        _manager.SurfaceDeleted += OnSurfaceDeleted;
-        _manager.ComponentsUpdated += OnComponentsUpdated;
-        _manager.DataModelUpdated += OnDataModelUpdated;
+        this._manager.SurfaceCreated += this.OnSurfaceCreated;
+        this._manager.SurfaceDeleted += this.OnSurfaceDeleted;
+        this._manager.ComponentsUpdated += this.OnComponentsUpdated;
+        this._manager.DataModelUpdated += this.OnDataModelUpdated;
     }
 
     // ── State ──────────────────────────────────────────────
@@ -69,32 +69,35 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
 
     // ── Computed ───────────────────────────────────────────
 
-    public int TotalMessageCount => SelectedItem?.Messages.Count ?? 0;
-    public bool CanAdvance => SelectedItem is not null && ProcessedMessageCount < SelectedItem.Messages.Count;
+    public int TotalMessageCount => this.SelectedItem?.Messages.Count ?? 0;
+    public bool CanAdvance =>
+        this.SelectedItem is not null && this.ProcessedMessageCount < this.SelectedItem.Messages.Count;
 
     /// <summary>
     /// True when the placeholder text should be visible instead of the rendered surface.
     /// Covers three states: no messages processed yet, surface created but no components
     /// received yet (between createSurface and first updateComponents), and no surface at all.
     /// </summary>
-    public bool ShowPlaceholder => ActiveSurface is null || !HasComponents;
+    public bool ShowPlaceholder => this.ActiveSurface is null || !this.HasComponents;
 
     /// <summary>
     /// Placeholder text shown in the surface area.
     /// </summary>
     public string SurfacePlaceholder =>
-        ProcessedMessageCount == 0 ? "Surface not initialized. Click '+1 Message' to begin." : "Loading surface...";
+        this.ProcessedMessageCount == 0
+            ? "Surface not initialized. Click '+1 Message' to begin."
+            : "Loading surface...";
 
     // ── Commands ──────────────────────────────────────────
 
     [RelayCommand(CanExecute = nameof(CanAdvance))]
-    private void StepOne() => AdvanceMessages(count: 1);
+    private void StepOne() => this.AdvanceMessages(count: 1);
 
     [RelayCommand(CanExecute = nameof(CanAdvance))]
-    private void StepAll() => AdvanceMessages(all: true);
+    private void StepAll() => this.AdvanceMessages(all: true);
 
     [RelayCommand]
-    private void Reset() => ResetSurface();
+    private void Reset() => this.ResetSurface();
 
     // ── View event ────────────────────────────────────────
 
@@ -104,19 +107,23 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
 
     public async Task InitializeAsync(CancellationToken ct = default)
     {
-        IsLoading = true;
+        this.IsLoading = true;
         try
         {
-            IReadOnlyList<DemoItem> items = await _dataLoader.LoadAsync(ct).ConfigureAwait(true);
+            IReadOnlyList<DemoItem> items = await this._dataLoader.LoadAsync(ct).ConfigureAwait(true);
             foreach (DemoItem item in items)
-                DemoItems.Add(item);
+            {
+                this.DemoItems.Add(item);
+            }
 
-            if (DemoItems.Count > 0)
-                SelectedItem = DemoItems[0];
+            if (this.DemoItems.Count > 0)
+            {
+                this.SelectedItem = this.DemoItems[0];
+            }
         }
         finally
         {
-            IsLoading = false;
+            this.IsLoading = false;
         }
     }
 
@@ -134,45 +141,49 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
 
     private void AdvanceMessages(bool all = false, int count = 0)
     {
-        DemoItem? item = SelectedItem;
+        DemoItem? item = this.SelectedItem;
         if (item is null)
+        {
             return;
+        }
 
-        int start = ProcessedMessageCount;
+        int start = this.ProcessedMessageCount;
         int end = all ? item.Messages.Count : Math.Min(start + count, item.Messages.Count);
 
         for (int i = start; i < end; i++)
         {
             try
             {
-                _manager.Process(item.Messages[i]);
+                this._manager.Process(item.Messages[i]);
             }
             catch (Exception ex) when (ex is JsonException or InvalidOperationException)
             {
-                ActionLogs.Insert(0, $"[Error] Failed to process message {i}: {ex.Message}");
+                this.ActionLogs.Insert(0, $"[Error] Failed to process message {i}: {ex.Message}");
             }
             catch (Exception ex)
             {
-                ActionLogs.Insert(
+                this.ActionLogs.Insert(
                     0,
                     $"[Error] Unexpected failure processing message {i}: {ex.GetType().Name}: {ex.Message}"
                 );
-                _logger.LogError(ex, "Unexpected exception processing message {Index}", i);
+                this._logger.LogError(ex, "Unexpected exception processing message {Index}", i);
             }
         }
 
-        ProcessedMessageCount = end;
+        this.ProcessedMessageCount = end;
     }
 
     private void ResetSurface()
     {
-        DemoItem? item = SelectedItem;
+        DemoItem? item = this.SelectedItem;
         if (item is null)
-            return;
-
-        if (_manager.GetSurface(item.Id) is not null)
         {
-            _manager.Process(
+            return;
+        }
+
+        if (this._manager.GetSurface(item.Id) is not null)
+        {
+            this._manager.Process(
                 new A2UiMessage
                 {
                     Version = "v0.9",
@@ -181,11 +192,11 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
             );
         }
 
-        ProcessedMessageCount = 0;
-        CurrentDataModelJson = "{}";
-        ActionLogs.Clear();
-        HasComponents = false;
-        ActiveSurface = null;
+        this.ProcessedMessageCount = 0;
+        this.CurrentDataModelJson = "{}";
+        this.ActionLogs.Clear();
+        this.HasComponents = false;
+        this.ActiveSurface = null;
     }
 
     /// <summary>
@@ -194,8 +205,10 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
     /// </summary>
     public void RefreshDataModelJson()
     {
-        if (ActiveSurface is { } surface)
-            UpdateDataModelJson(surface);
+        if (this.ActiveSurface is { } surface)
+        {
+            this.UpdateDataModelJson(surface);
+        }
     }
 
     // ── Action logging ────────────────────────────────────
@@ -226,49 +239,49 @@ public sealed partial class GalleryViewModel : ObservableObject, IDisposable
             entry = $"[{time}] Action: {e.EventName} on {e.SurfaceId}";
         }
 
-        ActionLogs.Insert(0, entry);
+        this.ActionLogs.Insert(0, entry);
     }
 
     // ── SurfaceManager event handlers ─────────────────────
 
     private void OnSurfaceCreated(object? sender, SurfaceCreatedEventArgs e)
     {
-        ActiveSurface = e.Surface;
-        UpdateDataModelJson(e.Surface);
+        this.ActiveSurface = e.Surface;
+        this.UpdateDataModelJson(e.Surface);
     }
 
     private void OnSurfaceDeleted(object? sender, SurfaceDeletedEventArgs e)
     {
-        if (ActiveSurface?.SurfaceId == e.Surface.SurfaceId)
+        if (this.ActiveSurface?.SurfaceId == e.Surface.SurfaceId)
         {
-            HasComponents = false;
-            ActiveSurface = null;
+            this.HasComponents = false;
+            this.ActiveSurface = null;
         }
     }
 
     private void OnComponentsUpdated(object? sender, ComponentsUpdatedEventArgs e)
     {
-        HasComponents = true;
-        UpdateDataModelJson(e.Surface);
+        this.HasComponents = true;
+        this.UpdateDataModelJson(e.Surface);
         SurfaceRefreshRequested?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnDataModelUpdated(object? sender, DataModelUpdatedEventArgs e)
     {
-        UpdateDataModelJson(e.Surface);
+        this.UpdateDataModelJson(e.Surface);
         SurfaceRefreshRequested?.Invoke(this, EventArgs.Empty);
     }
 
     private void UpdateDataModelJson(Surface surface) =>
-        CurrentDataModelJson = surface.DataModel.ToJson(indented: true);
+        this.CurrentDataModelJson = surface.DataModel.ToJson(indented: true);
 
     // ── Dispose ───────────────────────────────────────────
 
     public void Dispose()
     {
-        _manager.SurfaceCreated -= OnSurfaceCreated;
-        _manager.SurfaceDeleted -= OnSurfaceDeleted;
-        _manager.ComponentsUpdated -= OnComponentsUpdated;
-        _manager.DataModelUpdated -= OnDataModelUpdated;
+        this._manager.SurfaceCreated -= this.OnSurfaceCreated;
+        this._manager.SurfaceDeleted -= this.OnSurfaceDeleted;
+        this._manager.ComponentsUpdated -= this.OnComponentsUpdated;
+        this._manager.DataModelUpdated -= this.OnDataModelUpdated;
     }
 }

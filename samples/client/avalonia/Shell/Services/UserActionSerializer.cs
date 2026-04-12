@@ -1,6 +1,4 @@
-using A2Ui.Avalonia;
-
-namespace A2Ui.Avalonia.Shell.Services;
+﻿namespace A2Ui.Avalonia.Shell.Services;
 
 /// <summary>
 /// Serializes <see cref="UserActionEventArgs"/> into the v0.8 <c>userAction</c> envelope

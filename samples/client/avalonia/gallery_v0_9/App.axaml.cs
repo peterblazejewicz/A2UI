@@ -1,4 +1,4 @@
-using A2Ui.Avalonia.Gallery.ViewModels;
+﻿using A2Ui.Avalonia.Gallery.ViewModels;
 using A2Ui.Avalonia.Gallery.Views;
 using Avalonia;
 using Avalonia.Markup.Xaml;
@@ -15,7 +15,7 @@ public sealed partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         if (
-            ApplicationLifetime
+            this.ApplicationLifetime
             is global::Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
         )
         {
@@ -23,10 +23,7 @@ public sealed partial class App : Application
             window.DataContext = Services.GetRequiredService<GalleryViewModel>();
             desktop.MainWindow = window;
 
-            desktop.ShutdownRequested += (_, _) =>
-            {
-                (Services as IDisposable)?.Dispose();
-            };
+            desktop.ShutdownRequested += (_, _) => (Services as IDisposable)?.Dispose();
         }
         base.OnFrameworkInitializationCompleted();
     }

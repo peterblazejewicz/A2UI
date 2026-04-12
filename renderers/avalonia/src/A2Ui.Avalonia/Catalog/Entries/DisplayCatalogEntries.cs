@@ -1,4 +1,4 @@
-using A2Ui.Core;
+﻿using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia;
 using Avalonia.Controls;
@@ -11,9 +11,9 @@ public sealed class IconCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Icon";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        string? name = ctx.Resolve(c.Name);
+        string? name = context.Resolve(component.Name);
         return new TextBlock
         {
             Text = MapIconName(name),
@@ -22,11 +22,14 @@ public sealed class IconCatalogEntry : ICatalogEntry
         };
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         if (existing is not TextBlock tb)
+        {
             return false;
-        tb.Text = MapIconName(ctx.Resolve(c.Name));
+        }
+
+        tb.Text = MapIconName(context.Resolve(component.Name));
         return true;
     }
 
@@ -71,18 +74,21 @@ public sealed class DividerCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Divider";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var separator = new Separator();
-        ApplyAxis(separator, c.Axis);
+        ApplyAxis(separator, component.Axis);
         return separator;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         if (existing is not Separator sep)
+        {
             return false;
-        ApplyAxis(sep, c.Axis);
+        }
+
+        ApplyAxis(sep, component.Axis);
         return true;
     }
 
@@ -112,10 +118,10 @@ public sealed class VideoCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Video";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx) =>
-        new TextBlock { Text = $"[Video: {ctx.Resolve(c.Url) ?? "no url"}]", Classes = { "Caption" } };
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context) =>
+        new TextBlock { Text = $"[Video: {context.Resolve(component.Url) ?? "no url"}]", Classes = { "Caption" } };
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
 }
 
 /// <summary>A2UI "AudioPlayer" → placeholder (Avalonia has no native audio control).</summary>
@@ -123,8 +129,12 @@ public sealed class AudioPlayerCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "AudioPlayer";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx) =>
-        new TextBlock { Text = $"[AudioPlayer: {ctx.Resolve(c.Url) ?? "no url"}]", Classes = { "Caption" } };
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context) =>
+        new TextBlock
+        {
+            Text = $"[AudioPlayer: {context.Resolve(component.Url) ?? "no url"}]",
+            Classes = { "Caption" },
+        };
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
 }

@@ -1,4 +1,4 @@
-using A2Ui.Avalonia.Catalog;
+﻿using A2Ui.Avalonia.Catalog;
 using A2Ui.Avalonia.Shell.Models;
 using A2Ui.Avalonia.Shell.Services;
 using A2Ui.Avalonia.Shell.ViewModels;
@@ -65,11 +65,9 @@ internal static class Program
             )
         );
 
-        services.AddSingleton<SurfaceManager>(sp => new SurfaceManager(sp.GetRequiredService<ILoggerFactory>()));
+        services.AddSingleton(sp => new SurfaceManager(sp.GetRequiredService<ILoggerFactory>()));
 
-        services.AddSingleton<CatalogRegistry>(sp =>
-            CatalogRegistry.CreateDefault(sp.GetRequiredService<ILoggerFactory>())
-        );
+        services.AddSingleton(sp => CatalogRegistry.CreateDefault(sp.GetRequiredService<ILoggerFactory>()));
 
         // Raw HTTP request/response logging handler. Transient lifetime is
         // required by AddHttpMessageHandler — one handler instance per

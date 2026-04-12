@@ -1,4 +1,4 @@
-using A2Ui.Core.Messages;
+﻿using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Microsoft.Extensions.Logging;
 
@@ -19,7 +19,9 @@ internal static class CheckHelper
     public static Control ApplyChecks(Control control, A2UiComponent c, IRenderContext ctx)
     {
         if (c.Checks is not { Length: > 0 })
+        {
             return control;
+        }
 
         var panel = new StackPanel { Spacing = 2 };
         panel.Children.Add(control);
@@ -36,7 +38,9 @@ internal static class CheckHelper
     {
         // Remove old error TextBlocks (everything after the first child)
         while (wrapper.Children.Count > 1)
+        {
             wrapper.Children.RemoveAt(wrapper.Children.Count - 1);
+        }
 
         AddErrorTextBlocks(wrapper, c, ctx);
     }
@@ -49,9 +53,15 @@ internal static class CheckHelper
         where T : Control
     {
         if (existing is T direct)
+        {
             return direct;
+        }
+
         if (existing is StackPanel panel && panel.Children.Count > 0 && panel.Children[0] is T inner)
+        {
             return inner;
+        }
+
         return null;
     }
 
@@ -62,7 +72,9 @@ internal static class CheckHelper
     private static void AddErrorTextBlocks(StackPanel panel, A2UiComponent c, IRenderContext ctx)
     {
         if (c.Checks is not { Length: > 0 })
+        {
             return;
+        }
 
         foreach (CheckRule check in c.Checks)
         {
@@ -89,12 +101,16 @@ internal static class CheckHelper
     public static bool AllChecksPassing(A2UiComponent c, IRenderContext ctx)
     {
         if (c.Checks is not { Length: > 0 })
+        {
             return true;
+        }
 
         foreach (CheckRule check in c.Checks)
         {
             if (EvaluateCondition(check, ctx) != "true")
+            {
                 return false;
+            }
         }
 
         return true;
@@ -106,12 +122,16 @@ internal static class CheckHelper
     public static string? FirstFailingMessage(A2UiComponent c, IRenderContext ctx)
     {
         if (c.Checks is not { Length: > 0 })
+        {
             return null;
+        }
 
         foreach (CheckRule check in c.Checks)
         {
             if (EvaluateCondition(check, ctx) != "true")
+            {
                 return check.Message;
+            }
         }
 
         return null;
@@ -130,7 +150,10 @@ internal static class CheckHelper
         catch (Exception ex)
         {
             if (ctx.Logger is not null)
+            {
                 CheckLog.ConditionFailed(ctx.Logger, ex);
+            }
+
             return null;
         }
     }

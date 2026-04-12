@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using A2Ui.Avalonia.Shell.Services;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
@@ -16,14 +16,14 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public ShellViewModel(IA2AClient client, SurfaceManager manager, ILogger<ShellViewModel> logger)
     {
-        _client = client;
-        _manager = manager;
-        _logger = logger;
+        this._client = client;
+        this._manager = manager;
+        this._logger = logger;
 
-        _manager.SurfaceCreated += OnSurfaceCreated;
-        _manager.SurfaceDeleted += OnSurfaceDeleted;
-        _manager.ComponentsUpdated += OnComponentsUpdated;
-        _manager.DataModelUpdated += OnDataModelUpdated;
+        this._manager.SurfaceCreated += this.OnSurfaceCreated;
+        this._manager.SurfaceDeleted += this.OnSurfaceDeleted;
+        this._manager.ComponentsUpdated += this.OnComponentsUpdated;
+        this._manager.DataModelUpdated += this.OnDataModelUpdated;
     }
 
     // ── State ──────────────────────────────────────────────
@@ -46,28 +46,30 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     // ── Commands ──────────────────────────────────────────
 
-    private bool CanSend => !IsBusy && !string.IsNullOrWhiteSpace(PromptText);
+    private bool CanSend => !this.IsBusy && !string.IsNullOrWhiteSpace(this.PromptText);
 
     [RelayCommand(CanExecute = nameof(CanSend))]
     private async Task SendAsync(CancellationToken ct)
     {
-        string query = PromptText.Trim();
-        PromptText = string.Empty;
-        ErrorText = null;
+        string query = this.PromptText.Trim();
+        this.PromptText = string.Empty;
+        this.ErrorText = null;
 
-        IsBusy = true;
+        this.IsBusy = true;
         try
         {
-            _manager.Clear();
+            this._manager.Clear();
 
-            IReadOnlyList<A2UiMessage> messages = await _client.SendTextAsync(query, ct).ConfigureAwait(true);
+            IReadOnlyList<A2UiMessage> messages = await this._client.SendTextAsync(query, ct).ConfigureAwait(true);
 
-            ShellViewModelLog.ProcessingMessages(_logger, messages.Count, "query");
+            ShellViewModelLog.ProcessingMessages(this._logger, messages.Count, "query");
 
             foreach (A2UiMessage msg in messages)
-                _manager.Process(msg);
+            {
+                this._manager.Process(msg);
+            }
 
-            _logger.LogInformation("Processed {Count} message(s) for query: {Query}", messages.Count, query);
+            this._logger.LogInformation("Processed {Count} message(s) for query: {Query}", messages.Count, query);
         }
         catch (OperationCanceledException)
         {
@@ -75,17 +77,17 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Failed to send query to agent");
-            ErrorText = $"Connection error: {ex.Message}";
+            this._logger.LogError(ex, "Failed to send query to agent");
+            this.ErrorText = $"Connection error: {ex.Message}";
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error sending query");
-            ErrorText = $"Error: {ex.Message}";
+            this._logger.LogError(ex, "Unexpected error sending query");
+            this.ErrorText = $"Error: {ex.Message}";
         }
         finally
         {
-            IsBusy = false;
+            this.IsBusy = false;
         }
     }
 
@@ -93,26 +95,34 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public async Task HandleUserActionAsync(UserActionEventArgs e, CancellationToken ct = default)
     {
-        if (IsBusy)
+        if (this.IsBusy)
+        {
             return;
+        }
 
-        ErrorText = null;
-        IsBusy = true;
+        this.ErrorText = null;
+        this.IsBusy = true;
         try
         {
             object envelope = UserActionSerializer.Serialize(e);
-            _logger.LogInformation("Dispatching action: {Action} on {Surface}", e.EventName, e.SurfaceId);
+            this._logger.LogInformation("Dispatching action: {Action} on {Surface}", e.EventName, e.SurfaceId);
 
-            _manager.Clear();
+            this._manager.Clear();
 
-            IReadOnlyList<A2UiMessage> messages = await _client.SendActionAsync(envelope, ct).ConfigureAwait(true);
+            IReadOnlyList<A2UiMessage> messages = await this._client.SendActionAsync(envelope, ct).ConfigureAwait(true);
 
-            ShellViewModelLog.ProcessingMessages(_logger, messages.Count, "action");
+            ShellViewModelLog.ProcessingMessages(this._logger, messages.Count, "action");
 
             foreach (A2UiMessage msg in messages)
-                _manager.Process(msg);
+            {
+                this._manager.Process(msg);
+            }
 
-            _logger.LogInformation("Processed {Count} message(s) for action: {Action}", messages.Count, e.EventName);
+            this._logger.LogInformation(
+                "Processed {Count} message(s) for action: {Action}",
+                messages.Count,
+                e.EventName
+            );
         }
         catch (OperationCanceledException)
         {
@@ -120,17 +130,17 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError(ex, "Failed to send action to agent");
-            ErrorText = $"Connection error: {ex.Message}";
+            this._logger.LogError(ex, "Failed to send action to agent");
+            this.ErrorText = $"Connection error: {ex.Message}";
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error sending action");
-            ErrorText = $"Error: {ex.Message}";
+            this._logger.LogError(ex, "Unexpected error sending action");
+            this.ErrorText = $"Error: {ex.Message}";
         }
         finally
         {
-            IsBusy = false;
+            this.IsBusy = false;
         }
     }
 
@@ -140,13 +150,12 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     {
         try
         {
-            string name = await _client.GetAgentNameAsync(ct).ConfigureAwait(true);
-            StatusText = name;
+            this.StatusText = await this._client.GetAgentNameAsync(ct).ConfigureAwait(true);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Could not fetch agent card");
-            StatusText = "Agent (offline)";
+            this._logger.LogWarning(ex, "Could not fetch agent card");
+            this.StatusText = "Agent (offline)";
         }
     }
 
@@ -156,15 +165,15 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     // ── SurfaceManager event handlers ─────────────────────
 
-    private void OnSurfaceCreated(object? sender, SurfaceCreatedEventArgs e) => Surfaces.Add(e.Surface);
+    private void OnSurfaceCreated(object? sender, SurfaceCreatedEventArgs e) => this.Surfaces.Add(e.Surface);
 
     private void OnSurfaceDeleted(object? sender, SurfaceDeletedEventArgs e)
     {
-        for (int i = Surfaces.Count - 1; i >= 0; i--)
+        for (int i = this.Surfaces.Count - 1; i >= 0; i--)
         {
-            if (Surfaces[i].SurfaceId == e.Surface.SurfaceId)
+            if (this.Surfaces[i].SurfaceId == e.Surface.SurfaceId)
             {
-                Surfaces.RemoveAt(i);
+                this.Surfaces.RemoveAt(i);
                 break;
             }
         }
@@ -180,10 +189,10 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
-        _manager.SurfaceCreated -= OnSurfaceCreated;
-        _manager.SurfaceDeleted -= OnSurfaceDeleted;
-        _manager.ComponentsUpdated -= OnComponentsUpdated;
-        _manager.DataModelUpdated -= OnDataModelUpdated;
+        this._manager.SurfaceCreated -= this.OnSurfaceCreated;
+        this._manager.SurfaceDeleted -= this.OnSurfaceDeleted;
+        this._manager.ComponentsUpdated -= this.OnComponentsUpdated;
+        this._manager.DataModelUpdated -= this.OnDataModelUpdated;
     }
 }
 

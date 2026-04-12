@@ -1,4 +1,4 @@
-using A2Ui.Avalonia.Catalog;
+﻿using A2Ui.Avalonia.Catalog;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
@@ -16,11 +16,11 @@ internal sealed class MockRenderContext(DataModel dataModel) : IRenderContext
     public IEnumerable<Control> RenderChildren(string parentId) => [];
 
     public void FireUserAction(string eventName, object? payload = null, string? componentId = null) =>
-        FiredActions.Add((eventName, payload, componentId));
+        this.FiredActions.Add((eventName, payload, componentId));
 
     public string? Resolve(DynamicValue? value) => dataModel.Resolve(value);
 
-    public void UpdateDataModel(string path, string? value) => DataModelUpdates.Add((path, value));
+    public void UpdateDataModel(string path, string? value) => this.DataModelUpdates.Add((path, value));
 
     public double? GetComponentWeight(string componentId) => null;
 

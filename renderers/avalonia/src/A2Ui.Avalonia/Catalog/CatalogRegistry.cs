@@ -1,4 +1,4 @@
-using A2Ui.Core;
+﻿using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Microsoft.Extensions.Logging;
@@ -17,14 +17,14 @@ public sealed class CatalogRegistry
 
     public CatalogRegistry(ILogger<CatalogRegistry>? logger = null)
     {
-        _logger = logger ?? NullLogger<CatalogRegistry>.Instance;
+        this._logger = logger ?? NullLogger<CatalogRegistry>.Instance;
     }
 
     /// <summary>Register a catalog entry. Throws if already registered.</summary>
     public CatalogRegistry Register(ICatalogEntry entry)
     {
-        _entries.Add(entry.ComponentType, entry);
-        CatalogRegistryLog.CatalogEntryRegistered(_logger, entry.ComponentType, entry.GetType().Name);
+        this._entries.Add(entry.ComponentType, entry);
+        CatalogRegistryLog.CatalogEntryRegistered(this._logger, entry.ComponentType, entry.GetType().Name);
         return this;
     }
 
@@ -34,20 +34,22 @@ public sealed class CatalogRegistry
         Func<A2UiComponent, DataModel, IRenderContext, Control> factory
     )
     {
-        return Register(new DelegateCatalogEntry(componentType, factory));
+        return this.Register(new DelegateCatalogEntry(componentType, factory));
     }
 
     public bool TryGetEntry(string componentType, out ICatalogEntry? entry)
     {
-        if (_entries.TryGetValue(componentType, out entry))
+        if (this._entries.TryGetValue(componentType, out entry))
+        {
             return true;
+        }
 
-        CatalogRegistryLog.CatalogLookupMiss(_logger, componentType, string.Join(",", _entries.Keys));
+        CatalogRegistryLog.CatalogLookupMiss(this._logger, componentType, string.Join(",", this._entries.Keys));
         entry = null;
         return false;
     }
 
-    public IReadOnlyCollection<string> RegisteredTypes => _entries.Keys;
+    public IReadOnlyCollection<string> RegisteredTypes => this._entries.Keys;
 
     /// <summary>
     /// Build the default catalog with all 18 v0.9 basic catalog component types.

@@ -1,4 +1,4 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using FluentAssertions;
 
@@ -75,10 +75,7 @@ public sealed class LoginFormTests
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
         GalleryTestHelper.SetText(textBoxes[0], "alice");
 
-        result
-            .Surface.DataModel.Resolve(new A2Ui.Core.Messages.DynamicValue { Path = "/username" })
-            .Should()
-            .Be("alice");
+        result.Surface.DataModel.Resolve(new Core.Messages.DynamicValue { Path = "/username" }).Should().Be("alice");
     }
 
     [AvaloniaFact]
@@ -90,7 +87,7 @@ public sealed class LoginFormTests
         GalleryTestHelper.SetText(textBoxes[1], "secret123");
 
         result
-            .Surface.DataModel.Resolve(new A2Ui.Core.Messages.DynamicValue { Path = "/password" })
+            .Surface.DataModel.Resolve(new Core.Messages.DynamicValue { Path = "/password" })
             .Should()
             .Be("secret123");
     }

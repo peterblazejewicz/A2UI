@@ -1,9 +1,8 @@
-using A2Ui.Core;
+﻿using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 
@@ -14,18 +13,20 @@ public sealed class ListCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "List";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        var orientation = c.Direction == "horizontal" ? Orientation.Horizontal : Orientation.Vertical;
+        var orientation = component.Direction == "horizontal" ? Orientation.Horizontal : Orientation.Vertical;
 
         var panel = new StackPanel { Orientation = orientation, Spacing = 4 };
-        foreach (var child in ctx.RenderChildren(c.Id))
+        foreach (var child in context.RenderChildren(component.Id))
+        {
             panel.Children.Add(child);
+        }
 
         return new ScrollViewer { Content = panel };
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
 }
 
 /// <summary>A2UI "Tabs" → TabControl.</summary>
@@ -33,22 +34,22 @@ public sealed class TabsCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Tabs";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var tc = new TabControl();
 
-        if (c.Tabs is { } tabs)
+        if (component.Tabs is { } tabs)
         {
             foreach (var tab in tabs)
             {
-                tc.Items.Add(new TabItem { Header = tab.Title, Content = ctx.RenderChild(tab.Child) });
+                tc.Items.Add(new TabItem { Header = tab.Title, Content = context.RenderChild(tab.Child) });
             }
         }
 
         return tc;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
 }
 
 /// <summary>
@@ -59,21 +60,23 @@ public sealed class ModalCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Modal";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var container = new Panel();
 
         // Render the trigger control (shown permanently)
         Control? triggerControl = null;
-        if (c.Trigger is not null)
+        if (component.Trigger is not null)
         {
-            triggerControl = ctx.RenderChild(c.Trigger);
+            triggerControl = context.RenderChild(component.Trigger);
             if (triggerControl is not null)
+            {
                 container.Children.Add(triggerControl);
+            }
         }
 
         // Build the Popup overlay for the content
-        if (c.Content is not null)
+        if (component.Content is not null)
         {
             var popup = new Popup
             {
@@ -90,12 +93,14 @@ public sealed class ModalCatalogEntry : ICatalogEntry
             var contentColumn = new StackPanel { Spacing = 8 };
             contentColumn.Children.Add(closeBtn);
 
-            Control? renderedContent = ctx.RenderChild(c.Content);
+            Control? renderedContent = context.RenderChild(component.Content);
             if (renderedContent is not null)
+            {
                 contentColumn.Children.Add(renderedContent);
+            }
 
             // White rounded card wrapping the content
-            var contentPanel = new Border
+            popup.Child = new Border
             {
                 Background = new SolidColorBrush(Colors.White),
                 CornerRadius = new CornerRadius(8),
@@ -105,11 +110,11 @@ public sealed class ModalCatalogEntry : ICatalogEntry
                 Child = contentColumn,
             };
 
-            popup.Child = contentPanel;
-
             // Wire trigger → open, close button → close
             if (triggerControl is not null)
+            {
                 triggerControl.Tapped += (_, _) => popup.IsOpen = true;
+            }
 
             closeBtn.Click += (_, _) => popup.IsOpen = false;
 
@@ -118,7 +123,9 @@ public sealed class ModalCatalogEntry : ICatalogEntry
             {
                 var topLevel = TopLevel.GetTopLevel(container);
                 if (topLevel is Control topControl)
+                {
                     popup.PlacementTarget = topControl;
+                }
             };
 
             // Clean up popup on detach to prevent event handler leaks
@@ -134,5 +141,5 @@ public sealed class ModalCatalogEntry : ICatalogEntry
         return container;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
 }

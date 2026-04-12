@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace A2Ui.Avalonia.Shell.Services;
@@ -22,7 +22,7 @@ public sealed class LoggingHttpMessageHandler : DelegatingHandler
 
     public LoggingHttpMessageHandler(ILogger<LoggingHttpMessageHandler> logger)
     {
-        _logger = logger;
+        this._logger = logger;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
@@ -43,7 +43,7 @@ public sealed class LoggingHttpMessageHandler : DelegatingHandler
             requestBytes = request.Content.Headers.ContentLength ?? -1;
         }
 
-        LoggingHttpMessageHandlerLog.RequestStarted(_logger, method, url, requestBytes);
+        LoggingHttpMessageHandlerLog.RequestStarted(this._logger, method, url, requestBytes);
 
         var stopwatch = Stopwatch.StartNew();
         try
@@ -53,7 +53,7 @@ public sealed class LoggingHttpMessageHandler : DelegatingHandler
 
             long responseBytes = response.Content.Headers.ContentLength ?? -1;
             LoggingHttpMessageHandlerLog.RequestCompleted(
-                _logger,
+                this._logger,
                 method,
                 url,
                 (int)response.StatusCode,
@@ -67,7 +67,7 @@ public sealed class LoggingHttpMessageHandler : DelegatingHandler
         {
             stopwatch.Stop();
             LoggingHttpMessageHandlerLog.RequestFailed(
-                _logger,
+                this._logger,
                 method,
                 url,
                 stopwatch.ElapsedMilliseconds,

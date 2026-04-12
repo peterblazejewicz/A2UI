@@ -1,7 +1,6 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using FluentAssertions;
-using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Minimal;
 

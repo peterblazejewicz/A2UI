@@ -1,10 +1,9 @@
-using A2Ui.Avalonia.Gallery.Services;
+﻿using A2Ui.Avalonia.Gallery.Services;
 using A2Ui.Avalonia.Gallery.ViewModels;
 using A2Ui.Avalonia.Gallery.Views;
 using A2Ui.Core;
 using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace A2Ui.Avalonia.Gallery;

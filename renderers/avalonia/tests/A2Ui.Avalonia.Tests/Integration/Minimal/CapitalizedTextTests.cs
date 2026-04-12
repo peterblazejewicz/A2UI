@@ -1,7 +1,6 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using FluentAssertions;
-using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Minimal;
 
@@ -89,9 +88,6 @@ public sealed class CapitalizedTextTests
 
         GalleryTestHelper.SetText(textBox!, "hello");
 
-        result
-            .Surface.DataModel.Resolve(new A2Ui.Core.Messages.DynamicValue { Path = "/inputValue" })
-            .Should()
-            .Be("hello");
+        result.Surface.DataModel.Resolve(new Core.Messages.DynamicValue { Path = "/inputValue" }).Should().Be("hello");
     }
 }

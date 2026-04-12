@@ -1,4 +1,4 @@
-using A2Ui.Avalonia.Catalog;
+﻿using A2Ui.Avalonia.Catalog;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
@@ -380,21 +380,23 @@ internal sealed class ChildReturningRenderContext : IRenderContext
 
     public ChildReturningRenderContext(DataModel dm, params Control[] children)
     {
-        _dm = dm;
-        _children = new Queue<Control>(children);
+        this._dm = dm;
+        this._children = new Queue<Control>(children);
     }
 
-    public Control? RenderChild(string? childId) => _children.Count > 0 ? _children.Dequeue() : null;
+    public Control? RenderChild(string? childId) => this._children.Count > 0 ? this._children.Dequeue() : null;
 
     public IEnumerable<Control> RenderChildren(string parentId)
     {
-        while (_children.Count > 0)
-            yield return _children.Dequeue();
+        while (this._children.Count > 0)
+        {
+            yield return this._children.Dequeue();
+        }
     }
 
     public void FireUserAction(string eventName, object? payload = null, string? componentId = null) { }
 
-    public string? Resolve(DynamicValue? value) => _dm.Resolve(value);
+    public string? Resolve(DynamicValue? value) => this._dm.Resolve(value);
 
     public void UpdateDataModel(string path, string? value) { }
 
@@ -414,26 +416,29 @@ internal sealed class WeightedChildRenderContext : IRenderContext
 
     public WeightedChildRenderContext(DataModel dm, Dictionary<string, double> weights, params Control[] children)
     {
-        _dm = dm;
-        _weights = weights;
-        _children = new Queue<Control>(children);
+        this._dm = dm;
+        this._weights = weights;
+        this._children = new Queue<Control>(children);
     }
 
-    public Control? RenderChild(string? childId) => _children.Count > 0 ? _children.Dequeue() : null;
+    public Control? RenderChild(string? childId) => this._children.Count > 0 ? this._children.Dequeue() : null;
 
     public IEnumerable<Control> RenderChildren(string parentId)
     {
-        while (_children.Count > 0)
-            yield return _children.Dequeue();
+        while (this._children.Count > 0)
+        {
+            yield return this._children.Dequeue();
+        }
     }
 
     public void FireUserAction(string eventName, object? payload = null, string? componentId = null) { }
 
-    public string? Resolve(DynamicValue? value) => _dm.Resolve(value);
+    public string? Resolve(DynamicValue? value) => this._dm.Resolve(value);
 
     public void UpdateDataModel(string path, string? value) { }
 
-    public double? GetComponentWeight(string componentId) => _weights.TryGetValue(componentId, out var w) ? w : null;
+    public double? GetComponentWeight(string componentId) =>
+        this._weights.TryGetValue(componentId, out var w) ? w : null;
 
     public ILogger? Logger => null;
 }

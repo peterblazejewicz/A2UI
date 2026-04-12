@@ -1,4 +1,4 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Headless;
 using Avalonia.Themes.Fluent;
 
@@ -12,7 +12,7 @@ namespace A2Ui.Avalonia.Tests;
 /// </summary>
 public sealed class TestApp : Application
 {
-    public override void Initialize() => Styles.Add(new FluentTheme());
+    public override void Initialize() => this.Styles.Add(new FluentTheme());
 
     public static AppBuilder BuildAvaloniaApp() =>
         AppBuilder.Configure<TestApp>().UseHeadless(new AvaloniaHeadlessPlatformOptions());

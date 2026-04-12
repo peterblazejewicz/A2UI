@@ -1,4 +1,4 @@
-using A2Ui.Avalonia.Functions;
+﻿using A2Ui.Avalonia.Functions;
 using FluentAssertions;
 using Xunit;
 
@@ -13,7 +13,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_LiteralString_ReturnsSingleLiteral()
     {
-        IReadOnlyList<ExpressionToken> result = _parser.Parse("hello world");
+        IReadOnlyList<ExpressionToken> result = this._parser.Parse("hello world");
         result.Should().HaveCount(1);
         result[0].Should().Be(new LiteralToken("hello world"));
     }
@@ -23,7 +23,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_SimpleInterpolation_ReturnsLiteralAndPath()
     {
-        IReadOnlyList<ExpressionToken> result = _parser.Parse("hello ${foo}");
+        IReadOnlyList<ExpressionToken> result = this._parser.Parse("hello ${foo}");
         result.Should().HaveCount(2);
         result[0].Should().Be(new LiteralToken("hello "));
         result[1].Should().Be(new PathToken("foo"));
@@ -32,7 +32,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_NumberInterpolation_ReturnsLiteralAndPath()
     {
-        IReadOnlyList<ExpressionToken> result = _parser.Parse("number is ${num}");
+        IReadOnlyList<ExpressionToken> result = this._parser.Parse("number is ${num}");
         result.Should().HaveCount(2);
         result[0].Should().Be(new LiteralToken("number is "));
         result[1].Should().Be(new PathToken("num"));
@@ -43,7 +43,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_NestedInterpolation_ResolvesInnerPath()
     {
-        IReadOnlyList<ExpressionToken> result = _parser.Parse("val is ${${nested}}");
+        IReadOnlyList<ExpressionToken> result = this._parser.Parse("val is ${${nested}}");
         result.Should().HaveCount(2);
         result[0].Should().Be(new LiteralToken("val is "));
         result[1].Should().Be(new PathToken("nested"));
@@ -52,7 +52,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_DeepNestedStringLiteral_Resolves()
     {
-        IReadOnlyList<ExpressionToken> result = _parser.Parse("${${\"hello\"}}");
+        IReadOnlyList<ExpressionToken> result = this._parser.Parse("${${\"hello\"}}");
         result.Should().HaveCount(1);
         result[0].Should().Be(new LiteralToken("hello"));
     }
@@ -62,7 +62,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_EscapedInterpolation_EmitsLiteralDollarBrace()
     {
-        IReadOnlyList<ExpressionToken> result = _parser.Parse("escaped \\${foo}");
+        IReadOnlyList<ExpressionToken> result = this._parser.Parse("escaped \\${foo}");
         result.Should().HaveCount(3);
         result[0].Should().Be(new LiteralToken("escaped "));
         result[1].Should().Be(new LiteralToken("${"));
@@ -74,7 +74,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_FunctionCall_ReturnsFunctionCallToken()
     {
-        IReadOnlyList<ExpressionToken> result = _parser.Parse("sum is ${add(a: 10, b: 20)}");
+        IReadOnlyList<ExpressionToken> result = this._parser.Parse("sum is ${add(a: 10, b: 20)}");
         result.Should().HaveCount(2);
         result[0].Should().Be(new LiteralToken("sum is "));
 
@@ -88,7 +88,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_FunctionCallWithStringLiterals_ParsesCorrectly()
     {
-        IReadOnlyList<ExpressionToken> result = _parser.Parse("case is ${upper(text: \"hello\")}");
+        IReadOnlyList<ExpressionToken> result = this._parser.Parse("case is ${upper(text: \"hello\")}");
         result.Should().HaveCount(2);
         result[0].Should().Be(new LiteralToken("case is "));
 
@@ -105,7 +105,7 @@ public sealed class ExpressionParserTests
         // "${true} ${false} ${null}" parses to:
         //   BoolToken(true), LiteralToken(" "), BoolToken(false), LiteralToken(" ")
         // null → empty LiteralToken which is filtered out by the empty-filter step
-        IReadOnlyList<ExpressionToken> result = _parser.Parse("${true} ${false} ${null}");
+        IReadOnlyList<ExpressionToken> result = this._parser.Parse("${true} ${false} ${null}");
         result.Should().HaveCount(4);
         result[0].Should().Be(new BoolToken(true));
         result[1].Should().Be(new LiteralToken(" "));
@@ -118,7 +118,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_MaxDepthExceeded_ThrowsA2UiExpressionException()
     {
-        Action act = () => _parser.Parse("depth", 11);
+        Action act = () => this._parser.Parse("depth", 11);
         act.Should().Throw<A2UiExpressionException>().WithMessage("*Max recursion depth*");
     }
 
@@ -127,7 +127,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_UnclosedInterpolation_ThrowsA2UiExpressionException()
     {
-        Action act = () => _parser.Parse("hello ${world");
+        Action act = () => this._parser.Parse("hello ${world");
         act.Should().Throw<A2UiExpressionException>().WithMessage("*Unclosed interpolation*");
     }
 
@@ -136,7 +136,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_MissingClosingParenthesis_Throws()
     {
-        Action act = () => _parser.Parse("${add(a: 1, b: 2}");
+        Action act = () => this._parser.Parse("${add(a: 1, b: 2}");
         act.Should().Throw<A2UiExpressionException>().WithMessage("*Expected ')'*");
     }
 
@@ -145,7 +145,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_UnexpectedCharactersAtEnd_Throws()
     {
-        Action act = () => _parser.Parse("${true false}");
+        Action act = () => this._parser.Parse("${true false}");
         act.Should().Throw<A2UiExpressionException>().WithMessage("*Unexpected characters*");
     }
 
@@ -154,7 +154,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_EmptyParentheses_ReturnsFunctionCallWithNoArgs()
     {
-        IReadOnlyList<ExpressionToken> result = _parser.Parse("${()}");
+        IReadOnlyList<ExpressionToken> result = this._parser.Parse("${()}");
         result.Should().HaveCount(1);
         var fc = result[0].Should().BeOfType<FunctionCallToken>().Subject;
         fc.Name.Should().Be("");
@@ -164,14 +164,14 @@ public sealed class ExpressionParserTests
     [Fact]
     public void ParseExpression_EmptyString_ReturnsEmptyLiteral()
     {
-        ExpressionToken result = _parser.ParseExpression("");
+        ExpressionToken result = this._parser.ParseExpression("");
         result.Should().Be(new LiteralToken(""));
     }
 
     [Fact]
     public void ParseExpression_EmptyParentheses_ReturnsFunctionCall()
     {
-        ExpressionToken result = _parser.ParseExpression("()");
+        ExpressionToken result = this._parser.ParseExpression("()");
         var fc = result.Should().BeOfType<FunctionCallToken>().Subject;
         fc.Name.Should().Be("");
         fc.Args.Should().BeEmpty();
@@ -182,7 +182,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void ParseExpression_StringLiteralEscapeSequences_ParsesCorrectly()
     {
-        ExpressionToken result = _parser.ParseExpression("'line1\\nline2\\t\\r\\'\\\\x'");
+        ExpressionToken result = this._parser.ParseExpression("'line1\\nline2\\t\\r\\'\\\\x'");
         result.Should().Be(new LiteralToken("line1\nline2\t\r'\\x"));
     }
 
@@ -191,7 +191,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void ParseExpression_PathWithSpecialChars_ReturnsPathToken()
     {
-        ExpressionToken result = _parser.ParseExpression("my-path.with_underscores");
+        ExpressionToken result = this._parser.ParseExpression("my-path.with_underscores");
         result.Should().Be(new PathToken("my-path.with_underscores"));
     }
 
@@ -200,7 +200,7 @@ public sealed class ExpressionParserTests
     [Fact]
     public void ParseExpression_MissingColonInFunctionArgs_Throws()
     {
-        Action act = () => _parser.ParseExpression("add(a 10, b: 20)");
+        Action act = () => this._parser.ParseExpression("add(a 10, b: 20)");
         act.Should().Throw<A2UiExpressionException>().WithMessage("*Expected ':'*");
     }
 
@@ -211,7 +211,7 @@ public sealed class ExpressionParserTests
     {
         // Parse("") has no "${" so it returns [LiteralToken("")] via the early-return path.
         // The empty-literal filter runs only inside the while-loop branch, not on this path.
-        IReadOnlyList<ExpressionToken> result = _parser.Parse("");
+        IReadOnlyList<ExpressionToken> result = this._parser.Parse("");
         result.Should().HaveCount(1);
         result[0].Should().Be(new LiteralToken(""));
     }
@@ -225,7 +225,7 @@ public sealed class ExpressionParserTests
         // so ExtractInterpolationContent raises A2UiExpressionException("Unclosed interpolation").
         // TODO(issue #4): a dedicated "Unterminated string literal" message would give a better
         // diagnostic. For now the test verifies that parsing does not silently succeed.
-        Action act = () => _parser.Parse("${'hello");
+        Action act = () => this._parser.Parse("${'hello");
         act.Should()
             .Throw<A2UiExpressionException>(
                 "an unterminated string literal inside an interpolation block must not silently succeed"
@@ -240,7 +240,7 @@ public sealed class ExpressionParserTests
         // TODO(issue #3): ParseNumberLiteral calls double.Parse which throws FormatException,
         // not A2UiExpressionException. Once issue #3 is fixed in production code,
         // change the assertion to .Throw<A2UiExpressionException>().
-        Action act = () => _parser.Parse("${1.2.3}");
+        Action act = () => this._parser.Parse("${1.2.3}");
         act.Should().Throw<Exception>("issue #3 not yet fixed: malformed number bubbles up a raw FormatException");
     }
 
@@ -260,9 +260,9 @@ public sealed class ExpressionParserTests
     [Fact]
     public void Parse_FormatStringTemplate_ParsesNestedFunctionCalls()
     {
-        string template =
+        const string Template =
             "${formatDate(value: ${/start}, format: 'E, MMM d')} - ${formatDate(value: ${/end}, format: 'h:mm a')}";
-        IReadOnlyList<ExpressionToken> result = _parser.Parse(template);
+        IReadOnlyList<ExpressionToken> result = this._parser.Parse(Template);
 
         result.Should().HaveCount(3);
 

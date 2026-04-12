@@ -1,4 +1,4 @@
-using A2Ui.Core;
+﻿using A2Ui.Core;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 
@@ -8,46 +8,48 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Button";
 
-    public Control Create(A2UiComponent c, DataModel dm, IRenderContext ctx)
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
         var btn = new Button
         {
-            Content = c.Child is not null
-                ? ctx.RenderChild(c.Child)
-                : (object?)(ctx.Resolve(c.Text) ?? ctx.Resolve(c.Label) ?? string.Empty),
+            Content = component.Child is not null
+                ? context.RenderChild(component.Child)
+                : (object?)(context.Resolve(component.Text) ?? context.Resolve(component.Label) ?? string.Empty),
         };
 
-        ApplyVariant(btn, c.Variant);
+        ApplyVariant(btn, component.Variant);
 
         // Evaluate check conditions — disable button when any check fails.
-        if (c.Checks is { Length: > 0 })
+        if (component.Checks is { Length: > 0 })
         {
-            bool allPass = CheckHelper.AllChecksPassing(c, ctx);
+            bool allPass = CheckHelper.AllChecksPassing(component, context);
             btn.IsEnabled = allPass;
             if (!allPass)
             {
-                string? failedMessage = CheckHelper.FirstFailingMessage(c, ctx);
+                string? failedMessage = CheckHelper.FirstFailingMessage(component, context);
                 if (failedMessage is not null)
+                {
                     ToolTip.SetTip(btn, failedMessage);
+                }
             }
         }
 
-        if (c.Action?.Event is { } actionEvent)
+        if (component.Action?.Event is { } actionEvent)
         {
             string eventName = actionEvent.Name;
             var contextSpec = actionEvent.Context;
-            string componentId = c.Id;
+            string componentId = component.Id;
             btn.Click += (_, _) =>
             {
-                object? payload = ResolveContext(contextSpec, ctx);
-                ctx.FireUserAction(eventName, payload, componentId);
+                object? payload = ResolveContext(contextSpec, context);
+                context.FireUserAction(eventName, payload, componentId);
             };
         }
 
         return btn;
     }
 
-    public bool Update(Control existing, A2UiComponent c, DataModel dm, IRenderContext ctx) => false; // recreate for simplicity
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false; // recreate for simplicity
 
     /// <summary>
     /// Resolve the action event context dictionary at invocation time.
@@ -59,11 +61,16 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
     )
     {
         if (contextSpec is null || contextSpec.Count == 0)
+        {
             return null;
+        }
 
         var resolved = new Dictionary<string, string?>(contextSpec.Count);
         foreach (var (key, dynVal) in contextSpec)
+        {
             resolved[key] = ctx.Resolve(dynVal);
+        }
+
         return resolved;
     }
 
@@ -71,10 +78,16 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
     {
         btn.Classes.Clear();
         if (variant is "primary")
+        {
             btn.Classes.Add("accent");
+        }
         else if (variant is "danger")
+        {
             btn.Classes.Add("danger");
+        }
         else if (variant is "borderless")
+        {
             btn.Classes.Add("borderless");
+        }
     }
 }

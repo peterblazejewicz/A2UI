@@ -1,9 +1,8 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using FluentAssertions;
-using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Basic;
 

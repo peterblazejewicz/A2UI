@@ -1,8 +1,7 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Headless.XUnit;
 using FluentAssertions;
-using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Integration.Basic;
 
@@ -125,13 +124,17 @@ public sealed class ModalPopupTests
             foreach (var child in panel.Children)
             {
                 if (child is Popup popup)
+                {
                     return popup;
+                }
 
                 if (child is Control ctrl)
                 {
                     Popup? nested = FindPopup(ctrl);
                     if (nested is not null)
+                    {
                         return nested;
+                    }
                 }
             }
         }
@@ -141,7 +144,9 @@ public sealed class ModalPopupTests
             {
                 Popup? found = FindPopup(child);
                 if (found is not null)
+                {
                     return found;
+                }
             }
         }
 

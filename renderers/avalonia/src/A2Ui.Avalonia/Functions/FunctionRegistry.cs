@@ -1,4 +1,4 @@
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
@@ -21,16 +21,16 @@ public sealed class FunctionRegistry : IFunctionRegistry
         ILogger<FunctionRegistry>? logger = null
     )
     {
-        _functions = functions.ToFrozenDictionary();
-        _logger = logger ?? NullLogger<FunctionRegistry>.Instance;
+        this._functions = functions.ToFrozenDictionary();
+        this._logger = logger ?? NullLogger<FunctionRegistry>.Instance;
     }
 
     /// <inheritdoc />
     public string? Evaluate(string functionName, IReadOnlyDictionary<string, string?> resolvedArgs)
     {
-        if (!_functions.TryGetValue(functionName, out var fn))
+        if (!this._functions.TryGetValue(functionName, out var fn))
         {
-            FunctionLog.UnknownFunction(_logger, functionName);
+            FunctionLog.UnknownFunction(this._logger, functionName);
             return null;
         }
 
@@ -49,7 +49,7 @@ public sealed class FunctionRegistry : IFunctionRegistry
                         or KeyNotFoundException
             )
         {
-            FunctionLog.ErrorEvaluatingFunction(_logger, functionName, ex);
+            FunctionLog.ErrorEvaluatingFunction(this._logger, functionName, ex);
             return null;
         }
     }
@@ -109,20 +109,23 @@ public sealed class FunctionRegistryBuilder
     {
         ArgumentNullException.ThrowIfNull(name);
         ArgumentNullException.ThrowIfNull(fn);
-        if (!_functions.TryAdd(name, fn))
+        if (!this._functions.TryAdd(name, fn))
+        {
             throw new ArgumentException($"Function '{name}' is already registered.", nameof(name));
+        }
+
         return this;
     }
 
     /// <summary>Set the logger factory used when building the registry.</summary>
     public FunctionRegistryBuilder WithLoggerFactory(ILoggerFactory? loggerFactory)
     {
-        _loggerFactory = loggerFactory;
+        this._loggerFactory = loggerFactory;
         return this;
     }
 
     /// <summary>Build the immutable <see cref="FunctionRegistry"/>.</summary>
-    public FunctionRegistry Build() => new(_functions, _loggerFactory?.CreateLogger<FunctionRegistry>());
+    public FunctionRegistry Build() => new(this._functions, this._loggerFactory?.CreateLogger<FunctionRegistry>());
 }
 
 internal static partial class FunctionLog

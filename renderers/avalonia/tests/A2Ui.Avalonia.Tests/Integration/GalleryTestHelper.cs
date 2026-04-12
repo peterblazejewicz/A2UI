@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using A2Ui.Avalonia.Catalog;
 using A2Ui.Avalonia.Functions;
 using A2Ui.Core;
@@ -15,7 +15,7 @@ namespace A2Ui.Avalonia.Tests.Integration;
 /// </summary>
 internal static class GalleryTestHelper
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions s_jsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true,
         AllowTrailingCommas = true,
@@ -104,7 +104,7 @@ internal static class GalleryTestHelper
         foreach (JsonElement element in messagesElement.EnumerateArray())
         {
             string rawMessage = element.GetRawText();
-            A2UiMessage? message = JsonSerializer.Deserialize<A2UiMessage>(rawMessage, JsonOptions);
+            A2UiMessage? message = JsonSerializer.Deserialize<A2UiMessage>(rawMessage, s_jsonOptions);
             if (message is not null)
             {
                 messages.Add(message);
@@ -121,13 +121,17 @@ internal static class GalleryTestHelper
         where T : Control
     {
         if (root is T match)
+        {
             return match;
+        }
 
         foreach (Control child in GetChildren(root))
         {
             T? found = FindFirst<T>(child);
             if (found is not null)
+            {
                 return found;
+            }
         }
 
         return null;
@@ -148,7 +152,9 @@ internal static class GalleryTestHelper
         where T : Control
     {
         if (current is T match)
+        {
             results.Add(match);
+        }
 
         foreach (Control child in GetChildren(current))
         {
@@ -165,27 +171,37 @@ internal static class GalleryTestHelper
         if (parent is Panel panel)
         {
             foreach (Control child in panel.Children)
+            {
                 yield return child;
+            }
         }
         else if (parent is ScrollViewer scrollViewer)
         {
             if (scrollViewer.Content is Control scrollContent)
+            {
                 yield return scrollContent;
+            }
         }
         else if (parent is ContentControl contentControl)
         {
             if (contentControl.Content is Control content)
+            {
                 yield return content;
+            }
         }
         else if (parent is Decorator decorator)
         {
             if (decorator.Child is Control decoratorChild)
+            {
                 yield return decoratorChild;
+            }
         }
         else if (parent is Popup popup)
         {
             if (popup.Child is Control popupChild)
+            {
                 yield return popupChild;
+            }
         }
     }
 
@@ -223,6 +239,6 @@ internal sealed record RenderResult(
     /// </summary>
     public Control ReRender()
     {
-        return Renderer.Render(Surface);
+        return this.Renderer.Render(this.Surface);
     }
 }
