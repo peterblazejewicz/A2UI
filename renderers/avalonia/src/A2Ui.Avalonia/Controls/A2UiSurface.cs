@@ -21,6 +21,8 @@ public sealed class A2UiSurface : ContentControl
     );
 
     private A2UiRenderer _renderer;
+    private bool _isRendering;
+    private bool _renderPending;
 
     public A2UiSurface()
         : this(CatalogRegistry.CreateDefault(), FunctionRegistry.CreateDefault()) { }
@@ -105,17 +107,44 @@ public sealed class A2UiSurface : ContentControl
     /// </summary>
     private void RenderAndRestoreFocus(Surface surface)
     {
-        // Save the currently focused element (may be a TextBox inside the surface)
-        var topLevel = TopLevel.GetTopLevel(this);
-        IInputElement? focused = topLevel?.FocusManager?.GetFocusedElement();
-
-        this.Content = this._renderer.Render(surface);
-
-        // Restore focus: the same control instance is still in the tree
-        // (reused by the renderer cache) but lost focus during re-parenting.
-        if (focused is InputElement focusable)
+        // Guard against re-entrant rendering: input control write-back during
+        // Create() fires onDataModelChanged synchronously, which can trigger
+        // Refresh() while a render is already in progress. Avalonia 12 throws
+        // InvalidOperationException when a control is added to a panel while
+        // it still has a visual parent from a concurrent render pass.
+        if (this._isRendering)
         {
-            focusable.Focus();
+            this._renderPending = true;
+            return;
+        }
+
+        this._isRendering = true;
+        try
+        {
+            // Save the currently focused element (may be a TextBox inside the surface)
+            var topLevel = TopLevel.GetTopLevel(this);
+            IInputElement? focused = topLevel?.FocusManager?.GetFocusedElement();
+
+            this.Content = this._renderer.Render(surface);
+
+            // Restore focus: the same control instance is still in the tree
+            // (reused by the renderer cache) but lost focus during re-parenting.
+            if (focused is InputElement focusable)
+            {
+                focusable.Focus();
+            }
+        }
+        finally
+        {
+            this._isRendering = false;
+        }
+
+        // If a data model change requested a re-render while we were busy,
+        // do a single follow-up render now that the first one is complete.
+        if (this._renderPending)
+        {
+            this._renderPending = false;
+            this.RenderAndRestoreFocus(surface);
         }
     }
 
