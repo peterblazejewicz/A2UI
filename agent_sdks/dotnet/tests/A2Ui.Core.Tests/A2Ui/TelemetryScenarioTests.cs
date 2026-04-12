@@ -4,7 +4,6 @@ using System.Text.Json;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
 using A2Ui.TestHelpers;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 
 namespace A2Ui.Core.Tests;
@@ -78,32 +77,39 @@ public sealed class TelemetryScenarioTests
         // Assert — log entries
         var entries = provider.Entries.Where(e => e.CategoryName == SurfaceManagerCategory).ToList();
 
-        entries.Count(e => e.EventId.Id == 9).Should().Be(3, "MessageDispatched fires once per message");
+        // MessageDispatched fires once per message
+        Assert.Equal(3, entries.Count(e => e.EventId.Id == 9));
 
         var created = entries.SingleOrDefault(e => e.EventId.Id == 1);
-        created.Should().NotBeNull("SurfaceCreated (EventId 1) should fire exactly once");
-        created!.Level.Should().Be(LogLevel.Information);
-        created.Properties["SurfaceId"].Should().Be("s-happy");
-        created.Properties["CatalogId"].Should().Be("https://a2ui.org/specification/v0_9/basic_catalog.json");
-        created.Properties["PrimaryColor"].Should().Be("#112233");
-        created.Properties["AgentDisplayName"].Should().Be("Happy Agent");
+        // SurfaceCreated (EventId 1) should fire exactly once
+        Assert.NotNull(created);
+        Assert.Equal(LogLevel.Information, created!.Level);
+        Assert.Equal("s-happy", created.Properties["SurfaceId"]);
+        Assert.Equal("https://a2ui.org/specification/v0_9/basic_catalog.json", created.Properties["CatalogId"]);
+        Assert.Equal("#112233", created.Properties["PrimaryColor"]);
+        Assert.Equal("Happy Agent", created.Properties["AgentDisplayName"]);
 
         var componentsUpdated = entries.SingleOrDefault(e => e.EventId.Id == 3);
-        componentsUpdated.Should().NotBeNull("ComponentsUpdated (EventId 3) should fire exactly once");
-        componentsUpdated!.Properties["SurfaceId"].Should().Be("s-happy");
-        componentsUpdated.Properties["Count"].Should().Be(2);
-        componentsUpdated.Properties["RootComponentId"].Should().Be("root");
-        componentsUpdated.Properties["RootComponentType"].Should().Be("Column");
+        // ComponentsUpdated (EventId 3) should fire exactly once
+        Assert.NotNull(componentsUpdated);
+        Assert.Equal("s-happy", componentsUpdated!.Properties["SurfaceId"]);
+        Assert.Equal(2, componentsUpdated.Properties["Count"]);
+        Assert.Equal("root", componentsUpdated.Properties["RootComponentId"]);
+        Assert.Equal("Column", componentsUpdated.Properties["RootComponentType"]);
 
         var dataModelUpdated = entries.SingleOrDefault(e => e.EventId.Id == 4);
-        dataModelUpdated.Should().NotBeNull("DataModelUpdated (EventId 4) should fire exactly once");
-        dataModelUpdated!.Properties["SurfaceId"].Should().Be("s-happy");
-        dataModelUpdated.Properties["PathCount"].Should().Be(1);
-        dataModelUpdated.Properties["TopLevelKeys"].Should().Be("greeting");
+        // DataModelUpdated (EventId 4) should fire exactly once
+        Assert.NotNull(dataModelUpdated);
+        Assert.Equal("s-happy", dataModelUpdated!.Properties["SurfaceId"]);
+        Assert.Equal(1, dataModelUpdated.Properties["PathCount"]);
+        Assert.Equal("greeting", dataModelUpdated.Properties["TopLevelKeys"]);
 
-        entries.Any(e => e.EventId.Id == 10).Should().BeFalse("no ValidationFailed entries on the happy path");
-        entries.Any(e => e.EventId.Id == 6).Should().BeFalse("no UnknownSurfaceOp entries on the happy path");
-        entries.Any(e => e.EventId.Id == 7).Should().BeFalse("no RootComponentMissing entries on the happy path");
+        // No ValidationFailed entries on the happy path
+        Assert.DoesNotContain(entries, e => e.EventId.Id == 10);
+        // No UnknownSurfaceOp entries on the happy path
+        Assert.DoesNotContain(entries, e => e.EventId.Id == 6);
+        // No RootComponentMissing entries on the happy path
+        Assert.DoesNotContain(entries, e => e.EventId.Id == 7);
 
         // Assert — spans (filter by surface id to stay isolated from any
         // cross-test-class parallelism that might also write to A2Ui.Core).
@@ -112,17 +118,18 @@ public sealed class TelemetryScenarioTests
                 a.Source.Name == CoreActivitySource && Equals(a.GetTagItem("a2ui.surface_id"), "s-happy")
             )
             .ToList();
-        spans.Should().HaveCount(3, "each dispatched message starts and stops exactly one span");
+        // Each dispatched message starts and stops exactly one span
+        Assert.Equal(3, spans.Count);
 
         var createSpan = spans.Single(a => a.OperationName == "Surface.CreateSurface");
-        createSpan.GetTagItem("a2ui.message_type").Should().Be("CreateSurface");
-        createSpan.Status.Should().Be(ActivityStatusCode.Unset);
+        Assert.Equal("CreateSurface", createSpan.GetTagItem("a2ui.message_type"));
+        Assert.Equal(ActivityStatusCode.Unset, createSpan.Status);
 
         var updateComponentsSpan = spans.Single(a => a.OperationName == "Surface.UpdateComponents");
-        updateComponentsSpan.GetTagItem("a2ui.message_type").Should().Be("UpdateComponents");
+        Assert.Equal("UpdateComponents", updateComponentsSpan.GetTagItem("a2ui.message_type"));
 
         var updateDataModelSpan = spans.Single(a => a.OperationName == "Surface.UpdateDataModel");
-        updateDataModelSpan.GetTagItem("a2ui.message_type").Should().Be("UpdateDataModel");
+        Assert.Equal("UpdateDataModel", updateDataModelSpan.GetTagItem("a2ui.message_type"));
     }
 
     [Fact]
@@ -147,26 +154,31 @@ public sealed class TelemetryScenarioTests
         var act = () => sm.Process(badMsg);
 
         // Assert — exception propagated
-        act.Should().Throw<A2UiMessageValidationException>();
+        Assert.Throws<A2UiMessageValidationException>(act);
 
         // Assert — log entries
         var entries = provider.Entries.Where(e => e.CategoryName == SurfaceManagerCategory).ToList();
 
         var dispatched = entries.SingleOrDefault(e => e.EventId.Id == 9);
-        dispatched.Should().NotBeNull("MessageDispatched (EventId 9) fires before validation runs");
-        dispatched!.Properties["MessageType"].Should().Be("CreateSurface");
-        dispatched.Properties["SurfaceId"].Should().Be("s-bad");
+        // MessageDispatched (EventId 9) fires before validation runs
+        Assert.NotNull(dispatched);
+        Assert.Equal("CreateSurface", dispatched!.Properties["MessageType"]);
+        Assert.Equal("s-bad", dispatched.Properties["SurfaceId"]);
 
         var validationFailed = entries.SingleOrDefault(e => e.EventId.Id == 10);
-        validationFailed.Should().NotBeNull("ValidationFailed (EventId 10) should fire exactly once");
-        validationFailed!.Level.Should().Be(LogLevel.Warning);
-        validationFailed.Properties["MessageType"].Should().Be("CreateSurface");
-        validationFailed.Properties.Should().ContainKey("ValidationError");
+        // ValidationFailed (EventId 10) should fire exactly once
+        Assert.NotNull(validationFailed);
+        Assert.Equal(LogLevel.Warning, validationFailed!.Level);
+        Assert.Equal("CreateSurface", validationFailed.Properties["MessageType"]);
+        Assert.Contains("ValidationError", validationFailed.Properties);
         var validationError = validationFailed.Properties["ValidationError"]?.ToString();
-        validationError.Should().NotBeNullOrEmpty().And.Subject.Should().Contain("v0.8");
+        Assert.NotNull(validationError);
+        Assert.NotEmpty(validationError);
+        Assert.Contains("v0.8", validationError);
 
         // No SurfaceCreated entry — validation blocked it before handlers ran.
-        entries.Any(e => e.EventId.Id == 1).Should().BeFalse("validation blocks SurfaceCreated");
+        // Validation blocks SurfaceCreated
+        Assert.DoesNotContain(entries, e => e.EventId.Id == 1);
 
         // Assert — span captured the error (filter by surface id to avoid
         // cross-test leakage from parallel test classes).
@@ -175,8 +187,8 @@ public sealed class TelemetryScenarioTests
                 a.Source.Name == CoreActivitySource && Equals(a.GetTagItem("a2ui.surface_id"), "s-bad")
             )
             .Single(a => a.OperationName == "Surface.CreateSurface");
-        span.GetTagItem("a2ui.message_type").Should().Be("CreateSurface");
-        span.Status.Should().Be(ActivityStatusCode.Error);
+        Assert.Equal("CreateSurface", span.GetTagItem("a2ui.message_type"));
+        Assert.Equal(ActivityStatusCode.Error, span.Status);
     }
 
     [Fact]
@@ -217,23 +229,25 @@ public sealed class TelemetryScenarioTests
         var entries = provider.Entries.Where(e => e.CategoryName == SurfaceManagerCategory).ToList();
 
         var missing = entries.SingleOrDefault(e => e.EventId.Id == 7);
-        missing.Should().NotBeNull("RootComponentMissing (EventId 7) should fire exactly once");
-        missing!.Level.Should().Be(LogLevel.Warning);
-        missing.Properties["SurfaceId"].Should().Be("s-noroot");
+        // RootComponentMissing (EventId 7) should fire exactly once
+        Assert.NotNull(missing);
+        Assert.Equal(LogLevel.Warning, missing!.Level);
+        Assert.Equal("s-noroot", missing.Properties["SurfaceId"]);
 
         // ComponentsUpdated still fires — the missing-root condition is a warning, not a blocker.
         var componentsUpdated = entries.SingleOrDefault(e => e.EventId.Id == 3);
-        componentsUpdated.Should().NotBeNull("ComponentsUpdated (EventId 3) still fires when root is missing");
-        componentsUpdated!.Properties["SurfaceId"].Should().Be("s-noroot");
-        componentsUpdated.Properties["Count"].Should().Be(2);
-        componentsUpdated.Properties["RootComponentId"].Should().Be("(none)");
-        componentsUpdated.Properties["RootComponentType"].Should().Be("(none)");
+        // ComponentsUpdated (EventId 3) still fires when root is missing
+        Assert.NotNull(componentsUpdated);
+        Assert.Equal("s-noroot", componentsUpdated!.Properties["SurfaceId"]);
+        Assert.Equal(2, componentsUpdated.Properties["Count"]);
+        Assert.Equal("(none)", componentsUpdated.Properties["RootComponentId"]);
+        Assert.Equal("(none)", componentsUpdated.Properties["RootComponentType"]);
 
         // The surface was actually mutated.
         var surface = sm.GetSurface("s-noroot");
-        surface.Should().NotBeNull();
-        surface!.Components.Should().HaveCount(2);
-        surface.Components.ContainsKey("root").Should().BeFalse();
+        Assert.NotNull(surface);
+        Assert.Equal(2, surface!.Components.Count);
+        Assert.False(surface.Components.ContainsKey("root"));
 
         // Assert — span fired with message_type == "UpdateComponents" (filter
         // by surface id to avoid cross-test leakage from parallel test classes).
@@ -242,7 +256,7 @@ public sealed class TelemetryScenarioTests
                 a.Source.Name == CoreActivitySource && Equals(a.GetTagItem("a2ui.surface_id"), "s-noroot")
             )
             .Single(a => a.OperationName == "Surface.UpdateComponents");
-        span.GetTagItem("a2ui.message_type").Should().Be("UpdateComponents");
-        span.Status.Should().Be(ActivityStatusCode.Unset);
+        Assert.Equal("UpdateComponents", span.GetTagItem("a2ui.message_type"));
+        Assert.Equal(ActivityStatusCode.Unset, span.Status);
     }
 }

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using A2Ui.Core.Messages;
-using FluentAssertions;
 
 namespace A2Ui.Core.Tests;
 
@@ -13,9 +12,9 @@ public sealed class ChildListConverterTests
     {
         var result = JsonSerializer.Deserialize<ChildList>("""["a","b","c"]""", s_opts);
 
-        result.Should().NotBeNull();
-        result!.Ids.Should().BeEquivalentTo(["a", "b", "c"]);
-        result.IsTemplate.Should().BeFalse();
+        Assert.NotNull(result);
+        Assert.Equivalent(new[] { "a", "b", "c" }, result!.Ids);
+        Assert.False(result.IsTemplate);
     }
 
     [Fact]
@@ -23,10 +22,10 @@ public sealed class ChildListConverterTests
     {
         var result = JsonSerializer.Deserialize<ChildList>("""{"componentId":"item-tmpl","path":"/items"}""", s_opts);
 
-        result.Should().NotBeNull();
-        result!.IsTemplate.Should().BeTrue();
-        result.Template!.ComponentId.Should().Be("item-tmpl");
-        result.Template.Path.Should().Be("/items");
+        Assert.NotNull(result);
+        Assert.True(result!.IsTemplate);
+        Assert.Equal("item-tmpl", result.Template!.ComponentId);
+        Assert.Equal("/items", result.Template.Path);
     }
 
     [Fact]
@@ -34,7 +33,7 @@ public sealed class ChildListConverterTests
     {
         var cl = ChildList.FromIds("x", "y");
         var json = JsonSerializer.Serialize(cl, s_opts);
-        json.Should().Be("""["x","y"]""");
+        Assert.Equal("""["x","y"]""", json);
     }
 
     [Fact]
@@ -44,8 +43,8 @@ public sealed class ChildListConverterTests
         var json = JsonSerializer.Serialize(cl, s_opts);
 
         var doc = JsonDocument.Parse(json);
-        doc.RootElement.GetProperty("componentId").GetString().Should().Be("tmpl");
-        doc.RootElement.GetProperty("path").GetString().Should().Be("/data");
+        Assert.Equal("tmpl", doc.RootElement.GetProperty("componentId").GetString());
+        Assert.Equal("/data", doc.RootElement.GetProperty("path").GetString());
     }
 
     [Fact]
@@ -55,7 +54,7 @@ public sealed class ChildListConverterTests
         var json = JsonSerializer.Serialize(original, s_opts);
         var restored = JsonSerializer.Deserialize<ChildList>(json, s_opts);
 
-        restored!.Ids.Should().BeEquivalentTo(original.Ids);
+        Assert.Equivalent(original.Ids, restored!.Ids);
     }
 
     [Fact]
@@ -65,8 +64,8 @@ public sealed class ChildListConverterTests
         var json = JsonSerializer.Serialize(original, s_opts);
         var restored = JsonSerializer.Deserialize<ChildList>(json, s_opts);
 
-        restored!.Template!.ComponentId.Should().Be("tmpl");
-        restored.Template.Path.Should().Be("/items");
+        Assert.Equal("tmpl", restored!.Template!.ComponentId);
+        Assert.Equal("/items", restored.Template.Path);
     }
 
     [Fact]
@@ -75,8 +74,8 @@ public sealed class ChildListConverterTests
         var json = """{"id":"row1","component":"Row","children":["t1","t2","t3"]}""";
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
-        comp!.Children.Should().NotBeNull();
-        comp.Children!.Ids.Should().BeEquivalentTo(["t1", "t2", "t3"]);
+        Assert.NotNull(comp!.Children);
+        Assert.Equivalent(new[] { "t1", "t2", "t3" }, comp.Children!.Ids);
     }
 
     [Fact]
@@ -85,9 +84,9 @@ public sealed class ChildListConverterTests
         var json = """{"id":"list1","component":"List","children":{"componentId":"item","path":"/todos"}}""";
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
-        comp!.Children.Should().NotBeNull();
-        comp.Children!.IsTemplate.Should().BeTrue();
-        comp.Children.Template!.Path.Should().Be("/todos");
+        Assert.NotNull(comp!.Children);
+        Assert.True(comp.Children!.IsTemplate);
+        Assert.Equal("/todos", comp.Children.Template!.Path);
     }
 
     [Fact]
@@ -97,9 +96,9 @@ public sealed class ChildListConverterTests
             """{"id":"btn1","component":"Button","accessibility":{"label":"Submit form","description":"Submits the reservation"}}""";
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
-        comp!.Accessibility.Should().NotBeNull();
-        comp.Accessibility!.Label!.StringLiteral.Should().Be("Submit form");
-        comp.Accessibility.Description!.StringLiteral.Should().Be("Submits the reservation");
+        Assert.NotNull(comp!.Accessibility);
+        Assert.Equal("Submit form", comp.Accessibility!.Label!.StringLiteral);
+        Assert.Equal("Submits the reservation", comp.Accessibility.Description!.StringLiteral);
     }
 
     [Fact]
@@ -109,10 +108,10 @@ public sealed class ChildListConverterTests
             """{"id":"tf1","component":"TextField","checks":[{"condition":{"call":"required","args":{"value":{"path":"/name"}}},"message":"Name is required"}]}""";
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
-        comp!.Checks.Should().HaveCount(1);
-        comp.Checks![0].Condition.IsFunction.Should().BeTrue();
-        comp.Checks[0].Condition.FunctionCall!.Call.Should().Be("required");
-        comp.Checks[0].Message.Should().Be("Name is required");
+        var check = Assert.Single(comp!.Checks!);
+        Assert.True(check.Condition.IsFunction);
+        Assert.Equal("required", check.Condition.FunctionCall!.Call);
+        Assert.Equal("Name is required", check.Message);
     }
 
     [Fact]
@@ -122,11 +121,11 @@ public sealed class ChildListConverterTests
             """{"id":"cp1","component":"ChoicePicker","options":[{"label":"Red","value":"red"},{"label":"Blue","value":"blue"}],"displayStyle":"chips","filterable":true}""";
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
-        comp!.Options.Should().HaveCount(2);
-        comp.Options![0].Label.Should().Be("Red");
-        comp.Options[0].Value.Should().Be("red");
-        comp.DisplayStyle.Should().Be("chips");
-        comp.Filterable.Should().BeTrue();
+        Assert.Equal(2, comp!.Options!.Length);
+        Assert.Equal("Red", comp.Options![0].Label);
+        Assert.Equal("red", comp.Options[0].Value);
+        Assert.Equal("chips", comp.DisplayStyle);
+        Assert.True(comp.Filterable);
     }
 
     [Fact]
@@ -136,9 +135,9 @@ public sealed class ChildListConverterTests
             """{"id":"tabs1","component":"Tabs","tabs":[{"title":"Info","child":"panel1"},{"title":"Settings","child":"panel2"}]}""";
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
-        comp!.Tabs.Should().HaveCount(2);
-        comp.Tabs![0].Title.Should().Be("Info");
-        comp.Tabs[0].Child.Should().Be("panel1");
+        Assert.Equal(2, comp!.Tabs!.Length);
+        Assert.Equal("Info", comp.Tabs![0].Title);
+        Assert.Equal("panel1", comp.Tabs[0].Child);
     }
 
     [Fact]
@@ -147,8 +146,8 @@ public sealed class ChildListConverterTests
         var json = """{"id":"row1","component":"Row","justify":"spaceBetween","align":"center","weight":2.5}""";
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
-        comp!.Justify.Should().Be("spaceBetween");
-        comp.Align.Should().Be("center");
-        comp.Weight.Should().Be(2.5);
+        Assert.Equal("spaceBetween", comp!.Justify);
+        Assert.Equal("center", comp.Align);
+        Assert.Equal(2.5, comp.Weight);
     }
 }

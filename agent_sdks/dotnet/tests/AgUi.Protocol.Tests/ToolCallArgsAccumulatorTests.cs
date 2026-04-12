@@ -1,6 +1,5 @@
 using AgUi.Protocol;
 using AgUi.Protocol.Events;
-using FluentAssertions;
 
 namespace AgUi.Protocol.Tests;
 
@@ -15,8 +14,8 @@ public sealed class ToolCallArgsAccumulatorTests
         acc.OnArgs(new ToolCallArgsEvent { ToolCallId = "tc1", Delta = "1}" });
         acc.OnArgs(new ToolCallArgsEvent { ToolCallId = "tc2", Delta = "2}" });
 
-        acc.Complete("tc1").Should().Be("{\"a\":1}");
-        acc.Complete("tc2").Should().Be("{\"b\":2}");
+        Assert.Equal("{\"a\":1}", acc.Complete("tc1"));
+        Assert.Equal("{\"b\":2}", acc.Complete("tc2"));
     }
 
     [Fact]
@@ -24,7 +23,7 @@ public sealed class ToolCallArgsAccumulatorTests
     {
         var acc = new ToolCallArgsAccumulator();
 
-        acc.Complete("nonexistent").Should().BeEmpty();
+        Assert.Empty(acc.Complete("nonexistent"));
     }
 
     [Fact]
@@ -33,8 +32,8 @@ public sealed class ToolCallArgsAccumulatorTests
         var acc = new ToolCallArgsAccumulator();
         acc.OnArgs(new ToolCallArgsEvent { ToolCallId = "tc1", Delta = "hello" });
 
-        acc.Complete("tc1").Should().Be("hello");
-        acc.Complete("tc1").Should().BeEmpty();
+        Assert.Equal("hello", acc.Complete("tc1"));
+        Assert.Empty(acc.Complete("tc1"));
     }
 
     [Fact]
@@ -43,8 +42,8 @@ public sealed class ToolCallArgsAccumulatorTests
         var acc = new ToolCallArgsAccumulator();
         acc.OnArgs(new ToolCallArgsEvent { ToolCallId = "tc1", Delta = "x" });
 
-        acc.HasPending("tc1").Should().BeTrue();
-        acc.HasPending("tc2").Should().BeFalse();
+        Assert.True(acc.HasPending("tc1"));
+        Assert.False(acc.HasPending("tc2"));
     }
 
     [Fact]
@@ -56,8 +55,8 @@ public sealed class ToolCallArgsAccumulatorTests
 
         acc.Clear();
 
-        acc.HasPending("tc1").Should().BeFalse();
-        acc.HasPending("tc2").Should().BeFalse();
+        Assert.False(acc.HasPending("tc1"));
+        Assert.False(acc.HasPending("tc2"));
     }
 
     [Fact]
@@ -68,6 +67,6 @@ public sealed class ToolCallArgsAccumulatorTests
         acc.OnArgs(new ToolCallArgsEvent { ToolCallId = "tc1", Delta = "" });
         acc.OnArgs(new ToolCallArgsEvent { ToolCallId = "tc1", Delta = "end" });
 
-        acc.Complete("tc1").Should().Be("startend");
+        Assert.Equal("startend", acc.Complete("tc1"));
     }
 }

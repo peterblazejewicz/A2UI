@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text.Json;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
-using FluentAssertions;
 
 namespace A2Ui.Core.Tests;
 
@@ -28,9 +27,9 @@ public sealed class SurfaceManagerTests
             }
         );
 
-        created.Should().NotBeNull();
-        created!.SurfaceId.Should().Be("main");
-        created.CatalogId.Should().Be("https://a2ui.org/specification/v0_9/basic_catalog.json");
+        Assert.NotNull(created);
+        Assert.Equal("main", created!.SurfaceId);
+        Assert.Equal("https://a2ui.org/specification/v0_9/basic_catalog.json", created.CatalogId);
     }
 
     [Fact]
@@ -54,8 +53,8 @@ public sealed class SurfaceManagerTests
             }
         );
 
-        created!.Theme.Should().NotBeNull();
-        created.SendDataModel.Should().BeTrue();
+        Assert.NotNull(created!.Theme);
+        Assert.True(created.SendDataModel);
     }
 
     [Fact]
@@ -74,7 +73,7 @@ public sealed class SurfaceManagerTests
         sm.Process(msg);
         sm.Process(msg);
 
-        createCount.Should().Be(1);
+        Assert.Equal(1, createCount);
     }
 
     [Fact]
@@ -99,9 +98,9 @@ public sealed class SurfaceManagerTests
             }
         );
 
-        deleted.Should().NotBeNull();
-        deleted!.SurfaceId.Should().Be("s1");
-        sm.GetSurface("s1").Should().BeNull();
+        Assert.NotNull(deleted);
+        Assert.Equal("s1", deleted!.SurfaceId);
+        Assert.Null(sm.GetSurface("s1"));
     }
 
     [Fact]
@@ -119,7 +118,7 @@ public sealed class SurfaceManagerTests
             }
         );
 
-        deleteFired.Should().BeFalse();
+        Assert.False(deleteFired);
     }
 
     [Fact]
@@ -157,10 +156,10 @@ public sealed class SurfaceManagerTests
             }
         );
 
-        updatedArgs.Should().NotBeNull();
+        Assert.NotNull(updatedArgs);
         var surface = sm.GetSurface("s1");
-        surface!.Components.Should().HaveCount(2);
-        surface.Components["t1"].Component.Should().Be("Text");
+        Assert.Equal(2, surface!.Components.Count);
+        Assert.Equal("Text", surface.Components["t1"].Component);
     }
 
     [Fact]
@@ -182,7 +181,7 @@ public sealed class SurfaceManagerTests
             }
         );
 
-        fired.Should().BeFalse();
+        Assert.False(fired);
     }
 
     [Fact]
@@ -212,9 +211,9 @@ public sealed class SurfaceManagerTests
             }
         );
 
-        fired.Should().BeTrue();
+        Assert.True(fired);
         var surface = sm.GetSurface("s1")!;
-        surface.DataModel.Resolve(DynamicValue.FromPath("/user/name")).Should().Be("Alice");
+        Assert.Equal("Alice", surface.DataModel.Resolve(DynamicValue.FromPath("/user/name")));
     }
 
     [Fact]
@@ -237,7 +236,7 @@ public sealed class SurfaceManagerTests
             }
         );
 
-        fired.Should().BeFalse();
+        Assert.False(fired);
     }
 
     [Fact]
@@ -247,7 +246,7 @@ public sealed class SurfaceManagerTests
 
         var act = () => sm.Process(new A2UiMessage());
 
-        act.Should().Throw<A2UiMessageValidationException>();
+        Assert.Throws<A2UiMessageValidationException>(act);
     }
 
     [Fact]
@@ -262,8 +261,8 @@ public sealed class SurfaceManagerTests
             }
         );
 
-        sm.GetSurface("s1").Should().NotBeNull();
-        sm.GetSurface("nope").Should().BeNull();
+        Assert.NotNull(sm.GetSurface("s1"));
+        Assert.Null(sm.GetSurface("nope"));
     }
 
     [Fact]
@@ -306,8 +305,8 @@ public sealed class SurfaceManagerTests
 
         var surface = sm.GetSurface("s1")!;
         var roots = surface.GetRootComponents().ToList();
-        roots.Should().ContainSingle();
-        roots[0].Id.Should().Be("root");
+        var single = Assert.Single(roots);
+        Assert.Equal("root", single.Id);
     }
 
     [Fact]
@@ -344,8 +343,8 @@ public sealed class SurfaceManagerTests
         );
 
         var roots = sm.GetSurface("s1")!.GetRootComponents().ToList();
-        roots.Should().ContainSingle();
-        roots[0].Id.Should().Be("root");
+        var single = Assert.Single(roots);
+        Assert.Equal("root", single.Id);
     }
 
     [Fact]
@@ -368,11 +367,13 @@ public sealed class SurfaceManagerTests
 
         sm.Clear();
 
-        deletedIds.Should().HaveCount(3);
-        deletedIds.Should().Contain(["s1", "s2", "s3"]);
-        sm.GetSurface("s1").Should().BeNull();
-        sm.GetSurface("s2").Should().BeNull();
-        sm.GetSurface("s3").Should().BeNull();
+        Assert.Equal(3, deletedIds.Count);
+        Assert.Contains("s1", deletedIds);
+        Assert.Contains("s2", deletedIds);
+        Assert.Contains("s3", deletedIds);
+        Assert.Null(sm.GetSurface("s1"));
+        Assert.Null(sm.GetSurface("s2"));
+        Assert.Null(sm.GetSurface("s3"));
     }
 
     [Fact]
@@ -384,7 +385,7 @@ public sealed class SurfaceManagerTests
 
         sm.Clear();
 
-        fired.Should().BeFalse();
+        Assert.False(fired);
     }
 
     [Fact]
@@ -411,8 +412,8 @@ public sealed class SurfaceManagerTests
             }
         );
 
-        recreated.Should().NotBeNull();
-        recreated!.SurfaceId.Should().Be("s1");
+        Assert.NotNull(recreated);
+        Assert.Equal("s1", recreated!.SurfaceId);
     }
 
     [Fact]
@@ -449,7 +450,7 @@ public sealed class SurfaceManagerTests
         );
 
         var roots = sm.GetSurface("s1")!.GetRootComponents().ToList();
-        roots.Should().ContainSingle();
-        roots[0].Id.Should().Be("col1");
+        var single = Assert.Single(roots);
+        Assert.Equal("col1", single.Id);
     }
 }

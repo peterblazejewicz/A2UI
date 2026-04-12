@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text.Json;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
-using FluentAssertions;
 
 namespace A2Ui.Core.Tests;
 
@@ -22,7 +21,7 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/reservation/date")).Should().Be("2025-12-15");
+        Assert.Equal("2025-12-15", dm.Resolve(DynamicValue.FromPath("/reservation/date")));
     }
 
     [Fact]
@@ -47,7 +46,7 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/name")).Should().Be("replaced");
+        Assert.Equal("replaced", dm.Resolve(DynamicValue.FromPath("/name")));
     }
 
     [Fact]
@@ -63,7 +62,7 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/key")).Should().Be("val");
+        Assert.Equal("val", dm.Resolve(DynamicValue.FromPath("/key")));
     }
 
     [Fact]
@@ -78,7 +77,7 @@ public sealed class DataModelTests
                 Value = JsonSerializer.SerializeToElement("exists"),
             }
         );
-        dm.Resolve(DynamicValue.FromPath("/toDelete")).Should().Be("exists");
+        Assert.Equal("exists", dm.Resolve(DynamicValue.FromPath("/toDelete")));
 
         dm.Apply(
             new UpdateDataModel
@@ -89,7 +88,7 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/toDelete")).Should().BeNull();
+        Assert.Null(dm.Resolve(DynamicValue.FromPath("/toDelete")));
     }
 
     [Fact]
@@ -113,43 +112,43 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/count")).Should().Be("42");
+        Assert.Equal("42", dm.Resolve(DynamicValue.FromPath("/count")));
     }
 
     [Fact]
     public void Resolve_LiteralValue_ReturnsLiteral()
     {
         var dm = new DataModel();
-        dm.Resolve(DynamicValue.FromString("Hello")).Should().Be("Hello");
+        Assert.Equal("Hello", dm.Resolve(DynamicValue.FromString("Hello")));
     }
 
     [Fact]
     public void Resolve_UnknownPath_ReturnsNull()
     {
         var dm = new DataModel();
-        dm.Resolve(DynamicValue.FromPath("/nonexistent/path")).Should().BeNull();
+        Assert.Null(dm.Resolve(DynamicValue.FromPath("/nonexistent/path")));
     }
 
     [Fact]
     public void Resolve_Null_ReturnsNull()
     {
         var dm = new DataModel();
-        dm.Resolve(null).Should().BeNull();
+        Assert.Null(dm.Resolve(null));
     }
 
     [Fact]
     public void Resolve_NumberLiteral_ReturnsStringRepresentation()
     {
         var dm = new DataModel();
-        dm.Resolve(DynamicValue.FromNumber(42.5)).Should().Be("42.5");
+        Assert.Equal("42.5", dm.Resolve(DynamicValue.FromNumber(42.5)));
     }
 
     [Fact]
     public void Resolve_BoolLiteral_ReturnsTrueOrFalse()
     {
         var dm = new DataModel();
-        dm.Resolve(DynamicValue.FromBool(true)).Should().Be("true");
-        dm.Resolve(DynamicValue.FromBool(false)).Should().Be("false");
+        Assert.Equal("true", dm.Resolve(DynamicValue.FromBool(true)));
+        Assert.Equal("false", dm.Resolve(DynamicValue.FromBool(false)));
     }
 
     [Fact]
@@ -165,7 +164,7 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/count")).Should().Be("99");
+        Assert.Equal("99", dm.Resolve(DynamicValue.FromPath("/count")));
     }
 
     [Fact]
@@ -181,7 +180,7 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/active")).Should().Be("true");
+        Assert.Equal("true", dm.Resolve(DynamicValue.FromPath("/active")));
     }
 
     [Fact]
@@ -197,7 +196,7 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/items/1")).Should().Be("beta");
+        Assert.Equal("beta", dm.Resolve(DynamicValue.FromPath("/items/1")));
     }
 
     [Fact]
@@ -215,8 +214,8 @@ public sealed class DataModelTests
 
         dm.SetSnapshot(JsonSerializer.SerializeToElement(new { fresh = "start" }));
 
-        dm.Resolve(DynamicValue.FromPath("/old")).Should().BeNull();
-        dm.Resolve(DynamicValue.FromPath("/fresh")).Should().Be("start");
+        Assert.Null(dm.Resolve(DynamicValue.FromPath("/old")));
+        Assert.Equal("start", dm.Resolve(DynamicValue.FromPath("/fresh")));
     }
 
     [Fact]
@@ -225,7 +224,7 @@ public sealed class DataModelTests
         var dm = new DataModel();
         var fc = new DynamicValue { FunctionCall = new FunctionCallValue { Call = "formatDate" } };
 
-        dm.Resolve(fc).Should().BeNull();
+        Assert.Null(dm.Resolve(fc));
     }
 
     [Fact]
@@ -241,7 +240,7 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/items/0/name")).Should().Be("Alice");
+        Assert.Equal("Alice", dm.Resolve(DynamicValue.FromPath("/items/0/name")));
     }
 
     [Fact]
@@ -265,8 +264,8 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/items/0/name")).Should().Be("Alice");
-        dm.Resolve(DynamicValue.FromPath("/items/1/name")).Should().Be("Bob");
+        Assert.Equal("Alice", dm.Resolve(DynamicValue.FromPath("/items/0/name")));
+        Assert.Equal("Bob", dm.Resolve(DynamicValue.FromPath("/items/1/name")));
     }
 
     [Fact]
@@ -284,7 +283,7 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/items/0/name")).Should().Be("updated");
+        Assert.Equal("updated", dm.Resolve(DynamicValue.FromPath("/items/0/name")));
     }
 
     [Fact]
@@ -302,8 +301,8 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/items/1")).Should().BeNull();
-        dm.Resolve(DynamicValue.FromPath("/items/2")).Should().Be("gamma");
+        Assert.Null(dm.Resolve(DynamicValue.FromPath("/items/1")));
+        Assert.Equal("gamma", dm.Resolve(DynamicValue.FromPath("/items/2")));
     }
 
     [Fact]
@@ -324,8 +323,8 @@ public sealed class DataModelTests
         );
 
         // Should preserve the object (not create an array) since "totals" already exists as object
-        dm.Resolve(DynamicValue.FromPath("/totals/2025")).Should().Be("100");
-        dm.Resolve(DynamicValue.FromPath("/totals/2026")).Should().Be("200");
+        Assert.Equal("100", dm.Resolve(DynamicValue.FromPath("/totals/2025")));
+        Assert.Equal("200", dm.Resolve(DynamicValue.FromPath("/totals/2026")));
     }
 
     [Fact]
@@ -340,7 +339,7 @@ public sealed class DataModelTests
                 Value = JsonSerializer.SerializeToElement(new { items = new[] { 1, 2, 3 } }),
             }
         );
-        dm.GetArrayLength("/items").Should().Be(3);
+        Assert.Equal(3, dm.GetArrayLength("/items"));
     }
 
     [Fact]
@@ -355,14 +354,14 @@ public sealed class DataModelTests
                 Value = JsonSerializer.SerializeToElement(new { data = new { key = "val" } }),
             }
         );
-        dm.GetArrayLength("/data").Should().Be(-1);
+        Assert.Equal(-1, dm.GetArrayLength("/data"));
     }
 
     [Fact]
     public void GetArrayLength_ReturnsNegativeOne_WhenPathDoesNotExist()
     {
         var dm = new DataModel();
-        dm.GetArrayLength("/nonexistent").Should().Be(-1);
+        Assert.Equal(-1, dm.GetArrayLength("/nonexistent"));
     }
 
     [Fact]
@@ -377,14 +376,14 @@ public sealed class DataModelTests
                 Value = JsonSerializer.SerializeToElement(new { items = Array.Empty<int>() }),
             }
         );
-        dm.GetArrayLength("/items").Should().Be(0);
+        Assert.Equal(0, dm.GetArrayLength("/items"));
     }
 
     [Fact]
     public void ToJson_EmptyModel_ReturnsEmptyObject()
     {
         var dm = new DataModel();
-        dm.ToJson().Should().Be("{}");
+        Assert.Equal("{}", dm.ToJson());
     }
 
     [Fact]
@@ -401,8 +400,8 @@ public sealed class DataModelTests
         );
 
         var json = dm.ToJson();
-        json.Should().Contain("\"name\"");
-        json.Should().Contain("\"Alice\"");
+        Assert.Contains("\"name\"", json);
+        Assert.Contains("\"Alice\"", json);
     }
 
     [Fact]
@@ -419,8 +418,8 @@ public sealed class DataModelTests
         );
 
         var json = dm.ToJson(indented: true);
-        json.Should().Contain("\n");
-        json.Should().Contain("  ");
+        Assert.Contains("\n", json);
+        Assert.Contains("  ", json);
     }
 
     // --- RFC 6901 JSON Pointer escaping tests ---
@@ -439,7 +438,7 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/a~1b")).Should().Be("slash-key");
+        Assert.Equal("slash-key", dm.Resolve(DynamicValue.FromPath("/a~1b")));
     }
 
     [Fact]
@@ -456,7 +455,7 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/a~0b")).Should().Be("tilde-key");
+        Assert.Equal("tilde-key", dm.Resolve(DynamicValue.FromPath("/a~0b")));
     }
 
     [Fact]
@@ -473,7 +472,7 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/~01")).Should().Be("both");
+        Assert.Equal("both", dm.Resolve(DynamicValue.FromPath("/~01")));
     }
 
     [Fact]
@@ -498,6 +497,6 @@ public sealed class DataModelTests
             }
         );
 
-        dm.Resolve(DynamicValue.FromPath("/a~1b")).Should().BeNull();
+        Assert.Null(dm.Resolve(DynamicValue.FromPath("/a~1b")));
     }
 }

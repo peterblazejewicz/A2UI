@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using A2Ui.Core.Messages;
-using FluentAssertions;
 
 namespace A2Ui.Core.Tests;
 
@@ -16,11 +15,12 @@ public sealed class ProtocolContractsTests
 
         var caps = JsonSerializer.Deserialize<ServerCapabilities>(json, s_opts)!;
 
-        caps.V09.SupportedCatalogIds.Should().ContainSingle().Which.Should().Be("https://a2ui.org/basic");
-        caps.V09.AcceptsInlineCatalogs.Should().BeTrue();
+        var single = Assert.Single(caps.V09.SupportedCatalogIds!);
+        Assert.Equal("https://a2ui.org/basic", single);
+        Assert.True(caps.V09.AcceptsInlineCatalogs);
 
         string roundTrip = JsonSerializer.Serialize(caps, s_opts);
-        roundTrip.Should().Contain("supportedCatalogIds");
+        Assert.Contains("supportedCatalogIds", roundTrip);
     }
 
     [Fact]
@@ -30,7 +30,7 @@ public sealed class ProtocolContractsTests
 
         var caps = JsonSerializer.Deserialize<ServerCapabilities>(json, s_opts)!;
 
-        caps.V09.AcceptsInlineCatalogs.Should().BeFalse();
+        Assert.False(caps.V09.AcceptsInlineCatalogs);
     }
 
     [Fact]
@@ -40,8 +40,8 @@ public sealed class ProtocolContractsTests
 
         var caps = JsonSerializer.Deserialize<ClientCapabilities>(json, s_opts)!;
 
-        caps.V09.SupportedCatalogIds.Should().HaveCount(2);
-        caps.V09.InlineCatalogs.Should().BeNull();
+        Assert.Equal(2, caps.V09.SupportedCatalogIds.Length);
+        Assert.Null(caps.V09.InlineCatalogs);
     }
 
     [Fact]
@@ -52,8 +52,8 @@ public sealed class ProtocolContractsTests
 
         var caps = JsonSerializer.Deserialize<ClientCapabilities>(json, s_opts)!;
 
-        caps.V09.InlineCatalogs.Should().HaveCount(1);
-        caps.V09.InlineCatalogs![0].GetProperty("catalogId").GetString().Should().Be("inline-1");
+        Assert.Single(caps.V09.InlineCatalogs!);
+        Assert.Equal("inline-1", caps.V09.InlineCatalogs![0].GetProperty("catalogId").GetString());
     }
 
     [Fact]
@@ -63,10 +63,10 @@ public sealed class ProtocolContractsTests
 
         var cdm = JsonSerializer.Deserialize<ClientDataModel>(json, s_opts)!;
 
-        cdm.Version.Should().Be("v0.9");
-        cdm.Surfaces.Should().ContainKey("main");
-        cdm.Surfaces["main"].GetProperty("name").GetString().Should().Be("Alice");
-        cdm.Surfaces["main"].GetProperty("count").GetInt32().Should().Be(42);
+        Assert.Equal("v0.9", cdm.Version);
+        Assert.Contains("main", (IDictionary<string, JsonElement>)cdm.Surfaces);
+        Assert.Equal("Alice", cdm.Surfaces["main"].GetProperty("name").GetString());
+        Assert.Equal(42, cdm.Surfaces["main"].GetProperty("count").GetInt32());
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public sealed class ProtocolContractsTests
 
         var cdm = JsonSerializer.Deserialize<ClientDataModel>(json, s_opts)!;
 
-        cdm.Surfaces.Should().HaveCount(2);
+        Assert.Equal(2, cdm.Surfaces.Count);
     }
 
     [Fact]
@@ -84,6 +84,6 @@ public sealed class ProtocolContractsTests
     {
         var cdm = new ClientDataModel { Surfaces = new Dictionary<string, JsonElement>() };
 
-        cdm.Version.Should().Be("v0.9");
+        Assert.Equal("v0.9", cdm.Version);
     }
 }

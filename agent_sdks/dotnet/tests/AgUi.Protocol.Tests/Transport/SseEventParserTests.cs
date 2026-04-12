@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AgUi.Protocol.Events;
 using AgUi.Protocol.Transport;
-using FluentAssertions;
 
 namespace AgUi.Protocol.Tests.Transport;
 
@@ -28,9 +27,9 @@ public sealed class SseEventParserTests
         )
             events.Add(evt);
 
-        events.Should().HaveCount(2);
-        events[0].Should().BeOfType<RunStartedEvent>();
-        events[1].Should().BeOfType<RunFinishedEvent>();
+        Assert.Equal(2, events.Count);
+        Assert.IsType<RunStartedEvent>(events[0]);
+        Assert.IsType<RunFinishedEvent>(events[1]);
     }
 
     [Fact]
@@ -48,7 +47,7 @@ public sealed class SseEventParserTests
         )
             events.Add(evt);
 
-        events.Should().HaveCount(2);
+        Assert.Equal(2, events.Count);
     }
 
     [Fact]
@@ -67,7 +66,7 @@ public sealed class SseEventParserTests
             events.Add(evt);
 
         // [DONE] is skipped, but parsing continues for lines after it
-        events.Should().HaveCount(2);
+        Assert.Equal(2, events.Count);
     }
 
     [Fact]
@@ -84,8 +83,8 @@ public sealed class SseEventParserTests
         )
             events.Add(evt);
 
-        events.Should().ContainSingle();
-        events[0].Should().BeOfType<RunStartedEvent>();
+        Assert.Single(events);
+        Assert.IsType<RunStartedEvent>(events[0]);
     }
 
     [Fact]
@@ -102,7 +101,7 @@ public sealed class SseEventParserTests
             cts.Cancel(); // cancel after first event
         }
 
-        events.Should().ContainSingle();
+        Assert.Single(events);
     }
 
     [Fact]
@@ -114,7 +113,7 @@ public sealed class SseEventParserTests
         )
             events.Add(evt);
 
-        events.Should().BeEmpty();
+        Assert.Empty(events);
     }
 
     [Fact]
@@ -131,6 +130,6 @@ public sealed class SseEventParserTests
         )
             events.Add(evt);
 
-        events.Should().ContainSingle();
+        Assert.Single(events);
     }
 }

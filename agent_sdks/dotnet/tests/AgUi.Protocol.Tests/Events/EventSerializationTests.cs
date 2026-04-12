@@ -1,6 +1,5 @@
 using System.Text.Json;
 using AgUi.Protocol.Events;
-using FluentAssertions;
 
 namespace AgUi.Protocol.Tests.Events;
 
@@ -15,11 +14,10 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<RunStartedEvent>();
-        var run = (RunStartedEvent)evt!;
-        run.ThreadId.Should().Be("t1");
-        run.RunId.Should().Be("r1");
-        run.ParentRunId.Should().Be("p1");
+        var run = Assert.IsType<RunStartedEvent>(evt);
+        Assert.Equal("t1", run.ThreadId);
+        Assert.Equal("r1", run.RunId);
+        Assert.Equal("p1", run.ParentRunId);
     }
 
     [Fact]
@@ -29,10 +27,9 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<RunFinishedEvent>();
-        var fin = (RunFinishedEvent)evt!;
-        fin.ThreadId.Should().Be("t1");
-        fin.Result.Should().NotBeNull();
+        var fin = Assert.IsType<RunFinishedEvent>(evt);
+        Assert.Equal("t1", fin.ThreadId);
+        Assert.NotNull(fin.Result);
     }
 
     [Fact]
@@ -42,10 +39,9 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<RunErrorEvent>();
-        var err = (RunErrorEvent)evt!;
-        err.Message.Should().Be("something failed");
-        err.Code.Should().Be("E001");
+        var err = Assert.IsType<RunErrorEvent>(evt);
+        Assert.Equal("something failed", err.Message);
+        Assert.Equal("E001", err.Code);
     }
 
     [Fact]
@@ -55,8 +51,8 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<StepStartedEvent>();
-        ((StepStartedEvent)evt!).StepName.Should().Be("planning");
+        var step = Assert.IsType<StepStartedEvent>(evt);
+        Assert.Equal("planning", step.StepName);
     }
 
     [Fact]
@@ -66,10 +62,9 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<TextMessageStartEvent>();
-        var msg = (TextMessageStartEvent)evt!;
-        msg.MessageId.Should().Be("m1");
-        msg.Role.Should().Be("assistant");
+        var msg = Assert.IsType<TextMessageStartEvent>(evt);
+        Assert.Equal("m1", msg.MessageId);
+        Assert.Equal("assistant", msg.Role);
     }
 
     [Fact]
@@ -79,8 +74,8 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<TextMessageContentEvent>();
-        ((TextMessageContentEvent)evt!).Delta.Should().Be("Hello ");
+        var content = Assert.IsType<TextMessageContentEvent>(evt);
+        Assert.Equal("Hello ", content.Delta);
     }
 
     [Fact]
@@ -91,11 +86,10 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<ToolCallStartEvent>();
-        var tc = (ToolCallStartEvent)evt!;
-        tc.ToolCallId.Should().Be("tc1");
-        tc.ToolCallName.Should().Be("render_ui");
-        tc.ParentMessageId.Should().Be("m1");
+        var tc = Assert.IsType<ToolCallStartEvent>(evt);
+        Assert.Equal("tc1", tc.ToolCallId);
+        Assert.Equal("render_ui", tc.ToolCallName);
+        Assert.Equal("m1", tc.ParentMessageId);
     }
 
     [Fact]
@@ -106,11 +100,10 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<ToolCallResultEvent>();
-        var res = (ToolCallResultEvent)evt!;
-        res.ToolCallId.Should().Be("tc1");
-        res.Content.ValueKind.Should().Be(JsonValueKind.Object);
-        res.Role.Should().Be("tool");
+        var res = Assert.IsType<ToolCallResultEvent>(evt);
+        Assert.Equal("tc1", res.ToolCallId);
+        Assert.Equal(JsonValueKind.Object, res.Content.ValueKind);
+        Assert.Equal("tool", res.Role);
     }
 
     [Fact]
@@ -123,7 +116,7 @@ public sealed class EventSerializationTests
 
         string result = acc.Complete("tc1");
 
-        result.Should().Be("""{"city":"San Francisco"}""");
+        Assert.Equal("""{"city":"San Francisco"}""", result);
     }
 
     [Fact]
@@ -141,9 +134,8 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<StateDeltaEvent>();
-        var delta = (StateDeltaEvent)evt!;
-        delta.Delta.Should().HaveCount(2);
+        var delta = Assert.IsType<StateDeltaEvent>(evt);
+        Assert.Equal(2, delta.Delta.Length);
     }
 
     [Fact]
@@ -154,11 +146,10 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<ActivitySnapshotEvent>();
-        var snap = (ActivitySnapshotEvent)evt!;
-        snap.MessageId.Should().Be("m1");
-        snap.ActivityType.Should().Be("thinking");
-        snap.Replace.Should().BeTrue();
+        var snap = Assert.IsType<ActivitySnapshotEvent>(evt);
+        Assert.Equal("m1", snap.MessageId);
+        Assert.Equal("thinking", snap.ActivityType);
+        Assert.True(snap.Replace);
     }
 
     [Fact]
@@ -169,11 +160,10 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<ActivityDeltaEvent>();
-        var delta = (ActivityDeltaEvent)evt!;
-        delta.MessageId.Should().Be("m1");
-        delta.ActivityType.Should().Be("thinking");
-        delta.Patch.Should().HaveCount(1);
+        var delta = Assert.IsType<ActivityDeltaEvent>(evt);
+        Assert.Equal("m1", delta.MessageId);
+        Assert.Equal("thinking", delta.ActivityType);
+        Assert.Single(delta.Patch);
     }
 
     [Fact]
@@ -183,8 +173,8 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<ReasoningStartEvent>();
-        ((ReasoningStartEvent)evt!).MessageId.Should().Be("m1");
+        var reasoning = Assert.IsType<ReasoningStartEvent>(evt);
+        Assert.Equal("m1", reasoning.MessageId);
     }
 
     [Fact]
@@ -194,10 +184,9 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<ReasoningMessageStartEvent>();
-        var msg = (ReasoningMessageStartEvent)evt!;
-        msg.MessageId.Should().Be("m1");
-        msg.Role.Should().Be("reasoning");
+        var msg = Assert.IsType<ReasoningMessageStartEvent>(evt);
+        Assert.Equal("m1", msg.MessageId);
+        Assert.Equal("reasoning", msg.Role);
     }
 
     [Fact]
@@ -207,10 +196,9 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<ReasoningMessageChunkEvent>();
-        var chunk = (ReasoningMessageChunkEvent)evt!;
-        chunk.MessageId.Should().Be("m1");
-        chunk.Delta.Should().Be("thinking...");
+        var chunk = Assert.IsType<ReasoningMessageChunkEvent>(evt);
+        Assert.Equal("m1", chunk.MessageId);
+        Assert.Equal("thinking...", chunk.Delta);
     }
 
     [Fact]
@@ -221,11 +209,10 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        evt.Should().BeOfType<ReasoningEncryptedValueEvent>();
-        var enc = (ReasoningEncryptedValueEvent)evt!;
-        enc.Subtype.Should().Be(ReasoningSubtype.ToolCall);
-        enc.EntityId.Should().Be("e1");
-        enc.EncryptedValue.Should().Be("abc123");
+        var enc = Assert.IsType<ReasoningEncryptedValueEvent>(evt);
+        Assert.Equal(ReasoningSubtype.ToolCall, enc.Subtype);
+        Assert.Equal("e1", enc.EntityId);
+        Assert.Equal("abc123", enc.EncryptedValue);
     }
 
     [Fact]
@@ -236,7 +223,8 @@ public sealed class EventSerializationTests
 
         var evt = JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
 
-        ((ReasoningEncryptedValueEvent)evt!).Subtype.Should().Be(ReasoningSubtype.Message);
+        var enc = Assert.IsType<ReasoningEncryptedValueEvent>(evt);
+        Assert.Equal(ReasoningSubtype.Message, enc.Subtype);
     }
 
     [Theory]
@@ -294,8 +282,7 @@ public sealed class EventSerializationTests
         var json =
             $$"""{"type":"{{eventType}}","message":"test","threadId":"t","runId":"r","messageId":"m","toolCallId":"tc","snapshot":{},"name":"n","value":"v","delta":{{deltaValue}},"stepName":"s","activity":{},"patch":{{deltaValue}},"event":{},"source":"src"{{extraFields}}}""";
 
-        var act = () => JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
-
-        act.Should().NotThrow();
+        // xUnit will report failure if deserialization throws
+        JsonSerializer.Deserialize<BaseEvent>(json, s_opts);
     }
 }

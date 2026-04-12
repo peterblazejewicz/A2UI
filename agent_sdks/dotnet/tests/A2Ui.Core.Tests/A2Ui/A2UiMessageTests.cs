@@ -1,6 +1,5 @@
 using System.Text.Json;
 using A2Ui.Core.Messages;
-using FluentAssertions;
 
 namespace A2Ui.Core.Tests;
 
@@ -16,12 +15,12 @@ public sealed class A2UiMessageTests
 
         var msg = JsonSerializer.Deserialize<A2UiMessage>(json, s_opts)!;
 
-        msg.Version.Should().Be("v0.9");
-        msg.CreateSurface.Should().NotBeNull();
-        msg.CreateSurface!.SurfaceId.Should().Be("main");
-        msg.CreateSurface.CatalogId.Should().Be("https://a2ui.org/specification/v0_9/basic_catalog.json");
-        msg.CreateSurface.Theme.Should().NotBeNull();
-        msg.CreateSurface.SendDataModel.Should().BeTrue();
+        Assert.Equal("v0.9", msg.Version);
+        Assert.NotNull(msg.CreateSurface);
+        Assert.Equal("main", msg.CreateSurface!.SurfaceId);
+        Assert.Equal("https://a2ui.org/specification/v0_9/basic_catalog.json", msg.CreateSurface.CatalogId);
+        Assert.NotNull(msg.CreateSurface.Theme);
+        Assert.True(msg.CreateSurface.SendDataModel);
     }
 
     [Fact]
@@ -31,8 +30,8 @@ public sealed class A2UiMessageTests
 
         var msg = JsonSerializer.Deserialize<A2UiMessage>(json, s_opts)!;
 
-        msg.DeleteSurface.Should().NotBeNull();
-        msg.DeleteSurface!.SurfaceId.Should().Be("main");
+        Assert.NotNull(msg.DeleteSurface);
+        Assert.Equal("main", msg.DeleteSurface!.SurfaceId);
     }
 
     [Fact]
@@ -43,9 +42,9 @@ public sealed class A2UiMessageTests
 
         var msg = JsonSerializer.Deserialize<A2UiMessage>(json, s_opts)!;
 
-        msg.UpdateComponents.Should().NotBeNull();
-        msg.UpdateComponents!.Components.Should().HaveCount(2);
-        msg.UpdateComponents.Components[1].Text!.StringLiteral.Should().Be("Hello");
+        Assert.NotNull(msg.UpdateComponents);
+        Assert.Equal(2, msg.UpdateComponents!.Components.Length);
+        Assert.Equal("Hello", msg.UpdateComponents.Components[1].Text!.StringLiteral);
     }
 
     [Fact]
@@ -55,10 +54,10 @@ public sealed class A2UiMessageTests
 
         var msg = JsonSerializer.Deserialize<A2UiMessage>(json, s_opts)!;
 
-        msg.UpdateDataModel.Should().NotBeNull();
-        msg.UpdateDataModel!.SurfaceId.Should().Be("main");
-        msg.UpdateDataModel.Path.Should().Be("/user/name");
-        msg.UpdateDataModel.Value.Should().NotBeNull();
+        Assert.NotNull(msg.UpdateDataModel);
+        Assert.Equal("main", msg.UpdateDataModel!.SurfaceId);
+        Assert.Equal("/user/name", msg.UpdateDataModel.Path);
+        Assert.NotNull(msg.UpdateDataModel.Value);
     }
 
     [Fact]
@@ -68,9 +67,9 @@ public sealed class A2UiMessageTests
 
         var msg = JsonSerializer.Deserialize<A2UiMessage>(json, s_opts)!;
 
-        msg.UpdateDataModel.Should().NotBeNull();
-        msg.UpdateDataModel!.Path.Should().BeNull();
-        msg.UpdateDataModel.Value.Should().BeNull();
+        Assert.NotNull(msg.UpdateDataModel);
+        Assert.Null(msg.UpdateDataModel!.Path);
+        Assert.Null(msg.UpdateDataModel.Value);
     }
 
     [Fact]
@@ -81,12 +80,12 @@ public sealed class A2UiMessageTests
 
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts)!;
 
-        comp.Action.Should().NotBeNull();
-        comp.Action!.Event.Should().NotBeNull();
-        comp.Action.Event!.Name.Should().Be("submit");
-        comp.Action.Event.Context.Should().ContainKey("date");
-        comp.Action.Event.Context!["date"].IsBound.Should().BeTrue();
-        comp.Action.Event.Context["date"].Path.Should().Be("/reservation/date");
+        Assert.NotNull(comp.Action);
+        Assert.NotNull(comp.Action!.Event);
+        Assert.Equal("submit", comp.Action.Event!.Name);
+        Assert.Contains("date", comp.Action.Event.Context!);
+        Assert.True(comp.Action.Event.Context!["date"].IsBound);
+        Assert.Equal("/reservation/date", comp.Action.Event.Context["date"].Path);
     }
 
     [Fact]
@@ -97,10 +96,10 @@ public sealed class A2UiMessageTests
 
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts)!;
 
-        comp.Action.Should().NotBeNull();
-        comp.Action!.FunctionCall.Should().NotBeNull();
-        comp.Action.FunctionCall!.Call.Should().Be("openUrl");
-        comp.Action.FunctionCall.ReturnType.Should().Be("void");
+        Assert.NotNull(comp.Action);
+        Assert.NotNull(comp.Action!.FunctionCall);
+        Assert.Equal("openUrl", comp.Action.FunctionCall!.Call);
+        Assert.Equal("void", comp.Action.FunctionCall.ReturnType);
     }
 
     [Fact]
@@ -110,9 +109,9 @@ public sealed class A2UiMessageTests
 
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts)!;
 
-        comp.Text.Should().NotBeNull();
-        comp.Text!.IsBound.Should().BeTrue();
-        comp.Text.Path.Should().Be("/user/name");
+        Assert.NotNull(comp.Text);
+        Assert.True(comp.Text!.IsBound);
+        Assert.Equal("/user/name", comp.Text.Path);
     }
 
     [Fact]
@@ -123,11 +122,11 @@ public sealed class A2UiMessageTests
 
         var msg = JsonSerializer.Deserialize<ClientToServerMessage>(json, s_opts)!;
 
-        msg.Version.Should().Be("v0.9");
-        msg.Action.Should().NotBeNull();
-        msg.Action!.Name.Should().Be("submit");
-        msg.Action.SourceComponentId.Should().Be("btn1");
-        msg.Action.Timestamp.Should().Be("2025-12-15T10:30:00Z");
+        Assert.Equal("v0.9", msg.Version);
+        Assert.NotNull(msg.Action);
+        Assert.Equal("submit", msg.Action!.Name);
+        Assert.Equal("btn1", msg.Action.SourceComponentId);
+        Assert.Equal("2025-12-15T10:30:00Z", msg.Action.Timestamp);
     }
 
     [Fact]
@@ -138,9 +137,9 @@ public sealed class A2UiMessageTests
 
         var msg = JsonSerializer.Deserialize<ClientToServerMessage>(json, s_opts)!;
 
-        msg.Error.Should().NotBeNull();
-        msg.Error!.Code.Should().Be("VALIDATION_FAILED");
-        msg.Error.Path.Should().Be("/components/0/value");
+        Assert.NotNull(msg.Error);
+        Assert.Equal("VALIDATION_FAILED", msg.Error!.Code);
+        Assert.Equal("/components/0/value", msg.Error.Path);
     }
 
     [Fact]
@@ -151,9 +150,9 @@ public sealed class A2UiMessageTests
 
         var msg = JsonSerializer.Deserialize<ClientToServerMessage>(json, s_opts)!;
 
-        msg.Error.Should().NotBeNull();
-        msg.Error!.Code.Should().Be("NETWORK_ERROR");
-        msg.Error.Path.Should().BeNull();
+        Assert.NotNull(msg.Error);
+        Assert.Equal("NETWORK_ERROR", msg.Error!.Code);
+        Assert.Null(msg.Error.Path);
     }
 
     // --- A2UiMessage.Validate() tests ---
@@ -166,7 +165,8 @@ public sealed class A2UiMessageTests
             CreateSurface = new CreateSurface { SurfaceId = "s", CatalogId = "c" },
         };
         var act = () => msg.Validate();
-        act.Should().Throw<A2UiMessageValidationException>().Which.Message.Should().Contain("version");
+        var ex = Assert.Throws<A2UiMessageValidationException>(act);
+        Assert.Contains("version", ex.Message);
     }
 
     [Fact]
@@ -178,7 +178,8 @@ public sealed class A2UiMessageTests
             CreateSurface = new CreateSurface { SurfaceId = "s", CatalogId = "c" },
         };
         var act = () => msg.Validate();
-        act.Should().Throw<A2UiMessageValidationException>().Which.Message.Should().Contain("v0.8");
+        var ex = Assert.Throws<A2UiMessageValidationException>(act);
+        Assert.Contains("v0.8", ex.Message);
     }
 
     [Fact]
@@ -186,7 +187,8 @@ public sealed class A2UiMessageTests
     {
         var msg = new A2UiMessage { Version = "v0.9" };
         var act = () => msg.Validate();
-        act.Should().Throw<A2UiMessageValidationException>().Which.Message.Should().Contain("exactly one operation");
+        var ex = Assert.Throws<A2UiMessageValidationException>(act);
+        Assert.Contains("exactly one operation", ex.Message);
     }
 
     [Fact]
@@ -199,7 +201,8 @@ public sealed class A2UiMessageTests
             DeleteSurface = new DeleteSurface { SurfaceId = "s" },
         };
         var act = () => msg.Validate();
-        act.Should().Throw<A2UiMessageValidationException>().Which.Message.Should().Contain("2 operations");
+        var ex = Assert.Throws<A2UiMessageValidationException>(act);
+        Assert.Contains("2 operations", ex.Message);
     }
 
     [Theory]
@@ -235,7 +238,7 @@ public sealed class A2UiMessageTests
         };
 
         var act = () => msg.Validate();
-        act.Should().NotThrow();
+        act();
     }
 
     [Fact]
@@ -246,14 +249,14 @@ public sealed class A2UiMessageTests
             Version = "v0.9",
             UpdateComponents = new UpdateComponents { SurfaceId = "s", Components = [] },
         };
-        msg.Operation.Should().Be(A2UiOperationType.UpdateComponents);
+        Assert.Equal(A2UiOperationType.UpdateComponents, msg.Operation);
     }
 
     [Fact]
     public void OperationType_NoOperation_ReturnsNull()
     {
         var msg = new A2UiMessage { Version = "v0.9" };
-        msg.Operation.Should().BeNull();
+        Assert.Null(msg.Operation);
     }
 
     // --- ClientToServerMessage.Validate() tests ---
@@ -279,7 +282,8 @@ public sealed class A2UiMessageTests
             },
         };
         var act = () => msg.Validate();
-        act.Should().Throw<A2UiMessageValidationException>().Which.Message.Should().Contain("both");
+        var ex = Assert.Throws<A2UiMessageValidationException>(act);
+        Assert.Contains("both", ex.Message);
     }
 
     [Fact]
@@ -287,7 +291,8 @@ public sealed class A2UiMessageTests
     {
         var msg = new ClientToServerMessage();
         var act = () => msg.Validate();
-        act.Should().Throw<A2UiMessageValidationException>().Which.Message.Should().Contain("exactly one");
+        var ex = Assert.Throws<A2UiMessageValidationException>(act);
+        Assert.Contains("exactly one", ex.Message);
     }
 
     [Fact]
@@ -305,7 +310,7 @@ public sealed class A2UiMessageTests
             },
         };
         var act = () => msg.Validate();
-        act.Should().NotThrow();
+        act();
     }
 
     [Fact]
@@ -321,6 +326,6 @@ public sealed class A2UiMessageTests
             },
         };
         var act = () => msg.Validate();
-        act.Should().NotThrow();
+        act();
     }
 }
