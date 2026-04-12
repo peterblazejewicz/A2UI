@@ -5,7 +5,10 @@ namespace A2Ui.Core.Tests;
 
 public sealed class A2UiMessageTests
 {
-    private static readonly JsonSerializerOptions s_opts = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_opts = new(JsonSerializerDefaults.Web)
+    {
+        AllowOutOfOrderMetadataProperties = true,
+    };
 
     [Fact]
     public void CreateSurface_RoundTrip_PreservesAllFields()

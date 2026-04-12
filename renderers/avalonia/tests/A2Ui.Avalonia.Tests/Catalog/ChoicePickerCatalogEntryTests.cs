@@ -22,10 +22,9 @@ public sealed class ChoicePickerCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new ChoicePickerCatalogEntry();
-        var component = new A2UiComponent
+        var component = new ChoicePickerComponent
         {
             Id = "cp1",
-            Component = "ChoicePicker",
             Options =
             [
                 new ChoiceOption { Label = "Red", Value = "red" },
@@ -45,10 +44,9 @@ public sealed class ChoicePickerCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new ChoicePickerCatalogEntry();
-        var component = new A2UiComponent
+        var component = new ChoicePickerComponent
         {
             Id = "cp2",
-            Component = "ChoicePicker",
             Options =
             [
                 new ChoiceOption { Label = "Red", Value = "red" },
@@ -70,10 +68,9 @@ public sealed class ChoicePickerCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new ChoicePickerCatalogEntry();
-        var component = new A2UiComponent
+        var component = new ChoicePickerComponent
         {
             Id = "cp3",
-            Component = "ChoicePicker",
             Filterable = true,
             Options =
             [
@@ -92,10 +89,9 @@ public sealed class ChoicePickerCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new ChoicePickerCatalogEntry();
-        var component = new A2UiComponent
+        var component = new ChoicePickerComponent
         {
             Id = "cp4",
-            Component = "ChoicePicker",
             Variant = "multipleSelection",
             Options =
             [
@@ -121,10 +117,9 @@ public sealed class ChoicePickerCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new ChoicePickerCatalogEntry();
-        var component = new A2UiComponent
+        var component = new ChoicePickerComponent
         {
             Id = "cp5",
-            Component = "ChoicePicker",
             Variant = "multipleSelection",
             DisplayStyle = "chips",
             Options =

@@ -24,6 +24,8 @@ public sealed class AgentEventBridge : IDisposable
         "update_surface",
     };
 
+    private static readonly JsonSerializerOptions s_jsonOptions = new() { AllowOutOfOrderMetadataProperties = true };
+
     private readonly Channel<BaseEvent> _channel;
     private readonly SurfaceManager _surfaceManager;
     private readonly ILogger<AgentEventBridge> _logger;
@@ -200,7 +202,7 @@ public sealed class AgentEventBridge : IDisposable
         {
             try
             {
-                var msg = JsonSerializer.Deserialize<A2UiMessage>(line.Trim());
+                var msg = JsonSerializer.Deserialize<A2UiMessage>(line.Trim(), s_jsonOptions);
                 if (msg is not null)
                 {
                     // Validate on background thread — skip invalid messages

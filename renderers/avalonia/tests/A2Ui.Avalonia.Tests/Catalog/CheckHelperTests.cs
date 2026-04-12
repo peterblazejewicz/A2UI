@@ -26,13 +26,7 @@ public sealed class CheckHelperTests
     private static CheckRule FailingCheck(string message = "Fail message") =>
         new() { Condition = DynamicValue.FromString("false"), Message = message };
 
-    private static A2UiComponent MakeComponent(CheckRule[]? checks) =>
-        new()
-        {
-            Id = "c1",
-            Component = "TextField",
-            Checks = checks,
-        };
+    private static TextFieldComponent MakeComponent(CheckRule[]? checks) => new() { Id = "c1", Checks = checks };
 
     // ── ApplyChecks ───────────────────────────────────────────────────────
 

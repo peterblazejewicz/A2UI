@@ -17,10 +17,9 @@ public sealed class TextFieldCatalogEntryTests
         var dm = new DataModel();
         var ctx = new DataModelCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new TextFieldComponent
         {
             Id = "tf1",
-            Component = "TextField",
             Label = DynamicValue.FromString("Username"),
             Value = DynamicValue.FromPath("/username"),
         };
@@ -43,10 +42,9 @@ public sealed class TextFieldCatalogEntryTests
         var dm = new DataModel();
         var ctx = new DataModelCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new TextFieldComponent
         {
             Id = "tf2",
-            Component = "TextField",
             Label = DynamicValue.FromString("Name"),
             Value = DynamicValue.FromString("initial"),
         };
@@ -66,10 +64,9 @@ public sealed class TextFieldCatalogEntryTests
         var dm = new DataModel();
         var ctx = new DataModelCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new TextFieldComponent
         {
             Id = "pw1",
-            Component = "TextField",
             Label = DynamicValue.FromString("Password"),
             Variant = "obscured",
         };
@@ -86,10 +83,9 @@ public sealed class TextFieldCatalogEntryTests
         var dm = new DataModel();
         var ctx = new DataModelCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new TextFieldComponent
         {
             Id = "tf3",
-            Component = "TextField",
             Label = DynamicValue.FromString("Email"),
             Value = DynamicValue.FromPath("/email"),
         };
@@ -109,18 +105,8 @@ public sealed class TextFieldCatalogEntryTests
         var dm = new DataModel();
         var ctx = new DataModelCapturingRenderContext(dm);
 
-        var comp1 = new A2UiComponent
-        {
-            Id = "tf4",
-            Component = "TextField",
-            Value = DynamicValue.FromString("before"),
-        };
-        var comp2 = new A2UiComponent
-        {
-            Id = "tf4",
-            Component = "TextField",
-            Value = DynamicValue.FromString("after"),
-        };
+        var comp1 = new TextFieldComponent { Id = "tf4", Value = DynamicValue.FromString("before") };
+        var comp2 = new TextFieldComponent { Id = "tf4", Value = DynamicValue.FromString("after") };
 
         var control = entry.Create(comp1, dm, ctx);
         var tb = (TextBox)control;
@@ -138,23 +124,13 @@ public sealed class TextFieldCatalogEntryTests
         var dm = new DataModel();
         var ctx = new DataModelCapturingRenderContext(dm);
 
-        var comp = new A2UiComponent
-        {
-            Id = "tf5",
-            Component = "TextField",
-            Value = DynamicValue.FromPath("/name"),
-        };
+        var comp = new TextFieldComponent { Id = "tf5", Value = DynamicValue.FromPath("/name") };
 
         var control = entry.Create(comp, dm, ctx);
         ctx.FiredActions.Clear(); // clear any events from Create
 
         // Programmatic update via Update() should NOT fire valueChanged
-        var comp2 = new A2UiComponent
-        {
-            Id = "tf5",
-            Component = "TextField",
-            Value = DynamicValue.FromString("server-value"),
-        };
+        var comp2 = new TextFieldComponent { Id = "tf5", Value = DynamicValue.FromString("server-value") };
         entry.Update(control, comp2, dm, ctx);
 
         Assert.Empty(ctx.FiredActions);

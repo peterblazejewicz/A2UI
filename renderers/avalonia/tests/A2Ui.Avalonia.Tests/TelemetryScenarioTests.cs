@@ -46,7 +46,7 @@ public sealed class TelemetryScenarioTests
                 UpdateComponents = new UpdateComponents
                 {
                     SurfaceId = "s-unknown",
-                    Components = [new A2UiComponent { Id = "root", Component = "NotARealComponent" }],
+                    Components = [new TextComponent { Id = "root", Component = "NotARealComponent" }],
                 },
             }
         );

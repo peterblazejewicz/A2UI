@@ -19,6 +19,7 @@ internal static class GalleryTestHelper
     {
         PropertyNameCaseInsensitive = true,
         AllowTrailingCommas = true,
+        AllowOutOfOrderMetadataProperties = true,
     };
 
     /// <summary>

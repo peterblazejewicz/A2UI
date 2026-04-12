@@ -144,13 +144,8 @@ public sealed class SurfaceManagerTests
                     SurfaceId = "s1",
                     Components =
                     [
-                        new A2UiComponent { Id = "root", Component = "Column" },
-                        new A2UiComponent
-                        {
-                            Id = "t1",
-                            Component = "Text",
-                            Parent = "root",
-                        },
+                        new ColumnComponent { Id = "root" },
+                        new TextComponent { Id = "t1", Parent = "root" },
                     ],
                 },
             }
@@ -176,7 +171,7 @@ public sealed class SurfaceManagerTests
                 UpdateComponents = new UpdateComponents
                 {
                     SurfaceId = "ghost",
-                    Components = [new A2UiComponent { Id = "t1", Component = "Text" }],
+                    Components = [new TextComponent { Id = "t1" }],
                 },
             }
         );
@@ -285,19 +280,9 @@ public sealed class SurfaceManagerTests
                     SurfaceId = "s1",
                     Components =
                     [
-                        new A2UiComponent { Id = "root", Component = "Column" },
-                        new A2UiComponent
-                        {
-                            Id = "child1",
-                            Component = "Text",
-                            Parent = "root",
-                        },
-                        new A2UiComponent
-                        {
-                            Id = "child2",
-                            Component = "Text",
-                            Parent = "root",
-                        },
+                        new ColumnComponent { Id = "root" },
+                        new TextComponent { Id = "child1", Parent = "root" },
+                        new TextComponent { Id = "child2", Parent = "root" },
                     ],
                 },
             }
@@ -329,14 +314,9 @@ public sealed class SurfaceManagerTests
                     SurfaceId = "s1",
                     Components =
                     [
-                        new A2UiComponent
-                        {
-                            Id = "root",
-                            Component = "Column",
-                            Children = ChildList.FromIds("t1", "t2"),
-                        },
-                        new A2UiComponent { Id = "t1", Component = "Text" },
-                        new A2UiComponent { Id = "t2", Component = "Text" },
+                        new ColumnComponent { Id = "root", Children = ChildList.FromIds("t1", "t2") },
+                        new TextComponent { Id = "t1" },
+                        new TextComponent { Id = "t2" },
                     ],
                 },
             }
@@ -436,14 +416,9 @@ public sealed class SurfaceManagerTests
                     SurfaceId = "s1",
                     Components =
                     [
-                        new A2UiComponent
-                        {
-                            Id = "col1",
-                            Component = "Column",
-                            Children = ChildList.FromIds("t1", "t2"),
-                        },
-                        new A2UiComponent { Id = "t1", Component = "Text" },
-                        new A2UiComponent { Id = "t2", Component = "Text" },
+                        new ColumnComponent { Id = "col1", Children = ChildList.FromIds("t1", "t2") },
+                        new TextComponent { Id = "t1" },
+                        new TextComponent { Id = "t2" },
                     ],
                 },
             }

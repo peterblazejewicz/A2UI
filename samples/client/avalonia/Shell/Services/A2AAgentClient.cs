@@ -26,6 +26,7 @@ public sealed class A2AAgentClient : IA2AClient
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        AllowOutOfOrderMetadataProperties = true,
     };
 
     private readonly HttpClient _http;

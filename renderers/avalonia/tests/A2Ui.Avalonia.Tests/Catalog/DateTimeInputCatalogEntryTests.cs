@@ -16,12 +16,7 @@ public sealed class DateTimeInputCatalogEntryTests
         var dm = new DataModel();
         var ctx = new DataModelCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
-        {
-            Id = "dt1",
-            Component = "DateTimeInput",
-            Label = DynamicValue.FromString("Pick a date"),
-        };
+        var component = new DateTimeInputComponent { Id = "dt1", Label = DynamicValue.FromString("Pick a date") };
 
         var control = entry.Create(component, dm, ctx);
         Assert.IsType<CalendarDatePicker>(control);
@@ -34,10 +29,9 @@ public sealed class DateTimeInputCatalogEntryTests
         var dm = new DataModel();
         var ctx = new DataModelCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new DateTimeInputComponent
         {
             Id = "dt2",
-            Component = "DateTimeInput",
             EnableDate = true,
             EnableTime = false,
         };
@@ -53,10 +47,9 @@ public sealed class DateTimeInputCatalogEntryTests
         var dm = new DataModel();
         var ctx = new DataModelCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new DateTimeInputComponent
         {
             Id = "dt3",
-            Component = "DateTimeInput",
             EnableDate = true,
             EnableTime = true,
         };
@@ -76,10 +69,9 @@ public sealed class DateTimeInputCatalogEntryTests
         var dm = new DataModel();
         var ctx = new DataModelCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new DateTimeInputComponent
         {
             Id = "dt4",
-            Component = "DateTimeInput",
             EnableDate = false,
             EnableTime = true,
         };
@@ -95,10 +87,9 @@ public sealed class DateTimeInputCatalogEntryTests
         var dm = new DataModel();
         var ctx = new DataModelCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new DateTimeInputComponent
         {
             Id = "dt5",
-            Component = "DateTimeInput",
             EnableDate = true,
             EnableTime = true,
             Value = DynamicValue.FromString("2026-04-10T19:30:00"),
@@ -121,21 +112,11 @@ public sealed class DateTimeInputCatalogEntryTests
         var dm = new DataModel();
         var ctx = new DataModelCapturingRenderContext(dm);
 
-        var comp = new A2UiComponent
-        {
-            Id = "dt6",
-            Component = "DateTimeInput",
-            Value = DynamicValue.FromString("2026-01-01"),
-        };
+        var comp = new DateTimeInputComponent { Id = "dt6", Value = DynamicValue.FromString("2026-01-01") };
 
         var control = entry.Create(comp, dm, ctx);
 
-        var comp2 = new A2UiComponent
-        {
-            Id = "dt6",
-            Component = "DateTimeInput",
-            Value = DynamicValue.FromString("2026-12-25"),
-        };
+        var comp2 = new DateTimeInputComponent { Id = "dt6", Value = DynamicValue.FromString("2026-12-25") };
 
         bool updated = entry.Update(control, comp2, dm, ctx);
         Assert.True(updated);

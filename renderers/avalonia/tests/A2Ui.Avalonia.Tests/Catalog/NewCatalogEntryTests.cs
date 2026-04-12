@@ -23,12 +23,7 @@ public sealed class NewCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new IconCatalogEntry();
-        var c = new A2UiComponent
-        {
-            Id = "i1",
-            Component = "Icon",
-            Name = DynamicValue.FromString("send"),
-        };
+        var c = new IconComponent { Id = "i1", Name = DynamicValue.FromString("send") };
 
         var control = entry.Create(c, dm, ctx);
 
@@ -41,12 +36,7 @@ public sealed class NewCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new IconCatalogEntry();
-        var c = new A2UiComponent
-        {
-            Id = "i2",
-            Component = "Icon",
-            Name = DynamicValue.FromString("unknownIcon"),
-        };
+        var c = new IconComponent { Id = "i2", Name = DynamicValue.FromString("unknownIcon") };
 
         var control = entry.Create(c, dm, ctx);
 
@@ -60,7 +50,7 @@ public sealed class NewCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new DividerCatalogEntry();
-        var c = new A2UiComponent { Id = "d1", Component = "Divider" };
+        var c = new DividerComponent { Id = "d1" };
 
         var control = entry.Create(c, dm, ctx);
 
@@ -72,12 +62,7 @@ public sealed class NewCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new DividerCatalogEntry();
-        var c = new A2UiComponent
-        {
-            Id = "d2",
-            Component = "Divider",
-            Axis = "vertical",
-        };
+        var c = new DividerComponent { Id = "d2", Axis = "vertical" };
 
         var control = entry.Create(c, dm, ctx);
 
@@ -95,12 +80,7 @@ public sealed class NewCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new VideoCatalogEntry();
-        var c = new A2UiComponent
-        {
-            Id = "v1",
-            Component = "Video",
-            Url = DynamicValue.FromString("https://example.com/video.mp4"),
-        };
+        var c = new VideoComponent { Id = "v1", Url = DynamicValue.FromString("https://example.com/video.mp4") };
 
         var control = entry.Create(c, dm, ctx);
 
@@ -116,12 +96,7 @@ public sealed class NewCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new AudioPlayerCatalogEntry();
-        var c = new A2UiComponent
-        {
-            Id = "a1",
-            Component = "AudioPlayer",
-            Url = DynamicValue.FromString("https://example.com/audio.mp3"),
-        };
+        var c = new AudioPlayerComponent { Id = "a1", Url = DynamicValue.FromString("https://example.com/audio.mp3") };
 
         var control = entry.Create(c, dm, ctx);
 
@@ -136,7 +111,7 @@ public sealed class NewCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new ListCatalogEntry();
-        var c = new A2UiComponent { Id = "l1", Component = "List" };
+        var c = new ListComponent { Id = "l1" };
 
         var control = entry.Create(c, dm, ctx);
 
@@ -150,10 +125,9 @@ public sealed class NewCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new TabsCatalogEntry();
-        var c = new A2UiComponent
+        var c = new TabsComponent
         {
             Id = "tabs1",
-            Component = "Tabs",
             Tabs =
             [
                 new TabDefinition { Title = "Tab 1", Child = "p1" },
@@ -174,10 +148,9 @@ public sealed class NewCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new ModalCatalogEntry();
-        var c = new A2UiComponent
+        var c = new ModalComponent
         {
             Id = "m1",
-            Component = "Modal",
             Trigger = "btn1",
             Content = "panel1",
         };
@@ -195,10 +168,9 @@ public sealed class NewCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new ChoicePickerCatalogEntry();
-        var c = new A2UiComponent
+        var c = new ChoicePickerComponent
         {
             Id = "cp1",
-            Component = "ChoicePicker",
             Options =
             [
                 new ChoiceOption { Label = "Red", Value = "red" },
@@ -219,10 +191,9 @@ public sealed class NewCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new CheckBoxCatalogEntry();
-        var c = new A2UiComponent
+        var c = new CheckBoxComponent
         {
             Id = "cb1",
-            Component = "CheckBox",
             Label = DynamicValue.FromString("Accept terms"),
             Value = DynamicValue.FromBool(true),
         };
@@ -242,10 +213,9 @@ public sealed class NewCatalogEntryTests
     {
         var (dm, ctx) = Setup();
         var entry = new SliderCatalogEntry();
-        var c = new A2UiComponent
+        var c = new SliderComponent
         {
             Id = "s1",
-            Component = "Slider",
             Value = DynamicValue.FromNumber(50),
             Min = DynamicValue.FromNumber(10),
             Max = DynamicValue.FromNumber(200),

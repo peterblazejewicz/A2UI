@@ -46,16 +46,7 @@ public sealed class TelemetryScenarioTests
             UpdateComponents = new UpdateComponents
             {
                 SurfaceId = "s-happy",
-                Components =
-                [
-                    new A2UiComponent { Id = "root", Component = "Column" },
-                    new A2UiComponent
-                    {
-                        Id = "label",
-                        Component = "Text",
-                        Parent = "root",
-                    },
-                ],
+                Components = [new ColumnComponent { Id = "root" }, new TextComponent { Id = "label", Parent = "root" }],
             },
         };
         var updateDataModelMsg = new A2UiMessage
@@ -216,11 +207,7 @@ public sealed class TelemetryScenarioTests
                 UpdateComponents = new UpdateComponents
                 {
                     SurfaceId = "s-noroot",
-                    Components =
-                    [
-                        new A2UiComponent { Id = "header", Component = "Text" },
-                        new A2UiComponent { Id = "body", Component = "Text" },
-                    ],
+                    Components = [new TextComponent { Id = "header" }, new TextComponent { Id = "body" }],
                 },
             }
         );

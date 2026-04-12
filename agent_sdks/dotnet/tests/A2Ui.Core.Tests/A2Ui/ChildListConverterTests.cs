@@ -5,7 +5,10 @@ namespace A2Ui.Core.Tests;
 
 public sealed class ChildListConverterTests
 {
-    private static readonly JsonSerializerOptions s_opts = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions s_opts = new(JsonSerializerDefaults.Web)
+    {
+        AllowOutOfOrderMetadataProperties = true,
+    };
 
     [Fact]
     public void Read_StaticArray_ParsesIds()

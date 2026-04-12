@@ -16,10 +16,9 @@ public sealed class ButtonCatalogEntryTests
         var entry = new ButtonCatalogEntry();
         var dm = new DataModel();
         var ctx = new ActionCapturingRenderContext(dm);
-        var component = new A2UiComponent
+        var component = new ButtonComponent
         {
             Id = "btn1",
-            Component = "Button",
             Text = DynamicValue.FromString("Go"),
             Action = new ComponentAction { Event = new ActionEvent { Name = "go_clicked" } },
         };
@@ -42,10 +41,9 @@ public sealed class ButtonCatalogEntryTests
         var dm = new DataModel();
         var ctx = new ActionCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new ButtonComponent
         {
             Id = "btn2",
-            Component = "Button",
             Text = DynamicValue.FromString("Submit"),
             Action = new ComponentAction
             {
@@ -90,10 +88,9 @@ public sealed class ButtonCatalogEntryTests
         var dm = new DataModel();
         var ctx = new ActionCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new ButtonComponent
         {
             Id = "btn3",
-            Component = "Button",
             Text = DynamicValue.FromString("Click"),
             Action = new ComponentAction
             {
@@ -116,10 +113,9 @@ public sealed class ButtonCatalogEntryTests
         var dm = new DataModel();
         var ctx = new ActionCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new ButtonComponent
         {
             Id = "btn4",
-            Component = "Button",
             Text = DynamicValue.FromString("Display Only"),
             // No Action set
         };
@@ -140,10 +136,9 @@ public sealed class ButtonCatalogEntryTests
         var dm = new DataModel();
         var ctx = new ActionCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new ButtonComponent
         {
             Id = "btn5",
-            Component = "Button",
             Text = DynamicValue.FromString("Primary"),
             Variant = "primary",
         };
@@ -159,10 +154,9 @@ public sealed class ButtonCatalogEntryTests
         var dm = new DataModel();
         var ctx = new ActionCapturingRenderContext(dm);
 
-        var component = new A2UiComponent
+        var component = new ButtonComponent
         {
             Id = "btn6",
-            Component = "Button",
             Text = DynamicValue.FromString("Borderless"),
             Variant = "borderless",
         };

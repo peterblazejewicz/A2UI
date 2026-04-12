@@ -24,12 +24,7 @@ public sealed class LayoutCatalogEntryTests
             new TextBlock { Text = "Right" }
         );
 
-        var component = new A2UiComponent
-        {
-            Id = "row1",
-            Component = "Row",
-            Children = ChildList.FromIds(["c1", "c2"]),
-        };
+        var component = new RowComponent { Id = "row1", Children = ChildList.FromIds(["c1", "c2"]) };
 
         var control = entry.Create(component, dm, ctx);
 
@@ -51,10 +46,9 @@ public sealed class LayoutCatalogEntryTests
             new TextBlock { Text = "Right" }
         );
 
-        var component = new A2UiComponent
+        var component = new RowComponent
         {
             Id = "row1",
-            Component = "Row",
             Children = ChildList.FromIds(["c1", "c2"]),
             Justify = "spaceBetween",
             Align = "center",
@@ -78,10 +72,9 @@ public sealed class LayoutCatalogEntryTests
         var dm = new DataModel();
         var ctx = new ChildReturningRenderContext(dm, new TextBlock { Text = "Child" });
 
-        var component = new A2UiComponent
+        var component = new RowComponent
         {
             Id = "row1",
-            Component = "Row",
             Children = ChildList.FromIds(["c1"]),
             Justify = "center",
         };
@@ -106,10 +99,9 @@ public sealed class LayoutCatalogEntryTests
             new TextBlock { Text = "Bottom" }
         );
 
-        var component = new A2UiComponent
+        var component = new ColumnComponent
         {
             Id = "col1",
-            Component = "Column",
             Children = ChildList.FromIds(["c1", "c2"]),
             Justify = "start",
         };
@@ -134,10 +126,9 @@ public sealed class LayoutCatalogEntryTests
             new TextBlock { Text = "Bottom" }
         );
 
-        var component = new A2UiComponent
+        var component = new ColumnComponent
         {
             Id = "col1",
-            Component = "Column",
             Children = ChildList.FromIds(["c1", "c2"]),
             Justify = "spaceBetween",
         };
@@ -163,10 +154,9 @@ public sealed class LayoutCatalogEntryTests
         var dm = new DataModel();
         var ctx = new ChildReturningRenderContext(dm, child1, child2);
 
-        var component = new A2UiComponent
+        var component = new RowComponent
         {
             Id = "row1",
-            Component = "Row",
             Children = ChildList.FromIds(["c1", "c2"]),
             Align = "center",
         };
@@ -187,10 +177,9 @@ public sealed class LayoutCatalogEntryTests
         var dm = new DataModel();
         var ctx = new ChildReturningRenderContext(dm, child1, child2);
 
-        var component = new A2UiComponent
+        var component = new ColumnComponent
         {
             Id = "col1",
-            Component = "Column",
             Children = ChildList.FromIds(["c1", "c2"]),
             Align = "center",
         };
@@ -209,10 +198,9 @@ public sealed class LayoutCatalogEntryTests
         var dm = new DataModel();
         var ctx = new ChildReturningRenderContext(dm); // no children
 
-        var component = new A2UiComponent
+        var component = new RowComponent
         {
             Id = "row2",
-            Component = "Row",
             Children = ChildList.FromIds([]),
             Justify = "spaceBetween",
         };
@@ -239,12 +227,7 @@ public sealed class LayoutCatalogEntryTests
             new TextBlock { Text = "Right" }
         );
 
-        var component = new A2UiComponent
-        {
-            Id = "row1",
-            Component = "Row",
-            Children = ChildList.FromIds(["c1", "c2"]),
-        };
+        var component = new RowComponent { Id = "row1", Children = ChildList.FromIds(["c1", "c2"]) };
 
         var control = entry.Create(component, dm, ctx);
 
@@ -270,12 +253,7 @@ public sealed class LayoutCatalogEntryTests
             new TextBlock { Text = "Narrow" }
         );
 
-        var component = new A2UiComponent
-        {
-            Id = "row1",
-            Component = "Row",
-            Children = ChildList.FromIds(["c1", "c2"]),
-        };
+        var component = new RowComponent { Id = "row1", Children = ChildList.FromIds(["c1", "c2"]) };
 
         var control = entry.Create(component, dm, ctx);
 
@@ -298,12 +276,7 @@ public sealed class LayoutCatalogEntryTests
             new TextBlock { Text = "Star" }
         );
 
-        var component = new A2UiComponent
-        {
-            Id = "row1",
-            Component = "Row",
-            Children = ChildList.FromIds(["c1", "c2"]),
-        };
+        var component = new RowComponent { Id = "row1", Children = ChildList.FromIds(["c1", "c2"]) };
 
         var control = entry.Create(component, dm, ctx);
 
@@ -326,12 +299,7 @@ public sealed class LayoutCatalogEntryTests
             new TextBlock { Text = "Bottom" }
         );
 
-        var component = new A2UiComponent
-        {
-            Id = "col1",
-            Component = "Column",
-            Children = ChildList.FromIds(["r1", "r2"]),
-        };
+        var component = new ColumnComponent { Id = "col1", Children = ChildList.FromIds(["r1", "r2"]) };
 
         var control = entry.Create(component, dm, ctx);
 
@@ -356,12 +324,7 @@ public sealed class LayoutCatalogEntryTests
             new TextBlock { Text = "Right" }
         );
 
-        var component = new A2UiComponent
-        {
-            Id = "row1",
-            Component = "Row",
-            Children = ChildList.FromIds(["c1", "c2"]),
-        };
+        var component = new RowComponent { Id = "row1", Children = ChildList.FromIds(["c1", "c2"]) };
 
         var control = entry.Create(component, dm, ctx);
 

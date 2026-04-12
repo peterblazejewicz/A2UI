@@ -16,12 +16,7 @@ public sealed class TextCatalogEntryTests
         var entry = new TextCatalogEntry();
         var dm = new DataModel();
         var ctx = new MockRenderContext(dm);
-        var component = new A2UiComponent
-        {
-            Id = "t1",
-            Component = "Text",
-            Text = DynamicValue.FromString("Hello World"),
-        };
+        var component = new TextComponent { Id = "t1", Text = DynamicValue.FromString("Hello World") };
 
         // Act
         var control = entry.Create(component, dm, ctx);
@@ -38,10 +33,9 @@ public sealed class TextCatalogEntryTests
         var entry = new TextCatalogEntry();
         var dm = new DataModel();
         var ctx = new MockRenderContext(dm);
-        var component = new A2UiComponent
+        var component = new TextComponent
         {
             Id = "h1",
-            Component = "Text",
             Text = DynamicValue.FromString("Title"),
             Variant = "h1",
         };
@@ -60,18 +54,8 @@ public sealed class TextCatalogEntryTests
         var entry = new TextCatalogEntry();
         var dm = new DataModel();
         var ctx = new MockRenderContext(dm);
-        var comp1 = new A2UiComponent
-        {
-            Id = "t1",
-            Component = "Text",
-            Text = DynamicValue.FromString("Before"),
-        };
-        var comp2 = new A2UiComponent
-        {
-            Id = "t1",
-            Component = "Text",
-            Text = DynamicValue.FromString("After"),
-        };
+        var comp1 = new TextComponent { Id = "t1", Text = DynamicValue.FromString("Before") };
+        var comp2 = new TextComponent { Id = "t1", Text = DynamicValue.FromString("After") };
 
         var control = entry.Create(comp1, dm, ctx);
 

@@ -22,10 +22,9 @@ public sealed class InputWriteBackTests
     {
         var (dm, ctx) = Setup();
         var entry = new TextFieldCatalogEntry();
-        var component = new A2UiComponent
+        var component = new TextFieldComponent
         {
             Id = "tf1",
-            Component = "TextField",
             Label = DynamicValue.FromString("Name"),
             Value = DynamicValue.FromPath("/name"),
         };
@@ -44,10 +43,9 @@ public sealed class InputWriteBackTests
     {
         var (dm, ctx) = Setup();
         var entry = new TextFieldCatalogEntry();
-        var component = new A2UiComponent
+        var component = new TextFieldComponent
         {
             Id = "tf2",
-            Component = "TextField",
             Label = DynamicValue.FromString("Email"),
             Value = DynamicValue.FromPath("/email"),
         };
@@ -70,10 +68,9 @@ public sealed class InputWriteBackTests
     {
         var (dm, ctx) = Setup();
         var entry = new SliderCatalogEntry();
-        var component = new A2UiComponent
+        var component = new SliderComponent
         {
             Id = "s1",
-            Component = "Slider",
             Value = DynamicValue.FromNumber(75),
             Min = DynamicValue.FromNumber(0),
             Max = DynamicValue.FromNumber(100),
@@ -95,10 +92,9 @@ public sealed class InputWriteBackTests
     {
         var (dm, ctx) = Setup();
         var entry = new DateTimeInputCatalogEntry();
-        var component = new A2UiComponent
+        var component = new DateTimeInputComponent
         {
             Id = "dt1",
-            Component = "DateTimeInput",
             Label = DynamicValue.FromString("Birthday"),
             Value = DynamicValue.FromString("2024-06-15"),
         };
@@ -118,10 +114,9 @@ public sealed class InputWriteBackTests
     {
         var (dm, ctx) = Setup();
         var entry = new DateTimeInputCatalogEntry();
-        var component = new A2UiComponent
+        var component = new DateTimeInputComponent
         {
             Id = "dt2",
-            Component = "DateTimeInput",
             Label = DynamicValue.FromString("Start date"),
             Value = DynamicValue.FromPath("/startDate"),
         };

@@ -15,10 +15,9 @@ public sealed class DefaultStylesTests
         var entry = new TextCatalogEntry();
         var dm = new DataModel();
         var ctx = new MockRenderContext(dm);
-        var component = new A2UiComponent
+        var component = new TextComponent
         {
             Id = "h1",
-            Component = "Text",
             Text = DynamicValue.FromString("Title"),
             Variant = "h1",
         };
@@ -35,10 +34,9 @@ public sealed class DefaultStylesTests
         var entry = new TextCatalogEntry();
         var dm = new DataModel();
         var ctx = new MockRenderContext(dm);
-        var component = new A2UiComponent
+        var component = new TextComponent
         {
             Id = "cap",
-            Component = "Text",
             Text = DynamicValue.FromString("Small"),
             Variant = "caption",
         };
@@ -55,12 +53,7 @@ public sealed class DefaultStylesTests
         var entry = new TextCatalogEntry();
         var dm = new DataModel();
         var ctx = new MockRenderContext(dm);
-        var component = new A2UiComponent
-        {
-            Id = "t1",
-            Component = "Text",
-            Text = DynamicValue.FromString("Body text"),
-        };
+        var component = new TextComponent { Id = "t1", Text = DynamicValue.FromString("Body text") };
 
         var control = entry.Create(component, dm, ctx);
 

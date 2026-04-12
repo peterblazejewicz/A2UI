@@ -7,14 +7,40 @@ namespace A2Ui.Core.Messages;
 /// A2UI v0.9 component in the flat adjacency list.
 /// The agent may only reference component types registered in the catalog.
 /// </summary>
-public sealed record A2UiComponent
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "component")]
+[JsonDerivedType(typeof(TextComponent), "Text")]
+[JsonDerivedType(typeof(ButtonComponent), "Button")]
+[JsonDerivedType(typeof(ColumnComponent), "Column")]
+[JsonDerivedType(typeof(RowComponent), "Row")]
+[JsonDerivedType(typeof(CardComponent), "Card")]
+[JsonDerivedType(typeof(IconComponent), "Icon")]
+[JsonDerivedType(typeof(DividerComponent), "Divider")]
+[JsonDerivedType(typeof(ImageComponent), "Image")]
+[JsonDerivedType(typeof(VideoComponent), "Video")]
+[JsonDerivedType(typeof(AudioPlayerComponent), "AudioPlayer")]
+[JsonDerivedType(typeof(ListComponent), "List")]
+[JsonDerivedType(typeof(TabsComponent), "Tabs")]
+[JsonDerivedType(typeof(ModalComponent), "Modal")]
+[JsonDerivedType(typeof(TextFieldComponent), "TextField")]
+[JsonDerivedType(typeof(DateTimeInputComponent), "DateTimeInput")]
+[JsonDerivedType(typeof(ChoicePickerComponent), "ChoicePicker")]
+[JsonDerivedType(typeof(CheckBoxComponent), "CheckBox")]
+[JsonDerivedType(typeof(SliderComponent), "Slider")]
+[JsonDerivedType(typeof(TableComponent), "Table")]
+[JsonDerivedType(typeof(SurfaceComponent), "Surface")]
+public abstract record A2UiComponent
 {
     // ── Identity ──────────────────────────────────────────────────────────
     [JsonPropertyName("id")]
     public required string Id { get; init; }
 
-    [JsonPropertyName("component")]
-    public required string Component { get; init; }
+    /// <summary>
+    /// Component type discriminator. Populated by each sealed subtype's default value.
+    /// Ignored by JSON serialization — the <c>[JsonPolymorphic]</c> discriminator handles
+    /// the wire-format <c>"component"</c> field.
+    /// </summary>
+    [JsonIgnore]
+    public virtual string Component { get; init; } = "";
 
     // ── Tree structure ────────────────────────────────────────────────────
     /// <summary>Legacy back-reference. v0.9 prefers forward-ref via children/child.</summary>
