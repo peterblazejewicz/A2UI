@@ -114,7 +114,7 @@ public sealed class InputWriteBackTests
     }
 
     [AvaloniaFact]
-    public void DateTimeInput_Create_WithBoundPath_SetsWatermark()
+    public void DateTimeInput_Create_WithBoundPath_SetsPlaceholder()
     {
         var (dm, ctx) = Setup();
         var entry = new DateTimeInputCatalogEntry();
@@ -130,7 +130,7 @@ public sealed class InputWriteBackTests
 
         var picker = CheckHelper.FindInner<CalendarDatePicker>(control);
         picker.Should().NotBeNull();
-        picker!.Watermark.Should().Be("Start date");
+        picker!.PlaceholderText.Should().Be("Start date");
         // No initial date value in data model, so SelectedDate should be null
         picker.SelectedDate.Should().BeNull();
     }

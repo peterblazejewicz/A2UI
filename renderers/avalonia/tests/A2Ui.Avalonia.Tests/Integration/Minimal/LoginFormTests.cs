@@ -38,12 +38,12 @@ public sealed class LoginFormTests
     }
 
     [AvaloniaFact]
-    public void UsernameTextBox_HasWatermark()
+    public void UsernameTextBox_HasPlaceholder()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/4_login_form.json");
 
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
-        textBoxes[0].Watermark.Should().Be("Username");
+        textBoxes[0].PlaceholderText.Should().Be("Username");
     }
 
     [AvaloniaFact]

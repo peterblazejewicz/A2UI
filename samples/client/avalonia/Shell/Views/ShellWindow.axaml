@@ -1,7 +1,10 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:a2ui="clr-namespace:A2Ui.Avalonia.Controls;assembly=A2Ui.Avalonia"
+        xmlns:vm="clr-namespace:A2Ui.Avalonia.Shell.ViewModels"
+        xmlns:core="clr-namespace:A2Ui.Core;assembly=A2Ui.Core"
         x:Class="A2Ui.Avalonia.Shell.Views.ShellWindow"
+        x:DataType="vm:ShellViewModel"
         Title="A2UI Shell"
         Width="900" Height="700"
         Background="{DynamicResource ShellBackground}">
@@ -52,7 +55,7 @@
                 VerticalAlignment="Stretch" />
         <TextBox x:Name="PromptInput"
                  Text="{Binding PromptText, Mode=TwoWay}"
-                 Watermark="Ask the agent something..."
+                 PlaceholderText="Ask the agent something..."
                  AcceptsReturn="False"
                  VerticalAlignment="Center" />
       </DockPanel>
@@ -65,7 +68,7 @@
       <ItemsControl x:Name="SurfaceList"
                     ItemsSource="{Binding Surfaces}">
         <ItemsControl.ItemTemplate>
-          <DataTemplate>
+          <DataTemplate x:DataType="core:Surface">
             <a2ui:A2UiSurface Surface="{Binding}" Margin="0,0,0,12" />
           </DataTemplate>
         </ItemsControl.ItemTemplate>

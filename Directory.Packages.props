@@ -7,15 +7,15 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.100" />
   </ItemGroup>
   <ItemGroup Label="Avalonia">
-    <PackageVersion Include="Avalonia" Version="11.2.0" />
-    <PackageVersion Include="Avalonia.Controls.DataGrid" Version="11.2.0" />
-    <PackageVersion Include="Avalonia.Desktop" Version="11.2.0" />
-    <PackageVersion Include="Avalonia.Diagnostics" Version="11.2.0" />
-    <PackageVersion Include="Avalonia.Fonts.Inter" Version="11.2.0" />
-    <PackageVersion Include="Avalonia.Themes.Fluent" Version="11.2.0" />
+    <PackageVersion Include="Avalonia" Version="12.0.0" />
+    <PackageVersion Include="Avalonia.Controls.DataGrid" Version="12.0.0" />
+    <PackageVersion Include="Avalonia.Desktop" Version="12.0.0" />
+    <PackageVersion Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.0" />
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.0.0" />
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.0.0" />
   </ItemGroup>
   <ItemGroup Label="MVVM and DI">
-    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.0" />
@@ -27,9 +27,8 @@
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
   </ItemGroup>
-  <ItemGroup Label="Test packages — xUnit v2 (Avalonia tests)">
-    <PackageVersion Include="xunit" Version="2.9.2" />
-    <PackageVersion Include="Avalonia.Headless.XUnit" Version="11.2.0" />
+  <ItemGroup Label="Test packages — Avalonia + shared">
+    <PackageVersion Include="Avalonia.Headless.XUnit" Version="12.0.0" />
     <PackageVersion Include="FluentAssertions" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup Label="Test packages — xUnit v3 + MTP (SDK tests)">

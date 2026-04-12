@@ -21,7 +21,7 @@
     <PackageReference Include="Serilog.Extensions.Logging" />
     <PackageReference Include="Serilog.Sinks.Console" />
     <PackageReference Include="Serilog.Sinks.File" />
-    <PackageReference Include="Avalonia.Diagnostics">
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Condition="'$(Configuration)' == 'Debug'">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>

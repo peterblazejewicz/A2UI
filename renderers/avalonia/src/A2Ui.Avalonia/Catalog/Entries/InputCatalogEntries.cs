@@ -26,7 +26,7 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
         var tb = new TextBox
         {
             Text = context.Resolve(component.Value) ?? string.Empty,
-            Watermark = context.Resolve(component.Label),
+            PlaceholderText = context.Resolve(component.Label),
         };
 
         if (component.Variant is "obscured")
@@ -75,7 +75,7 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
             tb.Text = context.Resolve(component.Value) ?? string.Empty;
             tb.Tag = null;
         }
-        tb.Watermark = context.Resolve(component.Label);
+        tb.PlaceholderText = context.Resolve(component.Label);
 
         // Re-evaluate checks in place (preserves focus)
         if (existing is StackPanel wrapper && component.Checks is { Length: > 0 })
@@ -158,7 +158,7 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
                 timePicker.SelectedTime = dt.TimeOfDay;
             }
 
-            datePicker.Watermark = context.Resolve(component.Label) ?? "Select date";
+            datePicker.PlaceholderText = context.Resolve(component.Label) ?? "Select date";
             return true;
         }
 
@@ -186,7 +186,7 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
                 raw is not null && DateOnly.TryParse(raw, out var date) ? date.ToDateTime(TimeOnly.MinValue) : null;
         }
 
-        picker.Watermark = context.Resolve(component.Label) ?? "Select date";
+        picker.PlaceholderText = context.Resolve(component.Label) ?? "Select date";
 
         if (existing is StackPanel wrapper && component.Checks is { Length: > 0 })
         {
@@ -204,7 +204,7 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
         A2UiComponent c
     )
     {
-        var picker = new CalendarDatePicker { Watermark = ctx.Resolve(c.Label) ?? "Select date" };
+        var picker = new CalendarDatePicker { PlaceholderText = ctx.Resolve(c.Label) ?? "Select date" };
 
         if (raw is not null && DateOnly.TryParse(raw, out var date))
         {
@@ -228,7 +228,7 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
         A2UiComponent c
     )
     {
-        var datePicker = new CalendarDatePicker { Watermark = ctx.Resolve(c.Label) ?? "Select date" };
+        var datePicker = new CalendarDatePicker { PlaceholderText = ctx.Resolve(c.Label) ?? "Select date" };
         var timePicker = new TimePicker { ClockIdentifier = "24HourClock" };
 
         if (raw is not null && DateTime.TryParse(raw, out var dt))
@@ -354,7 +354,7 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
         {
             var autoComplete = new AutoCompleteBox
             {
-                Watermark = ctx.Resolve(c.Label),
+                PlaceholderText = ctx.Resolve(c.Label),
                 FilterMode = AutoCompleteFilterMode.ContainsOrdinal,
             };
 

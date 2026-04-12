@@ -28,14 +28,14 @@ public sealed class ComplexLayoutTests
     }
 
     [AvaloniaFact]
-    public void Contains_TwoTextBoxes_WithCorrectWatermarks()
+    public void Contains_TwoTextBoxes_WithCorrectPlaceholders()
     {
         RenderResult result = GalleryTestHelper.ReplayExample("minimal/5_complex_layout.json");
 
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
         textBoxes.Should().HaveCount(2);
-        textBoxes[0].Watermark.Should().Be("First Name");
-        textBoxes[1].Watermark.Should().Be("Last Name");
+        textBoxes[0].PlaceholderText.Should().Be("First Name");
+        textBoxes[1].PlaceholderText.Should().Be("Last Name");
     }
 
     [AvaloniaFact]
