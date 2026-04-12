@@ -124,9 +124,9 @@ public sealed class ChildListConverterTests
     {
         var json =
             """{"id":"cp1","component":"ChoicePicker","options":[{"label":"Red","value":"red"},{"label":"Blue","value":"blue"}],"displayStyle":"chips","filterable":true}""";
-        var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
+        var comp = Assert.IsType<ChoicePickerComponent>(JsonSerializer.Deserialize<A2UiComponent>(json, s_opts));
 
-        Assert.Equal(2, comp!.Options!.Length);
+        Assert.Equal(2, comp.Options!.Length);
         Assert.Equal("Red", comp.Options![0].Label);
         Assert.Equal("red", comp.Options[0].Value);
         Assert.Equal("chips", comp.DisplayStyle);
@@ -138,9 +138,9 @@ public sealed class ChildListConverterTests
     {
         var json =
             """{"id":"tabs1","component":"Tabs","tabs":[{"title":"Info","child":"panel1"},{"title":"Settings","child":"panel2"}]}""";
-        var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
+        var comp = Assert.IsType<TabsComponent>(JsonSerializer.Deserialize<A2UiComponent>(json, s_opts));
 
-        Assert.Equal(2, comp!.Tabs!.Length);
+        Assert.Equal(2, comp.Tabs!.Length);
         Assert.Equal("Info", comp.Tabs![0].Title);
         Assert.Equal("panel1", comp.Tabs[0].Child);
     }
@@ -149,9 +149,9 @@ public sealed class ChildListConverterTests
     public void Component_WithLayoutProps_Deserializes()
     {
         var json = """{"id":"row1","component":"Row","justify":"spaceBetween","align":"center","weight":2.5}""";
-        var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
+        var comp = Assert.IsType<RowComponent>(JsonSerializer.Deserialize<A2UiComponent>(json, s_opts));
 
-        Assert.Equal("spaceBetween", comp!.Justify);
+        Assert.Equal("spaceBetween", comp.Justify);
         Assert.Equal("center", comp.Align);
         Assert.Equal(2.5, comp.Weight);
     }

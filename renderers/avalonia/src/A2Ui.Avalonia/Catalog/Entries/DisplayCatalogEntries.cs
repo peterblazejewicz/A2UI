@@ -13,7 +13,8 @@ public sealed class IconCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        string? name = context.Resolve(component.Name);
+        var typed = (IconComponent)component;
+        string? name = context.Resolve(typed.Name);
         return new TextBlock
         {
             Text = MapIconName(name),
@@ -24,12 +25,13 @@ public sealed class IconCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (IconComponent)component;
         if (existing is not TextBlock tb)
         {
             return false;
         }
 
-        tb.Text = MapIconName(context.Resolve(component.Name));
+        tb.Text = MapIconName(context.Resolve(typed.Name));
         return true;
     }
 
@@ -76,19 +78,21 @@ public sealed class DividerCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (DividerComponent)component;
         var separator = new Separator();
-        ApplyAxis(separator, component.Axis);
+        ApplyAxis(separator, typed.Axis);
         return separator;
     }
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (DividerComponent)component;
         if (existing is not Separator sep)
         {
             return false;
         }
 
-        ApplyAxis(sep, component.Axis);
+        ApplyAxis(sep, typed.Axis);
         return true;
     }
 
@@ -118,17 +122,21 @@ public sealed class VideoCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "Video";
 
-    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context) =>
-        new TextBlock { Text = $"[Video: {context.Resolve(component.Url) ?? "no url"}]", Classes = { "Caption" } };
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
+    {
+        var typed = (VideoComponent)component;
+        return new TextBlock { Text = $"[Video: {context.Resolve(typed.Url) ?? "no url"}]", Classes = { "Caption" } };
+    }
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (VideoComponent)component;
         if (existing is not TextBlock tb)
         {
             return false;
         }
 
-        tb.Text = $"[Video: {context.Resolve(component.Url) ?? "no url"}]";
+        tb.Text = $"[Video: {context.Resolve(typed.Url) ?? "no url"}]";
         return true;
     }
 }
@@ -138,21 +146,25 @@ public sealed class AudioPlayerCatalogEntry : ICatalogEntry
 {
     public string ComponentType => "AudioPlayer";
 
-    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context) =>
-        new TextBlock
+    public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
+    {
+        var typed = (AudioPlayerComponent)component;
+        return new TextBlock
         {
-            Text = $"[AudioPlayer: {context.Resolve(component.Url) ?? "no url"}]",
+            Text = $"[AudioPlayer: {context.Resolve(typed.Url) ?? "no url"}]",
             Classes = { "Caption" },
         };
+    }
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (AudioPlayerComponent)component;
         if (existing is not TextBlock tb)
         {
             return false;
         }
 
-        tb.Text = $"[AudioPlayer: {context.Resolve(component.Url) ?? "no url"}]";
+        tb.Text = $"[AudioPlayer: {context.Resolve(typed.Url) ?? "no url"}]";
         return true;
     }
 }

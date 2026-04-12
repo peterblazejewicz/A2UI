@@ -15,25 +15,27 @@ public sealed class TextCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (TextComponent)component;
         var tb = new TextBlock
         {
             Text = context.Resolve(component.Text) ?? string.Empty,
             TextWrapping = TextWrapping.Wrap,
         };
 
-        ApplyVariant(tb, component.Variant);
+        ApplyVariant(tb, typed.Variant);
         return tb;
     }
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (TextComponent)component;
         if (existing is not TextBlock tb)
         {
             return false;
         }
 
         tb.Text = context.Resolve(component.Text) ?? string.Empty;
-        ApplyVariant(tb, component.Variant);
+        ApplyVariant(tb, typed.Variant);
         return true;
     }
 

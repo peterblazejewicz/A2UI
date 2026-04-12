@@ -30,13 +30,14 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (TextFieldComponent)component;
         var tb = new TextBox
         {
-            Text = context.Resolve(component.Value) ?? string.Empty,
+            Text = context.Resolve(typed.Value) ?? string.Empty,
             PlaceholderText = context.Resolve(component.Label),
         };
 
-        if (component.Variant is "obscured")
+        if (typed.Variant is "obscured")
         {
             tb.PasswordChar = '\u2022'; // bullet character
         }
@@ -46,7 +47,7 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
         // for both user input and programmatic Text assignments.
         // The UpdatingTag guard suppresses events during programmatic updates
         // in Update(), preventing feedback loops and phantom agent events.
-        string? bindingPath = component.Value.GetBindingPath();
+        string? bindingPath = typed.Value.GetBindingPath();
         string componentId = component.Id;
 
         tb.PropertyChanged += (sender, args) =>
@@ -69,6 +70,7 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (TextFieldComponent)component;
         // Find the TextBox — either directly cached or inside a check wrapper StackPanel
         TextBox? tb = CheckHelper.FindInner<TextBox>(existing);
         if (tb is null)
@@ -79,7 +81,7 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
         if (!tb.IsFocused)
         {
             tb.Tag = UpdatingTag;
-            tb.Text = context.Resolve(component.Value) ?? string.Empty;
+            tb.Text = context.Resolve(typed.Value) ?? string.Empty;
             tb.Tag = null;
         }
         tb.PlaceholderText = context.Resolve(component.Label);
@@ -96,8 +98,8 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
 
 /// <summary>
 /// A2UI "DateTimeInput" → date picker, time picker, or both.
-/// Respects <see cref="A2UiComponent.EnableDate"/> (default true) and
-/// <see cref="A2UiComponent.EnableTime"/> (default false) to choose the control layout:
+/// Respects <see cref="DateTimeInputComponent.EnableDate"/> (default true) and
+/// <see cref="DateTimeInputComponent.EnableTime"/> (default false) to choose the control layout:
 /// <list type="bullet">
 ///   <item>Date only → <see cref="CalendarDatePicker"/>, output <c>yyyy-MM-dd</c></item>
 ///   <item>Date + time → <see cref="StackPanel"/> with CalendarDatePicker + TimePicker, output <c>yyyy-MM-ddTHH:mm:ss</c></item>
@@ -113,11 +115,12 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        bool enableDate = component.EnableDate ?? true;
-        bool enableTime = component.EnableTime ?? false;
-        string? bindingPath = component.Value.GetBindingPath();
+        var typed = (DateTimeInputComponent)component;
+        bool enableDate = typed.EnableDate ?? true;
+        bool enableTime = typed.EnableTime ?? false;
+        string? bindingPath = typed.Value.GetBindingPath();
         string componentId = component.Id;
-        var raw = context.Resolve(component.Value);
+        var raw = context.Resolve(typed.Value);
 
         if (enableDate && enableTime)
         {
@@ -147,7 +150,8 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        var raw = context.Resolve(component.Value);
+        var typed = (DateTimeInputComponent)component;
+        var raw = context.Resolve(typed.Value);
 
         // Date + time composite panel
         if (CheckHelper.FindInner<StackPanel>(existing) is { Tag: DateTimeTag } panel)
@@ -304,20 +308,22 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        string? bindingPath = component.Value.GetBindingPath();
+        var typed = (ChoicePickerComponent)component;
+        string? bindingPath = typed.Value.GetBindingPath();
         string componentId = component.Id;
-        bool isMultiple = component.Variant is "multipleSelection";
-        var currentValues = ResolveCurrentValues(component.Value, context);
+        bool isMultiple = typed.Variant is "multipleSelection";
+        var currentValues = ResolveCurrentValues(typed.Value, context);
 
         Control control = isMultiple
-            ? CreateMultipleSelection(component, context, bindingPath, componentId, currentValues)
-            : CreateMutuallyExclusive(component, context, bindingPath, componentId, currentValues);
+            ? CreateMultipleSelection(typed, context, bindingPath, componentId, currentValues)
+            : CreateMutuallyExclusive(typed, context, bindingPath, componentId, currentValues);
 
         return CheckHelper.ApplyChecks(control, component, context);
     }
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (ChoicePickerComponent)component;
         // Only support in-place update for the simple ComboBox case (mutuallyExclusive, non-filterable).
         // Multi-select and filterable variants require full re-create.
         ComboBox? combo = CheckHelper.FindInner<ComboBox>(existing);
@@ -329,7 +335,7 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
         combo.PlaceholderText = context.Resolve(component.Label);
 
         // Update selected index to match current data model value
-        var currentValues = ResolveCurrentValues(component.Value, context);
+        var currentValues = ResolveCurrentValues(typed.Value, context);
         int selectedIndex = -1;
         for (int i = 0; i < combo.Items.Count; i++)
         {
@@ -350,7 +356,7 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
     }
 
     private static Control CreateMutuallyExclusive(
-        A2UiComponent c,
+        ChoicePickerComponent c,
         IRenderContext ctx,
         string? bindingPath,
         string componentId,
@@ -423,7 +429,7 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
     }
 
     private static Control CreateMultipleSelection(
-        A2UiComponent c,
+        ChoicePickerComponent c,
         IRenderContext ctx,
         string? bindingPath,
         string componentId,
@@ -579,7 +585,8 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        bool isChecked = context.Resolve(component.Value) is "true";
+        var typed = (CheckBoxComponent)component;
+        bool isChecked = context.Resolve(typed.Value) is "true";
         var cb = new CheckBox { Content = context.Resolve(component.Label), IsChecked = isChecked };
 
         cb.IsCheckedChanged += (sender, _) =>
@@ -598,6 +605,7 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (CheckBoxComponent)component;
         CheckBox? cb = CheckHelper.FindInner<CheckBox>(existing);
         if (cb is null)
         {
@@ -607,7 +615,7 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
         if (!cb.IsFocused)
         {
             cb.Tag = UpdatingTag;
-            cb.IsChecked = context.Resolve(component.Value) is "true";
+            cb.IsChecked = context.Resolve(typed.Value) is "true";
             cb.Tag = null;
         }
         cb.Content = context.Resolve(component.Label);
@@ -628,10 +636,11 @@ public sealed class SliderCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        double.TryParse(context.Resolve(component.Value), out double val);
-        double.TryParse(context.Resolve(component.Min), out double min);
+        var typed = (SliderComponent)component;
+        double.TryParse(context.Resolve(typed.Value), out double val);
+        double.TryParse(context.Resolve(typed.Min), out double min);
         double max = 100;
-        if (context.Resolve(component.Max) is { } maxStr)
+        if (context.Resolve(typed.Max) is { } maxStr)
         {
             double.TryParse(maxStr, out max);
         }
@@ -644,7 +653,7 @@ public sealed class SliderCatalogEntry : ICatalogEntry
         };
 
         // Fire on thumb drag complete, not on every pixel move
-        string? sliderBindingPath = component.Value.GetBindingPath();
+        string? sliderBindingPath = typed.Value.GetBindingPath();
         string sliderComponentId = component.Id;
         slider.AddHandler(
             Thumb.DragCompletedEvent,
@@ -663,13 +672,14 @@ public sealed class SliderCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (SliderComponent)component;
         Slider? s = CheckHelper.FindInner<Slider>(existing);
         if (s is null)
         {
             return false;
         }
 
-        if (!s.IsFocused && double.TryParse(context.Resolve(component.Value), out double val))
+        if (!s.IsFocused && double.TryParse(context.Resolve(typed.Value), out double val))
         {
             s.Value = val;
         }

@@ -13,9 +13,10 @@ public sealed class ColumnCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (ColumnComponent)component;
         var children = context.RenderChildren(component.Id).ToList();
         double[]? weights = LayoutHelper.CollectWeights(component, context);
-        return LayoutHelper.BuildLayout(Orientation.Vertical, children, component, weights);
+        return LayoutHelper.BuildLayout(Orientation.Vertical, children, typed.Justify, typed.Align, weights);
     }
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false; // Panel type (StackPanel vs Grid) is selected at creation based on justify/weights — cannot be mutated in-place
@@ -28,9 +29,10 @@ public sealed class RowCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (RowComponent)component;
         var children = context.RenderChildren(component.Id).ToList();
         double[]? weights = LayoutHelper.CollectWeights(component, context);
-        return LayoutHelper.BuildLayout(Orientation.Horizontal, children, component, weights);
+        return LayoutHelper.BuildLayout(Orientation.Horizontal, children, typed.Justify, typed.Align, weights);
     }
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false; // Panel type (StackPanel vs Grid) is selected at creation based on justify/weights — cannot be mutated in-place
@@ -113,18 +115,19 @@ internal static class LayoutHelper
     public static Control BuildLayout(
         Orientation orientation,
         List<Control> children,
-        A2UiComponent c,
+        string? justify,
+        string? align,
         double[]? weights = null
     )
     {
         if (weights?.Any(w => w > 0) == true)
         {
-            return BuildWeightedGrid(orientation, children, c, weights);
+            return BuildWeightedGrid(orientation, children, justify, align, weights);
         }
 
-        if (c.Justify is "spaceBetween")
+        if (justify is "spaceBetween")
         {
-            return BuildSpaceBetweenGrid(orientation, children, c);
+            return BuildSpaceBetweenGrid(orientation, children, align);
         }
 
         var panel = new StackPanel { Orientation = orientation, Spacing = 8 };
@@ -136,17 +139,17 @@ internal static class LayoutHelper
         // justify maps to main-axis self-alignment (packs the group start/center/end)
         if (orientation == Orientation.Vertical)
         {
-            panel.VerticalAlignment = MapMainAxis(c.Justify);
+            panel.VerticalAlignment = MapMainAxis(justify);
             panel.HorizontalAlignment = HorizontalAlignment.Stretch;
         }
         else
         {
-            panel.HorizontalAlignment = MapMainAxisH(c.Justify);
+            panel.HorizontalAlignment = MapMainAxisH(justify);
             panel.VerticalAlignment = VerticalAlignment.Stretch;
         }
 
         // align maps to cross-axis alignment on each child
-        ApplyCrossAxisAlignment(children, orientation, c.Align);
+        ApplyCrossAxisAlignment(children, orientation, align);
 
         return panel;
     }
@@ -158,7 +161,8 @@ internal static class LayoutHelper
     private static Grid BuildWeightedGrid(
         Orientation orientation,
         List<Control> children,
-        A2UiComponent c,
+        string? justify,
+        string? align,
         double[] weights
     )
     {
@@ -199,7 +203,7 @@ internal static class LayoutHelper
         }
 
         // apply cross-axis alignment to children
-        ApplyCrossAxisAlignment(children, orientation, c.Align);
+        ApplyCrossAxisAlignment(children, orientation, align);
 
         return grid;
     }
@@ -209,7 +213,7 @@ internal static class LayoutHelper
     /// emulating CSS justify-content: space-between.
     /// Layout: [Auto] [*] [Auto] [*] [Auto]  (for 3 children)
     /// </summary>
-    private static Grid BuildSpaceBetweenGrid(Orientation orientation, List<Control> children, A2UiComponent c)
+    private static Grid BuildSpaceBetweenGrid(Orientation orientation, List<Control> children, string? align)
     {
         var grid = new Grid();
 
@@ -259,7 +263,7 @@ internal static class LayoutHelper
         }
 
         // align maps to cross-axis alignment on each child
-        ApplyCrossAxisAlignment(children, orientation, c.Align);
+        ApplyCrossAxisAlignment(children, orientation, align);
 
         return grid;
     }

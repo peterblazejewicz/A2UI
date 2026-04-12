@@ -10,6 +10,7 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (ButtonComponent)component;
         var btn = new Button
         {
             Content = component.Child is not null
@@ -17,7 +18,7 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
                 : (object?)(context.Resolve(component.Text) ?? context.Resolve(component.Label) ?? string.Empty),
         };
 
-        ApplyVariant(btn, component.Variant);
+        ApplyVariant(btn, typed.Variant);
 
         // Evaluate check conditions — disable button when any check fails.
         if (component.Checks is { Length: > 0 })
@@ -34,7 +35,7 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
             }
         }
 
-        if (component.Action?.Event is { } actionEvent)
+        if (typed.Action?.Event is { } actionEvent)
         {
             string eventName = actionEvent.Name;
             var contextSpec = actionEvent.Context;
@@ -51,6 +52,7 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (ButtonComponent)component;
         if (existing is not Button btn)
         {
             return false;
@@ -60,7 +62,7 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
             ? context.RenderChild(component.Child)
             : (object?)(context.Resolve(component.Text) ?? context.Resolve(component.Label) ?? string.Empty);
 
-        ApplyVariant(btn, component.Variant);
+        ApplyVariant(btn, typed.Variant);
 
         if (component.Checks is { Length: > 0 })
         {

@@ -82,7 +82,7 @@ public sealed class A2UiMessageTests
         var json =
             """{"id":"btn1","component":"Button","action":{"event":{"name":"submit","context":{"date":{"path":"/reservation/date"}}}}}""";
 
-        var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts)!;
+        var comp = Assert.IsType<ButtonComponent>(JsonSerializer.Deserialize<A2UiComponent>(json, s_opts)!);
 
         Assert.NotNull(comp.Action);
         Assert.NotNull(comp.Action!.Event);
@@ -98,7 +98,7 @@ public sealed class A2UiMessageTests
         var json =
             """{"id":"link1","component":"Button","action":{"functionCall":{"call":"openUrl","args":{"url":"https://example.com"},"returnType":"void"}}}""";
 
-        var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts)!;
+        var comp = Assert.IsType<ButtonComponent>(JsonSerializer.Deserialize<A2UiComponent>(json, s_opts)!);
 
         Assert.NotNull(comp.Action);
         Assert.NotNull(comp.Action!.FunctionCall);

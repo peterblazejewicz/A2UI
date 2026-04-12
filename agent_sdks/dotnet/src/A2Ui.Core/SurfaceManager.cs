@@ -288,11 +288,14 @@ public sealed class Surface(string surfaceId, string catalogId)
                     childIds.Add(id);
             if (c.Children?.Template is { } tmpl)
                 childIds.Add(tmpl.ComponentId);
-            if (c.Trigger is not null)
-                childIds.Add(c.Trigger);
-            if (c.Content is not null)
-                childIds.Add(c.Content);
-            if (c.Tabs is { } tabs)
+            if (c is ModalComponent modal)
+            {
+                if (modal.Trigger is not null)
+                    childIds.Add(modal.Trigger);
+                if (modal.Content is not null)
+                    childIds.Add(modal.Content);
+            }
+            if (c is TabsComponent tabsComp && tabsComp.Tabs is { } tabs)
                 foreach (var tab in tabs)
                     childIds.Add(tab.Child);
         }

@@ -24,7 +24,8 @@ public sealed class ImageCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        var stretch = component.Fit switch
+        var typed = (ImageComponent)component;
+        var stretch = typed.Fit switch
         {
             "cover" => Stretch.UniformToFill,
             "fill" => Stretch.Fill,
@@ -33,7 +34,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
             _ => Stretch.Uniform, // "contain" or default
         };
         var img = new Image { Stretch = stretch };
-        string? url = context.Resolve(component.Url) ?? context.Resolve(component.Value);
+        string? url = context.Resolve(typed.Url);
         if (url is not null)
         {
             img.Tag = url;
@@ -44,12 +45,13 @@ public sealed class ImageCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (ImageComponent)component;
         if (existing is not Image img)
         {
             return false;
         }
 
-        string? url = context.Resolve(component.Url) ?? context.Resolve(component.Value);
+        string? url = context.Resolve(typed.Url);
         if (url is null)
         {
             return true; // no URL yet — keep existing control as-is
@@ -125,8 +127,9 @@ public sealed class TableCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (TableComponent)component;
         var grid = new DataGrid { CanUserReorderColumns = true, IsReadOnly = true };
-        if (component.Columns is { } cols)
+        if (typed.Columns is { } cols)
         {
             foreach (var col in cols)
             {
@@ -138,12 +141,13 @@ public sealed class TableCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (TableComponent)component;
         if (existing is not DataGrid grid)
         {
             return false;
         }
 
-        if (component.Columns is not { } cols || cols.Length != grid.Columns.Count)
+        if (typed.Columns is not { } cols || cols.Length != grid.Columns.Count)
         {
             return false;
         }

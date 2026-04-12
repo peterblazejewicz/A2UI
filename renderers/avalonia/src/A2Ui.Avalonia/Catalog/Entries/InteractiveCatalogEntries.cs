@@ -15,7 +15,8 @@ public sealed class ListCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        var orientation = component.Direction == "horizontal" ? Orientation.Horizontal : Orientation.Vertical;
+        var typed = (ListComponent)component;
+        var orientation = typed.Direction == "horizontal" ? Orientation.Horizontal : Orientation.Vertical;
 
         var panel = new StackPanel { Orientation = orientation, Spacing = 4 };
         foreach (var child in context.RenderChildren(component.Id))
@@ -28,12 +29,13 @@ public sealed class ListCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (ListComponent)component;
         if (existing is not ScrollViewer sv || sv.Content is not StackPanel panel)
         {
             return false;
         }
 
-        var newOrientation = component.Direction == "horizontal" ? Orientation.Horizontal : Orientation.Vertical;
+        var newOrientation = typed.Direction == "horizontal" ? Orientation.Horizontal : Orientation.Vertical;
         if (panel.Orientation != newOrientation)
         {
             return false;
@@ -56,9 +58,10 @@ public sealed class TabsCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (TabsComponent)component;
         var tc = new TabControl();
 
-        if (component.Tabs is { } tabs)
+        if (typed.Tabs is { } tabs)
         {
             foreach (var tab in tabs)
             {
@@ -71,12 +74,13 @@ public sealed class TabsCatalogEntry : ICatalogEntry
 
     public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (TabsComponent)component;
         if (existing is not TabControl tc)
         {
             return false;
         }
 
-        if (component.Tabs is not { } tabs || tabs.Length != tc.Items.Count)
+        if (typed.Tabs is not { } tabs || tabs.Length != tc.Items.Count)
         {
             return false;
         }
@@ -106,13 +110,14 @@ public sealed class ModalCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
+        var typed = (ModalComponent)component;
         var container = new Panel();
 
         // Render the trigger control (shown permanently)
         Control? triggerControl = null;
-        if (component.Trigger is not null)
+        if (typed.Trigger is not null)
         {
-            triggerControl = context.RenderChild(component.Trigger);
+            triggerControl = context.RenderChild(typed.Trigger);
             if (triggerControl is not null)
             {
                 container.Children.Add(triggerControl);
@@ -120,7 +125,7 @@ public sealed class ModalCatalogEntry : ICatalogEntry
         }
 
         // Build the Popup overlay for the content
-        if (component.Content is not null)
+        if (typed.Content is not null)
         {
             var popup = new Popup
             {
@@ -137,7 +142,7 @@ public sealed class ModalCatalogEntry : ICatalogEntry
             var contentColumn = new StackPanel { Spacing = 8 };
             contentColumn.Children.Add(closeBtn);
 
-            Control? renderedContent = context.RenderChild(component.Content);
+            Control? renderedContent = context.RenderChild(typed.Content);
             if (renderedContent is not null)
             {
                 contentColumn.Children.Add(renderedContent);
