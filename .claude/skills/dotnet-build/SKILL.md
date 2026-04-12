@@ -9,7 +9,7 @@ Run from the repo root:
 dotnet build A2Ui.slnx --configuration Release
 ```
 
-If build succeeds, run tests (MTP + VSTest mixed solution):
+If build succeeds, run tests (all projects use Microsoft Testing Platform):
 
 ```bash
 dotnet test A2Ui.slnx --configuration Release --no-build
