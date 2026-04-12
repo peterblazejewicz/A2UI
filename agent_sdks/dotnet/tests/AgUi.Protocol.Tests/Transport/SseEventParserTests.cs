@@ -20,7 +20,12 @@ public sealed class SseEventParserTests
             "data: {\"type\":\"RUN_STARTED\",\"threadId\":\"t1\",\"runId\":\"r1\"}\ndata: {\"type\":\"RUN_FINISHED\",\"threadId\":\"t1\",\"runId\":\"r1\"}\n";
 
         var events = new List<BaseEvent>();
-        await foreach (var evt in SseEventParser.ParseAsync(ToStream(sse)))
+        await foreach (
+            var evt in SseEventParser.ParseAsync(
+                ToStream(sse),
+                cancellationToken: TestContext.Current.CancellationToken
+            )
+        )
             events.Add(evt);
 
         events.Should().HaveCount(2);
@@ -35,7 +40,12 @@ public sealed class SseEventParserTests
             "data: {\"type\":\"RUN_STARTED\",\"threadId\":\"t1\",\"runId\":\"r1\"}\ndata: {not valid json}\ndata: {\"type\":\"RUN_FINISHED\",\"threadId\":\"t1\",\"runId\":\"r1\"}\n";
 
         var events = new List<BaseEvent>();
-        await foreach (var evt in SseEventParser.ParseAsync(ToStream(sse)))
+        await foreach (
+            var evt in SseEventParser.ParseAsync(
+                ToStream(sse),
+                cancellationToken: TestContext.Current.CancellationToken
+            )
+        )
             events.Add(evt);
 
         events.Should().HaveCount(2);
@@ -48,7 +58,12 @@ public sealed class SseEventParserTests
             "data: {\"type\":\"RUN_STARTED\",\"threadId\":\"t1\",\"runId\":\"r1\"}\ndata: [DONE]\ndata: {\"type\":\"RUN_FINISHED\",\"threadId\":\"t1\",\"runId\":\"r1\"}\n";
 
         var events = new List<BaseEvent>();
-        await foreach (var evt in SseEventParser.ParseAsync(ToStream(sse)))
+        await foreach (
+            var evt in SseEventParser.ParseAsync(
+                ToStream(sse),
+                cancellationToken: TestContext.Current.CancellationToken
+            )
+        )
             events.Add(evt);
 
         // [DONE] is skipped, but parsing continues for lines after it
@@ -61,7 +76,12 @@ public sealed class SseEventParserTests
         var sse = "event: message\nid: 1\ndata: {\"type\":\"RUN_STARTED\",\"threadId\":\"t1\",\"runId\":\"r1\"}\n\n";
 
         var events = new List<BaseEvent>();
-        await foreach (var evt in SseEventParser.ParseAsync(ToStream(sse)))
+        await foreach (
+            var evt in SseEventParser.ParseAsync(
+                ToStream(sse),
+                cancellationToken: TestContext.Current.CancellationToken
+            )
+        )
             events.Add(evt);
 
         events.Should().ContainSingle();
@@ -89,7 +109,9 @@ public sealed class SseEventParserTests
     public async Task ParseAsync_EmptyStream_YieldsNothing()
     {
         var events = new List<BaseEvent>();
-        await foreach (var evt in SseEventParser.ParseAsync(ToStream("")))
+        await foreach (
+            var evt in SseEventParser.ParseAsync(ToStream(""), cancellationToken: TestContext.Current.CancellationToken)
+        )
             events.Add(evt);
 
         events.Should().BeEmpty();
@@ -101,7 +123,12 @@ public sealed class SseEventParserTests
         var sse = "data:   {\"type\":\"RUN_STARTED\",\"threadId\":\"t1\",\"runId\":\"r1\"}\n";
 
         var events = new List<BaseEvent>();
-        await foreach (var evt in SseEventParser.ParseAsync(ToStream(sse)))
+        await foreach (
+            var evt in SseEventParser.ParseAsync(
+                ToStream(sse),
+                cancellationToken: TestContext.Current.CancellationToken
+            )
+        )
             events.Add(evt);
 
         events.Should().ContainSingle();

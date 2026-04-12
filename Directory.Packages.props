@@ -29,13 +29,16 @@
   </ItemGroup>
   <ItemGroup Label="Test packages — xUnit v2 (Avalonia tests)">
     <PackageVersion Include="xunit" Version="2.9.2" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="Avalonia.Headless.XUnit" Version="11.2.0" />
     <PackageVersion Include="FluentAssertions" Version="7.0.0" />
   </ItemGroup>
-  <ItemGroup Label="Test helpers — xUnit v3">
+  <ItemGroup Label="Test packages — xUnit v3 + MTP (SDK tests)">
+    <PackageVersion Include="xunit.v3" Version="3.2.2" />
     <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2" />
+  </ItemGroup>
+  <ItemGroup Label="Test packages — shared">
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
   </ItemGroup>
 </Project>
