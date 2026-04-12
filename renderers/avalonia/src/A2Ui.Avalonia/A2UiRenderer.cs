@@ -313,7 +313,7 @@ internal sealed class RenderContext(
             return null;
         }
 
-        if (value.FunctionCall is { } fc)
+        if (value is DynamicValue.FunctionValue { Call: var fc })
         {
             return this.ResolveFunction(fc, depth);
         }
@@ -321,13 +321,13 @@ internal sealed class RenderContext(
         // ArrayLiteral: resolve each element individually and return as JSON string array.
         // This handles cases like and/or where "values" is an array of DynamicValues
         // (paths, function calls, etc.) that each need recursive resolution.
-        if (value.ArrayLiteral is { } arrayEl)
+        if (value is DynamicValue.ArrayValue { Value: var arrayEl })
         {
             return this.ResolveArrayLiteral(arrayEl, depth);
         }
 
         // Scope relative paths when inside a template expansion
-        if (basePath is not null && value.Path is { } path && !path.StartsWith('/'))
+        if (basePath is not null && value is DynamicValue.PathValue { DataPath: var path } && !path.StartsWith('/'))
         {
             return this.ResolveScopedPath(path);
         }
@@ -426,7 +426,7 @@ internal sealed class RenderContext(
             {
                 var valDv = JsonSerializer.Deserialize<DynamicValue>(valEl.GetRawText(), s_jsonOptions);
                 // The template is always a string literal like "${formatDate(value: ${/start}, format: 'E, MMM d')}"
-                template = valDv?.StringLiteral;
+                template = valDv is DynamicValue.StringValue sv ? sv.Value : null;
             }
             catch (JsonException ex)
             {

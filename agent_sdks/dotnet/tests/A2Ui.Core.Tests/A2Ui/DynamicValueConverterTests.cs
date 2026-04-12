@@ -13,8 +13,8 @@ public sealed class DynamicValueConverterTests
         var result = JsonSerializer.Deserialize<DynamicValue>("\"hello\"", s_opts);
 
         Assert.NotNull(result);
-        Assert.Equal("hello", result!.StringLiteral);
-        Assert.True(result.IsLiteral);
+        var sv = Assert.IsType<DynamicValue.StringValue>(result);
+        Assert.Equal("hello", sv.Value);
     }
 
     [Fact]
@@ -23,8 +23,8 @@ public sealed class DynamicValueConverterTests
         var result = JsonSerializer.Deserialize<DynamicValue>("42.5", s_opts);
 
         Assert.NotNull(result);
-        Assert.Equal(42.5, result!.NumberLiteral);
-        Assert.True(result.IsLiteral);
+        var nv = Assert.IsType<DynamicValue.NumberValue>(result);
+        Assert.Equal(42.5, nv.Value);
     }
 
     [Fact]
@@ -33,8 +33,8 @@ public sealed class DynamicValueConverterTests
         var trueResult = JsonSerializer.Deserialize<DynamicValue>("true", s_opts);
         var falseResult = JsonSerializer.Deserialize<DynamicValue>("false", s_opts);
 
-        Assert.True(trueResult!.BoolLiteral);
-        Assert.False(falseResult!.BoolLiteral);
+        Assert.True(Assert.IsType<DynamicValue.BoolValue>(trueResult).Value);
+        Assert.False(Assert.IsType<DynamicValue.BoolValue>(falseResult).Value);
     }
 
     [Fact]
@@ -43,9 +43,8 @@ public sealed class DynamicValueConverterTests
         var result = JsonSerializer.Deserialize<DynamicValue>("""["a","b","c"]""", s_opts);
 
         Assert.NotNull(result);
-        Assert.NotNull(result!.ArrayLiteral);
-        Assert.Equal(3, result.ArrayLiteral!.Value.GetArrayLength());
-        Assert.True(result.IsLiteral);
+        var av = Assert.IsType<DynamicValue.ArrayValue>(result);
+        Assert.Equal(3, av.Value.GetArrayLength());
     }
 
     [Fact]
@@ -54,9 +53,8 @@ public sealed class DynamicValueConverterTests
         var result = JsonSerializer.Deserialize<DynamicValue>("""{"path":"/user/name"}""", s_opts);
 
         Assert.NotNull(result);
-        Assert.Equal("/user/name", result!.Path);
-        Assert.True(result.IsBound);
-        Assert.False(result.IsLiteral);
+        var pv = Assert.IsType<DynamicValue.PathValue>(result);
+        Assert.Equal("/user/name", pv.DataPath);
     }
 
     [Fact]
@@ -66,11 +64,10 @@ public sealed class DynamicValueConverterTests
         var result = JsonSerializer.Deserialize<DynamicValue>(json, s_opts);
 
         Assert.NotNull(result);
-        Assert.NotNull(result!.FunctionCall);
-        Assert.Equal("formatDate", result.FunctionCall!.Call);
-        Assert.Equal("string", result.FunctionCall.ReturnType);
-        Assert.Contains("value", result.FunctionCall.Args!);
-        Assert.True(result.IsFunction);
+        var fv = Assert.IsType<DynamicValue.FunctionValue>(result);
+        Assert.Equal("formatDate", fv.Call.Call);
+        Assert.Equal("string", fv.Call.ReturnType);
+        Assert.Contains("value", fv.Call.Args!);
     }
 
     [Fact]
@@ -134,10 +131,7 @@ public sealed class DynamicValueConverterTests
             var json = JsonSerializer.Serialize(original, s_opts);
             var restored = JsonSerializer.Deserialize<DynamicValue>(json, s_opts);
 
-            Assert.Equal(original.StringLiteral, restored!.StringLiteral);
-            Assert.Equal(original.NumberLiteral, restored.NumberLiteral);
-            Assert.Equal(original.BoolLiteral, restored.BoolLiteral);
-            Assert.Equal(original.Path, restored.Path);
+            Assert.Equal(original, restored);
         }
     }
 

@@ -205,35 +205,6 @@ public abstract record DynamicValue
 
     /// <summary>Creates a <see cref="BoolValue"/> from a boolean literal.</summary>
     public static DynamicValue FromBool(bool value) => new BoolValue(value);
-
-    // ── Backward-compatible properties (to be removed in a future unit) ──
-
-    /// <summary>Returns the string literal value, or null if this is not a <see cref="StringValue"/>.</summary>
-    public string? StringLiteral => this is StringValue s ? s.Value : null;
-
-    /// <summary>Returns the numeric literal value, or null if this is not a <see cref="NumberValue"/>.</summary>
-    public double? NumberLiteral => this is NumberValue n ? n.Value : null;
-
-    /// <summary>Returns the boolean literal value, or null if this is not a <see cref="BoolValue"/>.</summary>
-    public bool? BoolLiteral => this is BoolValue b ? b.Value : null;
-
-    /// <summary>Returns the JSON array element, or null if this is not an <see cref="ArrayValue"/>.</summary>
-    public JsonElement? ArrayLiteral => this is ArrayValue a ? a.Value : null;
-
-    /// <summary>Returns the data binding path, or null if this is not a <see cref="PathValue"/>.</summary>
-    public string? Path => this is PathValue p ? p.DataPath : null;
-
-    /// <summary>Returns the function call, or null if this is not a <see cref="FunctionValue"/>.</summary>
-    public FunctionCallValue? FunctionCall => this is FunctionValue f ? f.Call : null;
-
-    /// <summary>True if this value is a data binding path reference.</summary>
-    public bool IsBound => this is PathValue;
-
-    /// <summary>True if this value is a function call.</summary>
-    public bool IsFunction => this is FunctionValue;
-
-    /// <summary>True if this value is a literal (not a path or function call).</summary>
-    public bool IsLiteral => this is not PathValue and not FunctionValue;
 }
 
 /// <summary>

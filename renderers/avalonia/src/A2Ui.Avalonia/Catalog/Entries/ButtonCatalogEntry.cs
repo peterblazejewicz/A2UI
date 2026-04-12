@@ -49,7 +49,34 @@ public sealed class ButtonCatalogEntry : ICatalogEntry
         return btn;
     }
 
-    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false; // recreate for simplicity
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
+    {
+        if (existing is not Button btn)
+        {
+            return false;
+        }
+
+        btn.Content = component.Child is not null
+            ? context.RenderChild(component.Child)
+            : (object?)(context.Resolve(component.Text) ?? context.Resolve(component.Label) ?? string.Empty);
+
+        ApplyVariant(btn, component.Variant);
+
+        if (component.Checks is { Length: > 0 })
+        {
+            bool allPass = CheckHelper.AllChecksPassing(component, context);
+            btn.IsEnabled = allPass;
+            string? failedMessage = allPass ? null : CheckHelper.FirstFailingMessage(component, context);
+            ToolTip.SetTip(btn, failedMessage);
+        }
+        else
+        {
+            btn.IsEnabled = true;
+            ToolTip.SetTip(btn, null);
+        }
+
+        return true;
+    }
 
     /// <summary>
     /// Resolve the action event context dictionary at invocation time.

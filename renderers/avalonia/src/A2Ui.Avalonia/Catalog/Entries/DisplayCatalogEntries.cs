@@ -121,7 +121,16 @@ public sealed class VideoCatalogEntry : ICatalogEntry
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context) =>
         new TextBlock { Text = $"[Video: {context.Resolve(component.Url) ?? "no url"}]", Classes = { "Caption" } };
 
-    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
+    {
+        if (existing is not TextBlock tb)
+        {
+            return false;
+        }
+
+        tb.Text = $"[Video: {context.Resolve(component.Url) ?? "no url"}]";
+        return true;
+    }
 }
 
 /// <summary>A2UI "AudioPlayer" → placeholder (Avalonia has no native audio control).</summary>
@@ -136,5 +145,14 @@ public sealed class AudioPlayerCatalogEntry : ICatalogEntry
             Classes = { "Caption" },
         };
 
-    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
+    {
+        if (existing is not TextBlock tb)
+        {
+            return false;
+        }
+
+        tb.Text = $"[AudioPlayer: {context.Resolve(component.Url) ?? "no url"}]";
+        return true;
+    }
 }

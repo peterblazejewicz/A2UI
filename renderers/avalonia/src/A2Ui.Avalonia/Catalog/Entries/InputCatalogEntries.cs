@@ -8,6 +8,13 @@ using Avalonia.Layout;
 
 namespace A2Ui.Avalonia.Catalog;
 
+/// <summary>Extracts a binding path from a <see cref="DynamicValue"/> using pattern matching.</summary>
+internal static class DynamicValueExtensions
+{
+    public static string? GetBindingPath(this DynamicValue? value) =>
+        value is DynamicValue.PathValue p ? p.DataPath : null;
+}
+
 /// <summary>Standard event name for input value changes.</summary>
 internal static class InputEvents
 {
@@ -39,7 +46,7 @@ public sealed class TextFieldCatalogEntry : ICatalogEntry
         // for both user input and programmatic Text assignments.
         // The UpdatingTag guard suppresses events during programmatic updates
         // in Update(), preventing feedback loops and phantom agent events.
-        string? bindingPath = component.Value?.Path;
+        string? bindingPath = component.Value.GetBindingPath();
         string componentId = component.Id;
 
         tb.PropertyChanged += (sender, args) =>
@@ -108,7 +115,7 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
     {
         bool enableDate = component.EnableDate ?? true;
         bool enableTime = component.EnableTime ?? false;
-        string? bindingPath = component.Value?.Path;
+        string? bindingPath = component.Value.GetBindingPath();
         string componentId = component.Id;
         var raw = context.Resolve(component.Value);
 
@@ -297,7 +304,7 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
 
     public Control Create(A2UiComponent component, DataModel dataModel, IRenderContext context)
     {
-        string? bindingPath = component.Value?.Path;
+        string? bindingPath = component.Value.GetBindingPath();
         string componentId = component.Id;
         bool isMultiple = component.Variant is "multipleSelection";
         var currentValues = ResolveCurrentValues(component.Value, context);
@@ -525,7 +532,7 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
         }
 
         // If it's an array literal, extract string values
-        if (value.ArrayLiteral is { } arr)
+        if (value is DynamicValue.ArrayValue { Value: var arr })
         {
             var set = new HashSet<string>();
             foreach (var el in arr.EnumerateArray())
@@ -637,7 +644,7 @@ public sealed class SliderCatalogEntry : ICatalogEntry
         };
 
         // Fire on thumb drag complete, not on every pixel move
-        string? sliderBindingPath = component.Value?.Path;
+        string? sliderBindingPath = component.Value.GetBindingPath();
         string sliderComponentId = component.Id;
         slider.AddHandler(
             Thumb.DragCompletedEvent,

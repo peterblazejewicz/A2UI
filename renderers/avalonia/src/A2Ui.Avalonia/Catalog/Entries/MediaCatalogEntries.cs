@@ -136,7 +136,28 @@ public sealed class TableCatalogEntry : ICatalogEntry
         return grid;
     }
 
-    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
+    {
+        if (existing is not DataGrid grid)
+        {
+            return false;
+        }
+
+        if (component.Columns is not { } cols || cols.Length != grid.Columns.Count)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < cols.Length; i++)
+        {
+            if (grid.Columns[i] is DataGridTextColumn col)
+            {
+                col.Header = cols[i].Header;
+            }
+        }
+
+        return true;
+    }
 }
 
 /// <summary>A2UI "Surface" → root container (extension, not in v0.9 spec).</summary>
@@ -155,7 +176,21 @@ public sealed class SurfaceCatalogEntry : ICatalogEntry
         return panel;
     }
 
-    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
+    {
+        if (existing is not StackPanel panel)
+        {
+            return false;
+        }
+
+        panel.Children.Clear();
+        foreach (var child in context.RenderChildren(component.Id))
+        {
+            panel.Children.Add(child);
+        }
+
+        return true;
+    }
 }
 
 internal static partial class MediaLog

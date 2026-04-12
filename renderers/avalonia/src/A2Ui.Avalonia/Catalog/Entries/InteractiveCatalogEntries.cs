@@ -26,7 +26,27 @@ public sealed class ListCatalogEntry : ICatalogEntry
         return new ScrollViewer { Content = panel };
     }
 
-    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
+    {
+        if (existing is not ScrollViewer sv || sv.Content is not StackPanel panel)
+        {
+            return false;
+        }
+
+        var newOrientation = component.Direction == "horizontal" ? Orientation.Horizontal : Orientation.Vertical;
+        if (panel.Orientation != newOrientation)
+        {
+            return false;
+        }
+
+        panel.Children.Clear();
+        foreach (var child in context.RenderChildren(component.Id))
+        {
+            panel.Children.Add(child);
+        }
+
+        return true;
+    }
 }
 
 /// <summary>A2UI "Tabs" → TabControl.</summary>
@@ -49,7 +69,31 @@ public sealed class TabsCatalogEntry : ICatalogEntry
         return tc;
     }
 
-    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
+    {
+        if (existing is not TabControl tc)
+        {
+            return false;
+        }
+
+        if (component.Tabs is not { } tabs || tabs.Length != tc.Items.Count)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < tabs.Length; i++)
+        {
+            if (tc.Items[i] is not TabItem tabItem)
+            {
+                return false;
+            }
+
+            tabItem.Header = tabs[i].Title;
+            tabItem.Content = context.RenderChild(tabs[i].Child);
+        }
+
+        return true;
+    }
 }
 
 /// <summary>
@@ -141,5 +185,5 @@ public sealed class ModalCatalogEntry : ICatalogEntry
         return container;
     }
 
-    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false; // Popup.PlacementTarget goes stale if trigger is recreated; lifecycle handlers are not idempotent
 }

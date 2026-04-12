@@ -97,8 +97,10 @@ public sealed class ChildListConverterTests
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
         Assert.NotNull(comp!.Accessibility);
-        Assert.Equal("Submit form", comp.Accessibility!.Label!.StringLiteral);
-        Assert.Equal("Submits the reservation", comp.Accessibility.Description!.StringLiteral);
+        var labelSv = Assert.IsType<DynamicValue.StringValue>(comp.Accessibility!.Label);
+        Assert.Equal("Submit form", labelSv.Value);
+        var descSv = Assert.IsType<DynamicValue.StringValue>(comp.Accessibility.Description);
+        Assert.Equal("Submits the reservation", descSv.Value);
     }
 
     [Fact]
@@ -109,8 +111,8 @@ public sealed class ChildListConverterTests
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts);
 
         var check = Assert.Single(comp!.Checks!);
-        Assert.True(check.Condition.IsFunction);
-        Assert.Equal("required", check.Condition.FunctionCall!.Call);
+        var condFv = Assert.IsType<DynamicValue.FunctionValue>(check.Condition);
+        Assert.Equal("required", condFv.Call.Call);
         Assert.Equal("Name is required", check.Message);
     }
 

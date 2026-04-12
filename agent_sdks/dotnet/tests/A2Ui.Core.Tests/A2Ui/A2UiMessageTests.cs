@@ -44,7 +44,8 @@ public sealed class A2UiMessageTests
 
         Assert.NotNull(msg.UpdateComponents);
         Assert.Equal(2, msg.UpdateComponents!.Components.Length);
-        Assert.Equal("Hello", msg.UpdateComponents.Components[1].Text!.StringLiteral);
+        var textSv = Assert.IsType<DynamicValue.StringValue>(msg.UpdateComponents.Components[1].Text);
+        Assert.Equal("Hello", textSv.Value);
     }
 
     [Fact]
@@ -84,8 +85,8 @@ public sealed class A2UiMessageTests
         Assert.NotNull(comp.Action!.Event);
         Assert.Equal("submit", comp.Action.Event!.Name);
         Assert.Contains("date", comp.Action.Event.Context!);
-        Assert.True(comp.Action.Event.Context!["date"].IsBound);
-        Assert.Equal("/reservation/date", comp.Action.Event.Context["date"].Path);
+        var datePv = Assert.IsType<DynamicValue.PathValue>(comp.Action.Event.Context!["date"]);
+        Assert.Equal("/reservation/date", datePv.DataPath);
     }
 
     [Fact]
@@ -110,8 +111,8 @@ public sealed class A2UiMessageTests
         var comp = JsonSerializer.Deserialize<A2UiComponent>(json, s_opts)!;
 
         Assert.NotNull(comp.Text);
-        Assert.True(comp.Text!.IsBound);
-        Assert.Equal("/user/name", comp.Text.Path);
+        var textPv = Assert.IsType<DynamicValue.PathValue>(comp.Text);
+        Assert.Equal("/user/name", textPv.DataPath);
     }
 
     [Fact]

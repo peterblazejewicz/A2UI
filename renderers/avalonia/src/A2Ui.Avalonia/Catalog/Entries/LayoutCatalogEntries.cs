@@ -18,7 +18,7 @@ public sealed class ColumnCatalogEntry : ICatalogEntry
         return LayoutHelper.BuildLayout(Orientation.Vertical, children, component, weights);
     }
 
-    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false; // Panel type (StackPanel vs Grid) is selected at creation based on justify/weights — cannot be mutated in-place
 }
 
 /// <summary>A2UI "Row" → horizontal layout panel.</summary>
@@ -33,7 +33,7 @@ public sealed class RowCatalogEntry : ICatalogEntry
         return LayoutHelper.BuildLayout(Orientation.Horizontal, children, component, weights);
     }
 
-    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false; // Panel type (StackPanel vs Grid) is selected at creation based on justify/weights — cannot be mutated in-place
 }
 
 /// <summary>A2UI "Card" → Border with rounded corners and padding.</summary>
@@ -70,7 +70,21 @@ public sealed class CardCatalogEntry : ICatalogEntry
         return border;
     }
 
-    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context) => false;
+    public bool Update(Control existing, A2UiComponent component, DataModel dataModel, IRenderContext context)
+    {
+        if (existing is not Border border)
+        {
+            return false;
+        }
+
+        if (component.Child is not null)
+        {
+            border.Child = context.RenderChild(component.Child);
+            return true;
+        }
+
+        return false; // Multi-child fallback: child list may have changed structurally
+    }
 }
 
 internal static class LayoutHelper
