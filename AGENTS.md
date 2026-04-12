@@ -273,6 +273,74 @@ For porting decisions, compare with existing SDK/renderer implementations:
 
 ---
 
+## MCP Tools (External Knowledge)
+
+This repository restricts MCP servers to four .NET-relevant sources.
+GitHub is **read-only** -- all write tools are denied at the project level.
+Use the right tool for the right job; prefer local files and `git log` when
+they answer the question faster.
+
+### When to use what
+
+| Context | Tool(s) | Example |
+|---------|---------|---------|
+| **.NET / C# API lookup** | `microsoft_docs_search`, `microsoft_docs_fetch` | "How does `JsonDerivedType` work in .NET 10?" |
+| **C# code samples** | `microsoft_code_sample_search` | "Show me `System.Text.Json` polymorphic serialization" |
+| **Library docs (Avalonia, xUnit, FluentAssertions, NSubstitute, Bogus)** | `context7` `resolve-library-id` → `query-docs` | "What's the Avalonia `Headless` test API?" |
+| **Upstream repo check** | `github` `search_code`, `get_file_contents` | "Does `google/A2UI` define a v0.10 catalog schema?" |
+| **Issue / PR context** | `github` `issue_read`, `pull_request_read`, `search_issues` | "What does google/A2UI#42 say about action payloads?" |
+| **Branch & release tracking** | `github` `list_branches`, `list_tags`, `list_releases` | "What's the latest tag on upstream?" |
+| **Architecture diagrams** | `mermaid_chart` `validate_and_render_mermaid_diagram` | Render a component-flow diagram for docs |
+
+### Microsoft Learn (`microsoft-learn`)
+
+All three tools available. Use for:
+- .NET runtime / BCL API verification (e.g., `ConfigureAwait`, `JsonSerializer` options)
+- MSBuild / SDK behavior (e.g., `Directory.Build.props`, central package management)
+- Avalonia is **not** on Microsoft Learn -- use Context7 for Avalonia docs
+
+```
+microsoft_docs_search   → quick overview (up to 10 chunks, 500 tokens each)
+microsoft_code_sample_search → code snippets (up to 20, filterable by language)
+microsoft_docs_fetch    → full page as markdown (use after search for depth)
+```
+
+### Context7 (`context7`)
+
+All tools available. Use for:
+- Avalonia UI framework docs (controls, styling, headless testing)
+- xUnit, FluentAssertions, NSubstitute, Bogus API reference
+- Any NuGet library not covered by Microsoft Learn
+
+```
+resolve-library-id  → get the library ID first
+query-docs          → then fetch relevant documentation
+```
+
+### GitHub (`github`) -- read-only
+
+Write tools are denied. Use for:
+- **Upstream verification**: check `google/A2UI` for spec changes, new issues, or PRs
+  that affect our implementation
+- **Fork status**: compare branches, check commit history on `peterblazejewicz/A2UI`
+- **Code search**: find patterns across the upstream repo (Python SDK, Lit renderer, etc.)
+
+Available read tools: `get_commit`, `get_file_contents`, `get_label`,
+`get_latest_release`, `get_release_by_tag`, `get_tag`,
+`get_team_members`, `get_teams`, `get_me`, `get_copilot_job_status`,
+`issue_read`, `pull_request_read`, `list_branches`, `list_commits`,
+`list_issues`, `list_issue_types`, `list_pull_requests`, `list_tags`,
+`list_releases`, `search_code`, `search_issues`,
+`search_pull_requests`, `search_repositories`, `search_users`.
+
+### Mermaid Chart (`mermaid-chart`)
+
+Single tool: `validate_and_render_mermaid_diagram`. Use for:
+- Rendering architecture diagrams for documentation
+- Validating Mermaid syntax before committing to markdown files
+
+---
+
 ## Current State
 
 **Restaurant Demo Shell + Phase 1/2 telemetry shipped** on `feature/restaurant-demo-shell`.
