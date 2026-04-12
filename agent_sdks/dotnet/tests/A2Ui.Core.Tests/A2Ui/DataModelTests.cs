@@ -499,4 +499,52 @@ public sealed class DataModelTests
 
         Assert.Null(dm.Resolve(DynamicValue.FromPath("/a~1b")));
     }
+
+    // --- RFC 6901 strict escape validation tests ---
+
+    [Fact]
+    public void Apply_PathWithInvalidEscape_ThrowsFormatException()
+    {
+        var dm = new DataModel();
+
+        var ex = Assert.Throws<FormatException>(() =>
+            dm.Apply(
+                new UpdateDataModel
+                {
+                    SurfaceId = "s",
+                    Path = "/~2invalid",
+                    Value = JsonSerializer.SerializeToElement("nope"),
+                }
+            )
+        );
+
+        Assert.Contains("~2", ex.Message);
+    }
+
+    [Fact]
+    public void Apply_PathWithTrailingTilde_ThrowsFormatException()
+    {
+        var dm = new DataModel();
+
+        var ex = Assert.Throws<FormatException>(() =>
+            dm.Apply(
+                new UpdateDataModel
+                {
+                    SurfaceId = "s",
+                    Path = "/trailing~",
+                    Value = JsonSerializer.SerializeToElement("nope"),
+                }
+            )
+        );
+
+        Assert.Contains("trailing '~'", ex.Message);
+    }
+
+    [Fact]
+    public void Resolve_PathWithInvalidEscape_ThrowsFormatException()
+    {
+        var dm = new DataModel();
+
+        Assert.Throws<FormatException>(() => dm.Resolve(DynamicValue.FromPath("/~a")));
+    }
 }

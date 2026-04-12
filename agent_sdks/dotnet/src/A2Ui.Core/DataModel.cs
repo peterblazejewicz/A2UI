@@ -31,7 +31,48 @@ public sealed class DataModel
     /// </summary>
     private static string[] SplitPath(string path) => path.TrimStart('/').Split('/').Select(UnescapeSegment).ToArray();
 
-    private static string UnescapeSegment(string segment) => segment.Replace("~1", "/").Replace("~0", "~");
+    private static string UnescapeSegment(string segment)
+    {
+        int tildeIdx = segment.IndexOf('~');
+        if (tildeIdx < 0)
+        {
+            return segment;
+        }
+
+        var sb = new System.Text.StringBuilder(segment.Length);
+        for (int i = 0; i < segment.Length; i++)
+        {
+            if (segment[i] != '~')
+            {
+                sb.Append(segment[i]);
+                continue;
+            }
+
+            if (i + 1 >= segment.Length)
+            {
+                throw new FormatException($"Invalid JSON Pointer escape: trailing '~' in segment '{segment}'.");
+            }
+
+            char next = segment[i + 1];
+            switch (next)
+            {
+                case '0':
+                    sb.Append('~');
+                    break;
+                case '1':
+                    sb.Append('/');
+                    break;
+                default:
+                    throw new FormatException(
+                        $"Invalid JSON Pointer escape '~{next}' in segment '{segment}'. Only ~0 and ~1 are valid (RFC 6901)."
+                    );
+            }
+
+            i++; // skip the character after ~
+        }
+
+        return sb.ToString();
+    }
 
     /// <summary>Serialize the current data model state to a JSON string.</summary>
     public string ToJson(bool indented = false) => _root.ToJsonString(indented ? s_indentedOptions : s_compactOptions);
