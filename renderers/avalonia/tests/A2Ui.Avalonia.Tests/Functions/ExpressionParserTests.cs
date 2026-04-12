@@ -250,13 +250,13 @@ public sealed class ExpressionParserTests
     // ── ResolveFormatString: empty template ──────────────────────────
 
     [Fact]
-    public void ResolveFormatString_EmptyTemplate_ReturnsEmpty()
+    public void ResolveFormatString_NotInRegistry_ReturnsNull()
     {
-        // The FunctionRegistry formatString function returns "" for a null/empty value arg.
+        // formatString is a renderer-level special form (RenderContext.ResolveFormatString),
+        // not a registry function. Evaluating it via the registry should return null.
         var registry = FunctionRegistry.CreateDefault();
         string? result = registry.Evaluate("formatString", new Dictionary<string, string?> { ["value"] = "" });
-        // formatString with empty value should return an empty string
-        Assert.Equal("", result);
+        Assert.Null(result);
     }
 
     // ── Parse: formatString-style compound expression ────────────────

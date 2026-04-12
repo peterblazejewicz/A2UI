@@ -139,12 +139,6 @@ internal static class BuiltInFunctions
         return dt.ToString(dotNetFormat, CultureInfo.InvariantCulture);
     }
 
-    public static string? FormatString(IReadOnlyDictionary<string, string?> args)
-    {
-        // For now, return the value template as-is (full expression parsing deferred)
-        return GetArg(args, "value") ?? "";
-    }
-
     public static string? Pluralize(IReadOnlyDictionary<string, string?> args)
     {
         string? value = GetArg(args, "value");

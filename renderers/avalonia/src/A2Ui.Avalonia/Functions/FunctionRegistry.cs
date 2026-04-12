@@ -65,7 +65,6 @@ public sealed class FunctionRegistry : IFunctionRegistry
             .Register("formatNumber", BuiltInFunctions.FormatNumber)
             .Register("formatCurrency", BuiltInFunctions.FormatCurrency)
             .Register("formatDate", BuiltInFunctions.FormatDate)
-            .Register("formatString", BuiltInFunctions.FormatString)
             .Register("pluralize", BuiltInFunctions.Pluralize)
             // Arithmetic
             .Register("add", BuiltInFunctions.Add)

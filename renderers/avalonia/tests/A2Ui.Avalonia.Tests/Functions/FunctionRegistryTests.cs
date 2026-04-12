@@ -118,19 +118,12 @@ public sealed class FunctionRegistryTests
     }
 
     [Fact]
-    public void FormatString_ReturnsValueAsIs() =>
-        Assert.Equal("Hello ${/name}", this.Eval("formatString", ("value", "Hello ${/name}")));
-
-    [Fact]
-    public void FormatString_MalformedTemplate_ReturnsFallback()
+    public void FormatString_IsNotRegistered_ReturnsNull()
     {
-        // The FunctionRegistry layer passes the value arg through as-is (no expression parsing).
-        // A malformed template like "${" should be returned unchanged rather than crashing.
-        // Full expression parsing (and the fallback-on-parse-error path) lives in A2UiRenderer;
-        // at the registry level the contract is simply: return the value string.
-        string? result = this.Eval("formatString", ("value", "${"));
-        // formatString at registry level must not crash on malformed input
-        Assert.Equal("${", result);
+        // formatString is a renderer-level special form handled by RenderContext.ResolveFormatString(),
+        // not a registry function. Verify it is NOT in the default registry.
+        string? result = this.Eval("formatString", ("value", "hello ${name}"));
+        Assert.Null(result);
     }
 
     [Fact]
