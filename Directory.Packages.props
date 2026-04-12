@@ -1,7 +1,41 @@
 <Project>
-  <ItemGroup>
-    <!-- Core packages -->
-    <!-- For potential future use -->
-    <!-- <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" /> -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup Label="Analyzers">
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.15.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.100" />
+  </ItemGroup>
+  <ItemGroup Label="Avalonia">
+    <PackageVersion Include="Avalonia" Version="11.2.0" />
+    <PackageVersion Include="Avalonia.Controls.DataGrid" Version="11.2.0" />
+    <PackageVersion Include="Avalonia.Desktop" Version="11.2.0" />
+    <PackageVersion Include="Avalonia.Diagnostics" Version="11.2.0" />
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="11.2.0" />
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="11.2.0" />
+  </ItemGroup>
+  <ItemGroup Label="MVVM and DI">
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+  </ItemGroup>
+  <ItemGroup Label="Serilog">
+    <PackageVersion Include="Serilog" Version="4.2.0" />
+    <PackageVersion Include="Serilog.Extensions.Logging" Version="9.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup Label="Test packages — xUnit v2 (Avalonia tests)">
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+    <PackageVersion Include="Avalonia.Headless.XUnit" Version="11.2.0" />
+    <PackageVersion Include="FluentAssertions" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup Label="Test helpers — xUnit v3">
+    <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2" />
   </ItemGroup>
 </Project>
