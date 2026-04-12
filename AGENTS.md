@@ -60,7 +60,7 @@ A2UI/                                  <- repo root (fork of google/A2UI)
 |   +-- angular/                       <- existing Angular renderer
 |   +-- web_core/                      <- shared web core
 |   +-- avalonia/                      <- OUR AVALONIA RENDERER
-|       +-- src/A2Ui.Avalonia/         <- catalog registry, 18 entries, function registry, bridge
+|       +-- src/A2Ui.Avalonia/         <- catalog registry, 20 entries, function registry, bridge
 |       +-- tests/A2Ui.Avalonia.Tests/ <- Avalonia.Headless.XUnit + integration tests
 |
 +-- samples/
@@ -125,7 +125,7 @@ export DOTNET_CLI_TELEMETRY_OPTOUT=1
 Run from the repo root:
 
 ```bash
-# Build everything (8 projects)
+# Build everything (9 projects)
 dotnet build A2Ui.slnx --configuration Release
 
 # Test everything (487 tests)
@@ -335,7 +335,7 @@ Available read tools: `get_commit`, `get_file_contents`, `get_label`,
 
 ### Mermaid Chart (`mermaid-chart`)
 
-Single tool: `validate_and_render_mermaid_diagram`. Use for:
+Single tool: `validate_and_render_mermaid_diagram` (connection can be flaky). Use for:
 - Rendering architecture diagrams for documentation
 - Validating Mermaid syntax before committing to markdown files
 
@@ -343,7 +343,7 @@ Single tool: `validate_and_render_mermaid_diagram`. Use for:
 
 ## Current State
 
-**Restaurant Demo Shell + Phase 1/2 telemetry shipped** on `feature/restaurant-demo-shell`.
+**Restaurant Demo Shell + Phase 1/2 telemetry shipped** (merged into `feature/dotnet-avalonia-renderer`).
 Scaffold, structured logging (10 `LoggerMessage` categories), `ActivitySource`
 tracing (4 sources, 7 span names), Serilog `BeginScope` correlation, raw HTTP
 handler + `RequestSummary` one-liner, and `A2Ui.TestHelpers` library with
