@@ -118,17 +118,3 @@ public sealed class TestLoggerProvider : ILoggerProvider
         public void Dispose() { }
     }
 }
-
-/// <summary>
-/// A single captured log entry. <see cref="Properties"/> holds the
-/// structured fields from a <c>[LoggerMessage]</c>-generated call site,
-/// keyed by the template token name (e.g. <c>"SurfaceId"</c>).
-/// </summary>
-public sealed record TestLogEntry(
-    string CategoryName,
-    LogLevel Level,
-    EventId EventId,
-    string Message,
-    IReadOnlyDictionary<string, object?> Properties,
-    Exception? Exception
-);
