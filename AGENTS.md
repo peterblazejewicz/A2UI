@@ -51,8 +51,8 @@ A2UI/                                  <- repo root (fork of google/A2UI)
 |       |   +-- AgUi.Protocol/         <- AG-UI 28-event types, SSE parser, tool-call accumulator
 |       |   +-- A2Ui.Core/             <- A2UI messages, validation, SurfaceManager, DataModel
 |       +-- tests/
-|           +-- AgUi.Protocol.Tests/
-|           +-- A2Ui.Core.Tests/
+|           +-- AgUi.Protocol.Tests/   <- xUnit v3 + MTP (Exe)
+|           +-- A2Ui.Core.Tests/       <- xUnit v3 + MTP (Exe)
 |           +-- A2Ui.TestHelpers/      <- shared TestLoggerProvider + TestActivityListener
 |
 +-- renderers/                         <- renderer libraries per platform
@@ -61,7 +61,7 @@ A2UI/                                  <- repo root (fork of google/A2UI)
 |   +-- web_core/                      <- shared web core
 |   +-- avalonia/                      <- OUR AVALONIA RENDERER
 |       +-- src/A2Ui.Avalonia/         <- catalog registry, 20 entries, function registry, bridge
-|       +-- tests/A2Ui.Avalonia.Tests/ <- Avalonia.Headless.XUnit + integration tests
+|       +-- tests/A2Ui.Avalonia.Tests/ <- Avalonia.Headless.XUnit v2 + headless integration tests
 |
 +-- samples/
 |   +-- agent/adk/                     <- Python reference agents (restaurant_finder is the target)
@@ -128,8 +128,13 @@ Run from the repo root:
 # Build everything (9 projects)
 dotnet build A2Ui.slnx --configuration Release
 
-# Test everything (487 tests)
+# Test everything (487 tests -- SDK tests use MTP, Avalonia uses VSTest)
 dotnet test A2Ui.slnx --configuration Release --no-build
+
+# Test individual projects (MTP-native for SDK tests)
+dotnet test --project agent_sdks/dotnet/tests/AgUi.Protocol.Tests --configuration Release --no-build
+dotnet test --project agent_sdks/dotnet/tests/A2Ui.Core.Tests --configuration Release --no-build
+dotnet test --project renderers/avalonia/tests/A2Ui.Avalonia.Tests --configuration Release --no-build
 
 # Format all C# files
 dotnet csharpier format .
@@ -141,8 +146,11 @@ dotnet format analyzers A2Ui.slnx --verify-no-changes
 dotnet build renderers/avalonia/src/A2Ui.Avalonia/A2Ui.Avalonia.csproj --configuration Release
 dotnet build samples/client/avalonia/Shell/A2Ui.Avalonia.Shell.csproj --configuration Release
 
-# Run a single test by filter
-dotnet test A2Ui.slnx --configuration Release --no-build --filter "FullyQualifiedName~ClassName.MethodName"
+# Run a single test by filter (MTP syntax for SDK tests)
+dotnet test --project agent_sdks/dotnet/tests/A2Ui.Core.Tests --configuration Release --no-build --filter-method "*.ClassName.MethodName*"
+
+# Run a single test by filter (VSTest syntax for Avalonia tests)
+dotnet test --project renderers/avalonia/tests/A2Ui.Avalonia.Tests --configuration Release --no-build --filter "FullyQualifiedName~ClassName.MethodName"
 ```
 
 ### Speed tips
@@ -234,15 +242,15 @@ analyzer rule checks (not whitespace -- CSharpier handles that).
 
 ## Testing Conventions
 
-- **Framework**: xUnit v2.9.2 with `xunit.runner.visualstudio` v3.0.0
-- **Assertions**: FluentAssertions v7.0.0
-- **Mocking**: NSubstitute v5.1.0
-- **Test data**: Bogus v34.0.2
+- **Framework**: xUnit v3.2.2 (SDK tests) / xUnit v2.9.2 (Avalonia tests)
+- **Runner**: Microsoft Testing Platform (SDK) / VSTest bridge (Avalonia)
+- **Assertions**: xUnit v3 native `Assert.*` (SDK tests) / FluentAssertions 7.0.0 (Avalonia tests)
 - **UI tests**: Avalonia.Headless.XUnit v11.2.0 (headless rendering, no window needed)
 - **Shared helpers**: `A2Ui.TestHelpers` provides `TestLoggerProvider` and `TestActivityListener`
 - **Naming**: `MethodName_StateUnderTest_ExpectedBehavior`
 - **Async tests**: Must use `Async` suffix on test method names
 - Test methods returning `Task`/`ValueTask` must be async; use `[Fact]` or `[AvaloniaFact]`
+- SDK tests use `Assert.Equal(expected, actual)` argument order (expected first)
 - Add Arrange/Act/Assert comments for complex tests
 
 ---
@@ -350,6 +358,12 @@ handler + `RequestSummary` one-liner, and `A2Ui.TestHelpers` library with
 representative scenario tests are all in place. Build is clean, 487/487 tests
 pass. See `RESTAURANT_DEMO_PORT_PLAN.md` for the porting status table and
 `docs/DOTNET_TELEMETRY_REFERENCE.md` for the telemetry contract.
+
+**Testing platform:** SDK test projects (AgUi.Protocol.Tests, A2Ui.Core.Tests)
+migrated to xUnit v3.2.2 + Microsoft Testing Platform. FluentAssertions replaced
+with xUnit v3 native `Assert.*`. Avalonia tests remain on xUnit v2 +
+FluentAssertions (blocked on Avalonia 12 upgrade for headless xUnit v3 support).
+Central Package Management enabled in `Directory.Packages.props`.
 
 **Pending:** manual end-to-end verification run (Python agent + .NET Shell +
 Restaurant scenario). Optional Phase 2 work: .NET agent port via MS Agent
