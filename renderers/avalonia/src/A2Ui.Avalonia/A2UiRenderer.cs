@@ -23,6 +23,7 @@ public sealed class A2UiRenderer
     private readonly IFunctionRegistry? _functionRegistry;
     private readonly ILogger<A2UiRenderer> _logger;
     private readonly Dictionary<string, Dictionary<string, Control>> _surfaceCaches = new();
+    private readonly Dictionary<string, CancellationTokenSource> _surfaceCts = new();
 
     public A2UiRenderer(
         CatalogRegistry catalog,
@@ -53,6 +54,12 @@ public sealed class A2UiRenderer
             this._surfaceCaches[surface.SurfaceId] = cache;
         }
 
+        if (!this._surfaceCts.TryGetValue(surface.SurfaceId, out var cts))
+        {
+            cts = new CancellationTokenSource();
+            this._surfaceCts[surface.SurfaceId] = cts;
+        }
+
         var context = new RenderContext(
             surface,
             this._catalog,
@@ -61,7 +68,8 @@ public sealed class A2UiRenderer
             (surfaceId, eventName, payload, componentId) =>
                 UserActionFired?.Invoke(this, new(surfaceId, eventName, payload, componentId)),
             (surfaceId) => DataModelChanged?.Invoke(this, new(surfaceId)),
-            logger: this._logger
+            logger: this._logger,
+            surfaceCancellation: cts.Token
         );
 
         var roots = surface.GetRootComponents().ToList();
@@ -112,8 +120,17 @@ public sealed class A2UiRenderer
         return control;
     }
 
-    /// <summary>Clear control cache for a specific surface.</summary>
-    public void ClearSurface(string surfaceId) => this._surfaceCaches.Remove(surfaceId);
+    /// <summary>Clear control cache for a specific surface and cancel in-flight async operations.</summary>
+    public void ClearSurface(string surfaceId)
+    {
+        this._surfaceCaches.Remove(surfaceId);
+
+        if (this._surfaceCts.Remove(surfaceId, out var cts))
+        {
+            cts.Cancel();
+            cts.Dispose();
+        }
+    }
 }
 
 internal sealed class RenderContext(
@@ -124,10 +141,12 @@ internal sealed class RenderContext(
     Action<string, string, object?, string?> fireAction,
     Action<string> onDataModelChanged,
     ILogger? logger = null,
+    CancellationToken surfaceCancellation = default,
     string? basePath = null
 ) : IRenderContext
 {
     public ILogger? Logger => logger;
+    public CancellationToken SurfaceCancellation => surfaceCancellation;
     private const int MaxResolveDepth = 32;
     private static readonly JsonSerializerOptions s_jsonOptions = new();
     private static readonly ExpressionParser s_expressionParser = new();
@@ -256,6 +275,7 @@ internal sealed class RenderContext(
                 fireAction,
                 onDataModelChanged,
                 logger,
+                surfaceCancellation,
                 itemBasePath
             );
 

@@ -62,4 +62,11 @@ public interface IRenderContext
     /// May be null when logging is not configured.
     /// </summary>
     ILogger? Logger { get; }
+
+    /// <summary>
+    /// Cancellation token tied to the surface/render lifetime.
+    /// Use this for async operations (e.g. image downloads) so they are
+    /// cancelled when the surface is cleared or replaced.
+    /// </summary>
+    CancellationToken SurfaceCancellation { get; }
 }

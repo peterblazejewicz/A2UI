@@ -193,4 +193,6 @@ internal sealed class ActionCapturingRenderContext(DataModel dm) : IRenderContex
     public double? GetComponentWeight(string componentId) => null;
 
     public ILogger? Logger => null;
+
+    public CancellationToken SurfaceCancellation => CancellationToken.None;
 }

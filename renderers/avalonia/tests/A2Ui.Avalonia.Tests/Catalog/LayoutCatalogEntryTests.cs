@@ -403,6 +403,8 @@ internal sealed class ChildReturningRenderContext : IRenderContext
     public double? GetComponentWeight(string componentId) => null;
 
     public ILogger? Logger => null;
+
+    public CancellationToken SurfaceCancellation => CancellationToken.None;
 }
 
 /// <summary>
@@ -441,4 +443,6 @@ internal sealed class WeightedChildRenderContext : IRenderContext
         this._weights.TryGetValue(componentId, out var w) ? w : null;
 
     public ILogger? Logger => null;
+
+    public CancellationToken SurfaceCancellation => CancellationToken.None;
 }

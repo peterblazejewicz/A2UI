@@ -37,7 +37,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
         if (url is not null)
         {
             img.Tag = url;
-            _ = this.LoadImageAsync(img, url, CancellationToken.None);
+            _ = this.LoadImageAsync(img, url, context.SurfaceCancellation);
         }
         return img;
     }
@@ -63,7 +63,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
 
         // URL changed or source not yet loaded — reload.
         img.Tag = url;
-        _ = this.LoadImageAsync(img, url, CancellationToken.None);
+        _ = this.LoadImageAsync(img, url, context.SurfaceCancellation);
         return true;
     }
 

@@ -25,4 +25,6 @@ internal sealed class MockRenderContext(DataModel dataModel) : IRenderContext
     public double? GetComponentWeight(string componentId) => null;
 
     public ILogger? Logger => null;
+
+    public CancellationToken SurfaceCancellation { get; init; }
 }
