@@ -1,8 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Headless;
+using Avalonia.Headless.XUnit;
 using Avalonia.Themes.Fluent;
 
 [assembly: AvaloniaTestApplication(typeof(A2Ui.Avalonia.Tests.TestApp))]
+[assembly: AvaloniaTestIsolation(AvaloniaTestIsolationLevel.PerAssembly)]
 
 namespace A2Ui.Avalonia.Tests;
 
