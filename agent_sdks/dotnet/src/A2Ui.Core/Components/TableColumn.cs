@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace A2Ui.Core.Messages;
+namespace A2Ui.Core.Components;
 
 /// <summary>Table column definition (extension, not in v0.9 spec).</summary>
 public sealed record TableColumn

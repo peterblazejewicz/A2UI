@@ -1,8 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using A2Ui.Core.Components;
 
-namespace A2Ui.Core.Messages;
+namespace A2Ui.Core.Components;
 
 /// <summary>
 /// A2UI v0.9 component in the flat adjacency list.

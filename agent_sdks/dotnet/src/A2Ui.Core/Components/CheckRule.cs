@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace A2Ui.Core.Messages;
+namespace A2Ui.Core.Components;
 
 /// <summary>Client-side validation rule.</summary>
 public sealed record CheckRule

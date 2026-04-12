@@ -1,3 +1,4 @@
+using A2Ui.Core.Surfaces;
 using Avalonia.Headless.XUnit;
 using Xunit;
 

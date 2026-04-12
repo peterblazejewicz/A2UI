@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace A2Ui.Core.Messages;
+namespace A2Ui.Core.Components;
 
 /// <summary>
 /// Template for generating dynamic children by iterating over a data model array.

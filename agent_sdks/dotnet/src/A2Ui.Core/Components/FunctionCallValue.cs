@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace A2Ui.Core.Messages;
+namespace A2Ui.Core.Components;
 
 /// <summary>
 /// Invokes a named function on the client.

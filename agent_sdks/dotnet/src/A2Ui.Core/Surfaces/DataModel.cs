@@ -1,9 +1,10 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
 
-namespace A2Ui.Core;
+namespace A2Ui.Core.Surfaces;
 
 /// <summary>
 /// Per-surface data model store.

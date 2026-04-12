@@ -2,7 +2,9 @@
 using System.Text.Json;
 using System.Threading.Channels;
 using A2Ui.Core;
+using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
+using A2Ui.Core.Surfaces;
 using AgUi.Protocol;
 using AgUi.Protocol.Events;
 using Avalonia.Threading;

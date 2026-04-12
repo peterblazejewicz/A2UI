@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace A2Ui.Core;
+namespace A2Ui.Core.Capabilities;
 
 /// <summary>Version-specific client capabilities.</summary>
 public sealed record ClientCapabilitiesV09

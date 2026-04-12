@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace A2Ui.Core.Messages;
+namespace A2Ui.Core.Components;
 
 /// <summary>Option for ChoicePicker component.</summary>
 public sealed record ChoiceOption

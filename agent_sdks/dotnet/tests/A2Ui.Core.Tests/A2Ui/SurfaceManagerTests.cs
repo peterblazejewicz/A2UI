@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.Json;
 using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
+using A2Ui.Core.Surfaces;
 
 namespace A2Ui.Core.Tests.A2Ui;
 

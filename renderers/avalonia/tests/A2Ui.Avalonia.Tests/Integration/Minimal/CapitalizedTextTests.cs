@@ -1,3 +1,4 @@
+using A2Ui.Core.Surfaces;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Xunit;
@@ -88,6 +89,6 @@ public sealed class CapitalizedTextTests
 
         GalleryTestHelper.SetText(textBox, "hello");
 
-        Assert.Equal("hello", result.Surface.DataModel.Resolve(Core.Messages.DynamicValue.FromPath("/inputValue")));
+        Assert.Equal("hello", result.Surface.DataModel.Resolve(Core.Components.DynamicValue.FromPath("/inputValue")));
     }
 }

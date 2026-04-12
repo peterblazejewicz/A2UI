@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace A2Ui.Core.Messages;
+namespace A2Ui.Core.Components;
 
 /// <summary>Accessibility attributes for screen readers.</summary>
 public sealed record AccessibilityAttributes

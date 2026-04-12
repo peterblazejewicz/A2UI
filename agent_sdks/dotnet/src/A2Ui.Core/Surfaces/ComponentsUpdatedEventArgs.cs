@@ -1,6 +1,6 @@
-using A2Ui.Core.Messages;
+using A2Ui.Core.Components;
 
-namespace A2Ui.Core;
+namespace A2Ui.Core.Surfaces;
 
 /// <summary>Event arguments for the <see cref="SurfaceManager.ComponentsUpdated"/> event.</summary>
 /// <param name="Surface">The surface whose components were updated.</param>

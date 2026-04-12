@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace A2Ui.Core;
+namespace A2Ui.Core.Capabilities;
 
 /// <summary>
 /// A2UI v0.9 server capabilities — advertised via transport metadata

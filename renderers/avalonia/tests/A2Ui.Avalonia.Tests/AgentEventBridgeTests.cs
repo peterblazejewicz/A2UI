@@ -1,4 +1,5 @@
 using A2Ui.Core;
+using A2Ui.Core.Surfaces;
 using AgUi.Protocol.Events;
 using Avalonia.Headless.XUnit;
 using Avalonia.Threading;

@@ -1,3 +1,4 @@
+using A2Ui.Core.Surfaces;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Xunit;
@@ -74,7 +75,7 @@ public sealed class LoginFormTests
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
         GalleryTestHelper.SetText(textBoxes[0], "alice");
 
-        Assert.Equal("alice", result.Surface.DataModel.Resolve(Core.Messages.DynamicValue.FromPath("/username")));
+        Assert.Equal("alice", result.Surface.DataModel.Resolve(Core.Components.DynamicValue.FromPath("/username")));
     }
 
     [AvaloniaFact]
@@ -85,7 +86,7 @@ public sealed class LoginFormTests
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
         GalleryTestHelper.SetText(textBoxes[1], "secret123");
 
-        Assert.Equal("secret123", result.Surface.DataModel.Resolve(Core.Messages.DynamicValue.FromPath("/password")));
+        Assert.Equal("secret123", result.Surface.DataModel.Resolve(Core.Components.DynamicValue.FromPath("/password")));
     }
 
     [AvaloniaFact]

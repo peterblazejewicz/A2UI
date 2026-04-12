@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.Json;
 using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
+using A2Ui.Core.Surfaces;
 using A2Ui.TestHelpers;
 using Microsoft.Extensions.Logging;
 
@@ -16,7 +17,7 @@ namespace A2Ui.Core.Tests.A2Ui;
 /// </summary>
 public sealed class TelemetryScenarioTests
 {
-    private const string SurfaceManagerCategory = "A2Ui.Core.SurfaceManager";
+    private const string SurfaceManagerCategory = "A2Ui.Core.Surfaces.SurfaceManager";
     private const string CoreActivitySource = "A2Ui.Core";
 
     [Fact]

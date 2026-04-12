@@ -4,6 +4,7 @@ using A2Ui.Avalonia.Gallery.Models;
 using A2Ui.Avalonia.Gallery.Services;
 using A2Ui.Core;
 using A2Ui.Core.Messages;
+using A2Ui.Core.Surfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;

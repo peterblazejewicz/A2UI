@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace A2Ui.Core;
+namespace A2Ui.Core.Surfaces;
 
 internal static partial class SurfaceManagerLog
 {

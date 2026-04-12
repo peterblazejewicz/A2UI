@@ -1,5 +1,6 @@
 using System.Text.Json;
 using A2Ui.Core.Messages;
+using A2Ui.Core.Surfaces;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Xunit;

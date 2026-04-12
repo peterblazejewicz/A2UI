@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text.Json;
+using A2Ui.Core.Capabilities;
 
 namespace A2Ui.Core.Tests.A2Ui;
 

@@ -2,7 +2,7 @@ using System.Text.Json;
 using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
 
-namespace A2Ui.Core;
+namespace A2Ui.Core.Surfaces;
 
 /// <summary>
 /// Represents a live A2UI surface with its component tree and data model.

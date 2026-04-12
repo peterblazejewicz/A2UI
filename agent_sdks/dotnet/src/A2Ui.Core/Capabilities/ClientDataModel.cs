@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace A2Ui.Core;
+namespace A2Ui.Core.Capabilities;
 
 /// <summary>
 /// A2UI v0.9 client data model — attached to client-to-server message metadata

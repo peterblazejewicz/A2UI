@@ -1,10 +1,12 @@
 using System.Diagnostics;
 using System.Text.Json;
+using A2Ui.Core;
+using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace A2Ui.Core;
+namespace A2Ui.Core.Surfaces;
 
 /// <summary>
 /// Manages the lifecycle of A2UI surfaces and their component trees.
