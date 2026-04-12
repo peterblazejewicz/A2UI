@@ -1,5 +1,4 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace A2Ui.Core.Messages;
 
@@ -71,80 +70,4 @@ public sealed record A2UiMessage
             { UpdateDataModel: not null } => A2UiOperationType.UpdateDataModel,
             _ => null,
         };
-}
-
-/// <summary>Discriminator for the operation type in an A2UiMessage.</summary>
-public enum A2UiOperationType
-{
-    /// <summary>The message creates a new surface.</summary>
-    CreateSurface,
-
-    /// <summary>The message deletes an existing surface.</summary>
-    DeleteSurface,
-
-    /// <summary>The message updates the component tree on a surface.</summary>
-    UpdateComponents,
-
-    /// <summary>The message updates the data model on a surface.</summary>
-    UpdateDataModel,
-}
-
-/// <summary>Operation payload for creating a new surface.</summary>
-public sealed record CreateSurface
-{
-    /// <summary>Unique identifier for the surface being created.</summary>
-    [JsonPropertyName("surfaceId")]
-    public required string SurfaceId { get; init; }
-
-    /// <summary>Catalog identifier defining the allowed component set.</summary>
-    [JsonPropertyName("catalogId")]
-    public required string CatalogId { get; init; }
-
-    /// <summary>Optional theme configuration (primaryColor, iconUrl, agentDisplayName).</summary>
-    [JsonPropertyName("theme")]
-    public JsonElement? Theme { get; init; }
-
-    /// <summary>When true, the client sends data model state back to the server.</summary>
-    [JsonPropertyName("sendDataModel")]
-    public bool? SendDataModel { get; init; }
-}
-
-/// <summary>Operation payload for deleting an existing surface.</summary>
-public sealed record DeleteSurface
-{
-    /// <summary>Identifier of the surface to delete.</summary>
-    [JsonPropertyName("surfaceId")]
-    public required string SurfaceId { get; init; }
-}
-
-/// <summary>Operation payload for updating components on a surface.</summary>
-public sealed record UpdateComponents
-{
-    /// <summary>Identifier of the target surface.</summary>
-    [JsonPropertyName("surfaceId")]
-    public required string SurfaceId { get; init; }
-
-    /// <summary>Components to add or update in the surface's component tree.</summary>
-    [JsonPropertyName("components")]
-    public required A2UiComponent[] Components { get; init; }
-}
-
-/// <summary>
-/// Updates the data model at a JSON Pointer path.
-/// If path is null or "/", replaces the entire model.
-/// If value is null, deletes the key at path.
-/// </summary>
-public sealed record UpdateDataModel
-{
-    /// <summary>Identifier of the target surface.</summary>
-    [JsonPropertyName("surfaceId")]
-    public required string SurfaceId { get; init; }
-
-    /// <summary>JSON Pointer path; null or "/" replaces the entire model.</summary>
-    [JsonPropertyName("path")]
-    public string? Path { get; init; }
-
-    /// <summary>Value to set at the path; null deletes the key.</summary>
-    [JsonPropertyName("value")]
-    public JsonElement? Value { get; init; }
 }

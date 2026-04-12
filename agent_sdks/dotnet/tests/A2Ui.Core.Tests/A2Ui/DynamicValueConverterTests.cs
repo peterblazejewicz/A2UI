@@ -1,7 +1,7 @@
 using System.Text.Json;
 using A2Ui.Core.Messages;
 
-namespace A2Ui.Core.Tests;
+namespace A2Ui.Core.Tests.A2Ui;
 
 public sealed class DynamicValueConverterTests
 {

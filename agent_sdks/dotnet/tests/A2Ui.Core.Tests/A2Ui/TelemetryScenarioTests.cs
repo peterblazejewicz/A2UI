@@ -1,12 +1,12 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
-using A2Ui.Core;
+using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
 using A2Ui.TestHelpers;
 using Microsoft.Extensions.Logging;
 
-namespace A2Ui.Core.Tests;
+namespace A2Ui.Core.Tests.A2Ui;
 
 /// <summary>
 /// Phase 2 Slice C — representative telemetry scenarios that assert on

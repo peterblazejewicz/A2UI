@@ -1,10 +1,11 @@
 ﻿using A2Ui.Core;
+using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 
-namespace A2Ui.Avalonia.Catalog;
+namespace A2Ui.Avalonia.Catalog.Entries;
 
 /// <summary>A2UI "Column" → vertical layout panel.</summary>
 public sealed class ColumnCatalogEntry : ICatalogEntry

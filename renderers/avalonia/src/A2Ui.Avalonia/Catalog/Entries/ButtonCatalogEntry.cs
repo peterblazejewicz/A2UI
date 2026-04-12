@@ -1,8 +1,9 @@
 ﻿using A2Ui.Core;
+using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 
-namespace A2Ui.Avalonia.Catalog;
+namespace A2Ui.Avalonia.Catalog.Entries;
 
 /// <summary>A2UI "Button" → Avalonia Button with variant styling and action handling.</summary>
 public sealed class ButtonCatalogEntry : ICatalogEntry

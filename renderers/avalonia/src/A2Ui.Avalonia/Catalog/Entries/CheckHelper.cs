@@ -2,7 +2,7 @@
 using Avalonia.Controls;
 using Microsoft.Extensions.Logging;
 
-namespace A2Ui.Avalonia.Catalog;
+namespace A2Ui.Avalonia.Catalog.Entries;
 
 /// <summary>
 /// Evaluates <see cref="CheckRule"/> conditions and wraps a control with

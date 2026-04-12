@@ -1,4 +1,5 @@
 ﻿using A2Ui.Core;
+using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Data;
@@ -8,7 +9,7 @@ using Avalonia.Threading;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace A2Ui.Avalonia.Catalog;
+namespace A2Ui.Avalonia.Catalog.Entries;
 
 /// <summary>A2UI "Image" → Avalonia Image. Loads from URL asynchronously.</summary>
 public sealed class ImageCatalogEntry : ICatalogEntry

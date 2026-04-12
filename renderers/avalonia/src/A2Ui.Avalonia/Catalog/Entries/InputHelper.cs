@@ -1,4 +1,4 @@
-﻿namespace A2Ui.Avalonia.Catalog;
+﻿namespace A2Ui.Avalonia.Catalog.Entries;
 
 /// <summary>
 /// Shared helper for input catalog entries that need two-way data model binding.

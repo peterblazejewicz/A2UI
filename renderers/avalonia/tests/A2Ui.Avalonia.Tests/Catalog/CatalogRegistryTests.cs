@@ -1,4 +1,5 @@
 ﻿using A2Ui.Avalonia.Catalog;
+using A2Ui.Avalonia.Catalog.Entries;
 using Xunit;
 
 namespace A2Ui.Avalonia.Tests.Catalog;

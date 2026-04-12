@@ -1,4 +1,5 @@
 ﻿using A2Ui.Core;
+using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
 using Avalonia;
 using Avalonia.Controls;
@@ -6,7 +7,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 
-namespace A2Ui.Avalonia.Catalog;
+namespace A2Ui.Avalonia.Catalog.Entries;
 
 /// <summary>Extracts a binding path from a <see cref="DynamicValue"/> using pattern matching.</summary>
 internal static class DynamicValueExtensions

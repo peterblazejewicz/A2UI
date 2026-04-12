@@ -1,9 +1,10 @@
 ﻿using A2Ui.Core;
+using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
 using Avalonia.Controls;
 using Avalonia.Media;
 
-namespace A2Ui.Avalonia.Catalog;
+namespace A2Ui.Avalonia.Catalog.Entries;
 
 /// <summary>
 /// A2UI "Text" → Avalonia TextBlock.
