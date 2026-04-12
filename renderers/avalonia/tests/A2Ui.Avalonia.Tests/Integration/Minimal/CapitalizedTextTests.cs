@@ -88,9 +88,6 @@ public sealed class CapitalizedTextTests
 
         GalleryTestHelper.SetText(textBox, "hello");
 
-        Assert.Equal(
-            "hello",
-            result.Surface.DataModel.Resolve(new Core.Messages.DynamicValue { Path = "/inputValue" })
-        );
+        Assert.Equal("hello", result.Surface.DataModel.Resolve(Core.Messages.DynamicValue.FromPath("/inputValue")));
     }
 }

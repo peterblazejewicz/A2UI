@@ -9,34 +9,231 @@ namespace A2Ui.Core.Messages;
 /// DynamicBoolean/DynamicStringList types from common_types.json.
 ///
 /// Wire formats:
-///   "hello"                          → StringLiteral
-///   42.5                             → NumberLiteral
-///   true                             → BoolLiteral
-///   ["a", "b"]                       → ArrayLiteral
-///   {"path": "/reservation/date"}    → DataBinding (Path)
-///   {"call": "formatDate", ...}      → FunctionCall
+///   "hello"                          → StringValue
+///   42.5                             → NumberValue
+///   true                             → BoolValue
+///   ["a", "b"]                       → ArrayValue
+///   {"path": "/reservation/date"}    → PathValue (data binding)
+///   {"call": "formatDate", ...}      → FunctionValue
+///
+/// Use <see cref="Match{T}"/> for exhaustive dispatch over all subtypes.
 /// </summary>
 [JsonConverter(typeof(DynamicValueConverter))]
-public sealed record DynamicValue
+public abstract record DynamicValue
 {
-    public string? StringLiteral { get; init; }
-    public double? NumberLiteral { get; init; }
-    public bool? BoolLiteral { get; init; }
-    public JsonElement? ArrayLiteral { get; init; }
-    public string? Path { get; init; }
-    public FunctionCallValue? FunctionCall { get; init; }
+    private DynamicValue() { }
 
-    public bool IsBound => Path is not null;
-    public bool IsFunction => FunctionCall is not null;
-    public bool IsLiteral => !IsBound && !IsFunction;
+    /// <summary>A string literal value.</summary>
+    public sealed record StringValue(string Value) : DynamicValue
+    {
+        /// <inheritdoc />
+        public override T Match<T>(
+            Func<StringValue, T> onString,
+            Func<NumberValue, T> onNumber,
+            Func<BoolValue, T> onBool,
+            Func<ArrayValue, T> onArray,
+            Func<PathValue, T> onPath,
+            Func<FunctionValue, T> onFunction
+        ) => onString(this);
 
-    public static DynamicValue FromString(string value) => new() { StringLiteral = value };
+        /// <inheritdoc />
+        public override void Switch(
+            Action<StringValue> onString,
+            Action<NumberValue> onNumber,
+            Action<BoolValue> onBool,
+            Action<ArrayValue> onArray,
+            Action<PathValue> onPath,
+            Action<FunctionValue> onFunction
+        ) => onString(this);
+    }
 
-    public static DynamicValue FromPath(string path) => new() { Path = path };
+    /// <summary>A numeric literal value.</summary>
+    public sealed record NumberValue(double Value) : DynamicValue
+    {
+        /// <inheritdoc />
+        public override T Match<T>(
+            Func<StringValue, T> onString,
+            Func<NumberValue, T> onNumber,
+            Func<BoolValue, T> onBool,
+            Func<ArrayValue, T> onArray,
+            Func<PathValue, T> onPath,
+            Func<FunctionValue, T> onFunction
+        ) => onNumber(this);
 
-    public static DynamicValue FromNumber(double value) => new() { NumberLiteral = value };
+        /// <inheritdoc />
+        public override void Switch(
+            Action<StringValue> onString,
+            Action<NumberValue> onNumber,
+            Action<BoolValue> onBool,
+            Action<ArrayValue> onArray,
+            Action<PathValue> onPath,
+            Action<FunctionValue> onFunction
+        ) => onNumber(this);
+    }
 
-    public static DynamicValue FromBool(bool value) => new() { BoolLiteral = value };
+    /// <summary>A boolean literal value.</summary>
+    public sealed record BoolValue(bool Value) : DynamicValue
+    {
+        /// <inheritdoc />
+        public override T Match<T>(
+            Func<StringValue, T> onString,
+            Func<NumberValue, T> onNumber,
+            Func<BoolValue, T> onBool,
+            Func<ArrayValue, T> onArray,
+            Func<PathValue, T> onPath,
+            Func<FunctionValue, T> onFunction
+        ) => onBool(this);
+
+        /// <inheritdoc />
+        public override void Switch(
+            Action<StringValue> onString,
+            Action<NumberValue> onNumber,
+            Action<BoolValue> onBool,
+            Action<ArrayValue> onArray,
+            Action<PathValue> onPath,
+            Action<FunctionValue> onFunction
+        ) => onBool(this);
+    }
+
+    /// <summary>A JSON array literal value.</summary>
+    public sealed record ArrayValue(JsonElement Value) : DynamicValue
+    {
+        /// <inheritdoc />
+        public override T Match<T>(
+            Func<StringValue, T> onString,
+            Func<NumberValue, T> onNumber,
+            Func<BoolValue, T> onBool,
+            Func<ArrayValue, T> onArray,
+            Func<PathValue, T> onPath,
+            Func<FunctionValue, T> onFunction
+        ) => onArray(this);
+
+        /// <inheritdoc />
+        public override void Switch(
+            Action<StringValue> onString,
+            Action<NumberValue> onNumber,
+            Action<BoolValue> onBool,
+            Action<ArrayValue> onArray,
+            Action<PathValue> onPath,
+            Action<FunctionValue> onFunction
+        ) => onArray(this);
+    }
+
+    /// <summary>A data binding path reference (e.g. "/user/name").</summary>
+    public sealed record PathValue(string DataPath) : DynamicValue
+    {
+        /// <inheritdoc />
+        public override T Match<T>(
+            Func<StringValue, T> onString,
+            Func<NumberValue, T> onNumber,
+            Func<BoolValue, T> onBool,
+            Func<ArrayValue, T> onArray,
+            Func<PathValue, T> onPath,
+            Func<FunctionValue, T> onFunction
+        ) => onPath(this);
+
+        /// <inheritdoc />
+        public override void Switch(
+            Action<StringValue> onString,
+            Action<NumberValue> onNumber,
+            Action<BoolValue> onBool,
+            Action<ArrayValue> onArray,
+            Action<PathValue> onPath,
+            Action<FunctionValue> onFunction
+        ) => onPath(this);
+    }
+
+    /// <summary>A client-side function call.</summary>
+    public sealed record FunctionValue(FunctionCallValue Call) : DynamicValue
+    {
+        /// <inheritdoc />
+        public override T Match<T>(
+            Func<StringValue, T> onString,
+            Func<NumberValue, T> onNumber,
+            Func<BoolValue, T> onBool,
+            Func<ArrayValue, T> onArray,
+            Func<PathValue, T> onPath,
+            Func<FunctionValue, T> onFunction
+        ) => onFunction(this);
+
+        /// <inheritdoc />
+        public override void Switch(
+            Action<StringValue> onString,
+            Action<NumberValue> onNumber,
+            Action<BoolValue> onBool,
+            Action<ArrayValue> onArray,
+            Action<PathValue> onPath,
+            Action<FunctionValue> onFunction
+        ) => onFunction(this);
+    }
+
+    /// <summary>
+    /// Exhaustive pattern match over all <see cref="DynamicValue"/> subtypes.
+    /// Each branch receives the concrete subtype instance.
+    /// </summary>
+    public abstract T Match<T>(
+        Func<StringValue, T> onString,
+        Func<NumberValue, T> onNumber,
+        Func<BoolValue, T> onBool,
+        Func<ArrayValue, T> onArray,
+        Func<PathValue, T> onPath,
+        Func<FunctionValue, T> onFunction
+    );
+
+    /// <summary>
+    /// Exhaustive side-effecting dispatch over all <see cref="DynamicValue"/> subtypes.
+    /// </summary>
+    public abstract void Switch(
+        Action<StringValue> onString,
+        Action<NumberValue> onNumber,
+        Action<BoolValue> onBool,
+        Action<ArrayValue> onArray,
+        Action<PathValue> onPath,
+        Action<FunctionValue> onFunction
+    );
+
+    // ── Factory methods ──────────────────────────────────────────────
+
+    /// <summary>Creates a <see cref="StringValue"/> from a string literal.</summary>
+    public static DynamicValue FromString(string value) => new StringValue(value);
+
+    /// <summary>Creates a <see cref="PathValue"/> from a data binding path.</summary>
+    public static DynamicValue FromPath(string path) => new PathValue(path);
+
+    /// <summary>Creates a <see cref="NumberValue"/> from a numeric literal.</summary>
+    public static DynamicValue FromNumber(double value) => new NumberValue(value);
+
+    /// <summary>Creates a <see cref="BoolValue"/> from a boolean literal.</summary>
+    public static DynamicValue FromBool(bool value) => new BoolValue(value);
+
+    // ── Backward-compatible properties (to be removed in a future unit) ──
+
+    /// <summary>Returns the string literal value, or null if this is not a <see cref="StringValue"/>.</summary>
+    public string? StringLiteral => this is StringValue s ? s.Value : null;
+
+    /// <summary>Returns the numeric literal value, or null if this is not a <see cref="NumberValue"/>.</summary>
+    public double? NumberLiteral => this is NumberValue n ? n.Value : null;
+
+    /// <summary>Returns the boolean literal value, or null if this is not a <see cref="BoolValue"/>.</summary>
+    public bool? BoolLiteral => this is BoolValue b ? b.Value : null;
+
+    /// <summary>Returns the JSON array element, or null if this is not an <see cref="ArrayValue"/>.</summary>
+    public JsonElement? ArrayLiteral => this is ArrayValue a ? a.Value : null;
+
+    /// <summary>Returns the data binding path, or null if this is not a <see cref="PathValue"/>.</summary>
+    public string? Path => this is PathValue p ? p.DataPath : null;
+
+    /// <summary>Returns the function call, or null if this is not a <see cref="FunctionValue"/>.</summary>
+    public FunctionCallValue? FunctionCall => this is FunctionValue f ? f.Call : null;
+
+    /// <summary>True if this value is a data binding path reference.</summary>
+    public bool IsBound => this is PathValue;
+
+    /// <summary>True if this value is a function call.</summary>
+    public bool IsFunction => this is FunctionValue;
+
+    /// <summary>True if this value is a literal (not a path or function call).</summary>
+    public bool IsLiteral => this is not PathValue and not FunctionValue;
 }
 
 /// <summary>
@@ -61,11 +258,11 @@ internal sealed class DynamicValueConverter : JsonConverter<DynamicValue>
     {
         return reader.TokenType switch
         {
-            JsonTokenType.String => DynamicValue.FromString(reader.GetString()!),
-            JsonTokenType.Number => DynamicValue.FromNumber(reader.GetDouble()),
-            JsonTokenType.True => DynamicValue.FromBool(true),
-            JsonTokenType.False => DynamicValue.FromBool(false),
-            JsonTokenType.StartArray => new DynamicValue { ArrayLiteral = JsonElement.ParseValue(ref reader) },
+            JsonTokenType.String => new DynamicValue.StringValue(reader.GetString()!),
+            JsonTokenType.Number => new DynamicValue.NumberValue(reader.GetDouble()),
+            JsonTokenType.True => new DynamicValue.BoolValue(true),
+            JsonTokenType.False => new DynamicValue.BoolValue(false),
+            JsonTokenType.StartArray => new DynamicValue.ArrayValue(JsonElement.ParseValue(ref reader)),
             JsonTokenType.StartObject => ReadObject(ref reader),
             _ => null,
         };
@@ -77,12 +274,12 @@ internal sealed class DynamicValueConverter : JsonConverter<DynamicValue>
         var root = doc.RootElement;
 
         if (root.TryGetProperty("path", out var pathEl))
-            return DynamicValue.FromPath(pathEl.GetString()!);
+            return new DynamicValue.PathValue(pathEl.GetString()!);
 
         if (root.TryGetProperty("call", out _))
         {
             var fc = root.Deserialize<FunctionCallValue>();
-            return new DynamicValue { FunctionCall = fc };
+            return new DynamicValue.FunctionValue(fc!);
         }
 
         return null;
@@ -90,31 +287,18 @@ internal sealed class DynamicValueConverter : JsonConverter<DynamicValue>
 
     public override void Write(Utf8JsonWriter writer, DynamicValue value, JsonSerializerOptions options)
     {
-        if (value.Path is not null)
-        {
-            writer.WriteStartObject();
-            writer.WriteString("path", value.Path);
-            writer.WriteEndObject();
-        }
-        else if (value.FunctionCall is not null)
-        {
-            JsonSerializer.Serialize(writer, value.FunctionCall, options);
-        }
-        else if (value.NumberLiteral is not null)
-        {
-            writer.WriteNumberValue(value.NumberLiteral.Value);
-        }
-        else if (value.BoolLiteral is not null)
-        {
-            writer.WriteBooleanValue(value.BoolLiteral.Value);
-        }
-        else if (value.ArrayLiteral is not null)
-        {
-            value.ArrayLiteral.Value.WriteTo(writer);
-        }
-        else
-        {
-            writer.WriteStringValue(value.StringLiteral);
-        }
+        value.Switch(
+            onString: s => writer.WriteStringValue(s.Value),
+            onNumber: n => writer.WriteNumberValue(n.Value),
+            onBool: b => writer.WriteBooleanValue(b.Value),
+            onArray: a => a.Value.WriteTo(writer),
+            onPath: p =>
+            {
+                writer.WriteStartObject();
+                writer.WriteString("path", p.DataPath);
+                writer.WriteEndObject();
+            },
+            onFunction: f => JsonSerializer.Serialize(writer, f.Call, options)
+        );
     }
 }

@@ -150,16 +150,15 @@ public sealed class DataModel
     {
         if (value is null)
             return null;
-        if (value.StringLiteral is not null)
-            return value.StringLiteral;
-        if (value.NumberLiteral is not null)
-            return value.NumberLiteral.Value.ToString(CultureInfo.InvariantCulture);
-        if (value.BoolLiteral is not null)
-            return value.BoolLiteral.Value ? "true" : "false";
-        if (value.Path is not null)
-            return ResolvePathAsString(value.Path);
-        // FunctionCall and ArrayLiteral: not resolvable to string at model layer
-        return null;
+
+        return value.Match<string?>(
+            onString: s => s.Value,
+            onNumber: n => n.Value.ToString(CultureInfo.InvariantCulture),
+            onBool: b => b.Value ? "true" : "false",
+            onArray: _ => null,
+            onPath: p => ResolvePathAsString(p.DataPath),
+            onFunction: _ => null
+        );
     }
 
     private string? ResolvePathAsString(string path)

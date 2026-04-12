@@ -74,7 +74,7 @@ public sealed class LoginFormTests
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
         GalleryTestHelper.SetText(textBoxes[0], "alice");
 
-        Assert.Equal("alice", result.Surface.DataModel.Resolve(new Core.Messages.DynamicValue { Path = "/username" }));
+        Assert.Equal("alice", result.Surface.DataModel.Resolve(Core.Messages.DynamicValue.FromPath("/username")));
     }
 
     [AvaloniaFact]
@@ -85,10 +85,7 @@ public sealed class LoginFormTests
         List<TextBox> textBoxes = GalleryTestHelper.FindAll<TextBox>(result.RootControl);
         GalleryTestHelper.SetText(textBoxes[1], "secret123");
 
-        Assert.Equal(
-            "secret123",
-            result.Surface.DataModel.Resolve(new Core.Messages.DynamicValue { Path = "/password" })
-        );
+        Assert.Equal("secret123", result.Surface.DataModel.Resolve(Core.Messages.DynamicValue.FromPath("/password")));
     }
 
     [AvaloniaFact]

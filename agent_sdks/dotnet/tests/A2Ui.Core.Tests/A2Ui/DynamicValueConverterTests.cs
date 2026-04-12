@@ -108,10 +108,9 @@ public sealed class DynamicValueConverterTests
     [Fact]
     public void Write_FunctionCall_ProducesFunctionObject()
     {
-        var dv = new DynamicValue
-        {
-            FunctionCall = new FunctionCallValue { Call = "required", ReturnType = "boolean" },
-        };
+        DynamicValue dv = new DynamicValue.FunctionValue(
+            new FunctionCallValue { Call = "required", ReturnType = "boolean" }
+        );
         var json = JsonSerializer.Serialize(dv, s_opts);
 
         var doc = JsonDocument.Parse(json);
@@ -140,5 +139,72 @@ public sealed class DynamicValueConverterTests
             Assert.Equal(original.BoolLiteral, restored.BoolLiteral);
             Assert.Equal(original.Path, restored.Path);
         }
+    }
+
+    [Fact]
+    public void FromString_ReturnsStringValue()
+    {
+        DynamicValue dv = DynamicValue.FromString("hello");
+        Assert.IsType<DynamicValue.StringValue>(dv);
+    }
+
+    [Fact]
+    public void FromNumber_ReturnsNumberValue()
+    {
+        DynamicValue dv = DynamicValue.FromNumber(3.14);
+        Assert.IsType<DynamicValue.NumberValue>(dv);
+    }
+
+    [Fact]
+    public void FromBool_ReturnsBoolValue()
+    {
+        DynamicValue dv = DynamicValue.FromBool(true);
+        Assert.IsType<DynamicValue.BoolValue>(dv);
+    }
+
+    [Fact]
+    public void FromPath_ReturnsPathValue()
+    {
+        DynamicValue dv = DynamicValue.FromPath("/user/name");
+        Assert.IsType<DynamicValue.PathValue>(dv);
+    }
+
+    [Fact]
+    public void Read_FunctionCall_ReturnsFunctionValue()
+    {
+        var json = """{"call":"required","returnType":"boolean"}""";
+        DynamicValue? dv = JsonSerializer.Deserialize<DynamicValue>(json, s_opts);
+        Assert.IsType<DynamicValue.FunctionValue>(dv);
+    }
+
+    [Fact]
+    public void Match_StringValue_InvokesCorrectBranch()
+    {
+        DynamicValue dv = DynamicValue.FromString("hello");
+        string result = dv.Match(
+            onString: s => $"str:{s.Value}",
+            onNumber: _ => "num",
+            onBool: _ => "bool",
+            onArray: _ => "arr",
+            onPath: _ => "path",
+            onFunction: _ => "fn"
+        );
+        Assert.Equal("str:hello", result);
+    }
+
+    [Fact]
+    public void RecordEquality_SameSubtypeSameValue_AreEqual()
+    {
+        DynamicValue a = DynamicValue.FromString("test");
+        DynamicValue b = DynamicValue.FromString("test");
+        Assert.Equal(a, b);
+    }
+
+    [Fact]
+    public void RecordEquality_DifferentSubtype_AreNotEqual()
+    {
+        DynamicValue a = DynamicValue.FromString("42");
+        DynamicValue b = DynamicValue.FromNumber(42);
+        Assert.NotEqual(a, b);
     }
 }

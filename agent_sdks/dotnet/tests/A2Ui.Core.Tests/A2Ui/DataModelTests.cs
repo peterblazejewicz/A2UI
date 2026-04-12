@@ -222,7 +222,7 @@ public sealed class DataModelTests
     public void Resolve_FunctionCall_ReturnsNull()
     {
         var dm = new DataModel();
-        var fc = new DynamicValue { FunctionCall = new FunctionCallValue { Call = "formatDate" } };
+        var fc = new DynamicValue.FunctionValue(new FunctionCallValue { Call = "formatDate" });
 
         Assert.Null(dm.Resolve(fc));
     }
