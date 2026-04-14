@@ -97,9 +97,14 @@ public sealed class A2AAgentClient : IA2AClient
             new Dictionary<string, object> { ["CorrelationId"] = correlationId, ["MessageId"] = messageId }
         );
 
-        var request = new A2ASendMessageRequest
+        var request = new JsonRpcRequest<A2ASendMessageRequest>
         {
-            Message = new A2AMessage { MessageId = messageId, Parts = parts },
+            Method = "message/send",
+            Id = correlationId,
+            Params = new A2ASendMessageRequest
+            {
+                Message = new A2AMessage { MessageId = messageId, Parts = parts },
+            },
         };
 
         // Serialize once to get the byte count for telemetry, then POST the same bytes.
@@ -124,7 +129,15 @@ public sealed class A2AAgentClient : IA2AClient
             response.EnsureSuccessStatusCode();
 
             byte[] responseBodyBytes = await response.Content.ReadAsByteArrayAsync(ct).ConfigureAwait(false);
+
             A2ATaskResponse? taskResponse = JsonSerializer.Deserialize<A2ATaskResponse>(responseBodyBytes, s_camelCase);
+
+            // JSON-RPC errors arrive with HTTP 200; surface them instead of silently returning no messages.
+            if (taskResponse?.Error is { } rpcError)
+            {
+                A2AAgentClientLog.AgentReturnedError(this._logger, rpcError.Message ?? "(no message)", correlationId);
+                throw new InvalidOperationException($"Agent returned JSON-RPC error: {rpcError.Message}");
+            }
 
             List<A2UiMessage> messages = this.ExtractA2UiMessages(taskResponse, correlationId);
 
@@ -308,4 +321,11 @@ internal static partial class A2AAgentClientLog
         string correlationId,
         Exception exception
     );
+
+    [LoggerMessage(
+        EventId = 10,
+        Level = LogLevel.Error,
+        Message = "Agent returned JSON-RPC error: {ErrorMessage} (correlationId={CorrelationId})"
+    )]
+    public static partial void AgentReturnedError(ILogger logger, string errorMessage, string correlationId);
 }

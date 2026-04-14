@@ -95,7 +95,7 @@ function-call, and data-model-write failures. Phase 1 additions:
 | 12 | Warning | `UnknownComponentTypeRendered` | `ComponentId`, `ComponentType` |
 | 13 | Debug | `TemplateInstantiated` | `ComponentId`, `TemplateType`, `InstanceCount` |
 
-### 3.4 `A2AAgentClientLog` (9 sites) — `samples/client/avalonia/Shell/Services/A2AAgentClient.cs`
+### 3.4 `A2AAgentClientLog` (10 sites) — `samples/client/avalonia/Shell/Services/A2AAgentClient.cs`
 
 | EventId | Level | Name | Key properties |
 |---|---|---|---|
@@ -108,6 +108,7 @@ function-call, and data-model-write failures. Phase 1 additions:
 | 7 | Information | `SendMessageStarted` | `HttpUrl`, `RequestBytes`, `MessageId`, `CorrelationId` |
 | 8 | Information | `SendMessageCompleted` | `HttpStatus`, `ResponseBytes`, `MessageCount`, `DurationMs`, `CorrelationId` |
 | 9 | Error | `SendMessageFailed` | `HttpUrl`, `DurationMs`, `ExceptionType`, `CorrelationId`, Exception |
+| 10 | Error | `AgentReturnedError` | `ErrorMessage`, `CorrelationId` |
 
 ### 3.5 `ShellViewModelLog` (1 site) — `samples/client/avalonia/Shell/ViewModels/ShellViewModel.cs`
 

@@ -5,12 +5,35 @@ using System.Text.Json.Serialization;
 
 namespace A2Ui.Avalonia.Shell.Models;
 
+// Minimal A2A wire format DTOs — only what the Shell client needs to send/receive.
+// These model the A2A transport envelope, not A2UI content.
+
+// ── JSON-RPC 2.0 envelope ─────────────────────
+
 /// <summary>
-/// Minimal A2A wire format DTOs — only what the Shell client needs to send/receive.
-/// These model the A2A transport envelope, not A2UI content.
+/// JSON-RPC 2.0 request envelope. A2A wraps <c>message/send</c> params in this
+/// envelope; posting the bare params object causes the Python <c>a2a</c> SDK
+/// to return an empty result.
 /// </summary>
+internal sealed record JsonRpcRequest<TParams>
+    where TParams : class
+{
+    [JsonPropertyName("jsonrpc")]
+    public string JsonRpc { get; init; } = "2.0";
+
+    [JsonPropertyName("method")]
+    public required string Method { get; init; }
+
+    [JsonPropertyName("id")]
+    public required string Id { get; init; }
+
+    [JsonPropertyName("params")]
+    public required TParams Params { get; init; }
+}
+
 // ── Request ────────────────────────────────────
 
+/// <summary>Params payload for the A2A <c>message/send</c> method.</summary>
 internal sealed record A2ASendMessageRequest
 {
     [JsonPropertyName("message")]
