@@ -602,6 +602,9 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
         bool isChecked = context.Resolve(typed.Value) is "true";
         var cb = new CheckBox { Content = context.Resolve(component.Label), IsChecked = isChecked };
 
+        string? bindingPath = typed.Value.GetBindingPath();
+        string componentId = component.Id;
+
         cb.IsCheckedChanged += (sender, _) =>
         {
             // Skip events fired by programmatic updates in Update()
@@ -610,7 +613,7 @@ public sealed class CheckBoxCatalogEntry : ICatalogEntry
                 return;
             }
 
-            context.FireUserAction(InputEvents.ValueChanged, cb.IsChecked == true ? "true" : "false");
+            InputHelper.NotifyValueChanged(context, bindingPath, cb.IsChecked == true ? "true" : "false", componentId);
         };
 
         return CheckHelper.ApplyChecks(cb, component, context);

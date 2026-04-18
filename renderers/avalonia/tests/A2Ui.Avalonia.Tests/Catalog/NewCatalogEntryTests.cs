@@ -209,6 +209,31 @@ public sealed class NewCatalogEntryTests
         Assert.True(cb.IsChecked);
     }
 
+    [AvaloniaFact]
+    public void CheckBoxCatalogEntry_Toggle_WritesDataModelAndFiresActionWithComponentId()
+    {
+        // Arrange
+        var entry = new CheckBoxCatalogEntry();
+        var dm = new DataModel();
+        var ctx = new DataModelCapturingRenderContext(dm);
+        var c = new CheckBoxComponent
+        {
+            Id = "cb_bound",
+            Label = DynamicValue.FromString("Agree"),
+            Value = DynamicValue.FromPath("/agree"),
+        };
+
+        // Act
+        var control = entry.Create(c, dm, ctx);
+        var cb = (CheckBox)control;
+        cb.IsChecked = true;
+
+        // Assert — both the local data model and the upstream action must reflect the toggle.
+        Assert.Equal("true", dm.Resolve(DynamicValue.FromPath("/agree")));
+        Assert.Single(ctx.FiredActions, a => a.ComponentId == "cb_bound");
+        Assert.Equal("true", ctx.FiredActions[0].Payload);
+    }
+
     // ── Slider with min/max ───────────────────────────────────────────────
 
     [AvaloniaFact]
