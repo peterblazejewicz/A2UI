@@ -247,4 +247,70 @@ public sealed class TelemetryScenarioTests
         Assert.Equal("UpdateComponents", span.GetTagItem("a2ui.message_type"));
         Assert.Equal(ActivityStatusCode.Unset, span.Status);
     }
+
+    [Fact]
+    public void Process_UpdateDataModelWithMalformedPath_LogsWarningAndSuppressesEvent()
+    {
+        // Arrange
+        using var provider = new TestLoggerProvider();
+        using var factory = provider.CreateFactory();
+        var sm = new SurfaceManager(factory);
+
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                CreateSurface = new CreateSurface { SurfaceId = "s-baddata", CatalogId = "c" },
+            }
+        );
+
+        // Seed a primitive at /user so the next update must traverse through a scalar.
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                UpdateDataModel = new UpdateDataModel
+                {
+                    SurfaceId = "s-baddata",
+                    Path = "/user",
+                    Value = JsonSerializer.SerializeToElement("Alice"),
+                },
+            }
+        );
+
+        int dataModelUpdatedFired = 0;
+        sm.DataModelUpdated += (_, _) => dataModelUpdatedFired++;
+
+        // Act — /user/name traverses through the scalar at /user; DataModel throws,
+        // SurfaceManager catches and logs at warning level without raising the event.
+        sm.Process(
+            new A2UiMessage
+            {
+                Version = "v0.9",
+                UpdateDataModel = new UpdateDataModel
+                {
+                    SurfaceId = "s-baddata",
+                    Path = "/user/name",
+                    Value = JsonSerializer.SerializeToElement("Bob"),
+                },
+            }
+        );
+
+        // Assert — EventId 11 fired with structured properties, event suppressed,
+        // and the prior scalar is preserved (the agent state machine can see the
+        // log and the observer sees no spurious "success").
+        var entries = provider.Entries.Where(e => e.CategoryName == SurfaceManagerCategory).ToList();
+        var failed = entries.SingleOrDefault(e => e.EventId.Id == 11);
+        Assert.NotNull(failed);
+        Assert.Equal(LogLevel.Warning, failed!.Level);
+        Assert.Equal("s-baddata", failed.Properties["SurfaceId"]);
+        Assert.Equal("/user/name", failed.Properties["Path"]);
+        Assert.Contains("primitive", (string)failed.Properties["Reason"]!);
+
+        Assert.Equal(0, dataModelUpdatedFired);
+
+        var surface = sm.GetSurface("s-baddata");
+        Assert.NotNull(surface);
+        Assert.Equal("Alice", surface!.DataModel.Resolve(DynamicValue.FromPath("/user")));
+    }
 }

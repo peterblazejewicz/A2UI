@@ -73,4 +73,11 @@ internal static partial class SurfaceManagerLog
         Message = "A2UI message validation failed: {ValidationError} (type={MessageType})"
     )]
     public static partial void ValidationFailed(ILogger logger, string messageType, string validationError);
+
+    [LoggerMessage(
+        EventId = 11,
+        Level = LogLevel.Warning,
+        Message = "Data model update on '{SurfaceId}' rejected at path '{Path}': {Reason}"
+    )]
+    public static partial void DataModelApplyFailed(ILogger logger, string surfaceId, string path, string reason);
 }

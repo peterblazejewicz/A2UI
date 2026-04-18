@@ -548,4 +548,89 @@ public sealed class DataModelTests
 
         Assert.Throws<FormatException>(() => dm.Resolve(DynamicValue.FromPath("/~a")));
     }
+
+    [Fact]
+    public void Apply_TraverseThroughScalar_ThrowsJsonException()
+    {
+        // Seed: /user is a string primitive.
+        var dm = new DataModel();
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/user",
+                Value = JsonSerializer.SerializeToElement("Alice"),
+            }
+        );
+
+        // Attempting to write /user/name must throw rather than silently replace
+        // "Alice" with a new object — otherwise existing data is destroyed with no
+        // diagnostic surface.
+        var ex = Assert.Throws<JsonException>(() =>
+            dm.Apply(
+                new UpdateDataModel
+                {
+                    SurfaceId = "s",
+                    Path = "/user/name",
+                    Value = JsonSerializer.SerializeToElement("Bob"),
+                }
+            )
+        );
+        Assert.Contains("primitive", ex.Message);
+        // Original scalar preserved (exception fired before any overwrite).
+        Assert.Equal("Alice", dm.Resolve(DynamicValue.FromPath("/user")));
+    }
+
+    [Fact]
+    public void SetSnapshot_NonObjectJsonElement_ThrowsJsonException()
+    {
+        var dm = new DataModel();
+        // Seed some data that a silent wipe would erase.
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/keep",
+                Value = JsonSerializer.SerializeToElement("me"),
+            }
+        );
+
+        // Arrays, numbers, strings, booleans, and null all fail fast.
+        Assert.Throws<JsonException>(() => dm.SetSnapshot(JsonSerializer.SerializeToElement(new[] { 1, 2, 3 })));
+        Assert.Throws<JsonException>(() => dm.SetSnapshot(JsonSerializer.SerializeToElement(42)));
+        Assert.Throws<JsonException>(() => dm.SetSnapshot(JsonSerializer.SerializeToElement("bare-string")));
+
+        // Previous state is preserved (exception fired before any mutation).
+        Assert.Equal("me", dm.Resolve(DynamicValue.FromPath("/keep")));
+    }
+
+    [Fact]
+    public void Apply_LeafWriteOnArrayWithNonNumericSegment_ThrowsJsonException()
+    {
+        // Seed: /items is a JsonArray.
+        var dm = new DataModel();
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = "/items",
+                Value = JsonSerializer.SerializeToElement(new[] { "a", "b" }),
+            }
+        );
+
+        // Writing /items/newKey with a non-numeric final segment must throw rather
+        // than silently no-op (which previously let the agent believe the update
+        // applied while the data model diverged).
+        var ex = Assert.Throws<JsonException>(() =>
+            dm.Apply(
+                new UpdateDataModel
+                {
+                    SurfaceId = "s",
+                    Path = "/items/newKey",
+                    Value = JsonSerializer.SerializeToElement("c"),
+                }
+            )
+        );
+        Assert.Contains("newKey", ex.Message);
+    }
 }

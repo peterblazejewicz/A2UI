@@ -266,7 +266,21 @@ public sealed class SurfaceManager
             SurfaceManagerLog.UnknownSurfaceOp(_logger, "updateDataModel", ud.SurfaceId);
             return null;
         }
-        surface.DataModel.Apply(ud);
+
+        try
+        {
+            surface.DataModel.Apply(ud);
+        }
+        catch (JsonException ex)
+        {
+            // DataModel.Apply rejects malformed paths (traverse-through-scalar,
+            // non-object SetSnapshot, JsonArray+non-numeric leaf). Log at warning
+            // and suppress the DataModelUpdated event so downstream observers
+            // never see a "successful" notification for a failed update.
+            SurfaceManagerLog.DataModelApplyFailed(_logger, ud.SurfaceId, ud.Path ?? "/", ex.Message);
+            return null;
+        }
+
         return new(surface);
     }
 }

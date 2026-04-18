@@ -62,7 +62,7 @@ on `EventId` and structured `Properties[...]` values, never on formatted
 message strings (the `Message` template can change without breaking the
 contract).
 
-### 3.1 `SurfaceManagerLog` (10 sites) — `agent_sdks/dotnet/src/A2Ui.Core/SurfaceManager.cs`
+### 3.1 `SurfaceManagerLog` (11 sites) — `agent_sdks/dotnet/src/A2Ui.Core/SurfaceManager.cs`
 
 | EventId | Level | Name | Key properties |
 |---|---|---|---|
@@ -76,6 +76,7 @@ contract).
 | 8 | Information | `SurfacesCleared` | `Count` |
 | 9 | Debug | `MessageDispatched` | `MessageType`, `SurfaceId` |
 | 10 | Warning | `ValidationFailed` | `MessageType`, `ValidationError` |
+| 11 | Warning | `DataModelApplyFailed` | `SurfaceId`, `Path`, `Reason` |
 
 ### 3.2 `CatalogRegistryLog` (2 sites) — `renderers/avalonia/src/A2Ui.Avalonia/Catalog/CatalogRegistry.cs`
 

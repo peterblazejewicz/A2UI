@@ -78,9 +78,21 @@ public sealed class DataModel
     /// <summary>Serialize the current data model state to a JSON string.</summary>
     public string ToJson(bool indented = false) => _root.ToJsonString(indented ? s_indentedOptions : s_compactOptions);
 
-    /// <summary>Replace the entire data model.</summary>
+    /// <summary>
+    /// Replace the entire data model with the given JSON object.
+    /// Throws <see cref="JsonException"/> if the snapshot is not a JSON object —
+    /// arrays, numbers, strings, booleans, and null all fail fast rather than
+    /// silently collapsing to an empty root. Matches the TypeScript reference
+    /// (<c>renderers/web_core/src/v0_9/state/data-model.ts</c>) which also rejects
+    /// non-object snapshots.
+    /// </summary>
     public void SetSnapshot(JsonElement snapshot)
     {
+        if (snapshot.ValueKind != JsonValueKind.Object)
+        {
+            throw new JsonException($"Cannot set data model snapshot: expected JSON object, got {snapshot.ValueKind}.");
+        }
+
         _root = JsonObject.Create(snapshot) ?? new JsonObject();
     }
 
@@ -133,6 +145,15 @@ public sealed class DataModel
             while (arr.Count <= idx)
                 arr.Add(null);
             arr[idx] = newValue;
+        }
+        else
+        {
+            // Reject leaf-write on a JsonArray with a non-numeric final segment.
+            // Silently no-op'ing here let callers believe the update applied while
+            // the data model diverged from the agent's state with no diagnostic.
+            throw new JsonException(
+                $"Cannot set path: final segment '{lastSeg}' is not a valid index for a {container.GetType().Name} parent."
+            );
         }
     }
 
@@ -200,6 +221,17 @@ public sealed class DataModel
             if (obj[segment] is JsonObject or JsonArray)
                 return obj[segment]!;
 
+            // Reject traverse-through-scalar: silently overwriting a JsonValue with
+            // a new container would lose the caller's existing data without any
+            // diagnostic surface. Matches the TypeScript reference which throws
+            // A2uiDataError for the same case.
+            if (obj[segment] is JsonValue)
+            {
+                throw new JsonException(
+                    $"Cannot traverse path segment '{segment}': value at this key is a primitive, not an object or array."
+                );
+            }
+
             // No container at this key — create based on hint
             JsonNode child = createArray ? new JsonArray() : new JsonObject();
             obj[segment] = child;
@@ -213,6 +245,14 @@ public sealed class DataModel
 
             if (arr[idx] is JsonObject or JsonArray)
                 return arr[idx]!;
+
+            // Reject traverse-through-scalar (see comment above).
+            if (arr[idx] is JsonValue)
+            {
+                throw new JsonException(
+                    $"Cannot traverse array index '{segment}': value at this index is a primitive, not an object or array."
+                );
+            }
 
             JsonNode child = createArray ? new JsonArray() : new JsonObject();
             arr[idx] = child;
