@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -8,7 +9,7 @@ namespace A2Ui.Avalonia.Functions;
 /// Static methods implementing the A2UI built-in function catalog.
 /// Each method takes pre-resolved string arguments and returns a string result.
 /// </summary>
-internal static class BuiltInFunctions
+internal static partial class BuiltInFunctions
 {
     // ── Cached culture info ────────────────────────────────────────────
 
@@ -402,26 +403,93 @@ internal static class BuiltInFunctions
     }
 
     /// <summary>
-    /// Map Unicode TR35 date format tokens to .NET format strings.
-    /// Order matters: longer tokens must be replaced first.
+    /// Map Unicode TR35 date format tokens to .NET format strings. Honors TR35's
+    /// single-quote literal escaping: text inside <c>'…'</c> is passed through
+    /// verbatim, and <c>''</c> denotes a literal apostrophe. Without quote-awareness
+    /// a global <c>a → tt</c> replacement corrupted literal spans (e.g.
+    /// <c>EEEE 'at' h:mm a</c> rendered as <c>Wednesday tt 10:30 AM</c>), and
+    /// TR35 wide AM/PM markers (<c>aaaa</c>) produced invalid <c>tttttttt</c>
+    /// format strings that threw inside <c>DateTime.ToString</c>.
     /// </summary>
     private static string MapTr35ToNet(string format)
     {
-        // Day-of-week: EEEE → dddd, E → ddd (must be done before dd/d replacements)
-        // Use a two-pass approach with placeholders to avoid double-replacement
-        string result = format;
+        if (format.Length == 0)
+        {
+            return format;
+        }
 
-        // Replace EEEE/E before touching d/dd (use placeholder to avoid collision)
-        result = result.Replace("EEEE", "\x01FULL_DOW\x01");
-        result = result.Replace("E", "\x01SHORT_DOW\x01");
+        var output = new StringBuilder(format.Length + 8);
+        var unquoted = new StringBuilder();
+        bool inQuoted = false;
+        int i = 0;
 
-        // Now restore placeholders to .NET tokens
-        result = result.Replace("\x01FULL_DOW\x01", "dddd");
-        result = result.Replace("\x01SHORT_DOW\x01", "ddd");
+        while (i < format.Length)
+        {
+            char c = format[i];
 
-        // AM/PM: a → tt
-        result = result.Replace("a", "tt");
+            if (c == '\'')
+            {
+                // Flush any pending unquoted run before we enter/leave the quoted span.
+                if (!inQuoted && unquoted.Length > 0)
+                {
+                    output.Append(TranslateUnquoted(unquoted.ToString()));
+                    unquoted.Clear();
+                }
 
-        return result;
+                // TR35 (and .NET) use '' to denote a literal apostrophe. Emit both
+                // quote characters verbatim and stay in the current mode.
+                if (i + 1 < format.Length && format[i + 1] == '\'')
+                {
+                    output.Append("''");
+                    i += 2;
+                    continue;
+                }
+
+                // Bare single quote toggles the quoted-literal mode. Emit it verbatim
+                // so .NET's formatter sees the same escaping the caller wrote.
+                output.Append('\'');
+                inQuoted = !inQuoted;
+                i++;
+                continue;
+            }
+
+            if (inQuoted)
+            {
+                output.Append(c);
+            }
+            else
+            {
+                unquoted.Append(c);
+            }
+
+            i++;
+        }
+
+        if (unquoted.Length > 0)
+        {
+            output.Append(TranslateUnquoted(unquoted.ToString()));
+        }
+
+        return output.ToString();
     }
+
+    private static string TranslateUnquoted(string chunk)
+    {
+        // Use placeholders so EEEE → dddd (and E → ddd) does not collide with
+        // dd/d token handling by .NET; the mapping order is otherwise irrelevant.
+        string r = chunk;
+        r = r.Replace("EEEE", "\x01FULL_DOW\x01");
+        r = r.Replace("E", "\x01SHORT_DOW\x01");
+        r = r.Replace("\x01FULL_DOW\x01", "dddd");
+        r = r.Replace("\x01SHORT_DOW\x01", "ddd");
+
+        // TR35 collapses every run of a's (a, aa, aaa, aaaa, aaaaa) onto a single
+        // AM/PM designator. Map all runs to .NET's two-letter "tt" — longer runs
+        // like "tttttttt" are rejected by DateTime.ToString.
+        r = AmPmRunRegex().Replace(r, "tt");
+        return r;
+    }
+
+    [GeneratedRegex("a+")]
+    private static partial Regex AmPmRunRegex();
 }

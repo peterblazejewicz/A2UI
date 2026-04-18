@@ -118,6 +118,27 @@ public sealed class FunctionRegistryTests
     }
 
     [Fact]
+    public void FormatDate_QuotedLiteralContainingA_IsPreserved()
+    {
+        // TR35 single-quote spans must pass through verbatim. A naïve global
+        // a → tt replacement would corrupt the literal 'at' into 'tt' and render
+        // "Sunday tt 9:05 AM" instead of "Sunday at 9:05 AM".
+        var result = this.Eval("formatDate", ("value", "2026-03-15T09:05:00Z"), ("format", "EEEE 'at' h:mm a"));
+        Assert.Equal("Sunday at 9:05 AM", result);
+    }
+
+    [Fact]
+    public void FormatDate_WideAmPmMarker_MapsToNetTt()
+    {
+        // TR35 aaaa (wide AM/PM) must collapse to .NET's two-letter tt designator.
+        // A per-character replace produced "tttttttt" which DateTime.ToString
+        // rejects, and FunctionRegistry.Evaluate swallowed the exception,
+        // returning an empty string — a silent regression.
+        var result = this.Eval("formatDate", ("value", "2026-03-15T09:05:00Z"), ("format", "h:mm aaaa"));
+        Assert.Equal("9:05 AM", result);
+    }
+
+    [Fact]
     public void FormatString_IsNotRegistered_ReturnsNull()
     {
         // formatString is a renderer-level special form handled by RenderContext.ResolveFormatString(),
