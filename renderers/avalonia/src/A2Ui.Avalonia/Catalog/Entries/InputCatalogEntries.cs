@@ -504,6 +504,18 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
             }
         }
 
+        // Apply initial selection to ListBox model BEFORE subscribing to SelectionChanged.
+        // Avalonia raises SelectionChanged synchronously on every SelectedItems.Add call;
+        // subscribing first would fire a phantom valueChanged per pre-selected option on the
+        // initial render, echoing the agent's own state back to it before any user interaction.
+        foreach (var item in listBox.Items.OfType<ListBoxItem>())
+        {
+            if (item.Content is CheckBox cb && cb.IsChecked == true)
+            {
+                listBox.SelectedItems!.Add(item);
+            }
+        }
+
         // SelectionChanged is the source of truth — sync CheckBox visuals from it
         listBox.SelectionChanged += (_, _) =>
         {
@@ -524,15 +536,6 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
             string serialized = System.Text.Json.JsonSerializer.Serialize(selected);
             InputHelper.NotifyValueChanged(ctx, bindingPath, serialized, componentId);
         };
-
-        // Apply initial selection to ListBox model (CheckBox IsChecked was set during construction)
-        foreach (var item in listBox.Items.OfType<ListBoxItem>())
-        {
-            if (item.Content is CheckBox cb && cb.IsChecked == true)
-            {
-                listBox.SelectedItems!.Add(item);
-            }
-        }
 
         return listBox;
     }

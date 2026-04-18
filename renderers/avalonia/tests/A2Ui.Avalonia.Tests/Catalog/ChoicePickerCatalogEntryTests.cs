@@ -116,6 +116,44 @@ public sealed class ChoicePickerCatalogEntryTests
     }
 
     [AvaloniaFact]
+    public void Create_MultipleSelection_PreSelected_DoesNotFirePhantomValueChanged()
+    {
+        // Arrange — pre-load the bound path with two selected values.
+        var dm = new DataModel();
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "test",
+                Path = "/selected",
+                Value = System.Text.Json.JsonSerializer.SerializeToElement(new[] { "red", "blue" }),
+            }
+        );
+        var ctx = new MockRenderContext(dm);
+        var entry = new ChoicePickerCatalogEntry();
+        var component = new ChoicePickerComponent
+        {
+            Id = "cp_phantom",
+            Variant = "multipleSelection",
+            Value = DynamicValue.FromPath("/selected"),
+            Options =
+            [
+                new ChoiceOption { Label = "Red", Value = "red" },
+                new ChoiceOption { Label = "Blue", Value = "blue" },
+                new ChoiceOption { Label = "Green", Value = "green" },
+            ],
+        };
+
+        // Act
+        var control = entry.Create(component, dm, ctx);
+
+        // Assert — the initial selection application must not synthesize user actions upstream.
+        Assert.IsType<ListBox>(control);
+        var listBox = (ListBox)control;
+        Assert.Equal(2, listBox.SelectedItems!.Count);
+        Assert.Empty(ctx.FiredActions);
+    }
+
+    [AvaloniaFact]
     public void Create_MultipleSelection_Chips_CreatesWrapPanel()
     {
         var (dm, ctx) = Setup();
