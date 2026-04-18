@@ -161,8 +161,13 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
         var typed = (DateTimeInputComponent)component;
         var raw = context.Resolve(typed.Value);
 
-        // Date + time composite panel
-        if (CheckHelper.FindInner<StackPanel>(existing) is { Tag: DateTimeTag } panel)
+        // Date + time composite panel. Use the tag-aware overload: when the component
+        // has Checks, `existing` is an untagged outer StackPanel wrapping a tagged inner
+        // StackPanel — the plain FindInner<StackPanel> would short-circuit to the outer
+        // wrapper (Tag == null) and this branch would fall through, causing A2UiRenderer
+        // to rebuild the composite control on every refresh and discard focus, in-flight
+        // picker text, and open calendar/clock state.
+        if (CheckHelper.FindInner<StackPanel>(existing, DateTimeTag) is { } panel)
         {
             var datePicker = panel.Children.OfType<CalendarDatePicker>().FirstOrDefault();
             var timePicker = panel.Children.OfType<TimePicker>().FirstOrDefault();
@@ -178,6 +183,15 @@ public sealed class DateTimeInputCatalogEntry : ICatalogEntry
             }
 
             datePicker.PlaceholderText = context.Resolve(component.Label) ?? "Select date";
+
+            // Refresh inline validation error messages (mirrors the date-only branch below).
+            // Without this, switching from in-place rebuild to in-place update leaves stale
+            // check TextBlocks beneath the composite picker when bound data changes.
+            if (existing is StackPanel compositeWrapper && component.Checks is { Length: > 0 })
+            {
+                CheckHelper.UpdateChecks(compositeWrapper, component, context);
+            }
+
             return true;
         }
 

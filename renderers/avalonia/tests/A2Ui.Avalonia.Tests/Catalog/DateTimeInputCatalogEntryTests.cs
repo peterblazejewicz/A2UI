@@ -127,4 +127,83 @@ public sealed class DateTimeInputCatalogEntryTests
         var picker = (CalendarDatePicker)control;
         Assert.Equal(new DateTime(2026, 12, 25), picker.SelectedDate!.Value.Date);
     }
+
+    [AvaloniaFact]
+    public void Update_DateAndTime_WithChecks_UpdatesInPlace()
+    {
+        // Arrange — composite DateTimeInput wrapped in a check panel.
+        var entry = new DateTimeInputCatalogEntry();
+        var dm = new DataModel();
+        var ctx = new DataModelCapturingRenderContext(dm);
+        CheckRule[] checks = [new CheckRule { Condition = DynamicValue.FromBool(true), Message = "Required" }];
+        var comp = new DateTimeInputComponent
+        {
+            Id = "dt_composite_checks",
+            EnableDate = true,
+            EnableTime = true,
+            Value = DynamicValue.FromString("2026-01-01T08:00:00"),
+            Checks = checks,
+        };
+
+        var control = entry.Create(comp, dm, ctx);
+        // Create wraps the tagged composite panel inside an outer check-wrapper StackPanel.
+        Assert.IsType<StackPanel>(control);
+        var outerWrapper = (StackPanel)control;
+        var innerPanel = (StackPanel)outerWrapper.Children[0];
+        var datePicker = innerPanel.Children.OfType<CalendarDatePicker>().Single();
+        var timePicker = innerPanel.Children.OfType<TimePicker>().Single();
+
+        // Act — update to a new date/time value.
+        var comp2 = new DateTimeInputComponent
+        {
+            Id = "dt_composite_checks",
+            EnableDate = true,
+            EnableTime = true,
+            Value = DynamicValue.FromString("2026-12-25T19:30:00"),
+            Checks = checks,
+        };
+        bool updated = entry.Update(control, comp2, dm, ctx);
+
+        // Assert — Update must hit the composite branch (return true) and mutate the
+        // existing inner pickers rather than fall through, which would force the caller
+        // to rebuild the control and discard focus / in-flight picker state.
+        Assert.True(updated);
+        Assert.Equal(new DateTime(2026, 12, 25), datePicker.SelectedDate!.Value.Date);
+        Assert.Equal(new TimeSpan(19, 30, 0), timePicker.SelectedTime);
+    }
+
+    [AvaloniaFact]
+    public void Update_DateAndTime_WithFailingCheck_RefreshesErrorMessage()
+    {
+        // Arrange — composite DateTimeInput with a failing check on initial render.
+        var entry = new DateTimeInputCatalogEntry();
+        var dm = new DataModel();
+        var ctx = new DataModelCapturingRenderContext(dm);
+        var comp = new DateTimeInputComponent
+        {
+            Id = "dt_composite_errors",
+            EnableDate = true,
+            EnableTime = true,
+            Checks = [new CheckRule { Condition = DynamicValue.FromBool(false), Message = "Initial error" }],
+        };
+
+        var control = entry.Create(comp, dm, ctx);
+        var outerWrapper = (StackPanel)control;
+        // Create renders the initial error TextBlock beneath the inner composite panel.
+        Assert.Equal("Initial error", outerWrapper.Children.OfType<TextBlock>().Single().Text);
+
+        // Act — update swaps the check message. In-place Update must refresh the TextBlock.
+        var comp2 = new DateTimeInputComponent
+        {
+            Id = "dt_composite_errors",
+            EnableDate = true,
+            EnableTime = true,
+            Checks = [new CheckRule { Condition = DynamicValue.FromBool(false), Message = "Updated error" }],
+        };
+        bool updated = entry.Update(control, comp2, dm, ctx);
+
+        // Assert — Update returned true and the visible error message reflects the new check.
+        Assert.True(updated);
+        Assert.Equal("Updated error", outerWrapper.Children.OfType<TextBlock>().Single().Text);
+    }
 }

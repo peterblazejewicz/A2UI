@@ -67,6 +67,35 @@ internal static class CheckHelper
     }
 
     /// <summary>
+    /// Tag-aware variant of <see cref="FindInner{T}(Control)"/>. Returns the inner
+    /// control only when its <see cref="Control.Tag"/> equals <paramref name="tag"/>.
+    /// Needed when the check wrapper and the inner container are both the same type
+    /// (e.g. DateTimeInput's composite picker wraps a tagged StackPanel inside an
+    /// untagged wrapper StackPanel): without the tag filter, the direct-match
+    /// shortcut would return the wrapper and the caller would miss the inner panel.
+    /// </summary>
+    public static T? FindInner<T>(Control existing, object tag)
+        where T : Control
+    {
+        if (existing is T direct && Equals(direct.Tag, tag))
+        {
+            return direct;
+        }
+
+        if (
+            existing is StackPanel panel
+            && panel.Children.Count > 0
+            && panel.Children[0] is T inner
+            && Equals(inner.Tag, tag)
+        )
+        {
+            return inner;
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// Show only the first failing check message, matching the Lit reference
     /// behavior (which displays <c>validationErrors[0]</c> only).
     /// </summary>
