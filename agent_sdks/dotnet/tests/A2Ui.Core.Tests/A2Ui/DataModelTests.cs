@@ -633,4 +633,130 @@ public sealed class DataModelTests
         );
         Assert.Contains("newKey", ex.Message);
     }
+
+    // ── Scope-aware resolution (A2UI v0.9 template Child Scope) ─────────
+
+    private static DataModel BuildTemplateFixture()
+    {
+        var dm = new DataModel();
+        dm.Apply(
+            new UpdateDataModel
+            {
+                SurfaceId = "s",
+                Path = null,
+                Value = JsonSerializer.SerializeToElement(
+                    new
+                    {
+                        items = new object[]
+                        {
+                            new { name = "alpha", tags = new[] { "x", "y" } },
+                            new { name = "beta", tags = new[] { "z" } },
+                        },
+                        header = "global",
+                    }
+                ),
+            }
+        );
+        return dm;
+    }
+
+    [Fact]
+    public void ResolveWithBasePath_RelativePath_PrependsBaseAndResolves()
+    {
+        var dm = BuildTemplateFixture();
+
+        var resolved = dm.Resolve(DynamicValue.FromPath("name"), basePath: "/items/0");
+
+        Assert.Equal("alpha", resolved);
+    }
+
+    [Fact]
+    public void ResolveWithBasePath_AbsolutePath_IgnoresBase()
+    {
+        var dm = BuildTemplateFixture();
+
+        var resolved = dm.Resolve(DynamicValue.FromPath("/header"), basePath: "/items/0");
+
+        Assert.Equal("global", resolved);
+    }
+
+    [Fact]
+    public void ResolveWithBasePath_NullBase_BehavesLikeNoScopeResolve()
+    {
+        var dm = BuildTemplateFixture();
+
+        Assert.Equal("global", dm.Resolve(DynamicValue.FromPath("/header"), basePath: null));
+        Assert.Equal(dm.Resolve(DynamicValue.FromPath("/header")), dm.Resolve(DynamicValue.FromPath("/header"), null));
+    }
+
+    [Fact]
+    public void ResolveWithBasePath_EmptyBase_BehavesLikeNoScopeResolve()
+    {
+        var dm = BuildTemplateFixture();
+
+        Assert.Equal("global", dm.Resolve(DynamicValue.FromPath("/header"), basePath: ""));
+    }
+
+    [Fact]
+    public void ResolveWithBasePath_BaseWithTrailingSlash_NormalizesSingleSeparator()
+    {
+        var dm = BuildTemplateFixture();
+
+        var resolved = dm.Resolve(DynamicValue.FromPath("name"), basePath: "/items/1/");
+
+        Assert.Equal("beta", resolved);
+    }
+
+    [Fact]
+    public void ResolveWithBasePath_RelativePathIntoArray_ResolvesWithIndex()
+    {
+        var dm = BuildTemplateFixture();
+
+        var resolved = dm.Resolve(DynamicValue.FromPath("tags/0"), basePath: "/items/0");
+
+        Assert.Equal("x", resolved);
+    }
+
+    [Fact]
+    public void ResolveWithBasePath_StringLiteral_UnaffectedByScope()
+    {
+        var dm = BuildTemplateFixture();
+
+        var resolved = dm.Resolve(DynamicValue.FromString("literal"), basePath: "/items/0");
+
+        Assert.Equal("literal", resolved);
+    }
+
+    [Fact]
+    public void ResolveWithBasePath_MissingRelativePath_ReturnsNull()
+    {
+        var dm = BuildTemplateFixture();
+
+        var resolved = dm.Resolve(DynamicValue.FromPath("missing"), basePath: "/items/0");
+
+        Assert.Null(resolved);
+    }
+
+    [Fact]
+    public void ResolveWithBasePath_NullValue_ReturnsNull()
+    {
+        var dm = BuildTemplateFixture();
+
+        Assert.Null(dm.Resolve(null, basePath: "/items/0"));
+    }
+
+    [Fact]
+    public void ResolveWithBasePath_RelativeBase_Throws()
+    {
+        var dm = BuildTemplateFixture();
+
+        // Programmer-error contract: basePath MUST be an absolute JSON Pointer.
+        // Silent acceptance would hide the mistake and produce surprising results
+        // for callers porting from the Lit/TS implementations where scope is
+        // modeled differently.
+        var ex = Assert.Throws<ArgumentException>(() => dm.Resolve(DynamicValue.FromPath("name"), basePath: "items/0"));
+
+        Assert.Equal("basePath", ex.ParamName);
+        Assert.Contains("absolute JSON Pointer", ex.Message);
+    }
 }

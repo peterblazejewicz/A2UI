@@ -337,13 +337,7 @@ internal sealed class RenderContext(
             return this.ResolveArrayLiteral(arrayEl, depth);
         }
 
-        // Scope relative paths when inside a template expansion
-        if (basePath is not null && value is DynamicValue.PathValue { DataPath: var path } && !path.StartsWith('/'))
-        {
-            return this.ResolveScopedPath(path);
-        }
-
-        return surface.DataModel.Resolve(value);
+        return surface.DataModel.Resolve(value, basePath);
     }
 
     /// <summary>
@@ -506,18 +500,12 @@ internal sealed class RenderContext(
     }
 
     /// <summary>
-    /// Resolve a path token from an expression, respecting scoped base paths.
+    /// Resolve a path token from an expression. Scope handling is delegated to
+    /// <see cref="ResolveCore"/>, which threads the current <c>basePath</c> into
+    /// <see cref="DataModel.Resolve(DynamicValue?, string?)"/>.
     /// </summary>
-    private string? ResolveExpressionPath(string path, int depth)
-    {
-        // Scope relative paths when inside a template expansion
-        if (basePath is not null && !path.StartsWith('/'))
-        {
-            return this.ResolveScopedPath(path);
-        }
-
-        return this.ResolveCore(DynamicValue.FromPath(path), depth);
-    }
+    private string? ResolveExpressionPath(string path, int depth) =>
+        this.ResolveCore(DynamicValue.FromPath(path), depth);
 
     /// <summary>
     /// Resolve a <see cref="FunctionCallToken"/> by resolving each arg token,
@@ -542,12 +530,6 @@ internal sealed class RenderContext(
         }
 
         return functionRegistry.Evaluate(fc.Name, resolvedArgs);
-    }
-
-    private string? ResolveScopedPath(string path)
-    {
-        var scopedValue = DynamicValue.FromPath($"{basePath}/{path}");
-        return surface.DataModel.Resolve(scopedValue);
     }
 
     public double? GetComponentWeight(string componentId) =>

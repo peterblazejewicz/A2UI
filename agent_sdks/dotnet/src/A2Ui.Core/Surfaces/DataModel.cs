@@ -183,6 +183,50 @@ public sealed class DataModel
         );
     }
 
+    /// <summary>
+    /// Resolve a DynamicValue, scoping relative path references to <paramref name="basePath"/>.
+    /// A <see cref="DynamicValue.PathValue"/> whose <c>DataPath</c> does not start with <c>/</c> is
+    /// treated as relative and resolved against <c>basePath + "/" + path</c>. Absolute paths
+    /// (leading <c>/</c>) and non-path values (strings, numbers, booleans, arrays, function
+    /// calls) are unaffected by the scope. Pass <see langword="null"/> or an empty string to
+    /// resolve at the root — identical to <see cref="Resolve(DynamicValue?)"/>.
+    /// </summary>
+    /// <remarks>
+    /// Supports A2UI v0.9 template Child Scope (see
+    /// <c>specification/v0_9/docs/a2ui_protocol.md §"Child Scope"</c>) where children of a
+    /// template instance resolve relative paths against the current iteration item.
+    /// <paramref name="basePath"/> must be an absolute JSON Pointer (starting with <c>/</c>,
+    /// e.g. <c>/items/0</c>) or null/empty; trailing slashes are tolerated. Passing a
+    /// relative <paramref name="basePath"/> throws <see cref="ArgumentException"/> — mirrors
+    /// the "fail loud on programmer error" pattern used elsewhere in <see cref="DataModel"/>.
+    /// </remarks>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="basePath"/> is non-empty and does not start with <c>/</c>.
+    /// </exception>
+    public string? Resolve(DynamicValue? value, string? basePath)
+    {
+        if (string.IsNullOrEmpty(basePath))
+        {
+            return Resolve(value);
+        }
+
+        if (!basePath.StartsWith('/'))
+        {
+            throw new ArgumentException(
+                $"basePath must be an absolute JSON Pointer starting with '/', got '{basePath}'.",
+                nameof(basePath)
+            );
+        }
+
+        if (value is not DynamicValue.PathValue { DataPath: var path } || path.StartsWith('/'))
+        {
+            return Resolve(value);
+        }
+
+        string scopedPath = basePath.TrimEnd('/') + "/" + path;
+        return ResolvePathAsString(scopedPath);
+    }
+
     private string? ResolvePathAsString(string path)
     {
         JsonNode? node = ResolvePath(path);
