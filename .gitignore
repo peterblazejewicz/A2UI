@@ -424,3 +424,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Local-only reference documents (external review inputs, etc.)
+/REVIEW.md
