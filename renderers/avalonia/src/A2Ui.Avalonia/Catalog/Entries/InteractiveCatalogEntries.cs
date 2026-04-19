@@ -72,7 +72,9 @@ public sealed class TabsCatalogEntry : ICatalogEntry
         {
             foreach (var tab in tabs)
             {
-                tc.Items.Add(new TabItem { Header = tab.Title, Content = context.RenderChild(tab.Child) });
+                tc.Items.Add(
+                    new TabItem { Header = context.Resolve(tab.Title), Content = context.RenderChild(tab.Child) }
+                );
             }
         }
 
@@ -100,7 +102,7 @@ public sealed class TabsCatalogEntry : ICatalogEntry
                 return false;
             }
 
-            tabItem.Header = tabs[i].Title;
+            tabItem.Header = context.Resolve(tabs[i].Title);
             tabItem.Content = context.RenderChild(tabs[i].Child);
         }
 

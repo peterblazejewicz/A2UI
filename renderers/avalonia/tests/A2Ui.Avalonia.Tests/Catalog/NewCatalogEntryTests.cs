@@ -133,8 +133,8 @@ public sealed class NewCatalogEntryTests
             Id = "tabs1",
             Tabs =
             [
-                new TabDefinition { Title = "Tab 1", Child = "p1" },
-                new TabDefinition { Title = "Tab 2", Child = "p2" },
+                new TabDefinition { Title = DynamicValue.FromString("Tab 1"), Child = "p1" },
+                new TabDefinition { Title = DynamicValue.FromString("Tab 2"), Child = "p2" },
             ],
         };
 
@@ -176,8 +176,8 @@ public sealed class NewCatalogEntryTests
             Id = "cp1",
             Options =
             [
-                new ChoiceOption { Label = "Red", Value = "red" },
-                new ChoiceOption { Label = "Blue", Value = "blue" },
+                new ChoiceOption { Label = DynamicValue.FromString("Red"), Value = "red" },
+                new ChoiceOption { Label = DynamicValue.FromString("Blue"), Value = "blue" },
             ],
         };
 

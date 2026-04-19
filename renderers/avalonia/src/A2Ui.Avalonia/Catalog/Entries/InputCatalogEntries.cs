@@ -396,26 +396,29 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
                 FilterMode = AutoCompleteFilterMode.ContainsOrdinal,
             };
 
-            if (c.Options is { } opts)
-            {
-                autoComplete.ItemsSource = opts.Select(o => o.Label).ToArray();
-            }
+            // Resolve labels once and pair each with its option value so we can map
+            // the user's selected label (AutoCompleteBox exposes SelectedItem as the
+            // string we stored) back to its stable option value.
+            (string ResolvedLabel, string Value)[] resolvedOptions = c.Options is { } opts
+                ? [.. opts.Select(o => (ctx.Resolve(o.Label) ?? string.Empty, o.Value))]
+                : [];
+
+            autoComplete.ItemsSource = resolvedOptions.Select(o => o.ResolvedLabel).ToArray();
 
             // Set initial selected text
-            if (currentValues.Count > 0 && c.Options is { } options)
+            if (currentValues.Count > 0)
             {
-                var match = options.FirstOrDefault(o => currentValues.Contains(o.Value));
-                if (match is not null)
+                var match = resolvedOptions.FirstOrDefault(o => currentValues.Contains(o.Value));
+                if (match.Value is not null)
                 {
-                    autoComplete.Text = match.Label;
+                    autoComplete.Text = match.ResolvedLabel;
                 }
             }
 
             autoComplete.SelectionChanged += (_, _) =>
             {
-                // Map selected label back to value
                 string? selectedLabel = autoComplete.SelectedItem as string;
-                string? selectedValue = c.Options?.FirstOrDefault(o => o.Label == selectedLabel)?.Value;
+                string? selectedValue = resolvedOptions.FirstOrDefault(o => o.ResolvedLabel == selectedLabel).Value;
                 if (selectedValue is not null)
                 {
                     InputHelper.NotifyValueChanged(ctx, bindingPath, selectedValue, componentId);
@@ -432,7 +435,9 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
             int selectedIndex = -1;
             for (int i = 0; i < comboOpts.Length; i++)
             {
-                combo.Items.Add(new ComboBoxItem { Content = comboOpts[i].Label, Tag = comboOpts[i].Value });
+                combo.Items.Add(
+                    new ComboBoxItem { Content = ctx.Resolve(comboOpts[i].Label), Tag = comboOpts[i].Value }
+                );
                 if (currentValues.Contains(comboOpts[i].Value))
                 {
                     selectedIndex = i;
@@ -472,7 +477,7 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
                 {
                     var toggle = new ToggleButton
                     {
-                        Content = opt.Label,
+                        Content = ctx.Resolve(opt.Label),
                         Tag = opt.Value,
                         IsChecked = currentValues.Contains(opt.Value),
                         Margin = new Thickness(2),
@@ -511,7 +516,11 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
             {
                 var item = new ListBoxItem
                 {
-                    Content = new CheckBox { Content = opt.Label, IsChecked = currentValues.Contains(opt.Value) },
+                    Content = new CheckBox
+                    {
+                        Content = ctx.Resolve(opt.Label),
+                        IsChecked = currentValues.Contains(opt.Value),
+                    },
                     Tag = opt.Value,
                 };
                 listBox.Items.Add(item);

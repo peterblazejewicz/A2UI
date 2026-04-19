@@ -128,7 +128,7 @@ public sealed class ChildListConverterTests
         var comp = Assert.IsType<ChoicePickerComponent>(JsonSerializer.Deserialize<A2UiComponent>(json, s_opts));
 
         Assert.Equal(2, comp.Options!.Length);
-        Assert.Equal("Red", comp.Options![0].Label);
+        Assert.Equal(DynamicValue.FromString("Red"), comp.Options![0].Label);
         Assert.Equal("red", comp.Options[0].Value);
         Assert.Equal("chips", comp.DisplayStyle);
         Assert.True(comp.Filterable);
@@ -142,7 +142,7 @@ public sealed class ChildListConverterTests
         var comp = Assert.IsType<TabsComponent>(JsonSerializer.Deserialize<A2UiComponent>(json, s_opts));
 
         Assert.Equal(2, comp.Tabs!.Length);
-        Assert.Equal("Info", comp.Tabs![0].Title);
+        Assert.Equal(DynamicValue.FromString("Info"), comp.Tabs![0].Title);
         Assert.Equal("panel1", comp.Tabs[0].Child);
     }
 
@@ -155,5 +155,41 @@ public sealed class ChildListConverterTests
         Assert.Equal("spaceBetween", comp.Justify);
         Assert.Equal("center", comp.Align);
         Assert.Equal(2.5, comp.Weight);
+    }
+
+    [Fact]
+    public void ChoiceOption_WithBoundLabel_DeserializesToPathValue()
+    {
+        // Spec: basic_catalog.json types ChoiceOption.label as DynamicString,
+        // which means it must accept path-bound values, not just literal strings.
+        var json =
+            """{"id":"cp1","component":"ChoicePicker","options":[{"label":{"path":"/labels/0"},"value":"first"}]}""";
+        var comp = Assert.IsType<ChoicePickerComponent>(JsonSerializer.Deserialize<A2UiComponent>(json, s_opts));
+
+        var pathValue = Assert.IsType<DynamicValue.PathValue>(comp.Options![0].Label);
+        Assert.Equal("/labels/0", pathValue.DataPath);
+        Assert.Equal("first", comp.Options[0].Value);
+    }
+
+    [Fact]
+    public void TabDefinition_WithBoundTitle_DeserializesToPathValue()
+    {
+        // Spec: basic_catalog.json types TabDefinition.title as DynamicString.
+        var json = """{"id":"tabs1","component":"Tabs","tabs":[{"title":{"path":"/tabTitles/0"},"child":"panel1"}]}""";
+        var comp = Assert.IsType<TabsComponent>(JsonSerializer.Deserialize<A2UiComponent>(json, s_opts));
+
+        var pathValue = Assert.IsType<DynamicValue.PathValue>(comp.Tabs![0].Title);
+        Assert.Equal("/tabTitles/0", pathValue.DataPath);
+    }
+
+    [Fact]
+    public void ChoiceOption_WithFunctionCallLabel_DeserializesToFunctionValue()
+    {
+        var json =
+            """{"id":"cp1","component":"ChoicePicker","options":[{"label":{"call":"formatString","args":{"value":"hi"}},"value":"first"}]}""";
+        var comp = Assert.IsType<ChoicePickerComponent>(JsonSerializer.Deserialize<A2UiComponent>(json, s_opts));
+
+        var fn = Assert.IsType<DynamicValue.FunctionValue>(comp.Options![0].Label);
+        Assert.Equal("formatString", fn.Call.Call);
     }
 }

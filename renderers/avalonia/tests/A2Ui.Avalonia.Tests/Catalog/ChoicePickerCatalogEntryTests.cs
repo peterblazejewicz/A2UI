@@ -30,8 +30,8 @@ public sealed class ChoicePickerCatalogEntryTests
             Id = "cp1",
             Options =
             [
-                new ChoiceOption { Label = "Red", Value = "red" },
-                new ChoiceOption { Label = "Blue", Value = "blue" },
+                new ChoiceOption { Label = DynamicValue.FromString("Red"), Value = "red" },
+                new ChoiceOption { Label = DynamicValue.FromString("Blue"), Value = "blue" },
             ],
         };
 
@@ -52,9 +52,9 @@ public sealed class ChoicePickerCatalogEntryTests
             Id = "cp2",
             Options =
             [
-                new ChoiceOption { Label = "Red", Value = "red" },
-                new ChoiceOption { Label = "Blue", Value = "blue" },
-                new ChoiceOption { Label = "Green", Value = "green" },
+                new ChoiceOption { Label = DynamicValue.FromString("Red"), Value = "red" },
+                new ChoiceOption { Label = DynamicValue.FromString("Blue"), Value = "blue" },
+                new ChoiceOption { Label = DynamicValue.FromString("Green"), Value = "green" },
             ],
             Value = DynamicValue.FromString("blue"),
         };
@@ -77,8 +77,8 @@ public sealed class ChoicePickerCatalogEntryTests
             Filterable = true,
             Options =
             [
-                new ChoiceOption { Label = "Red", Value = "red" },
-                new ChoiceOption { Label = "Blue", Value = "blue" },
+                new ChoiceOption { Label = DynamicValue.FromString("Red"), Value = "red" },
+                new ChoiceOption { Label = DynamicValue.FromString("Blue"), Value = "blue" },
             ],
         };
 
@@ -98,8 +98,8 @@ public sealed class ChoicePickerCatalogEntryTests
             Variant = "multipleSelection",
             Options =
             [
-                new ChoiceOption { Label = "Red", Value = "red" },
-                new ChoiceOption { Label = "Blue", Value = "blue" },
+                new ChoiceOption { Label = DynamicValue.FromString("Red"), Value = "red" },
+                new ChoiceOption { Label = DynamicValue.FromString("Blue"), Value = "blue" },
             ],
         };
 
@@ -137,9 +137,9 @@ public sealed class ChoicePickerCatalogEntryTests
             Value = DynamicValue.FromPath("/selected"),
             Options =
             [
-                new ChoiceOption { Label = "Red", Value = "red" },
-                new ChoiceOption { Label = "Blue", Value = "blue" },
-                new ChoiceOption { Label = "Green", Value = "green" },
+                new ChoiceOption { Label = DynamicValue.FromString("Red"), Value = "red" },
+                new ChoiceOption { Label = DynamicValue.FromString("Blue"), Value = "blue" },
+                new ChoiceOption { Label = DynamicValue.FromString("Green"), Value = "green" },
             ],
         };
 
@@ -165,9 +165,9 @@ public sealed class ChoicePickerCatalogEntryTests
             DisplayStyle = "chips",
             Options =
             [
-                new ChoiceOption { Label = "Red", Value = "red" },
-                new ChoiceOption { Label = "Blue", Value = "blue" },
-                new ChoiceOption { Label = "Green", Value = "green" },
+                new ChoiceOption { Label = DynamicValue.FromString("Red"), Value = "red" },
+                new ChoiceOption { Label = DynamicValue.FromString("Blue"), Value = "blue" },
+                new ChoiceOption { Label = DynamicValue.FromString("Green"), Value = "green" },
             ],
         };
 
