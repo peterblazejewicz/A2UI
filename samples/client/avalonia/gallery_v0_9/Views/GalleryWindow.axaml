@@ -84,7 +84,7 @@
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
               <TextBlock Text="{Binding SelectedItem.Title, FallbackValue='Select an example'}"
                          FontSize="16" FontWeight="SemiBold" />
-              <TextBlock Text="{Binding SelectedItem.Description}"
+              <TextBlock Text="{Binding SelectedItem.Description, FallbackValue=''}"
                          FontSize="12"
                          Foreground="{DynamicResource GallerySubtext}"
                          Margin="0,2,0,0" />
