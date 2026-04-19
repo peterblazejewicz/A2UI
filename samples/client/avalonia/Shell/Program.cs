@@ -1,13 +1,11 @@
-﻿using A2Ui.Avalonia.Catalog;
+﻿using A2Ui.Avalonia.DependencyInjection;
 using A2Ui.Avalonia.Shell.Models;
 using A2Ui.Avalonia.Shell.Services;
 using A2Ui.Avalonia.Shell.ViewModels;
 using A2Ui.Avalonia.Shell.Views;
-using A2Ui.Core;
-using A2Ui.Core.Surfaces;
+using A2Ui.Core.DependencyInjection;
 using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace A2Ui.Avalonia.Shell;
@@ -66,9 +64,8 @@ internal static class Program
             )
         );
 
-        services.AddSingleton(sp => new SurfaceManager(sp.GetRequiredService<ILoggerFactory>()));
-
-        services.AddSingleton(sp => CatalogRegistry.CreateDefault(sp.GetRequiredService<ILoggerFactory>()));
+        services.AddA2UiCore();
+        services.AddA2UiAvalonia();
 
         // Raw HTTP request/response logging handler. Transient lifetime is
         // required by AddHttpMessageHandler — one handler instance per

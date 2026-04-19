@@ -1,8 +1,8 @@
-﻿using A2Ui.Avalonia.Gallery.Services;
+﻿using A2Ui.Avalonia.DependencyInjection;
+using A2Ui.Avalonia.Gallery.Services;
 using A2Ui.Avalonia.Gallery.ViewModels;
 using A2Ui.Avalonia.Gallery.Views;
-using A2Ui.Core;
-using A2Ui.Core.Surfaces;
+using A2Ui.Core.DependencyInjection;
 using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -49,7 +49,8 @@ internal static class Program
 
     private static void ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton<SurfaceManager>();
+        services.AddA2UiCore();
+        services.AddA2UiAvalonia();
         services.AddSingleton<GalleryDataLoader>();
         services.AddSingleton<GalleryViewModel>();
         services.AddTransient<GalleryWindow>();

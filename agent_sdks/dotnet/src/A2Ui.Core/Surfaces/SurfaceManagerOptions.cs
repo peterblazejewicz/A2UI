@@ -21,12 +21,18 @@ namespace A2Ui.Core.Surfaces;
 /// the message that preceded the throw.
 /// </para>
 /// </remarks>
-public sealed record SurfaceManagerOptions
+public sealed class SurfaceManagerOptions
 {
     /// <summary>
     /// When <see langword="true"/>, spec-MUST violations throw
     /// <see cref="Messages.A2UiMessageValidationException"/> instead of being logged and
     /// ignored. Default <see langword="false"/> preserves the lenient pre-options behavior.
     /// </summary>
-    public bool StrictMode { get; init; }
+    /// <remarks>
+    /// Uses <c>set</c> (not <c>init</c>) so <see cref="Microsoft.Extensions.Options.IOptions{TOptions}"/>
+    /// bindings and the <c>Action&lt;SurfaceManagerOptions&gt;</c> configurator used by
+    /// <see cref="DependencyInjection.A2UiCoreServiceCollectionExtensions.AddA2UiCore"/>
+    /// can mutate the value after construction.
+    /// </remarks>
+    public bool StrictMode { get; set; }
 }
