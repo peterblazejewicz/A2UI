@@ -14,7 +14,15 @@ public sealed record ActivitySnapshotEvent : BaseEvent
     [JsonPropertyName("activityType")]
     public string? ActivityType { get; init; }
 
-    /// <summary>Complete activity state as a JSON element.</summary>
+    /// <summary>
+    /// Complete activity state as a JSON element.
+    /// </summary>
+    /// <remarks>
+    /// Typed as <see cref="JsonElement"/> because the activity payload shape is
+    /// application-defined (the AG-UI reference spec leaves this opaque). Consumers
+    /// deserialize into their own DTOs via <c>Activity.Deserialize&lt;TActivity&gt;()</c>
+    /// or inspect structurally with <see cref="JsonElement.TryGetProperty(string, out JsonElement)"/>.
+    /// </remarks>
     [JsonPropertyName("activity")]
     public required JsonElement Activity { get; init; }
 

@@ -14,7 +14,15 @@ public sealed record RunFinishedEvent : BaseEvent
     [JsonPropertyName("runId")]
     public required string RunId { get; init; }
 
-    /// <summary>Optional result payload from the completed run.</summary>
+    /// <summary>
+    /// Optional result payload from the completed run.
+    /// </summary>
+    /// <remarks>
+    /// Typed as <see cref="JsonElement"/>? to accept any shape an agent chooses to emit —
+    /// strings, objects, arrays, or numbers are all valid per the AG-UI reference spec's
+    /// unconstrained <c>result</c> field. Use <c>Result.Value.GetString()</c> / <c>.GetRawText()</c>
+    /// depending on the agent's contract.
+    /// </remarks>
     [JsonPropertyName("result")]
     public JsonElement? Result { get; init; }
 }
