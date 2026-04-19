@@ -21,6 +21,28 @@ CSharpier is the authoritative formatter and runs automatically via the PostTool
 Use `dotnet format analyzers` only for analyzer rule checks -- not whitespace formatting.
 The two tools can conflict on whitespace; always let CSharpier have the last word.
 
+### Known Rider / ReSharper false positives
+
+Rider occasionally reports "errors" that the Roslyn compiler does not.
+Before spending time "fixing" these, confirm with the build
+(`dotnet build --configuration Release`, `TreatWarningsAsErrors=true`).
+Known cases:
+
+- **"Invalid markup extension type: expected `X`, actual `CompiledBinding`"** in
+  `.axaml` files (`ShellWindow.axaml`, `GalleryWindow.axaml`, any view that sets
+  `x:DataType`). Rider does not fully infer the resolved type of Avalonia's
+  compile-time-upgraded `{Binding}` / `{CompiledBinding}` markup extensions,
+  so it flags every bound `Text`, `IsVisible`, `Surface`, etc. as a type
+  mismatch. The Avalonia XAML compiler handles these correctly at build time.
+- **"Inconsistent braces style: missing braces"** in C# files such as
+  `GalleryViewModel.cs`. The project already enforces
+  `csharp_prefer_braces = true:error` (`.editorconfig:368`) and every run of
+  `dotnet format style --diagnostics IDE0011 --verify-no-changes` passes clean.
+  When Rider reports this in isolation, it is a stale inspection state.
+
+Both issues are noise. Do not rewrite source to appease them; the build
+is the source of truth.
+
 ## Status Docs
 
 > **Implementation status:** See [`docs/DOTNET_AVALONIA_IMPLEMENTATION.md`](docs/DOTNET_AVALONIA_IMPLEMENTATION.md)
