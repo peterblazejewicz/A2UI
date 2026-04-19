@@ -1,10 +1,7 @@
-﻿using A2Ui.Avalonia.Catalog;
-using A2Ui.Avalonia.Catalog.Entries;
-using A2Ui.Core;
+﻿using A2Ui.Avalonia.Catalog.Entries;
 using A2Ui.Core.Bindings;
 using A2Ui.Core.Choices;
 using A2Ui.Core.Components;
-using A2Ui.Core.Messages;
 using A2Ui.Core.Surfaces;
 using A2Ui.Core.Tabs;
 using Avalonia.Controls;

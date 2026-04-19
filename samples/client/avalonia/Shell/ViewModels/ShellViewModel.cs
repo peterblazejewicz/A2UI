@@ -1,7 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using A2Ui.Avalonia.Shell.Services;
-using A2Ui.Core;
-using A2Ui.Core.Actions;
 using A2Ui.Core.Messages;
 using A2Ui.Core.Surfaces;
 using CommunityToolkit.Mvvm.ComponentModel;

@@ -15,8 +15,12 @@ namespace A2Ui.Core.Surfaces;
 /// </summary>
 public sealed class SurfaceManager
 {
-    private readonly Dictionary<string, Surface> _surfaces = new();
-    private readonly object _lock = new();
+    private readonly Dictionary<string, Surface> _surfaces = [];
+
+    // System.Threading.Lock (.NET 9+) is cheaper than `object` for the `lock` keyword
+    // because the compiler emits Lock.EnterScope() / Dispose rather than Monitor.Enter/Exit,
+    // avoiding the monitor-on-object allocation path.
+    private readonly Lock _lock = new();
     private readonly ILogger<SurfaceManager> _logger;
     private readonly SurfaceManagerOptions _options;
 

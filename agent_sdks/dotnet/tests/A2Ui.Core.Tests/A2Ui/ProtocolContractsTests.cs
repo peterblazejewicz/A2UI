@@ -82,7 +82,7 @@ public sealed class ProtocolContractsTests
     [Fact]
     public void ClientDataModel_DefaultVersion()
     {
-        var cdm = new ClientDataModel { Surfaces = new Dictionary<string, JsonElement>() };
+        var cdm = new ClientDataModel { Surfaces = [] };
 
         Assert.Equal("v0.9", cdm.Version);
     }

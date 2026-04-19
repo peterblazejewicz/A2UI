@@ -4,8 +4,6 @@ using System.Text;
 using System.Text.Json;
 using A2Ui.Avalonia.Catalog;
 using A2Ui.Avalonia.Functions;
-using A2Ui.Core;
-using A2Ui.Core.Actions;
 using A2Ui.Core.Bindings;
 using A2Ui.Core.Children;
 using A2Ui.Core.Components;
@@ -27,8 +25,8 @@ public sealed class A2UiRenderer
     private readonly CatalogRegistry _catalog;
     private readonly IFunctionRegistry? _functionRegistry;
     private readonly ILogger<A2UiRenderer> _logger;
-    private readonly Dictionary<string, Dictionary<string, Control>> _surfaceCaches = new();
-    private readonly Dictionary<string, CancellationTokenSource> _surfaceCts = new();
+    private readonly Dictionary<string, Dictionary<string, Control>> _surfaceCaches = [];
+    private readonly Dictionary<string, CancellationTokenSource> _surfaceCts = [];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="A2UiRenderer"/> class.
@@ -61,7 +59,7 @@ public sealed class A2UiRenderer
 
         if (!this._surfaceCaches.TryGetValue(surface.SurfaceId, out var cache))
         {
-            cache = new Dictionary<string, Control>();
+            cache = [];
             this._surfaceCaches[surface.SurfaceId] = cache;
         }
 
@@ -126,10 +124,7 @@ public sealed class A2UiRenderer
         }
 
         var control = entry.Create(component, surface.DataModel, context);
-        if (cache is not null)
-        {
-            cache[component.Id] = control;
-        }
+        cache?[component.Id] = control;
 
         return control;
     }

@@ -26,7 +26,7 @@ public sealed class Surface(string surfaceId, string catalogId)
     /// <summary>Whether the client should send data model state back to the server.</summary>
     public bool SendDataModel { get; internal set; }
 
-    private readonly Dictionary<string, A2UiComponent> _components = new();
+    private readonly Dictionary<string, A2UiComponent> _components = [];
 
     /// <summary>Read-only view of the component tree keyed by component ID.</summary>
     public IReadOnlyDictionary<string, A2UiComponent> Components => _components;

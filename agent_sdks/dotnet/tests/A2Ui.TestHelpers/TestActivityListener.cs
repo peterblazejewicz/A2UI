@@ -39,8 +39,8 @@ public sealed class TestActivityListener : IDisposable
         _listener = new ActivityListener
         {
             ShouldListenTo = source => _sourceNames.Count == 0 || _sourceNames.Contains(source.Name),
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllDataAndRecorded,
-            SampleUsingParentId = (ref ActivityCreationOptions<string> _) => ActivitySamplingResult.AllDataAndRecorded,
+            Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
+            SampleUsingParentId = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
             ActivityStarted = activity => _started.Enqueue(activity),
             ActivityStopped = activity => _stopped.Enqueue(activity),
         };

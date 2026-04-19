@@ -100,7 +100,7 @@ public sealed class FunctionRegistry : IFunctionRegistry
 /// </summary>
 public sealed class FunctionRegistryBuilder
 {
-    private readonly Dictionary<string, Func<IReadOnlyDictionary<string, string?>, string?>> _functions = new();
+    private readonly Dictionary<string, Func<IReadOnlyDictionary<string, string?>, string?>> _functions = [];
     private ILoggerFactory? _loggerFactory;
 
     /// <summary>Register a named function. Returns this for chaining.</summary>

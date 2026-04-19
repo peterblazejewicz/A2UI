@@ -11,3 +11,10 @@ dotnet_diagnostic.RCS1229.severity = warning     # Use async/await
 dotnet_diagnostic.CA2007.severity = warning      # ConfigureAwait
 dotnet_diagnostic.CA1031.severity = none         # Allow catch Exception (we log)
 dotnet_diagnostic.CA1062.severity = none         # Validate params (nullable handles this)
+
+# IDE style rules — opinionated preferences, silenced so they stop cluttering
+# `dotnet format style --severity info` runs. The build still enforces everything
+# at warning/error level via TreatWarningsAsErrors in Directory.Build.props.
+dotnet_diagnostic.IDE0290.severity = silent      # Use primary constructor (project prefers explicit ctor)
+dotnet_diagnostic.IDE0039.severity = silent      # Use local function (delegates fine in tests)
+dotnet_diagnostic.IDE0055.severity = silent      # Fix formatting — CSharpier is authoritative per CLAUDE.md

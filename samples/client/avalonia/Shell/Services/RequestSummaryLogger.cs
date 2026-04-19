@@ -41,8 +41,8 @@ public sealed class RequestSummaryLogger : IDisposable
         this._listener = new ActivityListener
         {
             ShouldListenTo = source => source.Name == A2AClientSourceName,
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-            SampleUsingParentId = (ref ActivityCreationOptions<string> _) => ActivitySamplingResult.AllData,
+            Sample = (ref _) => ActivitySamplingResult.AllData,
+            SampleUsingParentId = (ref _) => ActivitySamplingResult.AllData,
             ActivityStopped = this.OnActivityStopped,
         };
         ActivitySource.AddActivityListener(this._listener);

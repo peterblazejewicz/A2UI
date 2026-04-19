@@ -29,7 +29,7 @@ public static class A2UiAvaloniaServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        services.TryAddSingleton<CatalogRegistry>(sp => CatalogRegistry.CreateDefault(sp.GetService<ILoggerFactory>()));
+        services.TryAddSingleton(sp => CatalogRegistry.CreateDefault(sp.GetService<ILoggerFactory>()));
         services.TryAddSingleton<IFunctionRegistry>(sp =>
             FunctionRegistry.CreateDefault(sp.GetService<ILoggerFactory>())
         );

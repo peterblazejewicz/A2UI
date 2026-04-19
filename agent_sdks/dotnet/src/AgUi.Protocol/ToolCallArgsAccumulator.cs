@@ -19,7 +19,7 @@ namespace AgUi.Protocol;
 /// </remarks>
 public sealed class ToolCallArgsAccumulator
 {
-    private readonly Dictionary<string, StringBuilder> _buffers = new();
+    private readonly Dictionary<string, StringBuilder> _buffers = [];
     private readonly ILogger _logger;
 
     /// <summary>

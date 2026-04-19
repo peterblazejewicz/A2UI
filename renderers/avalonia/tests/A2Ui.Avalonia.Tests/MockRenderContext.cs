@@ -1,8 +1,5 @@
 ﻿using A2Ui.Avalonia.Catalog;
-using A2Ui.Core;
 using A2Ui.Core.Bindings;
-using A2Ui.Core.Components;
-using A2Ui.Core.Messages;
 using A2Ui.Core.Surfaces;
 using Avalonia.Controls;
 using Microsoft.Extensions.Logging;

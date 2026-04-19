@@ -1,7 +1,5 @@
 ﻿using A2Ui.Avalonia.Catalog.Entries;
-using A2Ui.Core;
 using A2Ui.Core.Components;
-using A2Ui.Core.Messages;
 using A2Ui.Core.Surfaces;
 using Avalonia.Controls;
 using Microsoft.Extensions.Logging;
@@ -15,7 +13,7 @@ namespace A2Ui.Avalonia.Catalog;
 /// </summary>
 public sealed class CatalogRegistry
 {
-    private readonly Dictionary<string, ICatalogEntry> _entries = new();
+    private readonly Dictionary<string, ICatalogEntry> _entries = [];
     private readonly ILogger<CatalogRegistry> _logger;
 
     /// <summary>

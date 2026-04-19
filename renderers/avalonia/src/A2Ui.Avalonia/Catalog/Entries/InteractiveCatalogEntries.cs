@@ -1,6 +1,4 @@
-﻿using A2Ui.Core;
-using A2Ui.Core.Components;
-using A2Ui.Core.Messages;
+﻿using A2Ui.Core.Components;
 using A2Ui.Core.Surfaces;
 using Avalonia;
 using Avalonia.Controls;
@@ -172,10 +170,7 @@ public sealed class ModalCatalogEntry : ICatalogEntry
             };
 
             // Wire trigger → open, close button → close
-            if (triggerControl is not null)
-            {
-                triggerControl.Tapped += (_, _) => popup.IsOpen = true;
-            }
+            triggerControl?.Tapped += (_, _) => popup.IsOpen = true;
 
             closeBtn.Click += (_, _) => popup.IsOpen = false;
 

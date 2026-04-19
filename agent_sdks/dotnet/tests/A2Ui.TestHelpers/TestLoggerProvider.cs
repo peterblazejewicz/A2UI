@@ -89,7 +89,7 @@ public sealed class TestLoggerProvider : ILoggerProvider
         {
             // Extract structured properties if state is IEnumerable<KeyValuePair<string, object?>>
             // which is how LoggerMessage source-generated state appears.
-            Dictionary<string, object?> properties = new();
+            Dictionary<string, object?> properties = [];
             if (state is IEnumerable<KeyValuePair<string, object?>> kvps)
             {
                 foreach (var kvp in kvps)

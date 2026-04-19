@@ -56,6 +56,10 @@ charset = utf-8-bom
 # .NET Coding Conventions     #
 ###############################
 [*.{cs,vb}]
+# IDE0055 (formatting) is silenced because CSharpier is the authoritative
+# whitespace formatter for this repo (see CLAUDE.md). The two tools disagree
+# on a handful of patterns — always let CSharpier have the last word.
+dotnet_diagnostic.IDE0055.severity = none
 # Organize usings
 dotnet_sort_system_directives_first = true
 # this. preferences

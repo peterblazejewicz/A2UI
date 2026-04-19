@@ -1,6 +1,5 @@
 ﻿using A2Ui.Avalonia.Controls;
 using A2Ui.Avalonia.Shell.ViewModels;
-using A2Ui.Core.Actions;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.VisualTree;
@@ -68,10 +67,7 @@ public partial class ShellWindow : Window
 
         // Wire Enter key on prompt input
         var promptInput = this.FindControl<TextBox>("PromptInput");
-        if (promptInput is not null)
-        {
-            promptInput.KeyDown += this.OnPromptKeyDown;
-        }
+        promptInput?.KeyDown += this.OnPromptKeyDown;
     }
 
     protected override void OnClosed(EventArgs e)
@@ -160,10 +156,7 @@ public partial class ShellWindow : Window
 
     private void UnwireViewModel()
     {
-        if (this._vm is not null)
-        {
-            this._vm.SurfaceRefreshRequested -= this.OnSurfaceRefreshRequested;
-        }
+        this._vm?.SurfaceRefreshRequested -= this.OnSurfaceRefreshRequested;
 
         // Unwire surface event handlers
         foreach (A2UiSurface surface in this.GetVisualDescendants().OfType<A2UiSurface>())

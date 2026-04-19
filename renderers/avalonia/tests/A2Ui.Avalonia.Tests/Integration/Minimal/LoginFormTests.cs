@@ -1,6 +1,3 @@
-using A2Ui.Core.Actions;
-using A2Ui.Core.Bindings;
-using A2Ui.Core.Surfaces;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Xunit;

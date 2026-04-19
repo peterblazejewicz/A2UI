@@ -17,7 +17,7 @@ public sealed class DataModel
     private static readonly JsonSerializerOptions s_compactOptions = new();
     private static readonly JsonSerializerOptions s_indentedOptions = new() { WriteIndented = true };
 
-    private JsonObject _root = new();
+    private JsonObject _root = [];
 
     /// <summary>
     /// Snapshot of the top-level keys currently present in the data model root.
@@ -31,7 +31,7 @@ public sealed class DataModel
     /// Split a JSON Pointer path into unescaped segments per RFC 6901.
     /// Order matters: ~1 → / before ~0 → ~.
     /// </summary>
-    private static string[] SplitPath(string path) => path.TrimStart('/').Split('/').Select(UnescapeSegment).ToArray();
+    private static string[] SplitPath(string path) => [.. path.TrimStart('/').Split('/').Select(UnescapeSegment)];
 
     private static string UnescapeSegment(string segment)
     {
@@ -94,7 +94,7 @@ public sealed class DataModel
             throw new JsonException($"Cannot set data model snapshot: expected JSON object, got {snapshot.ValueKind}.");
         }
 
-        _root = JsonObject.Create(snapshot) ?? new JsonObject();
+        _root = JsonObject.Create(snapshot) ?? [];
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ public sealed class DataModel
             if (update.Value is { } val)
                 SetSnapshot(val);
             else
-                _root = new JsonObject();
+                _root = [];
             return;
         }
 

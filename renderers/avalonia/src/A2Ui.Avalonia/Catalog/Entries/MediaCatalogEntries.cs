@@ -1,7 +1,5 @@
-﻿using A2Ui.Core;
-using A2Ui.Core.Components;
+﻿using A2Ui.Core.Components;
 using A2Ui.Core.Components.Extensions;
-using A2Ui.Core.Messages;
 using A2Ui.Core.Surfaces;
 using Avalonia.Controls;
 using Avalonia.Data;
@@ -68,7 +66,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
         }
 
         // If the image already has a source and the URL tag matches, skip reload.
-        if (img.Source is not null && img.Tag as string == url)
+        if (img.Source is not null && (img.Tag as string) == url)
         {
             return true;
         }
@@ -107,7 +105,7 @@ public sealed class ImageCatalogEntry : ICatalogEntry
             {
                 // Guard against out-of-order completion: another Update() may have
                 // changed the target URL while this download was in flight.
-                if (img.Tag as string != url)
+                if ((img.Tag as string) != url)
                 {
                     bitmap.Dispose();
                     return;

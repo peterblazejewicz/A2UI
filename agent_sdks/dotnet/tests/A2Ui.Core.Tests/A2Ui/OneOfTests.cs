@@ -174,7 +174,7 @@ public sealed class OneOfTests
         OneOf<int, string, bool> v2 = "hi";
         OneOf<int, string, bool> v3 = true;
 
-        string Fmt(OneOf<int, string, bool> v) => v.Match(i => $"int:{i}", s => $"str:{s}", b => $"bool:{b}");
+        static string Fmt(OneOf<int, string, bool> v) => v.Match(i => $"int:{i}", s => $"str:{s}", b => $"bool:{b}");
 
         Assert.Equal("int:42", Fmt(v1));
         Assert.Equal("str:hi", Fmt(v2));

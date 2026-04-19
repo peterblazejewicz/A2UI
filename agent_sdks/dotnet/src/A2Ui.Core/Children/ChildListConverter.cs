@@ -20,7 +20,7 @@ internal sealed class ChildListConverter : JsonConverter<ChildList>
                 if (reader.TokenType == JsonTokenType.String)
                     ids.Add(reader.GetString()!);
             }
-            return ChildList.FromIds(ids.ToArray());
+            return ChildList.FromIds([.. ids]);
         }
 
         if (reader.TokenType == JsonTokenType.StartObject)

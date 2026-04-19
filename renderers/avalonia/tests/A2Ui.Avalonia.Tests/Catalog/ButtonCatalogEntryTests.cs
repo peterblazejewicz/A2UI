@@ -1,6 +1,5 @@
 ﻿using A2Ui.Avalonia.Catalog;
 using A2Ui.Avalonia.Catalog.Entries;
-using A2Ui.Core;
 using A2Ui.Core.Actions;
 using A2Ui.Core.Bindings;
 using A2Ui.Core.Components;
@@ -99,7 +98,7 @@ public sealed class ButtonCatalogEntryTests
             Text = DynamicValue.FromString("Click"),
             Action = new ComponentAction
             {
-                Event = new ActionEvent { Name = "clicked", Context = new Dictionary<string, DynamicValue>() },
+                Event = new ActionEvent { Name = "clicked", Context = [] },
             },
         };
 

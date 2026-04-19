@@ -47,7 +47,7 @@ public static class SseEventParser
             if (json.IsEmpty || json.SequenceEqual("[DONE]"))
                 continue;
 
-            BaseEvent? evt = null;
+            BaseEvent? evt;
             try
             {
                 evt = JsonSerializer.Deserialize<BaseEvent>(json, s_options);

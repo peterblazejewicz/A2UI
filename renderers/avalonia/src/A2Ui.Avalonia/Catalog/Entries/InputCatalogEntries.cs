@@ -1,7 +1,5 @@
-﻿using A2Ui.Core;
-using A2Ui.Core.Bindings;
+﻿using A2Ui.Core.Bindings;
 using A2Ui.Core.Components;
-using A2Ui.Core.Messages;
 using A2Ui.Core.Surfaces;
 using Avalonia;
 using Avalonia.Controls;
@@ -602,7 +600,7 @@ public sealed class ChoicePickerCatalogEntry : ICatalogEntry
             try
             {
                 var items = System.Text.Json.JsonSerializer.Deserialize<string[]>(resolved);
-                return items is not null ? new HashSet<string>(items) : [];
+                return items is not null ? [.. items] : [];
             }
             catch (System.Text.Json.JsonException)
             {

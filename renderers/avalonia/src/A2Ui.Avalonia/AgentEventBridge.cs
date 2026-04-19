@@ -1,9 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
 using System.Threading.Channels;
-using A2Ui.Core;
-using A2Ui.Core.Actions;
-using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
 using A2Ui.Core.Surfaces;
 using AgUi.Protocol;
@@ -33,7 +30,7 @@ public sealed class AgentEventBridge : IDisposable
     private readonly SurfaceManager _surfaceManager;
     private readonly ILogger<AgentEventBridge> _logger;
     private readonly ToolCallArgsAccumulator _accumulator = new();
-    private readonly Dictionary<string, string> _toolNames = new();
+    private readonly Dictionary<string, string> _toolNames = [];
     private readonly int _capacity;
     private CancellationTokenSource? _cts;
 
