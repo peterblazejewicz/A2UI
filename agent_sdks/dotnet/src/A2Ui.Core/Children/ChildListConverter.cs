@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace A2Ui.Core.Components;
+namespace A2Ui.Core.Children;
 
 internal sealed class ChildListConverter : JsonConverter<ChildList>
 {

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace A2Ui.Core.Components;
+namespace A2Ui.Core.Children;
 
 /// <summary>
 /// A2UI v0.9 ChildList — either a static array of component IDs
