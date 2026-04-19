@@ -18,14 +18,22 @@ public sealed class SurfaceManager
     private readonly Dictionary<string, Surface> _surfaces = new();
     private readonly object _lock = new();
     private readonly ILogger<SurfaceManager> _logger;
+    private readonly SurfaceManagerOptions _options;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SurfaceManager"/> class.
     /// </summary>
     /// <param name="loggerFactory">Optional logger factory for structured logging.</param>
-    public SurfaceManager(ILoggerFactory? loggerFactory = null)
+    /// <param name="options">
+    /// Optional policy controlling how spec-MUST violations are handled. Pass
+    /// <c>new SurfaceManagerOptions { StrictMode = true }</c> to have the manager throw
+    /// <see cref="A2UiMessageValidationException"/> at each leniency site instead of
+    /// logging and continuing. Defaults to the lenient policy.
+    /// </param>
+    public SurfaceManager(ILoggerFactory? loggerFactory = null, SurfaceManagerOptions? options = null)
     {
         _logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<SurfaceManager>();
+        _options = options ?? new SurfaceManagerOptions();
     }
 
     /// <summary>Raised when a new surface is created.</summary>
@@ -223,6 +231,12 @@ public sealed class SurfaceManager
         if (_surfaces.ContainsKey(cs.SurfaceId))
         {
             SurfaceManagerLog.DuplicateCreate(_logger, cs.SurfaceId);
+            if (_options.StrictMode)
+            {
+                throw new A2UiMessageValidationException(
+                    $"Duplicate createSurface for surface '{cs.SurfaceId}' — spec requires each createSurface to target a new surface."
+                );
+            }
             return null;
         }
         var surface = new Surface(cs.SurfaceId, cs.CatalogId)
@@ -239,6 +253,10 @@ public sealed class SurfaceManager
         if (_surfaces.Remove(ds.SurfaceId, out var surface))
             return new(surface);
         SurfaceManagerLog.UnknownSurfaceOp(_logger, "deleteSurface", ds.SurfaceId);
+        if (_options.StrictMode)
+        {
+            throw new A2UiMessageValidationException($"deleteSurface references unknown surface '{ds.SurfaceId}'.");
+        }
         return null;
     }
 
@@ -247,6 +265,12 @@ public sealed class SurfaceManager
         if (!_surfaces.TryGetValue(uc.SurfaceId, out var surface))
         {
             SurfaceManagerLog.UnknownSurfaceOp(_logger, "updateComponents", uc.SurfaceId);
+            if (_options.StrictMode)
+            {
+                throw new A2UiMessageValidationException(
+                    $"updateComponents references unknown surface '{uc.SurfaceId}'."
+                );
+            }
             return null;
         }
         surface.UpdateComponents(uc.Components);
@@ -254,7 +278,15 @@ public sealed class SurfaceManager
         // Warn if the surface still has no "root" component after this update.
         // Spec requires exactly one component with id "root" (a2ui_protocol.md:320).
         if (!surface.Components.ContainsKey("root"))
+        {
             SurfaceManagerLog.RootComponentMissing(_logger, uc.SurfaceId);
+            if (_options.StrictMode)
+            {
+                throw new A2UiMessageValidationException(
+                    $"Surface '{uc.SurfaceId}' has no 'root' component after updateComponents — spec requires exactly one."
+                );
+            }
+        }
 
         return new(surface, uc.Components);
     }
@@ -264,6 +296,12 @@ public sealed class SurfaceManager
         if (!_surfaces.TryGetValue(ud.SurfaceId, out var surface))
         {
             SurfaceManagerLog.UnknownSurfaceOp(_logger, "updateDataModel", ud.SurfaceId);
+            if (_options.StrictMode)
+            {
+                throw new A2UiMessageValidationException(
+                    $"updateDataModel references unknown surface '{ud.SurfaceId}'."
+                );
+            }
             return null;
         }
 
@@ -278,6 +316,13 @@ public sealed class SurfaceManager
             // and suppress the DataModelUpdated event so downstream observers
             // never see a "successful" notification for a failed update.
             SurfaceManagerLog.DataModelApplyFailed(_logger, ud.SurfaceId, ud.Path ?? "/", ex.Message);
+            if (_options.StrictMode)
+            {
+                throw new A2UiMessageValidationException(
+                    $"updateDataModel for surface '{ud.SurfaceId}' failed at path '{ud.Path ?? "/"}': {ex.Message}",
+                    ex
+                );
+            }
             return null;
         }
 
