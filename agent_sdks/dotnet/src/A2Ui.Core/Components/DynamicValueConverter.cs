@@ -9,17 +9,24 @@ internal sealed class DynamicValueConverter : JsonConverter<DynamicValue>
     {
         return reader.TokenType switch
         {
+            JsonTokenType.Null => null,
             JsonTokenType.String => new DynamicValue.StringValue(reader.GetString()!),
             JsonTokenType.Number => new DynamicValue.NumberValue(reader.GetDouble()),
             JsonTokenType.True => new DynamicValue.BoolValue(true),
             JsonTokenType.False => new DynamicValue.BoolValue(false),
             JsonTokenType.StartArray => new DynamicValue.ArrayValue(JsonElement.ParseValue(ref reader)),
             JsonTokenType.StartObject => ReadObject(ref reader),
-            _ => null,
+            // Any other token (EndObject, EndArray, Comment, PropertyName, None) is a
+            // malformed or mis-positioned stream. Surface it as a diagnostic instead
+            // of silently collapsing to null, which previously let structurally invalid
+            // agent payloads reach consumer code as unexpected nulls.
+            _ => throw new JsonException(
+                $"DynamicValue cannot be read from JSON token '{reader.TokenType}'. Expected string, number, boolean, array, or object."
+            ),
         };
     }
 
-    private static DynamicValue? ReadObject(ref Utf8JsonReader reader)
+    private static DynamicValue ReadObject(ref Utf8JsonReader reader)
     {
         using var doc = JsonDocument.ParseValue(ref reader);
         var root = doc.RootElement;
@@ -33,7 +40,9 @@ internal sealed class DynamicValueConverter : JsonConverter<DynamicValue>
             return new DynamicValue.FunctionValue(fc!);
         }
 
-        return null;
+        // Object lacks both 'path' and 'call' discriminators — not a valid DynamicValue
+        // per common_types.json. Previously returned null, masking the schema violation.
+        throw new JsonException("DynamicValue object must contain either a 'path' or 'call' discriminator property.");
     }
 
     public override void Write(Utf8JsonWriter writer, DynamicValue value, JsonSerializerOptions options)

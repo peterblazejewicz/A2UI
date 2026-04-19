@@ -7,6 +7,11 @@ internal sealed class ChildListConverter : JsonConverter<ChildList>
 {
     public override ChildList? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
+        if (reader.TokenType == JsonTokenType.Null)
+        {
+            return null;
+        }
+
         if (reader.TokenType == JsonTokenType.StartArray)
         {
             var ids = new List<string>();
@@ -26,9 +31,18 @@ internal sealed class ChildListConverter : JsonConverter<ChildList>
             {
                 return ChildList.FromTemplate(compIdEl.GetString()!, pathEl.GetString()!);
             }
+
+            // A ChildList object must be a template with BOTH componentId and path.
+            // Previously we returned null here, silently dropping the entire children
+            // declaration when one key was missing or misspelled.
+            throw new JsonException(
+                "ChildList object must contain both 'componentId' and 'path' properties to describe a template."
+            );
         }
 
-        return null;
+        throw new JsonException(
+            $"ChildList cannot be read from JSON token '{reader.TokenType}'. Expected an array of IDs or a template object."
+        );
     }
 
     public override void Write(Utf8JsonWriter writer, ChildList value, JsonSerializerOptions options)

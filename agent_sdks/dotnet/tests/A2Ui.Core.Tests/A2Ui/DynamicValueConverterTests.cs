@@ -202,4 +202,26 @@ public sealed class DynamicValueConverterTests
         DynamicValue b = DynamicValue.FromNumber(42);
         Assert.NotEqual(a, b);
     }
+
+    // ── F4: non-null diagnostics ─────────────────────────────────────────
+
+    [Fact]
+    public void Read_ObjectWithoutDiscriminator_ThrowsJsonException()
+    {
+        // Previously returned null silently; now surfaces the schema violation.
+        var ex = Assert.Throws<JsonException>(() =>
+            JsonSerializer.Deserialize<DynamicValue>("""{"someKey":"value"}""", s_opts)
+        );
+
+        Assert.Contains("'path' or 'call'", ex.Message);
+    }
+
+    [Fact]
+    public void Read_NullToken_ReturnsNull()
+    {
+        // null is a legitimate absence signal — don't throw.
+        var result = JsonSerializer.Deserialize<DynamicValue>("null", s_opts);
+
+        Assert.Null(result);
+    }
 }
