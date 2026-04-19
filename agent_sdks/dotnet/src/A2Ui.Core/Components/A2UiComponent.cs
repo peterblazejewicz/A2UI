@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using A2Ui.Core.Components.Extensions;
 
 namespace A2Ui.Core.Components;
 
@@ -7,7 +8,27 @@ namespace A2Ui.Core.Components;
 /// A2UI v0.9 component in the flat adjacency list.
 /// The agent may only reference component types registered in the catalog.
 /// </summary>
+/// <remarks>
+/// The <see cref="JsonDerivedTypeAttribute"/> list below is split into two sections:
+/// <list type="bullet">
+///   <item>
+///     <description>
+///       <b>Spec-core types</b> (Text through Slider) correspond to entries in
+///       <c>specification/v0_9/json/basic_catalog.json</c> and live under
+///       <see cref="Components"/>.
+///     </description>
+///   </item>
+///   <item>
+///     <description>
+///       <b>Extensions</b> (Table, Surface) are project-local additions not present in
+///       the v0.9 basic catalog. They live under <see cref="Components.Extensions"/> so a
+///       future spec audit can distinguish spec types from extensions at a glance.
+///     </description>
+///   </item>
+/// </list>
+/// </remarks>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "component")]
+// ── Spec-core (v0.9 basic catalog) ─────────────────────────────────────
 [JsonDerivedType(typeof(TextComponent), "Text")]
 [JsonDerivedType(typeof(ButtonComponent), "Button")]
 [JsonDerivedType(typeof(ColumnComponent), "Column")]
@@ -26,6 +47,7 @@ namespace A2Ui.Core.Components;
 [JsonDerivedType(typeof(ChoicePickerComponent), "ChoicePicker")]
 [JsonDerivedType(typeof(CheckBoxComponent), "CheckBox")]
 [JsonDerivedType(typeof(SliderComponent), "Slider")]
+// ── Project-local extensions (not in v0.9 spec) ────────────────────────
 [JsonDerivedType(typeof(TableComponent), "Table")]
 [JsonDerivedType(typeof(SurfaceComponent), "Surface")]
 public abstract record A2UiComponent
