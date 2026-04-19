@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using A2Ui.Core.Bindings;
+using A2Ui.Core.Choices;
 using A2Ui.Core.Messages;
 
 namespace A2Ui.Core.Components;

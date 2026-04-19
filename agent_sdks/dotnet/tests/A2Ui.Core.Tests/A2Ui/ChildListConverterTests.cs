@@ -1,8 +1,10 @@
 using System.Text.Json;
 using A2Ui.Core.Bindings;
 using A2Ui.Core.Children;
+using A2Ui.Core.Choices;
 using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
+using A2Ui.Core.Tabs;
 
 namespace A2Ui.Core.Tests.A2Ui;
 

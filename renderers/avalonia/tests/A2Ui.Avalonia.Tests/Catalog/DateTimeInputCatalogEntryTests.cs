@@ -5,6 +5,7 @@ using A2Ui.Core.Bindings;
 using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
 using A2Ui.Core.Surfaces;
+using A2Ui.Core.Validation;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Xunit;

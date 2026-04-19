@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using A2Ui.Core.Messages;
+using A2Ui.Core.Tabs;
 
 namespace A2Ui.Core.Components;
 

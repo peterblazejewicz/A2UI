@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using A2Ui.Core.Bindings;
 
-namespace A2Ui.Core.Components;
+namespace A2Ui.Core.Tabs;
 
 /// <summary>Tab definition for Tabs component.</summary>
 public sealed record TabDefinition
