@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 using A2Ui.Core.Bindings;
 using A2Ui.Core.Messages;
 
-namespace A2Ui.Core.Components;
+namespace A2Ui.Core.Actions;
 
 /// <summary>Action: server event or client function call.</summary>
 public sealed record ComponentAction
