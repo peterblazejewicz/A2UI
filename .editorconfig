@@ -274,6 +274,14 @@ resharper_not_resolved_in_text_highlighting = none # Disable Resharper's "Not re
 resharper_check_namespace_highlighting = none # Disable Resharper's "Check namespace" highlighting
 resharper_object_creation_as_statement_highlighting = none # Disable Resharper's "Object creation as statement" highlighting
 
+# Resharper elevated rules — IDE-only (not enforced by dotnet build, only visible in Rider).
+# The .NET compiler and Avalonia's XAML compiler do not check for missing FallbackValue on
+# nullable binding paths; this warning is produced by Rider's XAML inspector. Elevating to
+# error inside Rider still catches the problem at edit/review time.
+# If Rider does not recognize this key name, hover the actual warning in Rider, pick
+# "Inspection options for..." and paste the displayed ID here in place of the guess.
+resharper_xaml_possible_null_reference_exception_highlighting = error # Possible 'null' value in the path of binding without fallback value
+
 ###############################
 # Naming Conventions          #
 ###############################
