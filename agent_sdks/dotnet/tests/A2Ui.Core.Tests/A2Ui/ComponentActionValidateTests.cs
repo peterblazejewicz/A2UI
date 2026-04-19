@@ -1,3 +1,4 @@
+using A2Ui.Core.Bindings;
 using A2Ui.Core.Components;
 using A2Ui.Core.Messages;
 
