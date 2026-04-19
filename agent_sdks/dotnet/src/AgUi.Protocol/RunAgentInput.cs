@@ -17,6 +17,12 @@ public sealed record RunAgentInput
     [JsonPropertyName("runId")]
     public required string RunId { get; init; }
 
+    /// <summary>
+    /// ID of the run that spawned this run; <see langword="null"/> for top-level runs.
+    /// </summary>
+    [JsonPropertyName("parentRunId")]
+    public string? ParentRunId { get; init; }
+
     /// <summary>Conversation messages to send to the agent.</summary>
     [JsonPropertyName("messages")]
     public required JsonElement[] Messages { get; init; }
